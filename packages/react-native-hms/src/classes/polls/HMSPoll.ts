@@ -1,15 +1,15 @@
-import type { HMSPeer } from '../HMSPeer';
 import type { HMSPollState } from './HMSPollState';
 import type { HMSPollQuestion } from './HMSPollQuestion';
 import type { HMSPollResult } from './HMSPollResult';
-
 import type { HMSRole } from '../HMSRole';
+import type { HMSPollUserTrackingMode } from './HMSPollUserTrackingMode';
+import type { HMSPollType } from './HMSPollType';
 
 export interface HMSPoll {
   /**
    The unique identifier of the poll.
    */
-  pollID: string;
+  pollId: string;
 
   /**
    The title of the poll.
@@ -19,47 +19,42 @@ export interface HMSPoll {
   /**
    The duration of the poll in seconds.
    */
-  duration: number;
+  duration?: number;
 
   /**
    A flag indicating whether the poll is anonymous or not.
    */
-  anonymous: boolean;
+  anonymous?: boolean;
 
   /**
    The tracking mode for user participation in the poll.
    */
-  // mode: HMSPollUserTrackingMode?
+  mode?: HMSPollUserTrackingMode;
 
   /**
    The roles that can vote in the poll.
    */
-  rolesThatCanVote: HMSRole[];
+  rolesThatCanVote?: HMSRole[];
 
   /**
    The roles that can view the poll responses.
    */
-  rolesThatCanViewResponses: HMSRole[];
-
-  /**
-   The number of questions in the poll.
-   */
-  questionCount?: number;
+  rolesThatCanViewResponses?: HMSRole[];
 
   /**
    The peer who started the poll.
    */
-  startedBy?: HMSPeer;
+  startedBy?: string;
 
   /**
    The peer who stopped the poll.
    */
-  stoppedBy?: HMSPeer;
+  stoppedBy?: string;
 
   /**
    The peer who created the poll.
    */
-  createdBy?: HMSPeer;
+  createdBy?: string;
 
   /**
    The date and time when the poll was started.
@@ -72,14 +67,19 @@ export interface HMSPoll {
   stoppedAt?: Date;
 
   /**
+   The date and time when the poll was created.
+   */
+  createdAt?: Date;
+
+  /**
    The type of the poll.
    */
-  // type: HMSPollType;
+  type: HMSPollType;
 
   /**
    The current state of the poll.
    */
-  state: HMSPollState;
+  state?: HMSPollState;
 
   /**
    The list of questions in the poll.
@@ -90,4 +90,14 @@ export interface HMSPoll {
    The result of the poll.
    */
   result?: HMSPollResult;
+
+  /**
+   The visiblity of the poll.
+   */
+  visibility?: boolean;
+
+  /**
+   * Is poll locked currently?
+   */
+  locked?: boolean;
 }

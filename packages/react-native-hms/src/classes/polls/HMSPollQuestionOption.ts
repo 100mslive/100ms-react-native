@@ -22,3 +22,11 @@ export interface HMSPollQuestionOption {
    */
   voteCount: number;
 }
+
+// Web Interace -
+// export interface HMSPollQuestionOption {
+//   index: number;
+//   text: string;
+//   weight?: number;
+//   voteCount?: number;
+// }

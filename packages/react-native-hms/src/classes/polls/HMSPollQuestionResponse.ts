@@ -55,3 +55,18 @@ export interface HMSPollQuestionResponse {
    */
   responseFinal?: boolean;
 }
+
+// Web Interface -
+// export interface HMSPollQuestionResponse {
+//   id?: string;
+//   questionIndex: number;
+//   peer?: HMSPollResponsePeerInfo;
+//   type?: HMSPollQuestionType;
+//   skipped?: boolean;
+//   option?: number;
+//   options?: number[];
+//   text?: string;
+//   update?: boolean; // SDK Needs to track whether we previously answered and set accordingly
+//   duration?: number; // Time it took to answer the question for leaderboard
+//   responseFinal?: boolean; // Indicates whether this is last update when fetching responses
+// }

@@ -17,3 +17,13 @@ export interface HMSPollQuestionAnswer {
    */
   options?: number[];
 }
+
+// Web Inteface -
+// export interface HMSPollQuestionAnswer {
+//   hidden: boolean; // if true answer will not be returned when poll is running
+//   option?: number; // option index for correct answer, in case of single choice
+//   options?: number[]; // list of options that shoould be in answer
+//   text?: string; // answer text for answer.
+//   case?: boolean; // if false case is ignored when comparing.
+//   trim?: boolean; // if true, empty space is trimmer from start and end of asnwer.
+// }

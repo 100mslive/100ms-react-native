@@ -10,12 +10,12 @@ export interface HMSPollResponsePeerInfo {
   /**
    The peer ID associated with the response.
    */
-  peerID?: string;
+  peerId?: string;
 
   /**
    The user ID associated with the peer.
    */
-  customerUserID?: string;
+  customerUserId?: string;
 
   /**
    The username associated with the peer.

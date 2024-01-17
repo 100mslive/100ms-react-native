@@ -99,6 +99,7 @@ export { HMSRecordingState } from './classes/HMSRecordingState';
 export { HMSPollBuilder } from './classes/polls/HMSPollBuilder';
 export { HMSPollQuestionBuilder } from './classes/polls/HMSPollQuestionBuilder';
 export { HMSPollQuestionType } from './classes/polls/HMSPollQuestionType';
+export { HMSPollType } from './classes/polls/HMSPollType';
 
 import { HMSSDK as HmsManager } from './classes/HMSSDK';
 
