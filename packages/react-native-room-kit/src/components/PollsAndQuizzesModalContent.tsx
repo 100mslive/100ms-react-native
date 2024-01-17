@@ -34,6 +34,9 @@ export const PollsAndQuizzesModalContent: React.FC<
       : null
   );
   const pollsStage = useSelector((state: RootState) => state.polls.stage);
+  const launchingPoll = useSelector(
+    (state: RootState) => state.polls.launchingPoll
+  );
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
     headerText: {
@@ -60,8 +63,9 @@ export const PollsAndQuizzesModalContent: React.FC<
           {headerTitle ? (
             <TouchableOpacity
               onPress={handleBackPress}
+              disabled={launchingPoll}
               hitSlop={styles.closeIconHitSlop}
-              style={styles.backIcon}
+              style={[styles.backIcon, launchingPoll ? { opacity: 0.4 } : null]}
             >
               <ChevronIcon direction="left" />
             </TouchableOpacity>
@@ -94,7 +98,7 @@ export const PollsAndQuizzesModalContent: React.FC<
         {pollsStage === CreatePollStages.POLL_CONFIG ? (
           <CreatePoll />
         ) : pollsStage === CreatePollStages.POLL_QUESTION_CONFIG ? (
-          <PollQuestions />
+          <PollQuestions dismissModal={dismissModal} />
         ) : null}
       </View>
 

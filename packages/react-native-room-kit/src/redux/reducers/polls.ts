@@ -25,6 +25,7 @@ type IntialStateType = {
   questions: PollQuestionUI[];
   deleteConfirmationVisible: boolean;
   selectedPollQuestionIndex: number | null;
+  launchingPoll: boolean;
 };
 
 const INITIAL_STATE: IntialStateType = {
@@ -37,6 +38,7 @@ const INITIAL_STATE: IntialStateType = {
   questions: [getDefaultQuestionObj()],
   deleteConfirmationVisible: false,
   selectedPollQuestionIndex: null,
+  launchingPoll: false,
 };
 
 const hmsStatesReducer = (
@@ -207,6 +209,16 @@ const hmsStatesReducer = (
             : question
         ),
       };
+    case PollsStateActionTypes.SET_LAUNCHING_POLL:
+      return {
+        ...state,
+        launchingPoll: action.launching,
+        questions: action.launching
+          ? state.questions.map((question) => ({ ...question, saved: true }))
+          : state.questions,
+      };
+    case PollsStateActionTypes.CLEAR_POLLS_STATE:
+      return INITIAL_STATE;
     default:
       return state;
   }

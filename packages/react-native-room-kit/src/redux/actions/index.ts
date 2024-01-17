@@ -42,6 +42,8 @@ import type {
   SetQuestionSkippable,
   SetQuestionResponseEditable,
   SetQuestionSavedAction,
+  SetLaunchingPollAction,
+  ClearPollsStateAction,
 } from '../actionTypes';
 import { MeetingState } from '../../types';
 import type { ChatState, Notification, PinnedMessage } from '../../types';
@@ -571,4 +573,15 @@ export const setPollQuestionSaved = (
   type: PollsStateActionTypes.SET_QUESTION_SAVED,
   questionIndex,
   saved,
+});
+
+export const setLaunchingPoll = (
+  launching: SetLaunchingPollAction['launching']
+): SetLaunchingPollAction => ({
+  type: PollsStateActionTypes.SET_LAUNCHING_POLL,
+  launching,
+});
+
+export const clearPollsState = (): ClearPollsStateAction => ({
+  type: PollsStateActionTypes.CLEAR_POLLS_STATE,
 });

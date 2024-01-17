@@ -7,6 +7,8 @@ export class HMSPermissions {
   browserRecording?: boolean;
   hlsStreaming?: boolean;
   rtmpStreaming?: boolean;
+  pollRead?: boolean;
+  pollWrite?: boolean;
 
   constructor(params?: {
     endRoom?: boolean;
@@ -17,6 +19,8 @@ export class HMSPermissions {
     browserRecording?: boolean;
     hlsStreaming?: boolean;
     rtmpStreaming?: boolean;
+    pollRead?: boolean;
+    pollWrite?: boolean;
   }) {
     if (params) {
       this.endRoom = params.endRoom;
@@ -27,6 +31,8 @@ export class HMSPermissions {
       this.browserRecording = params.browserRecording;
       this.hlsStreaming = params.hlsStreaming;
       this.rtmpStreaming = params.rtmpStreaming;
+      this.pollRead = params.pollRead;
+      this.pollWrite = params.pollWrite;
     }
   }
 }
