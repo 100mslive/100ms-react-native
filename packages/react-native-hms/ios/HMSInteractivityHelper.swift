@@ -32,7 +32,7 @@ class HMSInteractivityHelper {
             }
         }
 
-        if let pollID = data["pollID"] as? String {
+        if let pollID = data["pollId"] as? String {
             _ = pollBuilder.withPollID(pollID)
         }
 
@@ -63,42 +63,8 @@ class HMSInteractivityHelper {
 
     static func addQuestionsToPollBuilder(questions: [NSDictionary], pollBuilder: HMSPollBuilder) {
         questions.forEach { question in
-            guard let questionType = question["rntype"] as? String else {
-                return
-            }
-            switch questionType {
-            case "singleChoice":
-                if let title = question["title"] as? String,
-                    let options = question["options"] as? [String] {
-                    _ = pollBuilder.addSingleChoiceQuestion(with: title, options: options)
-                } else {
-                    print("\(#function) singleChoiceQuestion fields not available!")
-                }
-            case "multipleChoice":
-                if let title = question["title"] as? String,
-                    let options = question["options"] as? [String] {
-                    _ = pollBuilder.addMultiChoiceQuestion(with: title, options: options)
-                } else {
-                    print("\(#function) multiChoiceQuestion fields not available!")
-                }
-            case "shortAnswer":
-                if let title = question["title"] as? String {
-                    _ = pollBuilder.addShortAnswerQuestion(with: title)
-                } else {
-                    print("\(#function) shortAnswerQuestion fields not available!")
-                }
-            case "longAnswer":
-                if let title = question["title"] as? String {
-                    _ = pollBuilder.addLongAnswerQuestion(with: title)
-                } else {
-                    print("\(#function) longAnswerQuestion fields not available!")
-                }
-            case "HMSPollQuestionBuilder":
-                let pollQuestionBuilder = self.getPollQuestionBuilderFromDict(question)
-                _ = pollBuilder.addQuestion(with: pollQuestionBuilder)
-            default:
-                print("Unknown Question type")
-            }
+            let pollQuestionBuilder = self.getPollQuestionBuilderFromDict(question)
+            _ = pollBuilder.addQuestion(with: pollQuestionBuilder)
         }
     }
 
@@ -109,7 +75,7 @@ class HMSInteractivityHelper {
             _ = pollQuestionBuilder.withAnswerHidden(answerHidden: answerHidden)
         }
 
-        if let canBeSkipped = data["canBeSkipped"] as? Bool {
+        if let canBeSkipped = data["skippable"] as? Bool {
             _ = pollQuestionBuilder.withCanBeSkipped(canBeSkipped)
         }
 
@@ -133,7 +99,7 @@ class HMSInteractivityHelper {
             _ = pollQuestionBuilder.withMinLength(minLength: minLength)
         }
 
-        if let title = data["title"] as? String {
+        if let title = data["text"] as? String {
             _ = pollQuestionBuilder.withTitle(title)
         }
 
@@ -158,7 +124,7 @@ class HMSInteractivityHelper {
 
     static func addOptionsToPollQuestionBuilder(options: [NSDictionary], pollQuestionBuilder: HMSPollQuestionBuilder) {
         options.forEach { option in
-            guard let optionTitle = option["title"] as? String else {
+            guard let optionTitle = option["text"] as? String else {
                 print("\(#function) option title field not available!")
                 return
             }
