@@ -1,6 +1,5 @@
 package com.reactnativehmssdk
 
-import android.util.Log
 import com.facebook.react.bridge.ReadableMap
 import live.hms.video.polls.HMSPollBuilder
 import live.hms.video.polls.HMSPollQuestionBuilder
@@ -114,39 +113,10 @@ object HMSInteractivityHelper {
     questions: ArrayList<HashMap<String, Any>>,
     pollBuilder: HMSPollBuilder.Builder,
   ) {
-    for (item in questions) {
-      val questionType = item["rntype"] as? String
-      if (questionType != null) {
-        when (questionType) {
-          "singleChoice" -> {
-            addSingleChoiceQuestion(item, pollBuilder)
-          }
-
-          "multipleChoice" -> {
-            addMultipleChoiceQuestion(item, pollBuilder)
-          }
-
-          "shortAnswer" -> {
-            addShortAnswerQuestion(item, pollBuilder)
-          }
-
-          "longAnswer" -> {
-            addLongAnswerQuestion(item, pollBuilder)
-          }
-
-          "HMSPollQuestionBuilder" -> {
-            if (item["type"] != null) {
-              val type = item["type"] as? Double
-              type?.let {
-                addPollBuilderQuestion(getQuestionType(type.toInt()), item, pollBuilder)
-              }
-            }
-          }
-
-          else -> {
-            Log.e("HMSInteractivityHelper", "Unknown question type")
-          }
-        }
+    for (question in questions) {
+      val type = question["type"] as? Double
+      type?.let {
+        addPollBuilderQuestion(getQuestionType(it.toInt()), question, pollBuilder)
       }
     }
   }
@@ -237,7 +207,7 @@ object HMSInteractivityHelper {
       questionBuilder.withAnswerHidden(answerHidden)
     }
 
-    val canBeSkipped = item["canBeSkipped"] as? Boolean
+    val canBeSkipped = item["skippable"] as? Boolean
     if (canBeSkipped != null) {
       questionBuilder.withCanBeSkipped(canBeSkipped)
     }
@@ -262,7 +232,7 @@ object HMSInteractivityHelper {
       questionBuilder.withMinLength(minLength.toLong())
     }
 
-    val title = item["title"] as? String
+    val title = item["text"] as? String
     if (title != null) {
       questionBuilder.withTitle(title)
     }
@@ -293,12 +263,12 @@ object HMSInteractivityHelper {
         val isCorrect = option["isCorrect"] as? Boolean
         if (isCorrect != null) {
           questionBuilder.addQuizOption(
-            option["title"] as? String ?: "",
+            option["text"] as? String ?: "",
             isCorrect,
           )
         }
       } else {
-        questionBuilder.addOption(option["title"] as? String ?: "")
+        questionBuilder.addOption(option["text"] as? String ?: "")
       }
     }
   }
