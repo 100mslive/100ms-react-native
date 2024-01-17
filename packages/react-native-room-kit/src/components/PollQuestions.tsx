@@ -77,58 +77,25 @@ export const PollQuestions: React.FC<PollQuestionsProps> = ({
         console.log('Incorrect data!');
         return;
       }
-      // const pollBuilder = new HMSPollBuilder();
-
-      // pollBuilder.withTitle(pollsData.pollName);
-
-      // if (pollsData.pollConfig.voteCountHidden) {
-      //   if (localPeerRole) {
-      //     pollBuilder.withRolesThatCanViewResponses([localPeerRole]);
-      //   } else {
-      //     console.error('Local Peer role is undefined!');
-      //   }
-      // }
-
-      // Make results anonymous set user tracking mode to none
-      // if (pollsData.pollConfig.resultsAnonymous) {
-      //   pollBuilder.withUserTrackingMode(HMSPollUserTrackingMode)
-      //   // DOUBT: How to handle `pollBuilder.withUserTrackingMode()` ?
-      // }
-
-      // pollsData.questions.forEach((question) => {
-      //   const pollQuestionBuilder = new HMSPollQuestionBuilder();
-      //   pollQuestionBuilder.withType(question.type);
-      //   pollQuestionBuilder.withTitle(question.title);
-
-      //   pollQuestionBuilder.withCanBeSkipped(question.skippable);
-
-      //   // DOUBT: How to handle `question.responseEditable` ?
-
-      //   if (question.options) {
-      //     question.options.forEach((option) => {
-      //       pollQuestionBuilder.addOption(option);
-      //     });
-      //   }
-      //   pollBuilder.addQuestion(pollQuestionBuilder);
-      // });
-
       dispatch(setLaunchingPoll(true));
+
       const result = await hmsInstance.interactivityCenter.startPoll({
-        title: 'Custom Poll',
+        title: pollsData.pollName,
+        rolesThatCanViewResponses:
+          pollsData.pollConfig.voteCountHidden && localPeerRole
+            ? [localPeerRole]
+            : undefined,
         type: HMSPollType.poll,
-        questions: [
-          {
-            type: HMSPollQuestionType.multipleChoice,
-            skippable: true,
-            text: 'How will win?',
-            options: [
-              { text: 'India' },
-              { text: 'Australia' },
-              { text: 'China' },
-            ],
-          },
-        ],
+        questions: pollsData.questions.map((question) => ({
+          // DOUBT: How to handle `question.responseEditable` ?
+          options: question.options?.map((option) => ({ text: option })),
+          skippable: question.skippable,
+          text: question.title,
+          type: question.type,
+        })),
+        // mode: null, // `pollsData.pollConfig.resultsAnonymous` Make results anonymous set user tracking mode to none
       });
+
       console.log('quickStartPoll result > ', result);
       dismissModal();
       dispatch(clearPollsState());
