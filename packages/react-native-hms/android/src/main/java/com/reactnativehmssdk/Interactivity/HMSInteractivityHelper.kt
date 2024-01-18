@@ -24,11 +24,11 @@ object HMSInteractivityHelper {
       pollBuilder.withDuration(data.getInt("duration").toLong())
     }
 
-    if (data.hasKey("userTrackingMode")) {
+    if (data.hasKey("mode")) {
       pollBuilder.withUserTrackingMode(getUserTrackingMode(data))
     }
 
-    if (data.hasKey("category")) {
+    if (data.hasKey("type")) {
       pollBuilder.withCategory(getPollCategory(data))
     } else {
       pollBuilder.withCategory(HmsPollCategory.POLL)
@@ -74,16 +74,16 @@ object HMSInteractivityHelper {
   }
 
   private fun getUserTrackingMode(data: ReadableMap): HmsPollUserTrackingMode {
-    return when (data.getInt("userTrackingMode")) {
-      0 -> HmsPollUserTrackingMode.USER_ID
-      1 -> HmsPollUserTrackingMode.PEER_ID
+    return when (data.getInt("mode")) {
+      0 -> HmsPollUserTrackingMode.PEER_ID
+      1 -> HmsPollUserTrackingMode.USER_ID
       2 -> HmsPollUserTrackingMode.USERNAME
-      else -> HmsPollUserTrackingMode.USER_ID
+      else -> HmsPollUserTrackingMode.PEER_ID
     }
   }
 
   private fun getPollCategory(data: ReadableMap): HmsPollCategory {
-    return when (data.getInt("category")) {
+    return when (data.getInt("type")) {
       0 -> HmsPollCategory.POLL
       1 -> HmsPollCategory.QUIZ
       else -> HmsPollCategory.POLL
@@ -202,19 +202,19 @@ object HMSInteractivityHelper {
   ) {
     val questionBuilder = HMSPollQuestionBuilder.Builder(type)
 
-    val answerHidden = item["answerHidden"] as? Boolean
-    if (answerHidden != null) {
-      questionBuilder.withAnswerHidden(answerHidden)
-    }
+//    val answerHidden = item["answerHidden"] as? Boolean
+//    if (answerHidden != null) {
+//      questionBuilder.withAnswerHidden(answerHidden)
+//    }
 
     val canBeSkipped = item["skippable"] as? Boolean
     if (canBeSkipped != null) {
       questionBuilder.withCanBeSkipped(canBeSkipped)
     }
 
-    val canChangeResponse = item["canChangeResponse"] as? Boolean
+    val canChangeResponse = item["once"] as? Boolean
     if (canChangeResponse != null) {
-      questionBuilder.withCanChangeResponse(canChangeResponse)
+      questionBuilder.withCanChangeResponse(!canChangeResponse)
     }
 
     val duration = item["duration"] as? Int
@@ -222,12 +222,12 @@ object HMSInteractivityHelper {
       questionBuilder.withDuration(duration.toLong())
     }
 
-    val maxLength = item["maxLength"] as? Int
+    val maxLength = item["answerMaxLen"] as? Int
     if (maxLength != null) {
       questionBuilder.withMaxLength(maxLength.toLong())
     }
 
-    val minLength = item["minLength"] as? Int
+    val minLength = item["answerMinLen"] as? Int
     if (minLength != null) {
       questionBuilder.withMinLength(minLength.toLong())
     }
@@ -260,7 +260,7 @@ object HMSInteractivityHelper {
       val option = options[i]
 
       if (option["isCorrect"] != null) {
-        val isCorrect = option["isCorrect"] as? Boolean
+        val isCorrect = option["isCorrectAnswer"] as? Boolean
         if (isCorrect != null) {
           questionBuilder.addQuizOption(
             option["text"] as? String ?: "",
