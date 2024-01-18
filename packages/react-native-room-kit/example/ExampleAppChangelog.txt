@@ -1,6 +1,6 @@
 Board: https://100ms.atlassian.net/jira/software/projects/RN/boards/33
 
-- Polls: Create Poll/Quiz Initial Screen
+- Polls: Create Polls Initial Screen
 https://100ms.atlassian.net/browse/RN-197
 
 Room Kit: 1.0.9
