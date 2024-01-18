@@ -15,18 +15,10 @@ export interface HMSPollQuestionOption {
   /**
    The weight of the option in scoring.
    */
-  weight: number;
+  weight: number; // (optional on web)
 
   /**
    The count of votes received for the option. `0` is the default value.
    */
-  voteCount: number;
+  voteCount: number; // (optional on web)
 }
-
-// Web Interace -
-// export interface HMSPollQuestionOption {
-//   index: number;
-//   text: string;
-//   weight?: number;
-//   voteCount?: number;
-// }

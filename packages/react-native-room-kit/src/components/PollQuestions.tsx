@@ -81,19 +81,19 @@ export const PollQuestions: React.FC<PollQuestionsProps> = ({
 
       const result = await hmsInstance.interactivityCenter.startPoll({
         title: pollsData.pollName,
+        type: HMSPollType.poll,
         rolesThatCanViewResponses:
           pollsData.pollConfig.voteCountHidden && localPeerRole
             ? [localPeerRole]
             : undefined,
-        type: HMSPollType.poll,
+        // mode: HMSPollUserTrackingMode.customerUserID, // mode: null, // `pollsData.pollConfig.resultsAnonymous` Make results anonymous set user tracking mode to none
         questions: pollsData.questions.map((question) => ({
-          // DOUBT: How to handle `question.responseEditable` ?
-          options: question.options?.map((option) => ({ text: option })),
           skippable: question.skippable,
+          once: !question.responseEditable,
           text: question.title,
           type: question.type,
+          options: question.options?.map((option) => ({ text: option })),
         })),
-        // mode: null, // `pollsData.pollConfig.resultsAnonymous` Make results anonymous set user tracking mode to none
       });
 
       console.log('quickStartPoll result > ', result);

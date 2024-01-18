@@ -67,11 +67,6 @@ export interface HMSPoll {
   stoppedAt?: Date;
 
   /**
-   The date and time when the poll was created.
-   */
-  createdAt?: Date;
-
-  /**
    The type of the poll.
    */
   type: HMSPollType;
@@ -91,13 +86,13 @@ export interface HMSPoll {
    */
   result?: HMSPollResult;
 
-  /**
-   The visiblity of the poll.
-   */
-  visibility?: boolean;
+  // /**
+  //  The visiblity of the poll. (Not available on iOS)
+  //  */
+  // visibility?: boolean;
 
-  /**
-   * Is poll locked currently?
-   */
-  locked?: boolean;
+  // /**
+  //  * Is poll locked currently? (Not available on iOS)
+  //  */
+  // locked?: boolean;
 }
