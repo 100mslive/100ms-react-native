@@ -24,11 +24,11 @@ class HMSInteractivityHelper {
             _ = pollBuilder.withDuration(duration)
         }
 
-        if let category = data["category"] as? Int {
+        if let category = data["type"] as? Int {
             if let pollCategory = HMSPollCategory.init(rawValue: category) {
                 _ = pollBuilder.withCategory(pollCategory)
             } else {
-                print("unable to create `HMSPollCategory` instance from given `category` value: \(category)")
+                print("unable to create `HMSPollCategory` instance from given `type` value: \(category)")
             }
         }
 
@@ -46,7 +46,7 @@ class HMSInteractivityHelper {
             _ = pollBuilder.withRolesThatCanVote(roles)
         }
 
-        if let userTrackingMode = data["userTrackingMode"] as? Int {
+        if let userTrackingMode = data["mode"] as? Int {
             if let pollUserTrackingMode = HMSPollUserTrackingMode.init(rawValue: userTrackingMode) {
                 _ = pollBuilder.withUserTrackingMode(pollUserTrackingMode)
             } else {
@@ -71,16 +71,17 @@ class HMSInteractivityHelper {
     static func getPollQuestionBuilderFromDict(_ data: NSDictionary) -> HMSPollQuestionBuilder {
         let pollQuestionBuilder = HMSPollQuestionBuilder()
 
-        if let answerHidden = data["answerHidden"] as? Bool {
-            _ = pollQuestionBuilder.withAnswerHidden(answerHidden: answerHidden)
-        }
+        // // Commented because as of now, not passing any field from JS to use `withAnswerHidden` method of `HMSPollQuestionBuilder`
+        // if let answerHidden = data["answerHidden"] as? Bool {
+        //     _ = pollQuestionBuilder.withAnswerHidden(answerHidden: answerHidden)
+        // }
 
         if let canBeSkipped = data["skippable"] as? Bool {
             _ = pollQuestionBuilder.withCanBeSkipped(canBeSkipped)
         }
 
-        if let canChangeResponse = data["canChangeResponse"] as? Bool {
-            _ = pollQuestionBuilder.withCanChangeResponse(canChangeResponse: canChangeResponse)
+        if let once = data["once"] as? Bool {
+            _ = pollQuestionBuilder.withCanChangeResponse(canChangeResponse: !once)
         }
 
         if let duration = data["duration"] as? Int {
@@ -91,11 +92,11 @@ class HMSInteractivityHelper {
             _ = pollQuestionBuilder.withIndex(index)
         }
 
-        if let maxLength = data["maxLength"] as? Int {
+        if let maxLength = data["answerMaxLen"] as? Int {
             _ = pollQuestionBuilder.withMaxLength(maxLength: maxLength)
         }
 
-        if let minLength = data["minLength"] as? Int {
+        if let minLength = data["answerMinLen"] as? Int {
             _ = pollQuestionBuilder.withMinLength(minLength: minLength)
         }
 
@@ -129,7 +130,7 @@ class HMSInteractivityHelper {
                 return
             }
 
-            if let isCorrect = option["isCorrect"] as? Bool {
+            if let isCorrect = option["isCorrectAnswer"] as? Bool {
                 _ = pollQuestionBuilder.addQuizOption(with: optionTitle, isCorrect: isCorrect)
             } else {
                 _ = pollQuestionBuilder.addOption(with: optionTitle)
