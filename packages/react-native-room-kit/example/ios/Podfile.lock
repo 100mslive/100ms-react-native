@@ -403,7 +403,7 @@ PODS:
     - React-Core
   - RNFlashList (1.6.3):
     - React-Core
-  - RNGestureHandler (2.14.0):
+  - RNGestureHandler (2.14.1):
     - React-Core
   - RNPermissions (3.4.0):
     - React-Core
@@ -710,7 +710,7 @@ SPEC CHECKSUMS:
   RNCMaskedView: 949696f25ec596bfc697fc88e6f95cf0c79669b6
   RNDeviceInfo: 1e3f62b9ec32f7754fac60bd06b8f8a27124e7f0
   RNFlashList: 4b4b6b093afc0df60ae08f9cbf6ccd4c836c667a
-  RNGestureHandler: 4279931048471f17faf46d912b2e96e10f1da99b
+  RNGestureHandler: e98441928705d9d1184b599d7c1c6df2dd4f7724
   RNPermissions: eac721f71748c4472d6e876038270b75397d6ee7
   RNReanimated: 68ce187141f6e31aaa0726072b02faac962d7862
   RNScreens: 85d3880b52d34db7b8eeebe2f1a0e807c05e69fa
