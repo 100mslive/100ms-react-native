@@ -1698,21 +1698,22 @@ class HMSRNSDK(
     hmsSDK?.setAudioDeviceChangeListener(
       object : HMSAudioManager.AudioManagerDeviceChangeListener {
         override fun onAudioDeviceChanged(
-          device: HMSAudioManager.AudioDevice?,
-          audioDevicesList: Set<HMSAudioManager.AudioDevice>?,
+          selectedAudioDevice: HMSAudioManager.AudioDevice,
+          availableAudioDevices: Set<HMSAudioManager.AudioDevice>,
         ) {
           if (eventsEnableStatus["ON_AUDIO_DEVICE_CHANGED"] != true) {
             return
           }
+
           val data: WritableMap = Arguments.createMap()
-          data.putString("device", device?.name)
-          data.putArray("audioDevicesList", HMSHelper.getAudioDevicesSet(audioDevicesList))
+          data.putString("device", selectedAudioDevice.name)
+          data.putArray("audioDevicesList", HMSHelper.getAudioDevicesSet(availableAudioDevices))
           data.putString("id", id)
           delegate.emitEvent("ON_AUDIO_DEVICE_CHANGED", data)
         }
 
-        override fun onError(error: HMSException) {
-          self.emitHMSError(error)
+        override fun onError(e: HMSException) {
+          self.emitHMSError(e)
         }
       },
     )
