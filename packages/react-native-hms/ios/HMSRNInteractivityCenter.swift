@@ -10,9 +10,11 @@ import HMSSDK
 
 class HMSRNInteractivityCenter {
     weak var hmssdk: HMSSDK?
+    weak var hmsrnsdk: HMSRNSDK?
 
-    init(hmssdk: HMSSDK) {
+    init(hmssdk: HMSSDK, hmsrnsdk: HMSRNSDK?) {
         self.hmssdk = hmssdk
+        self.hmsrnsdk = hmsrnsdk
 
         hmssdk.interactivityCenter.addPollUpdateListner { [weak self] updatedPoll, update in
             guard let self = self else { return }
@@ -29,6 +31,14 @@ class HMSRNInteractivityCenter {
             @unknown default:
             break
             }
+            guard let enabledEvents = self.hmsrnsdk?.eventsEnableStatus, enabledEvents[HMSConstants.ON_POLL_UPDATE] == true else {
+                print("HMSConstants.ON_POLL_UPDATE event is not enabled")
+                return
+            }
+            self.hmsrnsdk?.delegate?.emitEvent(
+                HMSConstants.ON_POLL_UPDATE,
+                ["update": update.rawValue, "updatedPoll": HMSInteractivityDecoder.getHMSPoll(updatedPoll)]
+            )
       }
     }
 
