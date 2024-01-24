@@ -32,14 +32,8 @@
 	<true/>
 	<key>NSAppTransportSecurity</key>
 	<dict>
-		<key>NSExceptionDomains</key>
-		<dict>
-			<key>localhost</key>
-			<dict>
-				<key>NSExceptionAllowsInsecureHTTPLoads</key>
-				<true/>
-			</dict>
-		</dict>
+    <key>NSAllowsLocalNetworking</key>
+    <true/>
 	</dict>
 	<key>NSCameraUsageDescription</key>
 	<string>Example App wants to use your camera</string>
