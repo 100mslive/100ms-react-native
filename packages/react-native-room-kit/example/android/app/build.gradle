@@ -159,10 +159,10 @@ android {
             storePassword 'android'
             keyAlias 'androiddebugkey'
             keyPassword 'android'
-            v1SigningEnabled false
-            v2SigningEnabled true
-//            enableV1Signing false
-//            enableV2Signing true
+//            v1SigningEnabled false
+//            v2SigningEnabled true
+            enableV1Signing false
+            enableV2Signing true
         }
 
     }
