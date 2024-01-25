@@ -34,12 +34,14 @@
         android:exported="false"
         android:name="com.reactnativehmssdk.HmsScreenshareActivity"
         android:label="@string/app_name"
-        android:screenOrientation="portrait" />
+        android:screenOrientation="portrait"
+        android:excludeFromRecents="true" />
       <activity
         android:exported="false"
         android:name="com.reactnativehmssdk.HMSAudioshareActivity"
         android:label="@string/app_name"
-        android:screenOrientation="portrait" />
+        android:screenOrientation="portrait"
+        android:excludeFromRecents="true" />
       <activity
         android:exported="true"
         android:name=".MainActivity"
