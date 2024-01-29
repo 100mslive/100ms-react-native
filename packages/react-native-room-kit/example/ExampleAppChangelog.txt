@@ -1,5 +1,8 @@
 Board: https://100ms.atlassian.net/jira/software/projects/RN/boards/33
 
+- Resolved issues reported by VAPT testing
+https://100ms.atlassian.net/browse/RN-219
+
 - Polls: Create Polls Initial Screen
 https://100ms.atlassian.net/browse/RN-197
 
