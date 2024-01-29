@@ -258,7 +258,11 @@ const RegularTiles = React.forwardRef<
       <FlatList
         ref={flatlistRef}
         horizontal={true}
-        style={Platform.OS === 'ios' ? { maxHeight: safeHeight - 16 } : null}
+        style={
+          Platform.OS === 'ios'
+            ? { maxHeight: safeHeight - (isLandscapeOrientation ? 0 : 16) }
+            : null
+        }
         data={pairedPeers}
         initialNumToRender={1}
         maxToRenderPerBatch={1}
