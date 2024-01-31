@@ -22,25 +22,6 @@ export const HMSPinchGesture: React.FC<HMSPinchGestureProps> = ({
   const dimensions = useSharedValue({ width: 0, height: 0 });
 
   /**
-   * - Tracking number of active pointers in pinch gesture
-   * "Focal point" is used as an origin point for scaling the view
-   * when active number of pointers change, focal point is also changed causing a flicker effect
-   *
-   * To remove flicker effect, when `numberOfPointers` change, we calculate the amount of change in focal point
-   * and use the `(new focal point) + (amount of change in focal point)` to apply transformations
-   */
-  const numberOfPointers = useSharedValue(0);
-
-  /**
-   * - Current focal point to apply scaling
-   * "Focal point" is used as an origin point for scaling the view
-   * > We transform the "center of View" to the "focal point", "apply scaling" and then "undo the transformation"
-   */
-  const focalPoint = useSharedValue({ x: 0, y: 0 });
-
-  const adjustedFocalPoint = useSharedValue({ x: 0, y: 0 });
-
-  /**
    * - focal point captured at the start of the pinch gesture
    * We use this point to calculate the amount of translation of focal point
    * `
@@ -50,17 +31,6 @@ export const HMSPinchGesture: React.FC<HMSPinchGestureProps> = ({
    * we can use this calculated value as a translation value, similar to what we get in `pan gesture`
    */
   const focalPointAtStart = useSharedValue({ x: 0, y: 0 });
-
-  /**
-   * - x,y coords representing the amount by which focal point shifted due to change in `numberOfPointers`
-   * e.g. focal point when `numberOfPointers = 2`            - (20, 100)
-   *      focal point when `numberOfPointers` reduced to `1` - (40, 300)
-   *
-   *      focal point got shifted by `20` points on x-axis and `200` points on y-axis. Thus, `focalShift = (20, 200)`
-   *
-   * Usage: TODO
-   */
-  const focalShift = useSharedValue({ x: 0, y: 0 });
 
   const scale = useSharedValue(1);
   const savedScale = useSharedValue(1);
@@ -74,7 +44,7 @@ export const HMSPinchGesture: React.FC<HMSPinchGestureProps> = ({
         height: nativeEvent.layout.height,
       };
     },
-    []
+    [dimensions.value]
   );
 
   const panGesture = Gesture.Pan()
@@ -162,20 +132,6 @@ export const HMSPinchGesture: React.FC<HMSPinchGestureProps> = ({
       { translateY: translation.value.y },
       { scale: scale.value },
     ],
-  }));
-
-  const focalOrigindotStyle = useAnimatedStyle(() => ({
-    transform: [
-      { translateX: focalPointAtStart.value.x },
-      { translateY: focalPointAtStart.value.y },
-    ],
-    // top: focalPointAtStart.value.x,
-    // left: focalPointAtStart.value.y,
-  }));
-
-  const focalTransformeddotStyle = useAnimatedStyle(() => ({
-    top: focalPointAtStart.value.x * scale.value,
-    left: focalPointAtStart.value.y * scale.value,
   }));
 
   return (
