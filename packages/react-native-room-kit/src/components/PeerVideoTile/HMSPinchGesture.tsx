@@ -56,25 +56,12 @@ export const HMSPinchGesture: React.FC<HMSPinchGestureProps> = ({
       const swipeOnXAxis = e.translationX + savedTranslation.value.x;
       const swipeOnYAxis = e.translationY + savedTranslation.value.y;
 
-      // console.log('\n');
-      // console.log('View X > ', dimensions.value.width * savedScale.value);
-      // console.log('View Y > ', dimensions.value.height * savedScale.value);
-      // console.log('Screen X > ', dimensions.value.width);
-      // console.log('Screen Y > ', dimensions.value.height);
-      // console.log('Gap between View X & Screen X > ', (dimensions.value.width * savedScale.value) - dimensions.value.width);
-      // console.log('Gap between View Y & Screen Y > ', (dimensions.value.height * savedScale.value) - dimensions.value.height);
-
       const diffX =
         (dimensions.value.width * savedScale.value - dimensions.value.width) /
         2;
       const diffY =
         (dimensions.value.height * savedScale.value - dimensions.value.height) /
         2;
-      // console.log('diffX > ', diffX); // 60
-      // console.log('diffY > ', diffY);
-      // console.log('swipeOnXAxis > ', swipeOnXAxis); // 47
-      // console.log('swipeOnYAxis > ', swipeOnYAxis);
-      // console.log('\n');
 
       translation.value = {
         x: Math.max(Math.min(swipeOnXAxis, diffX), -diffX),
@@ -91,9 +78,6 @@ export const HMSPinchGesture: React.FC<HMSPinchGestureProps> = ({
     })
     .onUpdate((e) => {
       scale.value = Math.min(Math.max(savedScale.value * e.scale, 0.94), 5.2);
-
-      // const offsetX = focalPointAtStart.value.x * (focalPointAtStart.value.x > dimensions.value.width / 2 ? -1 : 1);
-      // const offsetY = focalPointAtStart.value.y * (focalPointAtStart.value.y > dimensions.value.height / 2 ? -1 : 1);
 
       const offsetX = dimensions.value.width / 2 - focalPointAtStart.value.x;
       const offsetY = dimensions.value.height / 2 - focalPointAtStart.value.y;
@@ -143,8 +127,6 @@ export const HMSPinchGesture: React.FC<HMSPinchGestureProps> = ({
         >
           {children}
         </Animated.View>
-        {/* <Animated.View style={[{ position: 'absolute', width: 4, height: 4, backgroundColor: 'red', transform: [{translateX: -2}, {translateY: -2}] }, focalOrigindotStyle]} />
-        <Animated.View style={[{ position: 'absolute', width: 4, height: 4, backgroundColor: 'green', transform: [{translateX: -2}, {translateY: -2}] }, focalTransformeddotStyle]} /> */}
       </Animated.View>
     </GestureDetector>
   );
