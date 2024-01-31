@@ -44,7 +44,7 @@ export const HMSPinchGesture: React.FC<HMSPinchGestureProps> = ({
         height: nativeEvent.layout.height,
       };
     },
-    [dimensions.value]
+    []
   );
 
   const panGesture = Gesture.Pan()
