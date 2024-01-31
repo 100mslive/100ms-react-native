@@ -80,9 +80,35 @@ export const HMSPinchGesture: React.FC<HMSPinchGestureProps> = ({
   const panGesture = Gesture.Pan()
     .maxPointers(1)
     .onUpdate((e) => {
+      if (savedScale.value <= 1) {
+        return;
+      }
+      const swipeOnXAxis = e.translationX + savedTranslation.value.x;
+      const swipeOnYAxis = e.translationY + savedTranslation.value.y;
+
+      // console.log('\n');
+      // console.log('View X > ', dimensions.value.width * savedScale.value);
+      // console.log('View Y > ', dimensions.value.height * savedScale.value);
+      // console.log('Screen X > ', dimensions.value.width);
+      // console.log('Screen Y > ', dimensions.value.height);
+      // console.log('Gap between View X & Screen X > ', (dimensions.value.width * savedScale.value) - dimensions.value.width);
+      // console.log('Gap between View Y & Screen Y > ', (dimensions.value.height * savedScale.value) - dimensions.value.height);
+
+      const diffX =
+        (dimensions.value.width * savedScale.value - dimensions.value.width) /
+        2;
+      const diffY =
+        (dimensions.value.height * savedScale.value - dimensions.value.height) /
+        2;
+      // console.log('diffX > ', diffX); // 60
+      // console.log('diffY > ', diffY);
+      // console.log('swipeOnXAxis > ', swipeOnXAxis); // 47
+      // console.log('swipeOnYAxis > ', swipeOnYAxis);
+      // console.log('\n');
+
       translation.value = {
-        x: e.translationX + savedTranslation.value.x,
-        y: e.translationY + savedTranslation.value.y,
+        x: Math.max(Math.min(swipeOnXAxis, diffX), -diffX),
+        y: Math.max(Math.min(swipeOnYAxis, diffY), -diffY),
       };
     })
     .onEnd(() => {
@@ -91,45 +117,29 @@ export const HMSPinchGesture: React.FC<HMSPinchGestureProps> = ({
 
   const pinchGesture = Gesture.Pinch()
     .onStart((e) => {
-      numberOfPointers.value = e.numberOfPointers;
       focalPointAtStart.value = { x: e.focalX, y: e.focalY };
-
-      adjustedFocalPoint.value = {
-        x: e.focalX - focalShift.value.x, // subtracting "focal point shift" value from "current focal point", we will get "focal point before the shift", and apply transformations on the that focal point
-        y: e.focalY - focalShift.value.y, // subtracting "focal point shift" value from "current focal point", we will get "focal point before the shift", and apply transformations on the that focal point
-      };
     })
     .onUpdate((e) => {
-      // Calculating `focal point` shift values when `numberOfPointers` changes
-      if (numberOfPointers.value !== e.numberOfPointers) {
-        numberOfPointers.value = e.numberOfPointers;
-
-        focalShift.value = {
-          x: e.focalX - (focalPoint.value.x - focalShift.value.x),
-          y: e.focalY - (focalPoint.value.y - focalShift.value.y),
-        };
-      }
-
-      adjustedFocalPoint.value = {
-        x: e.focalX - focalShift.value.x, // subtracting "focal point shift" value from "current focal point", we will get "focal point before the shift", and apply transformations on the that focal point
-        y: e.focalY - focalShift.value.y, // subtracting "focal point shift" value from "current focal point", we will get "focal point before the shift", and apply transformations on the that focal point
-      };
-
-      // Applying translations
-      translation.value = {
-        x:
-          adjustedFocalPoint.value.x -
-          focalPointAtStart.value.x + // subtracting "focal point position capturred at start of gesture" from "adjusted focal point position" we will get the translation value
-          savedTranslation.value.x, // Adding current translation to previous Translation to make it a continuous gesture
-        y:
-          adjustedFocalPoint.value.y -
-          focalPointAtStart.value.y + // subtracting "focal point position capturred at start of gesture" from "adjusted focal point position" we will get the translation value
-          savedTranslation.value.y, // Adding current translation to previous Translation to make it a continuous gesture
-      };
-
-      // saving focal point to apply scaling on correct position
-      focalPoint.value = { x: e.focalX, y: e.focalY };
       scale.value = Math.min(Math.max(savedScale.value * e.scale, 0.94), 5.2);
+
+      // const offsetX = focalPointAtStart.value.x * (focalPointAtStart.value.x > dimensions.value.width / 2 ? -1 : 1);
+      // const offsetY = focalPointAtStart.value.y * (focalPointAtStart.value.y > dimensions.value.height / 2 ? -1 : 1);
+
+      const offsetX = dimensions.value.width / 2 - focalPointAtStart.value.x;
+      const offsetY = dimensions.value.height / 2 - focalPointAtStart.value.y;
+
+      const swipeOnXAxis = offsetX * scale.value + savedTranslation.value.x;
+      const swipeOnYAxis = offsetY * scale.value + savedTranslation.value.y;
+
+      const diffX =
+        (dimensions.value.width * scale.value - dimensions.value.width) / 2;
+      const diffY =
+        (dimensions.value.height * scale.value - dimensions.value.height) / 2;
+
+      translation.value = {
+        x: Math.max(Math.min(swipeOnXAxis, diffX), -diffX),
+        y: Math.max(Math.min(swipeOnYAxis, diffY), -diffY),
+      };
     })
     .onEnd(() => {
       if (scale.value < 1) {
@@ -143,7 +153,6 @@ export const HMSPinchGesture: React.FC<HMSPinchGestureProps> = ({
         savedScale.value = scale.value;
       }
 
-      focalShift.value = { x: 0, y: 0 };
       savedTranslation.value = translation.value;
     });
 
@@ -151,14 +160,22 @@ export const HMSPinchGesture: React.FC<HMSPinchGestureProps> = ({
     transform: [
       { translateX: translation.value.x },
       { translateY: translation.value.y },
-      { translateX: focalPointAtStart.value.x - dimensions.value.width / 2 },
-      { translateY: focalPointAtStart.value.y - dimensions.value.height / 2 },
       { scale: scale.value },
-      { translateX: -(focalPointAtStart.value.x - dimensions.value.width / 2) },
-      {
-        translateY: -(focalPointAtStart.value.y - dimensions.value.height / 2),
-      },
     ],
+  }));
+
+  const focalOrigindotStyle = useAnimatedStyle(() => ({
+    transform: [
+      { translateX: focalPointAtStart.value.x },
+      { translateY: focalPointAtStart.value.y },
+    ],
+    // top: focalPointAtStart.value.x,
+    // left: focalPointAtStart.value.y,
+  }));
+
+  const focalTransformeddotStyle = useAnimatedStyle(() => ({
+    top: focalPointAtStart.value.x * scale.value,
+    left: focalPointAtStart.value.y * scale.value,
   }));
 
   return (
@@ -170,6 +187,8 @@ export const HMSPinchGesture: React.FC<HMSPinchGestureProps> = ({
         >
           {children}
         </Animated.View>
+        {/* <Animated.View style={[{ position: 'absolute', width: 4, height: 4, backgroundColor: 'red', transform: [{translateX: -2}, {translateY: -2}] }, focalOrigindotStyle]} />
+        <Animated.View style={[{ position: 'absolute', width: 4, height: 4, backgroundColor: 'green', transform: [{translateX: -2}, {translateY: -2}] }, focalTransformeddotStyle]} /> */}
       </Animated.View>
     </GestureDetector>
   );
