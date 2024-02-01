@@ -15,6 +15,7 @@ import {
   useHMSReconnection,
   useHMSRemovedFromRoomUpdate,
   useHMSRoomStyle,
+  useLandscapeImmersiveMode,
   usePIPListener,
   useSetDefaultChatRecipient,
 } from '../hooks-util';
@@ -60,6 +61,8 @@ export const Meeting: React.FC<MeetingProps> = ({ peerTrackNodes }) => {
 
   // Handle Back button press and show leave room modal
   useBackButtonPress();
+
+  useLandscapeImmersiveMode();
 
   // Clearing any pending modal opening tasks
   React.useEffect(() => {
