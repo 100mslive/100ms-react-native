@@ -136,8 +136,8 @@ android {
         applicationId "live.hms.rn"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 405
-        versionName "2.3.155"
+        versionCode 412
+        versionName "2.3.162"
         missingDimensionStrategy 'react-native-camera', 'general'
     }
 
@@ -159,7 +159,10 @@ android {
             storePassword 'android'
             keyAlias 'androiddebugkey'
             keyPassword 'android'
+            enableV1Signing false
+            enableV2Signing true
         }
+
     }
     packagingOptions {
         pickFirst '**/*.so'

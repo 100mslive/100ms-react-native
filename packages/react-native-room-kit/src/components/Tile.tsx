@@ -57,6 +57,7 @@ const _Tile: React.FC<TileProps> = ({
           ref={(ref) => setHmsViewRefs(peerTrackNode.id, ref)}
           peerTrackNode={peerTrackNode}
           onMoreOptionsPress={onPeerTileMorePress}
+          zoomIn={true}
         />
       )}
 

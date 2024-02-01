@@ -72,21 +72,36 @@ export const WebrtcView = React.forwardRef<GridViewRefAttrs, WebrtcViewProps>(
         !state.app.localPeerTrackNode && pairedPeers.length === 0
     );
 
+    const fullHeight = height - top - (isPortrait ? bottom : 0);
+    const smallHeight = isPortrait
+      ? height - headerHeight - footerHeight
+      : height;
+
     const animatedStyles = useAnimatedStyle(() => {
+      return {
+        height: interpolate(offset.value, [0, 1], [fullHeight, smallHeight]),
+      };
+    }, [fullHeight, smallHeight]);
+
+    const headerPlaceholderAnimatedStyles = useAnimatedStyle(() => {
       return {
         height: interpolate(
           offset.value,
           [0, 1],
-          [height - top - bottom, height - headerHeight - footerHeight]
+          [top, isPortrait ? headerHeight : top]
         ),
       };
-    }, [height, top, bottom, footerHeight, headerHeight]);
+    }, [headerHeight, top, isPortrait]);
 
-    const headerPlaceholderAnimatedStyles = useAnimatedStyle(() => {
+    const overlayedAnimatedStyles = useAnimatedStyle(() => {
       return {
-        height: interpolate(offset.value, [0, 1], [top, headerHeight]),
+        bottom: interpolate(
+          offset.value,
+          [0, 1],
+          [!isPortrait ? bottom : 0, 0]
+        ),
       };
-    }, [headerHeight, top]);
+    }, [isPortrait, bottom]);
 
     if (isPipModeActive) {
       return (
@@ -123,7 +138,10 @@ export const WebrtcView = React.forwardRef<GridViewRefAttrs, WebrtcViewProps>(
               />
             )}
 
-            <OverlayedViews offset={offset} />
+            <OverlayedViews
+              animatedStyle={overlayedAnimatedStyles}
+              offset={offset}
+            />
           </OverlayContainer>
         </Animated.View>
       </SafeAreaView>
