@@ -1305,7 +1305,7 @@ class HMSManager(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun hideNavigationBar() {
+  fun hideSystemBars() {
     val window = reactApplicationContext?.currentActivity?.window
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && window != null) {
       UiThreadUtil.runOnUiThread {
@@ -1313,18 +1313,18 @@ class HMSManager(reactContext: ReactApplicationContext) :
         if (windowInsetsController != null) {
           windowInsetsController.systemBarsBehavior =
             WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-          windowInsetsController.hide(WindowInsetsCompat.Type.navigationBars())
+          windowInsetsController.hide(WindowInsetsCompat.Type.systemBars())
         }
       }
     }
   }
 
   @ReactMethod
-  fun showNavigationBar() {
+  fun showSystemBars() {
     val window = reactApplicationContext?.currentActivity?.window
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && window != null) {
       UiThreadUtil.runOnUiThread {
-        window.insetsController?.show(WindowInsetsCompat.Type.navigationBars())
+        window.insetsController?.show(WindowInsetsCompat.Type.systemBars())
       }
     }
   }

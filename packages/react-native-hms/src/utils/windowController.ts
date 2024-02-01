@@ -6,18 +6,18 @@ export class WindowController {
   /**
    * [Android Only] Hides the navigation bar.
    */
-  static hideNavigationBar() {
+  static hideSystemBars() {
     if (Platform.OS === 'android') {
-      return HMSManager.hideNavigationBar();
+      return HMSManager.hideSystemBars();
     }
   }
 
   /**
    * [Android Only] Shows the navigation bar.
    */
-  static showNavigationBar() {
+  static showSystemBars() {
     if (Platform.OS === 'android') {
-      return HMSManager.showNavigationBar();
+      return HMSManager.showSystemBars();
     }
   }
 }

@@ -2541,9 +2541,9 @@ export const useLandscapeImmersiveMode = () => {
 
   useEffect(() => {
     if (isLandscapeOrientation) {
-      WindowController.hideNavigationBar();
+      WindowController.hideSystemBars();
 
-      return WindowController.showNavigationBar;
+      return WindowController.showSystemBars;
     }
   }, [isLandscapeOrientation]);
 };
