@@ -21,6 +21,7 @@ import {
   useHmsViewsResolutionsState,
   setSoftInputMode,
   getSoftInputMode,
+  WindowController,
   // useHMSPeerUpdates,
 } from '@100mslive/react-native-hms';
 import type { Chat as ChatConfig } from '@100mslive/types-prebuilt/elements/chat';
@@ -2533,6 +2534,18 @@ export const useBackButtonPress = () => {
       };
     }
   }, [handleBackPress, handleModalVisibleType]);
+};
+
+export const useLandscapeImmersiveMode = () => {
+  const isLandscapeOrientation = useIsLandscapeOrientation();
+
+  useEffect(() => {
+    if (isLandscapeOrientation) {
+      WindowController.hideNavigationBar();
+
+      return WindowController.showNavigationBar;
+    }
+  }, [isLandscapeOrientation]);
 };
 
 export const useSavePropsToStore = (

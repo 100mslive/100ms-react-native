@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { useDispatch, useSelector, useStore } from 'react-redux';
-import { WindowController } from '@100mslive/react-native-hms';
 
 import type { RootState } from './redux';
 import { HMSInstanceSetup } from './HMSInstanceSetup';
@@ -29,12 +28,6 @@ export const HMSContainer = () => {
       };
     }
   }, [hmsInstance, store]);
-
-  React.useEffect(() => {
-    WindowController.hideNavigationBar();
-
-    return WindowController.showNavigationBar;
-  }, []);
 
   const isHMSInstanceAvailable = !!hmsInstance;
 
