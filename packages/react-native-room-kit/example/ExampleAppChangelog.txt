@@ -3,10 +3,16 @@ Board: https://100ms.atlassian.net/jira/software/projects/RN/boards/33
 - Resolved issues reported by VAPT testing
 https://100ms.atlassian.net/browse/RN-219
 
+- Gaayak - Make landscape mode same as Gmeet as default
+https://100ms.atlassian.net/browse/RN-217
+
 - Gaayak - Pinch and zoom on the Remote tiles
 https://100ms.atlassian.net/browse/RN-218
 
+- Hide "Tap to FullScreen" button on Screenshare when in Landscape mode
+https://100ms.atlassian.net/browse/RN-220
+
 Room Kit: 1.0.9
 React Native SDK: 1.9.8
-Android SDK: 2.8.7
-iOS SDK: 1.4.2
+Android SDK: 2.9.0
+iOS SDK: 1.5.0

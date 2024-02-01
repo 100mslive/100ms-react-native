@@ -28,6 +28,7 @@ import {
 import { useHMSRoomStyleSheet } from '../../hooks-util';
 import { HMSFullScreenButton } from './HMSFullScreenButton';
 import { TestIds } from '../../utils/constants';
+import { useIsLandscapeOrientation } from '../../utils/dimension';
 
 export interface PeerVideoTileViewProps {
   peerTrackNode: PeerTrackNode;
@@ -146,6 +147,8 @@ export const _PeerVideoTileView = React.forwardRef<
       !canTakeActionOnPeer || // If local peer can't take action on peer, Or
       !allowedToPublish; // If local peer can't publish tracks
 
+    const isLandscapeOrientation = useIsLandscapeOrientation();
+
     return (
       <View style={styles.container}>
         <AvatarView
@@ -181,7 +184,7 @@ export const _PeerVideoTileView = React.forwardRef<
 
         {/* Handling Peer Audio Mute indicator */}
         {screenShareTile && showingVideoTrack ? (
-          isPipModeActive ? null : (
+          isPipModeActive || isLandscapeOrientation ? null : (
             <HMSFullScreenButton peerTrackNode={peerTrackNode} />
           )
         ) : peerCanPublishAudio ? (
