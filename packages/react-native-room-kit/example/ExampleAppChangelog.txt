@@ -6,9 +6,6 @@ https://100ms.atlassian.net/browse/RN-219
 - Gaayak - Make landscape mode same as Gmeet as default
 https://100ms.atlassian.net/browse/RN-217
 
-- Gaayak - Pinch and zoom on the Remote tiles
-https://100ms.atlassian.net/browse/RN-218
-
 - Hide "Tap to FullScreen" button on Screenshare when in Landscape mode
 https://100ms.atlassian.net/browse/RN-220
 
