@@ -21,7 +21,10 @@ import { PaginationDots } from './PaginationDots';
 import { setGridViewActivePage } from '../redux/actions';
 import { Tile } from './Tile';
 import { useIsLandscapeOrientation } from '../utils/dimension';
-import { useSafeAreaFrame } from 'react-native-safe-area-context';
+import {
+  useSafeAreaFrame,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
 
 export type GridViewProps = {
   onPeerTileMorePress(peerTrackNode: PeerTrackNode): void;
@@ -144,7 +147,7 @@ export const GridView = React.forwardRef<GridViewRefAttrs, GridViewProps>(
     );
 
     return (
-      <View style={styles.container}>
+      <View style={[styles.container]}>
         <View onLayout={_handleLayoutChange} style={styles.measureLayoutView} />
 
         {screenshareTilesAvailable ? (
@@ -301,6 +304,7 @@ const ScreenshareTiles = React.forwardRef<
   ScreenshareTilesProps
 >(({ onPeerTileMorePress, setHmsViewRefs }, flatlistRef) => {
   const { width } = useWindowDimensions();
+  const { left, right } = useSafeAreaInsets();
   const isLandscapeOrientation = useIsLandscapeOrientation();
   const [activePage, setActivePage] = useState(0);
   const screensharePeerTrackNodes = useSelector(
@@ -322,20 +326,21 @@ const ScreenshareTiles = React.forwardRef<
     },
     []
   );
+  const tileWidth = width + left + right;
 
   const _renderItem = React.useCallback(
     ({ item }) => {
       return (
         <Tile
           height={'100%'}
-          width={width}
+          width={tileWidth}
           peerTrackNode={item}
           onPeerTileMorePress={onPeerTileMorePress}
           setHmsViewRefs={setHmsViewRefs}
         />
       );
     },
-    [width, onPeerTileMorePress, setHmsViewRefs]
+    [tileWidth, onPeerTileMorePress, setHmsViewRefs]
   );
 
   return (
