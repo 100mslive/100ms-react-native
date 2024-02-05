@@ -73,7 +73,9 @@ export const WebrtcView = React.forwardRef<GridViewRefAttrs, WebrtcViewProps>(
     );
 
     const fullHeight = height - top - (isPortrait ? bottom : 0);
-    const smallHeight = height - headerHeight - footerHeight;
+    const smallHeight = isPortrait
+      ? height - headerHeight - footerHeight
+      : height;
 
     const animatedStyles = useAnimatedStyle(() => {
       return {
@@ -83,9 +85,13 @@ export const WebrtcView = React.forwardRef<GridViewRefAttrs, WebrtcViewProps>(
 
     const headerPlaceholderAnimatedStyles = useAnimatedStyle(() => {
       return {
-        height: interpolate(offset.value, [0, 1], [top, headerHeight]),
+        height: interpolate(
+          offset.value,
+          [0, 1],
+          [top, isPortrait ? headerHeight : top]
+        ),
       };
-    }, [headerHeight, top]);
+    }, [headerHeight, top, isPortrait]);
 
     const overlayedAnimatedStyles = useAnimatedStyle(() => {
       return {

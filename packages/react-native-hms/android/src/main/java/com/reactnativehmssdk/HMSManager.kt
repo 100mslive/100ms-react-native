@@ -9,9 +9,11 @@ import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.util.Rational
+import android.view.WindowInsetsController
 import android.view.WindowManager
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.view.WindowInsetsCompat
 import com.facebook.react.bridge.*
 import com.facebook.react.module.annotations.ReactModule
 import com.facebook.react.modules.core.DeviceEventManagerModule
@@ -1300,6 +1302,31 @@ class HMSManager(reactContext: ReactApplicationContext) :
   fun getSoftInputMode(): Int {
     val attributes = reactApplicationContext?.currentActivity?.window?.attributes ?: return -1
     return attributes.softInputMode
+  }
+
+  @ReactMethod
+  fun hideSystemBars() {
+    val window = reactApplicationContext?.currentActivity?.window
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && window != null) {
+      UiThreadUtil.runOnUiThread {
+        val windowInsetsController = window.insetsController
+        if (windowInsetsController != null) {
+          windowInsetsController.systemBarsBehavior =
+            WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+          windowInsetsController.hide(WindowInsetsCompat.Type.systemBars())
+        }
+      }
+    }
+  }
+
+  @ReactMethod
+  fun showSystemBars() {
+    val window = reactApplicationContext?.currentActivity?.window
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && window != null) {
+      UiThreadUtil.runOnUiThread {
+        window.insetsController?.show(WindowInsetsCompat.Type.systemBars())
+      }
+    }
   }
 
   fun emitEvent(
