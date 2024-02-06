@@ -4,6 +4,7 @@ import {
   StyleSheet,
   Text,
   TouchableHighlight,
+  TouchableOpacity,
   View,
 } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
@@ -18,7 +19,7 @@ import type {
 export interface HMSBaseButtonProps {
   title: string;
   loading: boolean;
-  onPress(): void;
+  onPress(e: any): void;
   wrapWithGestureDetector?: boolean;
   testID?: TouchableHighlightProps['testID'];
   underlayColor?: ColorValue | undefined;
@@ -27,6 +28,7 @@ export interface HMSBaseButtonProps {
   textStyle?: StyleProp<TextStyle>;
   disabled?: boolean;
   leftComponent?: React.ReactElement | null;
+  useTouchableOpacity?: boolean;
 }
 
 export const HMSBaseButton: React.FC<HMSBaseButtonProps> = ({
@@ -41,9 +43,12 @@ export const HMSBaseButton: React.FC<HMSBaseButtonProps> = ({
   disabled,
   leftComponent,
   wrapWithGestureDetector,
+  useTouchableOpacity,
 }) => {
+  const Touchable = useTouchableOpacity ? TouchableOpacity : TouchableHighlight;
+
   const button = (
-    <TouchableHighlight
+    <Touchable
       testID={testID}
       underlayColor={underlayColor}
       style={[styles.button, style]}
@@ -70,7 +75,7 @@ export const HMSBaseButton: React.FC<HMSBaseButtonProps> = ({
           <Text style={[styles.text, textStyle]}>{title}</Text>
         </View>
       </>
-    </TouchableHighlight>
+    </Touchable>
   );
 
   if (wrapWithGestureDetector) {

@@ -8,7 +8,7 @@ import type { HMSBaseButtonProps } from './HMSBaseButton';
 export interface HMSPrimaryButtonProps {
   title: string;
   loading: boolean;
-  onPress(e: any): void;
+  onPress(): void;
   testId?: HMSBaseButtonProps['testID'];
   style?: StyleProp<ViewStyle>;
   disabled?: boolean;
@@ -16,7 +16,7 @@ export interface HMSPrimaryButtonProps {
   wrapWithGestureDetector?: boolean;
 }
 
-export const HMSPrimaryButton: React.FC<HMSPrimaryButtonProps> = ({
+export const HMSSecondaryButton: React.FC<HMSPrimaryButtonProps> = ({
   title,
   loading,
   onPress,
@@ -26,33 +26,35 @@ export const HMSPrimaryButton: React.FC<HMSPrimaryButtonProps> = ({
   leftComponent,
   wrapWithGestureDetector,
 }) => {
-  const { primary_dim: primaryDarkColor, on_primary_high: onPrimaryHighColor } =
-    useHMSRoomColorPalette();
+  const {
+    secondary_dim: secondaryDarkColor,
+    on_secondary_high: onSecondaryHighColor,
+  } = useHMSRoomColorPalette();
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
     button: {
-      backgroundColor: theme.palette.primary_default,
+      backgroundColor: theme.palette.secondary_default,
     },
     disabledButton: {
-      backgroundColor: theme.palette.primary_disabled,
+      backgroundColor: theme.palette.secondary_disabled,
     },
     buttonText: {
-      color: theme.palette.on_primary_high,
+      color: theme.palette.on_secondary_high,
       fontFamily: `${typography.font_family}-SemiBold`,
     },
     disabledText: {
-      color: theme.palette.on_primary_low,
+      color: theme.palette.on_secondary_low,
     },
   }));
 
   return (
     <HMSBaseButton
       testID={testId}
-      loaderColor={onPrimaryHighColor}
+      loaderColor={onSecondaryHighColor}
       loading={loading}
       onPress={onPress}
       title={title}
-      underlayColor={primaryDarkColor}
+      underlayColor={secondaryDarkColor}
       disabled={disabled}
       leftComponent={leftComponent}
       style={[

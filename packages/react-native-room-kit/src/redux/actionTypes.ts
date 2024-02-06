@@ -1,4 +1,8 @@
-import type { HMSPollQuestionType } from '@100mslive/react-native-hms';
+import type {
+  HMSPoll,
+  HMSPollQuestion,
+  HMSPollQuestionType,
+} from '@100mslive/react-native-hms';
 
 const createRequests = (base: String) => {
   const statusObject = {
@@ -189,6 +193,7 @@ export enum HmsStateActionTypes {
 export enum CreatePollStages {
   POLL_CONFIG,
   POLL_QUESTION_CONFIG,
+  POLL_VOTING,
 }
 
 export type PollConfig = {
@@ -222,7 +227,11 @@ export type PollsActionType =
   | SetQuestionResponseEditable
   | SetQuestionSavedAction
   | SetLaunchingPollAction
-  | ClearPollsStateAction;
+  | ClearPollsStateAction
+  | SetSelectedPollIdAction
+  | AddPollAction
+  | UpdatePollAction
+  | AddPollQuestionResponseAction;
 
 export type SetDeleteConfirmationVisible = {
   type: PollsStateActionTypes.SET_DELETE_CONFIRMATION_VISIBLE;
@@ -314,6 +323,28 @@ export type ClearPollsStateAction = {
   type: PollsStateActionTypes.CLEAR_POLLS_STATE;
 };
 
+export type SetSelectedPollIdAction = {
+  type: PollsStateActionTypes.SET_SELECTED_POLL_ID;
+  pollId: HMSPoll['pollId'];
+};
+
+export type AddPollAction = {
+  type: PollsStateActionTypes.ADD_POLL;
+  poll: HMSPoll;
+};
+
+export type UpdatePollAction = {
+  type: PollsStateActionTypes.UPDATE_POLL;
+  poll: HMSPoll;
+};
+
+export type AddPollQuestionResponseAction = {
+  type: PollsStateActionTypes.ADD_POLL_QUESTION_RESPONSE;
+  pollId: HMSPoll['pollId'];
+  questionIndex: HMSPollQuestion['index'];
+  response: number | number[];
+};
+
 export enum PollsStateActionTypes {
   SET_DELETE_CONFIRMATION_VISIBLE = 'SET_DELETE_CONFIRMATION_VISIBLE',
   SET_POLL_NAME = 'SET_POLL_NAME',
@@ -332,4 +363,8 @@ export enum PollsStateActionTypes {
   SET_QUESTION_SAVED = 'SET_QUESTION_SAVED',
   SET_LAUNCHING_POLL = 'SET_LAUNCHING_POLL',
   CLEAR_POLLS_STATE = 'CLEAR_POLLS_STATE',
+  SET_SELECTED_POLL_ID = 'SET_SELECTED_POLL_ID',
+  ADD_POLL = 'ADD_POLL',
+  UPDATE_POLL = 'UPDATE_POLL',
+  ADD_POLL_QUESTION_RESPONSE = 'ADD_POLL_QUESTION_RESPONSE',
 }

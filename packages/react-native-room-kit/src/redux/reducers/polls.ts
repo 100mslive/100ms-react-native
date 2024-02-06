@@ -1,4 +1,9 @@
-import { HMSPollQuestionType } from '@100mslive/react-native-hms';
+import {
+  HMSPollQuestionType,
+  type HMSPoll,
+  HMSPollType,
+  HMSPollState,
+} from '@100mslive/react-native-hms';
 
 import { PollsStateActionTypes, CreatePollStages } from '../actionTypes';
 import type {
@@ -26,6 +31,9 @@ type IntialStateType = {
   deleteConfirmationVisible: boolean;
   selectedPollQuestionIndex: number | null;
   launchingPoll: boolean;
+  selectedPollId: string | null;
+  polls: Record<string, HMSPoll>;
+  pollsResponses: Record<string, Record<number, number | number[]>>;
 };
 
 const INITIAL_STATE: IntialStateType = {
@@ -39,6 +47,97 @@ const INITIAL_STATE: IntialStateType = {
   deleteConfirmationVisible: false,
   selectedPollQuestionIndex: null,
   launchingPoll: false,
+  selectedPollId: 'abcdc',
+  polls: {
+    hbac: { pollId: 'hbac', title: 'Poll', type: HMSPollType.poll },
+    khsdbkvs: {
+      pollId: 'khsdbkvs',
+      title: 'Quiz 2024',
+      type: HMSPollType.poll,
+      state: HMSPollState.stopped,
+    },
+    abcdc: {
+      pollId: 'abcdc',
+      title: 'Quiz 2023',
+      type: HMSPollType.poll,
+      state: HMSPollState.started,
+      questions: [
+        {
+          duration: -1,
+          index: 2,
+          myResponses: [],
+          once: true,
+          skippable: false,
+          text: 'What is your name?',
+          type: HMSPollQuestionType.singleChoice,
+          weight: 1,
+          options: [
+            {
+              index: 4,
+              text: 'John 4',
+              weight: 1,
+              voteCount: 0,
+            },
+            {
+              index: 3,
+              text: 'Jitu 3',
+              weight: 1,
+              voteCount: 0,
+            },
+            {
+              index: 1,
+              text: 'Jatin 1',
+              weight: 1,
+              voteCount: 0,
+            },
+            {
+              index: 2,
+              text: 'Bhanu 2',
+              weight: 1,
+              voteCount: 0,
+            },
+          ],
+        },
+        {
+          duration: -1,
+          index: 1,
+          myResponses: [],
+          once: true,
+          skippable: false,
+          text: 'What kind of bear is best?',
+          type: HMSPollQuestionType.multipleChoice,
+          weight: 1,
+          options: [
+            {
+              index: 4,
+              text: 'Black Bear',
+              weight: 1,
+              voteCount: 0,
+            },
+            {
+              index: 3,
+              text: 'Brown Bear',
+              weight: 1,
+              voteCount: 0,
+            },
+            {
+              index: 1,
+              text: 'White Bear',
+              weight: 1,
+              voteCount: 0,
+            },
+            {
+              index: 2,
+              text: 'Polar Bear',
+              weight: 1,
+              voteCount: 0,
+            },
+          ],
+        },
+      ],
+    },
+  },
+  pollsResponses: {},
 };
 
 const hmsStatesReducer = (
@@ -216,6 +315,41 @@ const hmsStatesReducer = (
         questions: action.launching
           ? state.questions.map((question) => ({ ...question, saved: true }))
           : state.questions,
+      };
+    case PollsStateActionTypes.SET_SELECTED_POLL_ID:
+      return {
+        ...state,
+        selectedPollId: action.pollId,
+      };
+    case PollsStateActionTypes.ADD_POLL:
+      return {
+        ...state,
+        polls: {
+          ...state.polls,
+          [action.poll.pollId]: action.poll,
+        },
+      };
+    case PollsStateActionTypes.UPDATE_POLL:
+      return {
+        ...state,
+        polls: {
+          ...state.polls,
+          [action.poll.pollId]: {
+            ...state.polls[action.poll.pollId],
+            ...action.poll,
+          },
+        },
+      };
+    case PollsStateActionTypes.ADD_POLL_QUESTION_RESPONSE:
+      return {
+        ...state,
+        pollsResponses: {
+          ...state.pollsResponses,
+          [action.pollId]: {
+            ...state.pollsResponses[action.pollId],
+            [action.questionIndex]: action.response,
+          },
+        },
       };
     case PollsStateActionTypes.CLEAR_POLLS_STATE:
       return INITIAL_STATE;
