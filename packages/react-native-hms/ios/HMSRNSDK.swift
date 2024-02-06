@@ -47,8 +47,8 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                 let audioSettings = HMSHelper.getLocalAudioSettings(trackSettings?.value(forKey: "audio") as? NSDictionary, sdk, self?.delegate, id)
                 sdk.trackSettings = HMSTrackSettings(videoSettings: videoSettings, audioSettings: audioSettings)
             }
-            if let self = self, let hms = self.hms {
-                self.interactivity = HMSRNInteractivityCenter(
+            if let hms = self?.hms {
+                self?.interactivity = HMSRNInteractivityCenter(
                     hmssdk: hms,
                     hmsrnsdk: self
                 )

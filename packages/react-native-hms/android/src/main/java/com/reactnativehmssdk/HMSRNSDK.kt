@@ -49,7 +49,7 @@ class HMSRNSDK(
   private var audioMixingMode: AudioMixingMode = AudioMixingMode.TALK_AND_MUSIC
   private var id: String = sdkId
   private var self = this
-  private var eventsEnableStatus = mutableMapOf<String, Boolean>()
+  var eventsEnableStatus = mutableMapOf<String, Boolean>()
   private var sessionStore: HmsSessionStore? = null
   private val keyChangeObservers = mutableMapOf<String, HMSKeyChangeListener?>()
   private val peerListIterators = mutableMapOf<String, PeerListIterator>()
@@ -89,7 +89,7 @@ class HMSRNSDK(
     this.hmsSDK = builder.build()
 
     hmsSDK?.let {
-      interactivityCenter = HMSRNInteractivityCenter(it)
+      interactivityCenter = HMSRNInteractivityCenter(it, this)
     }
   }
 

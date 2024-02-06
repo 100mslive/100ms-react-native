@@ -1,7 +1,10 @@
 package com.reactnativehmssdk
 import android.util.Log
+import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReadableMap
+import com.facebook.react.bridge.WritableMap
+import com.reactnativehmssdk.Interactivity.HMSInteractivityDecoder
 import live.hms.video.error.HMSException
 import live.hms.video.interactivity.HmsPollUpdateListener
 import live.hms.video.polls.models.HMSPollUpdateType
@@ -9,7 +12,7 @@ import live.hms.video.polls.models.HmsPoll
 import live.hms.video.sdk.HMSActionResultListener
 import live.hms.video.sdk.HMSSDK
 
-class HMSRNInteractivityCenter(private val sdk: HMSSDK) {
+class HMSRNInteractivityCenter(private val sdk: HMSSDK, private val rnSDK: HMSRNSDK) {
   init {
     // Listen for poll updates
     this.sdk.getHmsInteractivityCenter().pollUpdateListener =
@@ -23,6 +26,17 @@ class HMSRNInteractivityCenter(private val sdk: HMSSDK) {
             HMSPollUpdateType.stopped -> loadResultsSummaryIfNeeded()
             HMSPollUpdateType.resultsupdated -> updateResultsScreen()
           }
+
+          if (rnSDK.eventsEnableStatus["ON_POLL_UPDATE"] != true) {
+            return
+          }
+
+          val data: WritableMap = Arguments.createMap()
+
+          data.putInt("update", HMSInteractivityDecoder.getPollUpdateType(hmsPollUpdateType))
+          data.putMap("updatedPoll", HMSInteractivityDecoder.getPoll(hmsPoll))
+
+          rnSDK.delegate.emitEvent("ON_POLL_UPDATE", data)
         }
       }
   }

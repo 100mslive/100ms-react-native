@@ -82,7 +82,7 @@ object HMSInteractivityHelper {
     }
   }
 
-  private fun getPollCategory(data: ReadableMap): HmsPollCategory {
+  fun getPollCategory(data: ReadableMap): HmsPollCategory {
     return when (data.getInt("type")) {
       0 -> HmsPollCategory.POLL
       1 -> HmsPollCategory.QUIZ
