@@ -20,6 +20,10 @@ export { EmitterSubscription } from './_EmitterSubscription';
  */
 export class EventEmitter {
   _subscriber: EventSubscriptionVendor;
+  _onAllListenersRemoved:
+    | ((eventType: string | 'all') => void)
+    | null
+    | undefined;
 
   /**
    * @constructor
@@ -29,6 +33,17 @@ export class EventEmitter {
    */
   constructor(subscriber?: EventSubscriptionVendor | null) {
     this._subscriber = subscriber || new EventSubscriptionVendor();
+  }
+
+  /**
+   * Registers a listener to be invoked when all event listeners have been removed
+   * Given listener is invoked with event type or `all` when all listeners are removed
+   * @param onAllListenersRemoved
+   */
+  registerOnAllListenersRemoved(
+    onAllListenersRemoved: (eventType: string | 'all') => void
+  ) {
+    this._onAllListenersRemoved = onAllListenersRemoved;
   }
 
   /**
@@ -65,6 +80,7 @@ export class EventEmitter {
    */
   removeAllListeners(eventType: string | undefined | null) {
     this._subscriber.removeAllSubscriptions(eventType);
+    this._onAllListenersRemoved?.(eventType || 'all');
   }
 
   /**
@@ -77,7 +93,17 @@ export class EventEmitter {
       return;
     }
 
+    const eventType = subscription.eventType;
     this._subscriber.removeSubscription(subscription);
+
+    // check if all subscriptions are removed for the event type
+    if (
+      typeof this._onAllListenersRemoved === 'function' &&
+      this.listenerCount(eventType) === 0
+    ) {
+      // invoke passed cleanup function if any for the event type
+      this._onAllListenersRemoved(eventType);
+    }
   }
 
   /**

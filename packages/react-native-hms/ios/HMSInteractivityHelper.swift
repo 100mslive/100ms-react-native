@@ -137,4 +137,31 @@ class HMSInteractivityHelper {
             }
         }
     }
+
+    static func getPollResponseBuilder(_ response: NSDictionary, poll: HMSPoll, pollQuestion: HMSPollQuestion) -> HMSPollResponseBuilder {
+        let pollResponseBuilder = HMSPollResponseBuilder(poll: poll)
+
+        switch pollQuestion.type {
+        case .longAnswer, .shortAnswer:
+            if let responseText = response["text"] as? String {
+                if let duration = response["duration"] as? Int {
+                    pollResponseBuilder.addResponse(for: pollQuestion, text: responseText, duration: duration)
+                } else {
+                    pollResponseBuilder.addResponse(for: pollQuestion, text: responseText)
+                }
+            }
+        case .multipleChoice, .singleChoice:
+            if let options = response["options"] as? [Int],
+               let pollQuestionOptions = pollQuestion.options {
+                let questionOptions = options.compactMap({optionIndex in pollQuestionOptions.first{ pollQuestionOption in pollQuestionOption.index == optionIndex }})
+
+                if let duration = response["duration"] as? Int {
+                    pollResponseBuilder.addResponse(for: pollQuestion, options: questionOptions, duration: duration)
+                } else {
+                    pollResponseBuilder.addResponse(for: pollQuestion, options: questionOptions)
+                }
+            }
+        }
+        return pollResponseBuilder
+    }
 }

@@ -4,6 +4,8 @@ import type {
   HMSLocalVideoStats,
   HMSMessage,
   HMSPeer,
+  HMSPoll,
+  HMSPollQuestion,
   HMSRemoteAudioStats,
   HMSRemoteVideoStats,
   HMSRole,
@@ -44,6 +46,10 @@ import type {
   SetQuestionSavedAction,
   SetLaunchingPollAction,
   ClearPollsStateAction,
+  AddPollAction,
+  UpdatePollAction,
+  SetSelectedPollIdAction,
+  AddPollQuestionResponseAction,
 } from '../actionTypes';
 import { MeetingState } from '../../types';
 import type { ChatState, Notification, PinnedMessage } from '../../types';
@@ -584,4 +590,30 @@ export const setLaunchingPoll = (
 
 export const clearPollsState = (): ClearPollsStateAction => ({
   type: PollsStateActionTypes.CLEAR_POLLS_STATE,
+});
+
+export const setSelectedPollId = (pollId: string): SetSelectedPollIdAction => ({
+  type: PollsStateActionTypes.SET_SELECTED_POLL_ID,
+  pollId,
+});
+
+export const addPoll = (poll: HMSPoll): AddPollAction => ({
+  type: PollsStateActionTypes.ADD_POLL,
+  poll,
+});
+
+export const updatePoll = (poll: HMSPoll): UpdatePollAction => ({
+  type: PollsStateActionTypes.UPDATE_POLL,
+  poll,
+});
+
+export const addPollQuestionResponse = (
+  pollId: HMSPoll['pollId'],
+  questionIndex: HMSPollQuestion['index'],
+  response: AddPollQuestionResponseAction['response']
+): AddPollQuestionResponseAction => ({
+  type: PollsStateActionTypes.ADD_POLL_QUESTION_RESPONSE,
+  pollId,
+  questionIndex,
+  response,
 });

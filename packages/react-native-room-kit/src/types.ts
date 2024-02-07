@@ -71,6 +71,7 @@ export enum NotificationTypes {
   LOCAL_SCREENSHARE = 'local_screenshare',
   ERROR = 'error',
   TERMINAL_ERROR = 'terminal_error',
+  POLLS_AND_QUIZZES = 'polls_and_quizzes',
 }
 
 export type Notification =
@@ -81,6 +82,7 @@ export type Notification =
       icon?: string;
       message?: string;
       title: string;
+      payload?: any;
     }
   | { id: string; type: NotificationTypes; icon?: string; peer: HMSPeer }
   | {

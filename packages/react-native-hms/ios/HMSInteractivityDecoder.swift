@@ -198,4 +198,26 @@ class HMSInteractivityDecoder {
         }
         return result
     }
+
+    static func getHMSPollQuestionResponseResults(_ hmsPollQuestionResponseResults: [HMSPollQuestionResponseResult]) -> [[String: AnyHashable]] {
+        var results = [[String: AnyHashable]]()
+
+        hmsPollQuestionResponseResults.forEach { result in
+            results.append(getHMSPollQuestionResponseResult(result))
+        }
+        return results
+    }
+
+    static func getHMSPollQuestionResponseResult(_ hmsPollQuestionResponseResult: HMSPollQuestionResponseResult) -> [String: AnyHashable] {
+        var result: [String: AnyHashable] = [
+            "question": hmsPollQuestionResponseResult.question
+        ]
+        if let correct = hmsPollQuestionResponseResult.correct {
+            result["correct"] = correct
+        }
+        if let error = hmsPollQuestionResponseResult.error {
+            result["error"] = error.localizedDescription
+        }
+        return result
+    }
 }

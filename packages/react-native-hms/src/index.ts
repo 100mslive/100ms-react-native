@@ -95,10 +95,14 @@ export type {
 } from './classes/HmsView';
 export type { HMSPIPConfig } from './classes/HMSPIPConfig';
 export { HMSRecordingState } from './classes/HMSRecordingState';
+export type { HMSPoll } from './classes/polls/HMSPoll';
 
 export { HMSPollQuestionType } from './classes/polls/HMSPollQuestionType';
 export { HMSPollType } from './classes/polls/HMSPollType';
 export { HMSPollUserTrackingMode } from './classes/polls/HMSPollUserTrackingMode';
+export { HMSPollUpdateType } from './classes/polls/HMSPollUpdateType';
+export { HMSPollState } from './classes/polls/HMSPollState';
+export { HMSPollQuestion } from './classes/polls/HMSPollQuestion';
 
 import { HMSSDK as HmsManager } from './classes/HMSSDK';
 
@@ -111,6 +115,7 @@ export * from './components/HMSHLSPlayer';
 // 100ms Hooks
 export * from './hooks/useHMSPeerUpdates';
 export { useHmsViewsResolutionsState } from './hooks/hmsviews';
+export { usePollsState } from './hooks/polls';
 
 // 100ms Utilities
 export type { NotificationResult } from './utils/notification';

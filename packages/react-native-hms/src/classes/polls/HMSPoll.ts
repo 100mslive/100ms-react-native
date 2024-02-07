@@ -4,6 +4,12 @@ import type { HMSPollResult } from './HMSPollResult';
 import type { HMSRole } from '../HMSRole';
 import type { HMSPollUserTrackingMode } from './HMSPollUserTrackingMode';
 import type { HMSPollType } from './HMSPollType';
+import type { HMSPeer } from '../HMSPeer';
+
+type HMSPeerSubset = {
+  peerID: HMSPeer['peerID'];
+  name: HMSPeer['name'];
+};
 
 export interface HMSPoll {
   /**
@@ -44,17 +50,17 @@ export interface HMSPoll {
   /**
    The peer who started the poll.
    */
-  startedBy?: string;
+  startedBy?: HMSPeerSubset;
 
   /**
    The peer who stopped the poll.
    */
-  stoppedBy?: string;
+  stoppedBy?: HMSPeerSubset;
 
   /**
    The peer who created the poll.
    */
-  createdBy?: string;
+  createdBy?: HMSPeerSubset;
 
   /**
    The date and time when the poll was started.

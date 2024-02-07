@@ -23,6 +23,9 @@ export const PollsAndQuizBottomSheet = () => {
     (state: RootState) =>
       state.polls.stage === CreatePollStages.POLL_QUESTION_CONFIG
   );
+  const havePolls = useSelector(
+    (state: RootState) => Object.keys(state.polls.polls).length > 0
+  );
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme) => ({
     contentContainer: {
@@ -32,7 +35,7 @@ export const PollsAndQuizBottomSheet = () => {
 
   const dismissModal = () => setModalVisible(ModalTypes.DEFAULT);
 
-  const fullHeight = isPollQuestionStage;
+  const fullHeight = isPollQuestionStage || havePolls;
   const containerStyles = fullHeight
     ? [
         styles.bottomSheet,

@@ -13,11 +13,14 @@ import { useHMSRoomStyleSheet } from '../hooks-util';
 import { BottomSheet } from './BottomSheet';
 import { ChevronIcon, CloseIcon } from '../Icons';
 import { TestIds } from '../utils/constants';
-import { CreatePoll } from './CreatePoll';
 import { PollQuestions } from './PollQuestions';
 import { CreatePollStages } from '../redux/actionTypes';
 import { setPollStage } from '../redux/actions';
 import { PollQDeleteConfirmationSheetView } from './PollQDeleteConfirmationSheetView';
+import { PollsConfigAndList } from './PollsConfigAndList';
+import { PollAndQuizVoting } from './PollAndQuizVoting';
+import type { HMSPoll } from '@100mslive/react-native-hms';
+import { PollAndQuizzStateLabel } from './PollAndQuizzStateLabel';
 
 export interface PollsAndQuizzesModalContentProps {
   fullHeight: boolean;
@@ -28,11 +31,29 @@ export const PollsAndQuizzesModalContent: React.FC<
   PollsAndQuizzesModalContentProps
 > = ({ fullHeight, dismissModal }) => {
   const dispatch = useDispatch();
-  const headerTitle = useSelector((state: RootState) =>
-    state.polls.stage === CreatePollStages.POLL_QUESTION_CONFIG
-      ? state.polls.pollName
-      : null
-  );
+  const headerTitle = useSelector((state: RootState) => {
+    const pollsData = state.polls;
+    if (pollsData.stage === CreatePollStages.POLL_QUESTION_CONFIG) {
+      return pollsData.pollName;
+    }
+    if (
+      pollsData.stage === CreatePollStages.POLL_VOTING &&
+      pollsData.selectedPollId !== null
+    ) {
+      return pollsData.polls[pollsData.selectedPollId]?.title || null;
+    }
+    return null;
+  });
+  const selectedPoll = useSelector((state: RootState) => {
+    const pollsData = state.polls;
+    if (
+      pollsData.stage === CreatePollStages.POLL_VOTING &&
+      pollsData.selectedPollId !== null
+    ) {
+      return pollsData.polls[pollsData.selectedPollId] || null;
+    }
+    return null;
+  });
   const pollsStage = useSelector((state: RootState) => state.polls.stage);
   const launchingPoll = useSelector(
     (state: RootState) => state.polls.launchingPoll
@@ -77,6 +98,10 @@ export const PollsAndQuizzesModalContent: React.FC<
           >
             {headerTitle ?? ('Polls' || 'Polls and Quizzes')}
           </Text>
+
+          {selectedPoll?.state ? (
+            <PollAndQuizzStateLabel state={selectedPoll?.state} />
+          ) : null}
         </View>
 
         <TouchableOpacity
@@ -96,9 +121,11 @@ export const PollsAndQuizzesModalContent: React.FC<
       {/* Content */}
       <View style={fullHeight ? styles.fullView : null}>
         {pollsStage === CreatePollStages.POLL_CONFIG ? (
-          <CreatePoll />
+          <PollsConfigAndList />
         ) : pollsStage === CreatePollStages.POLL_QUESTION_CONFIG ? (
           <PollQuestions dismissModal={dismissModal} />
+        ) : pollsStage === CreatePollStages.POLL_VOTING ? (
+          <PollAndQuizVoting dismissModal={dismissModal} />
         ) : null}
       </View>
 
@@ -129,6 +156,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     lineHeight: 24,
     letterSpacing: 0.15,
+    marginRight: 12,
   },
   closeIconHitSlop: {
     bottom: 16,

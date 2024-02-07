@@ -53,4 +53,35 @@ class HMSRNInteractivityCenter {
             resolve?(nil)
         }
     }
+
+    func add(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        guard let pollId = data["pollId"] as? String,
+              let poll = self.hmssdk?.interactivityCenter.polls.first(where: {poll in poll.pollID == pollId}) else {
+            reject?("6004", "Unable to find HMSPoll with given pollId", nil)
+            return
+        }
+        guard let pollQuestionIndex = data["pollQuestionIndex"] as? Int,
+              let pollQuestion = poll.questions?.first(where: {question in question.index == pollQuestionIndex}) else {
+            reject?("6004", "Unable to find HMSPollQuestion in poll with given question index", nil)
+            return
+        }
+        guard let responses = data["responses"] as? NSDictionary else {
+            reject?("6004", "responses field is required", nil)
+            return
+        }
+
+        let pollResponseBuilder = HMSInteractivityHelper.getPollResponseBuilder(responses, poll: poll, pollQuestion: pollQuestion)
+
+        self.hmssdk?.interactivityCenter.add(response: pollResponseBuilder) { pollQuestionResponseResult, error in
+            if let nonnilError = error {
+                reject?("6004", nonnilError.localizedDescription, nil)
+                return
+            }
+            if let pollQuestionResponseResult = pollQuestionResponseResult {
+                resolve?(HMSInteractivityDecoder.getHMSPollQuestionResponseResults(pollQuestionResponseResult))
+            } else {
+                resolve?(nil)
+            }
+        }
+    }
 }

@@ -1,8 +1,10 @@
 import {
   HMSException,
+  HMSPollUpdateType,
   HMSRoom,
   HMSTrack,
   HMSUpdateListenerActions,
+  usePollsState,
 } from '@100mslive/react-native-hms';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, Keyboard, StatusBar, StyleSheet, View } from 'react-native';
@@ -12,6 +14,7 @@ import { batch, useDispatch, useSelector, useStore } from 'react-redux';
 import { Preview } from './components';
 import {
   addNotification,
+  addPoll,
   changeMeetingState,
   changeStartingHLSStream,
   setHMSLocalPeerState,
@@ -392,6 +395,44 @@ export const HMSRoomSetup = () => {
       };
     }
   }, [meetingEnded]);
+
+  useEffect(() => {
+    const subscription = hmsInstance.interactivityCenter.addPollUpdateListener(
+      (poll, pollUpdateType) => {
+        console.log('🚀 ~ poll Listener 1 > ', pollUpdateType, poll);
+      }
+    );
+
+    return subscription.remove;
+  }, []);
+
+  useEffect(() => {
+    console.log('🚀 ~ adding Poll Update Listener > ');
+    const subscription = hmsInstance.interactivityCenter.addPollUpdateListener(
+      (poll, pollUpdateType) => {
+        if (pollUpdateType === HMSPollUpdateType.started) {
+          batch(() => {
+            dispatch(
+              addNotification({
+                id: `${poll.pollId}--${pollUpdateType}`,
+                type: NotificationTypes.POLLS_AND_QUIZZES,
+                payload: { poll, pollUpdateType },
+              })
+            );
+            dispatch(addPoll(poll));
+          });
+        }
+        console.log(
+          '🚀 ~ poll Listener 2 > ',
+          pollUpdateType,
+          '\n',
+          JSON.stringify(poll, null, 2)
+        );
+      }
+    );
+
+    return subscription.remove;
+  }, []);
 
   useEffect(() => {
     return () => {

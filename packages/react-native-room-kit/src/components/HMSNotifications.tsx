@@ -12,6 +12,7 @@ import { HMSNotification } from './HMSNotification';
 import { AlertTriangleIcon } from '../Icons';
 import { HMSReconnectingNotification } from './HMSReconnectingNotification';
 import { useIsLandscapeOrientation } from '../utils/dimension';
+import { HMSPollsQuizzesNotification } from './HMSPollsQuizzesNotification';
 
 export interface HMSNotificationsProps {}
 
@@ -30,6 +31,8 @@ export const HMSNotifications: React.FC<HMSNotificationsProps> = () => {
   const notifications = useSelector((state: RootState) => {
     // Latest notification will be at 0th index.
     const allNotifications = state.app.notifications;
+
+    console.log('allNotifications length', allNotifications.length);
 
     let list: typeof allNotifications = [];
 
@@ -75,6 +78,8 @@ export const HMSNotifications: React.FC<HMSNotificationsProps> = () => {
 
     return list;
   }, shallowEqual);
+
+  console.log('notifications length', notifications.length);
 
   if (notifications.length === 0) {
     return null;
@@ -148,6 +153,12 @@ export const HMSNotifications: React.FC<HMSNotificationsProps> = () => {
                 text={notification.title}
                 autoDismiss={true}
                 dismissable={true}
+              />
+            ) : notification.type === NotificationTypes.POLLS_AND_QUIZZES &&
+              'payload' in notification ? (
+              <HMSPollsQuizzesNotification
+                id={notification.id}
+                payload={notification.payload}
               />
             ) : null}
           </View>
