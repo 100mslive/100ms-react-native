@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import {
-  SafeAreaView,
   useSafeAreaFrame,
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
@@ -25,6 +24,7 @@ import { OverlayContainer } from './OverlayContainer';
 import { OverlayedViews } from './OverlayedViews';
 import { useFooterHeight } from './Footer';
 import { useHeaderHeight } from './Header';
+import { View } from 'react-native';
 
 interface WebrtcViewProps {
   offset: SharedValue<number>;
@@ -119,7 +119,7 @@ export const WebrtcView = React.forwardRef<GridViewRefAttrs, WebrtcViewProps>(
     }
 
     return (
-      <SafeAreaView edges={['left', 'right']} style={{ flex: 1 }}>
+      <View style={{ flex: 1 }}>
         <Animated.View style={headerPlaceholderAnimatedStyles} />
 
         <Animated.View style={animatedStyles}>
@@ -144,7 +144,7 @@ export const WebrtcView = React.forwardRef<GridViewRefAttrs, WebrtcViewProps>(
             />
           </OverlayContainer>
         </Animated.View>
-      </SafeAreaView>
+      </View>
     );
   }
 );
