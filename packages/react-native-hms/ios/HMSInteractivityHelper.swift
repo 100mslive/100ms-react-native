@@ -153,7 +153,7 @@ class HMSInteractivityHelper {
         case .multipleChoice, .singleChoice:
             if let options = response["options"] as? [Int],
                let pollQuestionOptions = pollQuestion.options {
-                let questionOptions = options.compactMap({optionIndex in pollQuestionOptions.first{ pollQuestionOption in pollQuestionOption.index == optionIndex }})
+                let questionOptions = options.compactMap({optionIndex in pollQuestionOptions.first { pollQuestionOption in pollQuestionOption.index == optionIndex }})
 
                 if let duration = response["duration"] as? Int {
                     pollResponseBuilder.addResponse(for: pollQuestion, options: questionOptions, duration: duration)

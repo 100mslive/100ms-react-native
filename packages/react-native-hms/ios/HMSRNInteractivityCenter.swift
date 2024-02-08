@@ -32,7 +32,7 @@ class HMSRNInteractivityCenter {
     func quickStartPoll(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let pollBuilder = HMSInteractivityHelper.getPollBuilderFromDict(data, sdkRoles: hmssdk?.roles)
 
-        self.hmssdk?.interactivityCenter.quickStartPoll(with: pollBuilder) { success, error in
+        self.hmssdk?.interactivityCenter.quickStartPoll(with: pollBuilder) { _, error in
             if let nonnilError = error {
                 reject?("6004", nonnilError.localizedDescription, nil)
                 return
