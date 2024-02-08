@@ -18,19 +18,6 @@ class HMSRNInteractivityCenter {
 
         hmssdk.interactivityCenter.addPollUpdateListner { [weak self] updatedPoll, update in
             guard let self = self else { return }
-            switch update {
-            case .started:
-                print("***** poll started")
-//              self.showPollStartedToast()
-            case .resultsUpdated:
-                print("***** poll resultsUpdated")
-//              self.updateResultsScreen()
-            case .stopped:
-                print("***** poll stopped")
-//              self.loadResultsSummaryIfNeeded()
-            @unknown default:
-            break
-            }
             guard let enabledEvents = self.hmsrnsdk?.eventsEnableStatus, enabledEvents[HMSConstants.ON_POLL_UPDATE] == true else {
                 print("HMSConstants.ON_POLL_UPDATE event is not enabled")
                 return
@@ -83,5 +70,20 @@ class HMSRNInteractivityCenter {
                 resolve?(nil)
             }
         }
+    }
+
+    func stop(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        guard let pollId = data["pollId"] as? String,
+              let poll = self.hmssdk?.interactivityCenter.polls.first(where: {poll in poll.pollID == pollId}) else {
+            reject?("6004", "Unable to find HMSPoll with given pollId", nil)
+            return
+        }
+        self.hmssdk?.interactivityCenter.stop(poll: poll, completion: {success, error in
+            if let nonnilError = error {
+                reject?("6004", nonnilError.localizedDescription, nil)
+                return
+            }
+            resolve?(success)
+        })
     }
 }
