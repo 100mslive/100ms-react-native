@@ -9,10 +9,10 @@ import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.util.Rational
-import android.view.WindowInsetsController
 import android.view.WindowManager
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import com.facebook.react.bridge.*
 import com.facebook.react.module.annotations.ReactModule
@@ -1307,14 +1307,14 @@ class HMSManager(reactContext: ReactApplicationContext) :
   @ReactMethod
   fun hideSystemBars() {
     val window = reactApplicationContext?.currentActivity?.window
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && window != null) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && window != null) {
       UiThreadUtil.runOnUiThread {
-        val windowInsetsController = window.insetsController
-        if (windowInsetsController != null) {
-          windowInsetsController.systemBarsBehavior =
-            WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-          windowInsetsController.hide(WindowInsetsCompat.Type.systemBars())
+        window.attributes.layoutInDisplayCutoutMode =
+          WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+          window.insetsController?.hide(WindowInsetsCompat.Type.systemBars())
         }
+        WindowCompat.setDecorFitsSystemWindows(window, false)
       }
     }
   }
@@ -1322,9 +1322,13 @@ class HMSManager(reactContext: ReactApplicationContext) :
   @ReactMethod
   fun showSystemBars() {
     val window = reactApplicationContext?.currentActivity?.window
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && window != null) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && window != null) {
       UiThreadUtil.runOnUiThread {
-        window.insetsController?.show(WindowInsetsCompat.Type.systemBars())
+        window.attributes.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_DEFAULT
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+          window.insetsController?.show(WindowInsetsCompat.Type.systemBars())
+        }
+        WindowCompat.setDecorFitsSystemWindows(window, true)
       }
     }
   }
