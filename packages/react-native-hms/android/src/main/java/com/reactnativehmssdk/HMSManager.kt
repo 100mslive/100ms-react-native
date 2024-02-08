@@ -12,6 +12,8 @@ import android.util.Rational
 import android.view.WindowManager
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
 import com.facebook.react.bridge.*
 import com.facebook.react.module.annotations.ReactModule
 import com.facebook.react.modules.core.DeviceEventManagerModule
@@ -778,7 +780,9 @@ class HMSManager(reactContext: ReactApplicationContext) :
                 PendingIntent.getBroadcast(
                   reactApplicationContext,
                   PipActionReceiver.PIPActions.localAudio.requestCode,
-                  Intent(PipActionReceiver.PIP_INTENT_ACTION).putExtra(PipActionReceiver.PIPActions.localAudio.title, PipActionReceiver.PIPActions.localAudio.requestCode),
+                  Intent(
+                    PipActionReceiver.PIP_INTENT_ACTION,
+                  ).putExtra(PipActionReceiver.PIPActions.localAudio.title, PipActionReceiver.PIPActions.localAudio.requestCode),
                   PendingIntent.FLAG_IMMUTABLE,
                 ),
               )
@@ -803,7 +807,9 @@ class HMSManager(reactContext: ReactApplicationContext) :
                 PendingIntent.getBroadcast(
                   reactApplicationContext,
                   PipActionReceiver.PIPActions.localVideo.requestCode,
-                  Intent(PipActionReceiver.PIP_INTENT_ACTION).putExtra(PipActionReceiver.PIPActions.localVideo.title, PipActionReceiver.PIPActions.localVideo.requestCode),
+                  Intent(
+                    PipActionReceiver.PIP_INTENT_ACTION,
+                  ).putExtra(PipActionReceiver.PIPActions.localVideo.title, PipActionReceiver.PIPActions.localVideo.requestCode),
                   PendingIntent.FLAG_IMMUTABLE,
                 ),
               )
@@ -1296,6 +1302,35 @@ class HMSManager(reactContext: ReactApplicationContext) :
   fun getSoftInputMode(): Int {
     val attributes = reactApplicationContext?.currentActivity?.window?.attributes ?: return -1
     return attributes.softInputMode
+  }
+
+  @ReactMethod
+  fun hideSystemBars() {
+    val window = reactApplicationContext?.currentActivity?.window
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && window != null) {
+      UiThreadUtil.runOnUiThread {
+        window.attributes.layoutInDisplayCutoutMode =
+          WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+          window.insetsController?.hide(WindowInsetsCompat.Type.systemBars())
+        }
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+      }
+    }
+  }
+
+  @ReactMethod
+  fun showSystemBars() {
+    val window = reactApplicationContext?.currentActivity?.window
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && window != null) {
+      UiThreadUtil.runOnUiThread {
+        window.attributes.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_DEFAULT
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+          window.insetsController?.show(WindowInsetsCompat.Type.systemBars())
+        }
+        WindowCompat.setDecorFitsSystemWindows(window, true)
+      }
+    }
   }
 
   fun emitEvent(
