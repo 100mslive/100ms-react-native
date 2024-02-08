@@ -1,15 +1,6 @@
 Board: https://100ms.atlassian.net/jira/software/projects/RN/boards/33
 
-- Resolved issues reported by VAPT testing
-https://100ms.atlassian.net/browse/RN-219
-
-- Gaayak - Make landscape mode same as Gmeet as default
-https://100ms.atlassian.net/browse/RN-217
-
-- Polls: Create Polls Initial Screen
-https://100ms.atlassian.net/browse/RN-197
-
-Room Kit: 1.1.0
-React Native SDK: 1.9.9
-Android SDK: 2.9.0
-iOS SDK: 1.5.0
+Room Kit: 1.1.1
+React Native SDK: 1.9.10
+Android SDK: 2.9.1
+iOS SDK: 1.5.1
