@@ -5,10 +5,7 @@ import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.WritableArray
 import com.facebook.react.bridge.WritableMap
 import com.reactnativehmssdk.HMSDecoder
-import live.hms.video.polls.models.HMSPollUpdateType
-import live.hms.video.polls.models.HmsPoll
-import live.hms.video.polls.models.HmsPollUserTrackingMode
-import live.hms.video.polls.models.PollStatsQuestions
+import live.hms.video.polls.models.*
 import live.hms.video.polls.models.answer.HMSPollQuestionAnswer
 import live.hms.video.polls.models.answer.HmsPollAnswer
 import live.hms.video.polls.models.question.HMSPollQuestion
@@ -36,7 +33,7 @@ object HMSInteractivityDecoder {
     data.putString("pollId", poll.pollId)
     data.putArray("rolesThatCanViewResponses", HMSDecoder.getAllRoles(poll.rolesThatCanViewResponses))
     data.putArray("rolesThatCanVote", HMSDecoder.getAllRoles(poll.rolesThatCanVote))
-    data.putInt("state", poll.state.ordinal)
+    data.putInt("state", getPollStateOrdinal(poll.state))
     data.putString("title", poll.title)
 
     poll.createdBy?.let {
@@ -70,6 +67,15 @@ object HMSInteractivityDecoder {
     }
 
     return data
+  }
+
+  private fun getPollStateOrdinal(pollState: HmsPollState): Int {
+    return when (pollState) {
+      HmsPollState.CREATED -> 0
+      HmsPollState.STARTED -> 1
+      HmsPollState.STOPPED -> 2
+      else -> 0
+    }
   }
 
   private fun getPollMode(poll: HmsPoll): Int {

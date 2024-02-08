@@ -63,6 +63,34 @@ class HMSRNInteractivityCenter(private val sdk: HMSSDK, private val rnSDK: HMSRN
     )
   }
 
+  fun stop(
+    data: ReadableMap,
+    promise: Promise?,
+  ) {
+    val pollId = data.getString("pollId")
+    if (pollId == null) {
+      promise?.reject("6002", "pollId is required")
+      return
+    }
+    val poll = this.sdk.getHmsInteractivityCenter().polls.find { it.pollId == pollId }
+    if (poll == null) {
+      promise?.reject("6002", "No HMSPoll with pollId `$pollId`")
+      return
+    }
+    this.sdk.getHmsInteractivityCenter().stop(
+      poll,
+      object : HMSActionResultListener {
+        override fun onError(error: HMSException) {
+          promise?.reject(error.code.toString(), error.description)
+        }
+
+        override fun onSuccess() {
+          promise?.resolve(true)
+        }
+      },
+    )
+  }
+
   // endregion
 
   // region Poll Update Listener
