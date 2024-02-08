@@ -663,4 +663,13 @@ class HMSManager: RCTEventEmitter {
         }
         interactivity.add(data, resolve, reject)
     }
+
+    @objc
+    func stopPoll(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        guard let rnsdk = HMSHelper.getHms(data, hmsCollection), let interactivity = rnsdk.interactivity else {
+            reject?("6004", "HMSRNSDK instance not found!", nil)
+            return
+        }
+        interactivity.stop(data, resolve, reject)
+    }
 }
