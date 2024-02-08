@@ -119,7 +119,7 @@ export const WebrtcView = React.forwardRef<GridViewRefAttrs, WebrtcViewProps>(
     }
 
     return (
-      <SafeAreaView edges={['left', 'right']} style={{ flex: 1 }}>
+      <SafeAreaView edges={[]} style={{ flex: 1 }}>
         <Animated.View style={headerPlaceholderAnimatedStyles} />
 
         <Animated.View style={animatedStyles}>
