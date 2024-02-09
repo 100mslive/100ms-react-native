@@ -1,10 +1,10 @@
 import {
   HMSException,
+  HMSPollType,
   HMSPollUpdateType,
   HMSRoom,
   HMSTrack,
   HMSUpdateListenerActions,
-  usePollsState,
 } from '@100mslive/react-native-hms';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, Keyboard, StatusBar, StyleSheet, View } from 'react-native';
@@ -39,6 +39,8 @@ import {
   useLeaveMethods,
   isPublishingAllowed,
   useAndroidSoftInputAdjustResize,
+  useHLSCuedPolls,
+  useIsHLSViewer,
 } from './hooks-util';
 import {
   peerTrackNodeExistForPeerAndTrack,
@@ -80,6 +82,8 @@ export const HMSRoomSetup = () => {
   );
   const [peerTrackNodes, setPeerTrackNodes] = useState<PeerTrackNode[]>([]);
   const [loading, setLoading] = useState(false);
+
+  const isHLSViewer = useIsHLSViewer();
 
   const joinMeeting = useCallback(async () => {
     try {
@@ -403,15 +407,21 @@ export const HMSRoomSetup = () => {
       }
     );
 
-    return subscription.remove;
+    return () => {
+      subscription.remove();
+    };
   }, []);
 
   useEffect(() => {
-    console.log('🚀 ~ adding Poll Update Listener > ');
     const subscription = hmsInstance.interactivityCenter.addPollUpdateListener(
       (poll, pollUpdateType) => {
-        if (pollUpdateType === HMSPollUpdateType.started) {
+        if (
+          pollUpdateType === HMSPollUpdateType.started &&
+          poll.type === HMSPollType.poll &&
+          !isHLSViewer
+        ) {
           batch(() => {
+            // TODO: Dont show notification if already voted
             dispatch(
               addNotification({
                 id: `${poll.pollId}--${pollUpdateType}`,
@@ -421,6 +431,8 @@ export const HMSRoomSetup = () => {
             );
             dispatch(addPoll(poll));
           });
+        } else {
+          dispatch(addPoll(poll));
         }
         console.log(
           '🚀 ~ poll Listener 2 > ',
@@ -431,8 +443,13 @@ export const HMSRoomSetup = () => {
       }
     );
 
-    return subscription.remove;
-  }, []);
+    return () => {
+      subscription.remove();
+    };
+  }, [isHLSViewer]);
+
+  // Syncs showing Polls with HLS Player onCue event
+  useHLSCuedPolls();
 
   useEffect(() => {
     return () => {

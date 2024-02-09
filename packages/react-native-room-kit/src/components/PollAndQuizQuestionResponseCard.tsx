@@ -1,18 +1,34 @@
 import * as React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
-import { HMSPollQuestionType } from '@100mslive/react-native-hms';
-import type { HMSPoll, HMSPollQuestion } from '@100mslive/react-native-hms';
+import { HMSPollQuestionType, HMSPollState } from '@100mslive/react-native-hms';
+import type {
+  HMSPoll,
+  HMSPollQuestion,
+  HMSPollQuestionOption,
+} from '@100mslive/react-native-hms';
 
-import { useHMSRoomColorPalette, useHMSRoomStyleSheet } from '../hooks-util';
+import {
+  useHMSInstance,
+  useHMSRoomColorPalette,
+  useHMSRoomStyleSheet,
+} from '../hooks-util';
 import { RadioInputRow } from './RadioInputRow';
 import { HMSPrimaryButton } from './HMSPrimaryButton';
 import { HMSBaseButton } from './HMSBaseButton';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import type { RootState } from 'src/redux';
+import {
+  addPollQuestionResponse,
+  removePollQuestionResponse,
+  setPollQuestionResponse,
+} from '../redux/actions';
+import { PollResponseProgressView } from './PollResponseProgressView';
+import { CheckboxInputRow } from './CheckboxInputRow';
 
 export interface PollAndQuizQuestionResponseCardProps {
   pollId: HMSPoll['pollId'];
+  pollState: HMSPoll['state'];
   totalQuestions: number;
   pollQuestion: HMSPollQuestion;
   containerStyle?: StyleProp<ViewStyle>;
@@ -21,7 +37,14 @@ export interface PollAndQuizQuestionResponseCardProps {
 
 export const PollAndQuizQuestionResponseCard: React.FC<
   PollAndQuizQuestionResponseCardProps
-> = ({ totalQuestions, pollId, pollQuestion, containerStyle, onSubmit }) => {
+> = ({
+  pollState,
+  totalQuestions,
+  pollId,
+  pollQuestion,
+  containerStyle,
+  onSubmit,
+}) => {
   const {
     primary_bright: primaryBrightColor,
     on_surface_low: onSurfaceLowColor,
@@ -51,10 +74,67 @@ export const PollAndQuizQuestionResponseCard: React.FC<
     },
   }));
 
+  const hmsInstance = useHMSInstance();
+  const dispatch = useDispatch();
+
   const selectedOptions = useSelector(
     (state: RootState) =>
       state.polls.pollsResponses[pollId]?.[pollQuestion.index] ?? null
   );
+
+  const handleOptionSelection = (
+    selected: boolean,
+    option: HMSPollQuestionOption
+  ) => {
+    if (pollQuestion.type === HMSPollQuestionType.singleChoice) {
+      dispatch(
+        setPollQuestionResponse(pollId, pollQuestion.index, option.index)
+      );
+    } else {
+      if (selected) {
+        dispatch(
+          addPollQuestionResponse(pollId, pollQuestion.index, option.index)
+        );
+      } else {
+        dispatch(
+          removePollQuestionResponse(pollId, pollQuestion.index, option.index)
+        );
+      }
+    }
+  };
+
+  const handleVotePress = async (e: any) => {
+    if (!selectedOptions) {
+      return;
+    }
+    onSubmit?.(e);
+    const result = await hmsInstance.interactivityCenter.add({
+      pollId,
+      pollQuestionIndex: pollQuestion.index,
+      responses: {
+        options: Array.isArray(selectedOptions)
+          ? selectedOptions
+          : [selectedOptions],
+      },
+    });
+    console.log(JSON.stringify(result, null, 4));
+  };
+
+  const handleSkipPress = async (e: any) => {
+    onSubmit?.(e);
+    // TODO: Implement skip API
+  };
+
+  const anyOptionSelected = Array.isArray(selectedOptions)
+    ? selectedOptions.length > 0
+    : selectedOptions !== null;
+  const isVoted = pollQuestion.myResponses.length > 0;
+  const InputComponent =
+    pollQuestion.type === HMSPollQuestionType.singleChoice
+      ? RadioInputRow
+      : pollQuestion.type === HMSPollQuestionType.multipleChoice
+        ? CheckboxInputRow
+        : null;
 
   return (
     <View style={[hmsRoomStyles.container, styles.container, containerStyle]}>
@@ -79,20 +159,65 @@ export const PollAndQuizQuestionResponseCard: React.FC<
         {pollQuestion.text}
       </Text>
 
-      {pollQuestion.options
-        ?.sort((a, b) => a.index - b.index)
-        .map((option) => (
-          <RadioInputRow
-            key={option.index}
-            selected={false} // TODO: add state here
-            radioColor={onSurfaceLowColor}
-            onChange={() => {}}
-            text={option.text}
-            containerStyle={{ marginBottom: 16 }}
-          />
-        ))}
+      {!InputComponent ? null : (
+        <>
+          {pollQuestion.myResponses.length > 0 ||
+          pollState === HMSPollState.stopped ? (
+            <>
+              {pollQuestion.options
+                ?.sort((a, b) => a.index - b.index)
+                .map((option, _, arr) => {
+                  return (
+                    <PollResponseProgressView
+                      key={option.index}
+                      option={option}
+                      totalVotes={arr.reduce((acc, curr) => {
+                        return acc + curr.voteCount;
+                      }, 0)}
+                    />
+                  );
+                })}
+            </>
+          ) : (
+            <>
+              {pollQuestion.options
+                ?.sort((a, b) => a.index - b.index)
+                .map((option) => {
+                  const isSelected =
+                    pollQuestion.myResponses.length > 0
+                      ? !!pollQuestion.myResponses.find(
+                          (r) => r.option === option.index
+                        )
+                      : Array.isArray(selectedOptions)
+                        ? selectedOptions.includes(option.index)
+                        : selectedOptions === option.index;
 
-      {!true ? (
+                  return (
+                    <InputComponent
+                      key={option.index}
+                      disabled={isVoted}
+                      selected={isSelected}
+                      radioColor={
+                        isVoted
+                          ? isSelected
+                            ? primaryBrightColor
+                            : onSurfaceLowColor
+                          : undefined
+                      }
+                      onChange={(selected) =>
+                        handleOptionSelection(selected, option)
+                      }
+                      text={option.text}
+                      containerStyle={{ marginBottom: 16 }}
+                    />
+                  );
+                })}
+            </>
+          )}
+        </>
+      )}
+
+      {isVoted ? (
         <Text
           style={[
             styles.regularText,
@@ -102,12 +227,12 @@ export const PollAndQuizQuestionResponseCard: React.FC<
         >
           Voted
         </Text>
-      ) : (
+      ) : pollState === HMSPollState.started ? (
         <View style={{ alignSelf: 'flex-end', flexDirection: 'row' }}>
           {pollQuestion.skippable ? (
             <HMSBaseButton
               loading={false}
-              onPress={(e) => onSubmit?.(e)}
+              onPress={handleSkipPress}
               title="Skip"
               style={hmsRoomStyles.skipButton}
               textStyle={hmsRoomStyles.skipButtonText}
@@ -117,14 +242,12 @@ export const PollAndQuizQuestionResponseCard: React.FC<
 
           <HMSPrimaryButton
             loading={false}
-            disabled={true}
-            onPress={(e) => {
-              onSubmit?.(e);
-            }}
+            disabled={!anyOptionSelected}
+            onPress={handleVotePress}
             title="Vote"
           />
         </View>
-      )}
+      ) : null}
     </View>
   );
 };

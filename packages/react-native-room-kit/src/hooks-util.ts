@@ -22,6 +22,9 @@ import {
   setSoftInputMode,
   getSoftInputMode,
   WindowController,
+  useHMSHLSPlayerCue,
+  HMSPollUpdateType,
+  HMSPollType,
   // useHMSPeerUpdates,
 } from '@100mslive/react-native-hms';
 import type { Chat as ChatConfig } from '@100mslive/types-prebuilt/elements/chat';
@@ -71,6 +74,7 @@ import {
 } from 'react-redux';
 import type { AppDispatch, RootState } from './redux';
 import {
+  addCuedPollId,
   addMessage,
   addNotification,
   addParticipant,
@@ -2546,6 +2550,43 @@ export const useLandscapeImmersiveMode = () => {
       return WindowController.showSystemBars;
     }
   }, [isLandscapeOrientation]);
+};
+
+export const useHLSCuedPolls = () => {
+  const dispatch = useDispatch();
+  const store = useStore<RootState>();
+  const isHLSViewer = useIsHLSViewer();
+
+  useHMSHLSPlayerCue(
+    (cue) => {
+      const payloadStr = cue.payloadval;
+
+      if (
+        isHLSViewer &&
+        typeof payloadStr === 'string' &&
+        payloadStr.startsWith('poll:')
+      ) {
+        const pollId = payloadStr.split(':')[1];
+        const poll =
+          pollId && pollId.length > 0
+            ? store.getState().polls.polls[pollId]
+            : null;
+
+        if (poll && poll.type === HMSPollType.poll) {
+          console.log('HLS Cued Poll ID: ', pollId);
+          dispatch(addCuedPollId(poll.pollId));
+          dispatch(
+            addNotification({
+              id: `${poll.pollId}--${poll.state}`,
+              type: NotificationTypes.POLLS_AND_QUIZZES,
+              payload: { poll, pollUpdateType: HMSPollUpdateType.started },
+            })
+          );
+        }
+      }
+    },
+    [isHLSViewer]
+  );
 };
 
 export const useSavePropsToStore = (

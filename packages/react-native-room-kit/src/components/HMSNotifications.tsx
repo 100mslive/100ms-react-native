@@ -32,8 +32,6 @@ export const HMSNotifications: React.FC<HMSNotificationsProps> = () => {
     // Latest notification will be at 0th index.
     const allNotifications = state.app.notifications;
 
-    console.log('allNotifications length', allNotifications.length);
-
     let list: typeof allNotifications = [];
 
     if (isLocalScreenShared) {
@@ -78,8 +76,6 @@ export const HMSNotifications: React.FC<HMSNotificationsProps> = () => {
 
     return list;
   }, shallowEqual);
-
-  console.log('notifications length', notifications.length);
 
   if (notifications.length === 0) {
     return null;

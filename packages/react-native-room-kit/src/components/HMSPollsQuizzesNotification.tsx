@@ -36,6 +36,10 @@ export const HMSPollsQuizzesNotification: React.FC<
   const dispatch = useDispatch();
   const { handleModalVisibleType } = useModalType();
   const { secondary_dim: secondaryDimColor } = useHMSRoomColorPalette();
+  // const canVoteOnPoll = useSelector((state: RootState) => {
+  //   const permissions = state.hmsStates.localPeer?.role?.permissions;
+  //   return permissions?.pollRead;
+  // });
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
     button: {
@@ -48,6 +52,9 @@ export const HMSPollsQuizzesNotification: React.FC<
   }));
 
   const handleVotePress = () => {
+    // if (!canVoteOnPoll) {
+    //   return;
+    // }
     batch(() => {
       dispatch(setPollStage(CreatePollStages.POLL_VOTING));
       dispatch(setSelectedPollId(poll.pollId));
@@ -60,12 +67,17 @@ export const HMSPollsQuizzesNotification: React.FC<
     <HMSNotification
       id={id}
       icon={<PollVoteIcon />}
-      text={`${poll.createdBy?.name} ${
-        pollUpdateType === HMSPollUpdateType.started ? 'started' : ''
-      } a new ${poll.type === HMSPollType.poll ? 'poll' : 'quiz'}`}
+      text={
+        poll.createdBy
+          ? `${poll.createdBy.name} ${
+              pollUpdateType === HMSPollUpdateType.started ? 'started' : ''
+            } a new ${poll.type === HMSPollType.poll ? 'poll' : 'quiz'}`
+          : `A new ${poll.type === HMSPollType.poll ? 'poll' : 'quiz'} has started`
+      }
       autoDismiss={false}
       dismissable={true}
       cta={
+        // canVoteOnPoll ? (
         <GestureDetector gesture={Gesture.Tap()}>
           <TouchableHighlight
             underlayColor={secondaryDimColor}
@@ -77,6 +89,7 @@ export const HMSPollsQuizzesNotification: React.FC<
             </Text>
           </TouchableHighlight>
         </GestureDetector>
+        // ) : undefined
       }
     />
   );

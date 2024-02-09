@@ -19,7 +19,6 @@ import { setPollStage } from '../redux/actions';
 import { PollQDeleteConfirmationSheetView } from './PollQDeleteConfirmationSheetView';
 import { PollsConfigAndList } from './PollsConfigAndList';
 import { PollAndQuizVoting } from './PollAndQuizVoting';
-import type { HMSPoll } from '@100mslive/react-native-hms';
 import { PollAndQuizzStateLabel } from './PollAndQuizzStateLabel';
 
 export interface PollsAndQuizzesModalContentProps {
@@ -58,6 +57,14 @@ export const PollsAndQuizzesModalContent: React.FC<
   const launchingPoll = useSelector(
     (state: RootState) => state.polls.launchingPoll
   );
+  const canCreateOrEndPoll = useSelector((state: RootState) => {
+    const permissions = state.hmsStates.localPeer?.role?.permissions;
+    return permissions?.pollWrite;
+  });
+  const canVoteOnPoll = useSelector((state: RootState) => {
+    const permissions = state.hmsStates.localPeer?.role?.permissions;
+    return permissions?.pollRead;
+  });
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
     headerText: {
@@ -122,9 +129,11 @@ export const PollsAndQuizzesModalContent: React.FC<
       <View style={fullHeight ? styles.fullView : null}>
         {pollsStage === CreatePollStages.POLL_CONFIG ? (
           <PollsConfigAndList />
-        ) : pollsStage === CreatePollStages.POLL_QUESTION_CONFIG ? (
+        ) : pollsStage === CreatePollStages.POLL_QUESTION_CONFIG &&
+          canCreateOrEndPoll ? (
           <PollQuestions dismissModal={dismissModal} />
-        ) : pollsStage === CreatePollStages.POLL_VOTING ? (
+        ) : pollsStage === CreatePollStages.POLL_VOTING &&
+          (canVoteOnPoll || canCreateOrEndPoll) ? (
           <PollAndQuizVoting dismissModal={dismissModal} />
         ) : null}
       </View>

@@ -51,20 +51,22 @@ export const PollsAndQuizzesCard: React.FC<PollsAndQuizzesCardProps> = ({
           {poll.title}
         </Text>
 
-        {poll.state ? <PollAndQuizzStateLabel state={poll.state} /> : null}
+        {typeof poll.state === 'number' ? (
+          <PollAndQuizzStateLabel state={poll.state} />
+        ) : null}
       </View>
 
       <View style={styles.spacer} />
 
       <View style={styles.rightRow}>
-        {poll.state === HMSPollState.stopped ? (
+        {/* {poll.state === HMSPollState.stopped ? (
           <HMSSecondaryButton
             loading={false}
             onPress={() => null}
             style={{ marginRight: 8 }}
             title="View Results"
           />
-        ) : null}
+        ) : null} */}
 
         <HMSPrimaryButton loading={false} onPress={viewPoll} title="View" />
       </View>

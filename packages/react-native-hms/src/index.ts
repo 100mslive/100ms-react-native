@@ -103,6 +103,7 @@ export { HMSPollUserTrackingMode } from './classes/polls/HMSPollUserTrackingMode
 export { HMSPollUpdateType } from './classes/polls/HMSPollUpdateType';
 export { HMSPollState } from './classes/polls/HMSPollState';
 export { HMSPollQuestion } from './classes/polls/HMSPollQuestion';
+export { HMSPollQuestionOption } from './classes/polls/HMSPollQuestionOption';
 
 import { HMSSDK as HmsManager } from './classes/HMSSDK';
 

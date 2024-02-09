@@ -127,7 +127,8 @@ export const PollQuestion: React.FC<PollQuestionProps> = ({
     ((pollQuestion.type === HMSPollQuestionType.singleChoice ||
       pollQuestion.type === HMSPollQuestionType.multipleChoice) &&
       pollQuestion.options &&
-      pollQuestion.options.some((option) => !option));
+      (pollQuestion.options.length <= 1 ||
+        pollQuestion.options.some((option) => !option)));
 
   if (pollQuestion.saved) {
     return (

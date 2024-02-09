@@ -8,11 +8,26 @@ import type { HMSPollUpdateType } from './polls/HMSPollUpdateType';
 import { HMSPollsListenerActions } from './HMSPollsListenerActions';
 import HMSNativeEventListener from './HMSNativeEventListener';
 import type { HMSEventSubscription } from './HMSNativeEventEmitter';
+import { HMSInteractivityEncoder } from './HMSInteractivityEncoder';
 
 type PollUpdateListener = (data: {
   updatedPoll: HMSPoll;
   update: HMSPollUpdateType;
 }) => void;
+
+type PollQuestionResponseCreateParams = {
+  pollId: string;
+  pollQuestionIndex: number;
+  responses:
+    | {
+        text: string;
+        duration?: number;
+      }
+    | {
+        options: number[];
+        duration?: number;
+      };
+};
 
 let pollUpdateSubscription: null | HMSEventSubscription = null;
 
@@ -50,7 +65,7 @@ export class HMSInteractivityCenter {
     });
     this._eventEmitter.emit(
       HMSPollsListenerActions.ON_POLL_UPDATE,
-      updatedPoll,
+      HMSInteractivityEncoder.transformPoll(updatedPoll),
       update
     );
   };
@@ -65,6 +80,11 @@ export class HMSInteractivityCenter {
     );
   }
 
+  /**
+   * Adds a listener for poll updates
+   * @param listener - Callback to be called when a poll is updated
+   * @returns HMSEventSubscription
+   */
   addPollUpdateListener(
     listener: (updatedPoll: HMSPoll, update: HMSPollUpdateType) => void
   ) {
@@ -86,7 +106,25 @@ export class HMSInteractivityCenter {
       ...pollParams,
       id: HMSConstants.DEFAULT_SDK_ID,
     };
-    logger?.verbose('#Function quickStartPoll', JSON.stringify(data));
+    logger?.verbose('#Function startPoll', JSON.stringify(data));
     return HMSManager.quickStartPoll(data);
+  }
+
+  async add(pollQuestionResponseParams: PollQuestionResponseCreateParams) {
+    const data = {
+      ...pollQuestionResponseParams,
+      id: HMSConstants.DEFAULT_SDK_ID,
+    };
+    logger?.verbose('#Function add', JSON.stringify(data));
+    return HMSManager.addResponseOnPollQuestion(data);
+  }
+
+  async stop(pollId: string) {
+    const data = {
+      id: HMSConstants.DEFAULT_SDK_ID,
+      pollId,
+    };
+    logger?.verbose('#Function stop', JSON.stringify(data));
+    return HMSManager.stopPoll(data);
   }
 }

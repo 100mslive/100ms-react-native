@@ -46,3 +46,4 @@ export * from './Quiz';
 export * from './TrashBin';
 export * from './Add';
 export * from './PollVote';
+export * from './CheckBox';
