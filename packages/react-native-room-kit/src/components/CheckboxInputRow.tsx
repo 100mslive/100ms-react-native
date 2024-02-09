@@ -2,29 +2,24 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
 
-import { RadioInput } from './RadioInput';
-import type { RadioInputProps } from './RadioInput';
 import { useHMSRoomStyleSheet } from '../hooks-util';
+import { CheckBoxIcon } from '../Icons';
 
-interface RadioInputRowProps {
+interface CheckboxInputRowProps {
   text: string;
   selected: boolean;
   onChange(value: boolean): void;
   disabled?: boolean;
-  radioSize?: RadioInputProps['size'];
-  radioColor?: RadioInputProps['color'];
   textStyle?: StyleProp<TextStyle>;
   containerStyle?: StyleProp<ViewStyle>;
 }
 
-export const RadioInputRow: React.FC<RadioInputRowProps> = ({
+export const CheckboxInputRow: React.FC<CheckboxInputRowProps> = ({
   text,
   containerStyle,
   selected,
   disabled,
   textStyle,
-  radioSize,
-  radioColor,
   onChange,
 }) => {
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
@@ -41,7 +36,7 @@ export const RadioInputRow: React.FC<RadioInputRowProps> = ({
       onPress={() => onChange(!selected)}
     >
       <View style={styles.radioWrapper}>
-        <RadioInput selected={selected} color={radioColor} size={radioSize} />
+        <CheckBoxIcon type={selected ? 'checked' : 'unchecked'} />
       </View>
 
       <Text

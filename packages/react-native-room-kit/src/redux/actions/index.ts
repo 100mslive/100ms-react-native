@@ -50,6 +50,8 @@ import type {
   UpdatePollAction,
   SetSelectedPollIdAction,
   AddPollQuestionResponseAction,
+  SetPollQuestionResponseAction,
+  RemovePollQuestionResponseAction,
 } from '../actionTypes';
 import { MeetingState } from '../../types';
 import type { ChatState, Notification, PinnedMessage } from '../../types';
@@ -592,6 +594,10 @@ export const clearPollsState = (): ClearPollsStateAction => ({
   type: PollsStateActionTypes.CLEAR_POLLS_STATE,
 });
 
+export const cleaPollFormState = () => ({
+  type: PollsStateActionTypes.CLEAR_POLL_FORM_STATE,
+});
+
 export const setSelectedPollId = (pollId: string): SetSelectedPollIdAction => ({
   type: PollsStateActionTypes.SET_SELECTED_POLL_ID,
   pollId,
@@ -607,6 +613,17 @@ export const updatePoll = (poll: HMSPoll): UpdatePollAction => ({
   poll,
 });
 
+export const setPollQuestionResponse = (
+  pollId: HMSPoll['pollId'],
+  questionIndex: HMSPollQuestion['index'],
+  response: SetPollQuestionResponseAction['response']
+): SetPollQuestionResponseAction => ({
+  type: PollsStateActionTypes.SET_POLL_QUESTION_RESPONSE,
+  pollId,
+  questionIndex,
+  response,
+});
+
 export const addPollQuestionResponse = (
   pollId: HMSPoll['pollId'],
   questionIndex: HMSPollQuestion['index'],
@@ -616,4 +633,20 @@ export const addPollQuestionResponse = (
   pollId,
   questionIndex,
   response,
+});
+
+export const removePollQuestionResponse = (
+  pollId: HMSPoll['pollId'],
+  questionIndex: HMSPollQuestion['index'],
+  response: RemovePollQuestionResponseAction['response']
+): RemovePollQuestionResponseAction => ({
+  type: PollsStateActionTypes.REMOVE_POLL_QUESTION_RESPONSE,
+  pollId,
+  questionIndex,
+  response,
+});
+
+export const addCuedPollId = (pollId: string) => ({
+  type: PollsStateActionTypes.ADD_CUED_POLL_ID,
+  pollId,
 });

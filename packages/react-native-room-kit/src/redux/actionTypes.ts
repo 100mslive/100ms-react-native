@@ -228,10 +228,19 @@ export type PollsActionType =
   | SetQuestionSavedAction
   | SetLaunchingPollAction
   | ClearPollsStateAction
+  | ClearPollFormStateAction
   | SetSelectedPollIdAction
   | AddPollAction
   | UpdatePollAction
-  | AddPollQuestionResponseAction;
+  | SetPollQuestionResponseAction
+  | AddPollQuestionResponseAction
+  | RemovePollQuestionResponseAction
+  | AddCuedPollIdAction
+  | { type: HmsStateActionTypes.CLEAR_STATES };
+
+export type ClearPollFormStateAction = {
+  type: PollsStateActionTypes.CLEAR_POLL_FORM_STATE;
+};
 
 export type SetDeleteConfirmationVisible = {
   type: PollsStateActionTypes.SET_DELETE_CONFIRMATION_VISIBLE;
@@ -338,14 +347,34 @@ export type UpdatePollAction = {
   poll: HMSPoll;
 };
 
+export type SetPollQuestionResponseAction = {
+  type: PollsStateActionTypes.SET_POLL_QUESTION_RESPONSE;
+  pollId: HMSPoll['pollId'];
+  questionIndex: HMSPollQuestion['index'];
+  response: number;
+};
+
 export type AddPollQuestionResponseAction = {
   type: PollsStateActionTypes.ADD_POLL_QUESTION_RESPONSE;
   pollId: HMSPoll['pollId'];
   questionIndex: HMSPollQuestion['index'];
-  response: number | number[];
+  response: number;
+};
+
+export type RemovePollQuestionResponseAction = {
+  type: PollsStateActionTypes.REMOVE_POLL_QUESTION_RESPONSE;
+  pollId: HMSPoll['pollId'];
+  questionIndex: HMSPollQuestion['index'];
+  response: number;
+};
+
+export type AddCuedPollIdAction = {
+  type: PollsStateActionTypes.ADD_CUED_POLL_ID;
+  pollId: HMSPoll['pollId'];
 };
 
 export enum PollsStateActionTypes {
+  CLEAR_POLL_FORM_STATE = 'CLEAR_POLL_FORM_STATE',
   SET_DELETE_CONFIRMATION_VISIBLE = 'SET_DELETE_CONFIRMATION_VISIBLE',
   SET_POLL_NAME = 'SET_POLL_NAME',
   SET_POLL_CONFIG = 'SET_POLL_CONFIG',
@@ -366,5 +395,8 @@ export enum PollsStateActionTypes {
   SET_SELECTED_POLL_ID = 'SET_SELECTED_POLL_ID',
   ADD_POLL = 'ADD_POLL',
   UPDATE_POLL = 'UPDATE_POLL',
+  SET_POLL_QUESTION_RESPONSE = 'SET_POLL_QUESTION_RESPONSE',
+  REMOVE_POLL_QUESTION_RESPONSE = 'REMOVE_POLL_QUESTION_RESPONSE',
   ADD_POLL_QUESTION_RESPONSE = 'ADD_POLL_QUESTION_RESPONSE',
+  ADD_CUED_POLL_ID = 'ADD_CUED_POLL_ID',
 }

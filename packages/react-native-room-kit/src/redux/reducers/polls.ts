@@ -1,11 +1,11 @@
-import {
-  HMSPollQuestionType,
-  type HMSPoll,
-  HMSPollType,
-  HMSPollState,
-} from '@100mslive/react-native-hms';
+import { HMSPollQuestionType } from '@100mslive/react-native-hms';
+import type { HMSPoll } from '@100mslive/react-native-hms';
 
-import { PollsStateActionTypes, CreatePollStages } from '../actionTypes';
+import {
+  PollsStateActionTypes,
+  CreatePollStages,
+  HmsStateActionTypes,
+} from '../actionTypes';
 import type {
   PollConfig,
   PollQuestionUI,
@@ -32,6 +32,7 @@ type IntialStateType = {
   selectedPollQuestionIndex: number | null;
   launchingPoll: boolean;
   selectedPollId: string | null;
+  cuedPollIds: HMSPoll['pollId'][]; // In case of HLSViewer, pollIds should be aligned with onCue event
   polls: Record<string, HMSPoll>;
   pollsResponses: Record<string, Record<number, number | number[]>>;
 };
@@ -47,96 +48,9 @@ const INITIAL_STATE: IntialStateType = {
   deleteConfirmationVisible: false,
   selectedPollQuestionIndex: null,
   launchingPoll: false,
-  selectedPollId: 'abcdc',
-  polls: {
-    hbac: { pollId: 'hbac', title: 'Poll', type: HMSPollType.poll },
-    khsdbkvs: {
-      pollId: 'khsdbkvs',
-      title: 'Quiz 2024',
-      type: HMSPollType.poll,
-      state: HMSPollState.stopped,
-    },
-    abcdc: {
-      pollId: 'abcdc',
-      title: 'Quiz 2023',
-      type: HMSPollType.poll,
-      state: HMSPollState.started,
-      questions: [
-        {
-          duration: -1,
-          index: 2,
-          myResponses: [],
-          once: true,
-          skippable: false,
-          text: 'What is your name?',
-          type: HMSPollQuestionType.singleChoice,
-          weight: 1,
-          options: [
-            {
-              index: 4,
-              text: 'John 4',
-              weight: 1,
-              voteCount: 0,
-            },
-            {
-              index: 3,
-              text: 'Jitu 3',
-              weight: 1,
-              voteCount: 0,
-            },
-            {
-              index: 1,
-              text: 'Jatin 1',
-              weight: 1,
-              voteCount: 0,
-            },
-            {
-              index: 2,
-              text: 'Bhanu 2',
-              weight: 1,
-              voteCount: 0,
-            },
-          ],
-        },
-        {
-          duration: -1,
-          index: 1,
-          myResponses: [],
-          once: true,
-          skippable: false,
-          text: 'What kind of bear is best?',
-          type: HMSPollQuestionType.multipleChoice,
-          weight: 1,
-          options: [
-            {
-              index: 4,
-              text: 'Black Bear',
-              weight: 1,
-              voteCount: 0,
-            },
-            {
-              index: 3,
-              text: 'Brown Bear',
-              weight: 1,
-              voteCount: 0,
-            },
-            {
-              index: 1,
-              text: 'White Bear',
-              weight: 1,
-              voteCount: 0,
-            },
-            {
-              index: 2,
-              text: 'Polar Bear',
-              weight: 1,
-              voteCount: 0,
-            },
-          ],
-        },
-      ],
-    },
-  },
+  selectedPollId: null,
+  cuedPollIds: [],
+  polls: {},
   pollsResponses: {},
 };
 
@@ -340,7 +254,7 @@ const hmsStatesReducer = (
           },
         },
       };
-    case PollsStateActionTypes.ADD_POLL_QUESTION_RESPONSE:
+    case PollsStateActionTypes.SET_POLL_QUESTION_RESPONSE:
       return {
         ...state,
         pollsResponses: {
@@ -351,7 +265,60 @@ const hmsStatesReducer = (
           },
         },
       };
+    case PollsStateActionTypes.ADD_POLL_QUESTION_RESPONSE:
+      const prevResponses =
+        state.pollsResponses[action.pollId]?.[action.questionIndex];
+      const newResponses = prevResponses
+        ? Array.isArray(prevResponses)
+          ? [...prevResponses, action.response]
+          : [prevResponses, action.response]
+        : [action.response];
+      return {
+        ...state,
+        pollsResponses: {
+          ...state.pollsResponses,
+          [action.pollId]: {
+            ...state.pollsResponses[action.pollId],
+            [action.questionIndex]: newResponses,
+          },
+        },
+      };
+    case PollsStateActionTypes.REMOVE_POLL_QUESTION_RESPONSE: {
+      const prevResponses =
+        state.pollsResponses[action.pollId]?.[action.questionIndex];
+      const newResponses = prevResponses
+        ? Array.isArray(prevResponses)
+          ? prevResponses.filter((res) => res !== action.response)
+          : prevResponses === action.response
+            ? []
+            : action.response
+        : [];
+      return {
+        ...state,
+        pollsResponses: {
+          ...state.pollsResponses,
+          [action.pollId]: {
+            ...state.pollsResponses[action.pollId],
+            [action.questionIndex]: newResponses,
+          },
+        },
+      };
+    }
+    case PollsStateActionTypes.ADD_CUED_POLL_ID: {
+      return {
+        ...state,
+        cuedPollIds: [...state.cuedPollIds, action.pollId],
+      };
+    }
+    case PollsStateActionTypes.CLEAR_POLL_FORM_STATE: {
+      return {
+        ...INITIAL_STATE,
+        polls: state.polls,
+        selectedPollId: state.selectedPollId,
+      };
+    }
     case PollsStateActionTypes.CLEAR_POLLS_STATE:
+    case HmsStateActionTypes.CLEAR_STATES:
       return INITIAL_STATE;
     default:
       return state;

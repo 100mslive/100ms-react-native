@@ -3,13 +3,18 @@ import { Platform, StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
 
 import { BottomSheet } from './BottomSheet';
-import { useHMSRoomStyleSheet, useModalType } from '../hooks-util';
+import {
+  useHMSRoomStyleSheet,
+  useIsHLSViewer,
+  useModalType,
+} from '../hooks-util';
 import { useHeaderHeight } from './Header';
 import { useIsLandscapeOrientation } from '../utils/dimension';
 import { PollsAndQuizzesModalContent } from './PollsAndQuizzesModalContent';
 import { ModalTypes } from '../utils/types';
 import type { RootState } from '../redux';
 import { CreatePollStages } from '../redux/actionTypes';
+import { visiblePollsSelector } from '../utils/functions';
 
 export const PollsAndQuizBottomSheet = () => {
   const headerHeight = useHeaderHeight();
@@ -23,8 +28,14 @@ export const PollsAndQuizBottomSheet = () => {
     (state: RootState) =>
       state.polls.stage === CreatePollStages.POLL_QUESTION_CONFIG
   );
+  const isHLSViewer = useIsHLSViewer();
   const havePolls = useSelector(
-    (state: RootState) => Object.keys(state.polls.polls).length > 0
+    (state: RootState) =>
+      visiblePollsSelector(
+        Object.values(state.polls.polls),
+        isHLSViewer,
+        state.polls.cuedPollIds
+      ).length > 0
   );
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme) => ({

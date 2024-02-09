@@ -17,6 +17,7 @@ import type { RootState } from '../redux';
 import {
   addPollQuestion,
   addPollQuestionOption,
+  cleaPollFormState,
   clearPollsState,
   deletePollQuestionOption,
   editPollQuestionOption,
@@ -56,11 +57,16 @@ export const PollQuestions: React.FC<PollQuestionsProps> = ({
     },
   }));
 
-  const disableLaunchPoll = questions.some(
-    (question) =>
-      !question.title ||
-      (question.options && question.options.some((option) => !option))
-  );
+  const disableLaunchPoll =
+    questions.length <= 0 ||
+    questions.some(
+      (question) =>
+        !question.title ||
+        !question.saved ||
+        (Array.isArray(question.options) &&
+          (question.options.length <= 1 ||
+            question.options.some((option) => !option)))
+    );
 
   const launchPoll = async () => {
     try {
@@ -97,8 +103,7 @@ export const PollQuestions: React.FC<PollQuestionsProps> = ({
       });
 
       console.log('quickStartPoll result > ', result);
-      dismissModal();
-      dispatch(clearPollsState());
+      dispatch(cleaPollFormState());
     } catch (error) {
       dispatch(setLaunchingPoll(false));
       console.log('quickStartPoll error > ', error);

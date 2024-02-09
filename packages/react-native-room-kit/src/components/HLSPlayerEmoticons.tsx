@@ -34,9 +34,8 @@ export const HLSPlayerEmoticons = () => {
           );
         }
       } catch (error) {
-        const message = `HLS Cue Payload is not JSON: ${error}`;
-        console.warn(message);
-        Toast.showWithGravity(message, Toast.LONG, Toast.TOP);
+        const message = `HLSPlayerEmoticons: HLS Cue Payload is not JSON: ${error}`;
+        console.log(message);
       }
     }
   }, []);

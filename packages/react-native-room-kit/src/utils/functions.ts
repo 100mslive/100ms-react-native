@@ -12,6 +12,8 @@ import {
   HMSTrackSource,
   HMSVideoTrack,
   HMSRole,
+  type HMSPoll,
+  HMSPollType,
 } from '@100mslive/react-native-hms';
 
 import type { PeerTrackNode } from './types';
@@ -470,4 +472,16 @@ export const isParticipantHostOrBroadcaster = (role: HMSRole): boolean => {
   const canChangeRole = role.permissions?.changeRole;
 
   return Boolean(allowed && allowed.length > 0 && canChangeRole);
+};
+
+export const visiblePollsSelector = (
+  polls: HMSPoll[],
+  isHLSViewer: boolean,
+  hlsCuedPollIds: HMSPoll['pollId'][]
+) => {
+  return polls.filter(
+    (poll) =>
+      poll.type !== HMSPollType.quiz &&
+      (isHLSViewer ? hlsCuedPollIds.includes(poll.pollId) : true) // Hiding quizzes from UI
+  );
 };
