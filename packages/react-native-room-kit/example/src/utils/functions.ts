@@ -9,7 +9,7 @@ import {
 import { getRoomLinkDetails } from './getRoomLinkDetails';
 
 export const getMeetingUrl = () =>
-  'https://store.app.100ms.live/meeting/wqm-swch-usr';
+  'https://reactnative.app.100ms.live/meeting/rlk-lsml-aiy';
 
 export const callService = async (
   roomID: string,
