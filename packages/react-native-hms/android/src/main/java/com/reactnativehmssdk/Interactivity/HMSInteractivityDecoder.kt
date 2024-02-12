@@ -8,6 +8,8 @@ import com.reactnativehmssdk.HMSDecoder
 import live.hms.video.polls.models.*
 import live.hms.video.polls.models.answer.HMSPollQuestionAnswer
 import live.hms.video.polls.models.answer.HmsPollAnswer
+import live.hms.video.polls.models.answer.PollAnswerItem
+import live.hms.video.polls.models.answer.PollAnswerResponse
 import live.hms.video.polls.models.question.HMSPollQuestion
 import live.hms.video.polls.models.question.HMSPollQuestionOption
 import live.hms.video.polls.network.PollResultsDisplay
@@ -272,5 +274,55 @@ object HMSInteractivityDecoder {
       readableArray.pushInt(it.toInt())
     }
     return readableArray
+  }
+
+/*
+
+  static func getHMSPollQuestionResponseResults(_ hmsPollQuestionResponseResults: [HMSPollQuestionResponseResult]) -> [[String: AnyHashable]] {
+    var results = [[String: AnyHashable]]()
+
+    hmsPollQuestionResponseResults.forEach { result in
+      results.append(getHMSPollQuestionResponseResult(result))
+    }
+    return results
+  }
+
+  static func getHMSPollQuestionResponseResult(_ hmsPollQuestionResponseResult: HMSPollQuestionResponseResult) -> [String: AnyHashable] {
+    var result: [String: AnyHashable] = [
+    "question": hmsPollQuestionResponseResult.question
+    ]
+    if let correct = hmsPollQuestionResponseResult.correct {
+      result["correct"] = correct
+    }
+    if let error = hmsPollQuestionResponseResult.error {
+      result["error"] = error.localizedDescription
+    }
+    return result
+  }
+
+ */
+  fun getHMSPollQuestionResponseResults(hmsPollQuestionResponseResults: PollAnswerResponse): WritableArray {
+    val results = Arguments.createArray()
+
+    hmsPollQuestionResponseResults.result.forEach { result ->
+      results.pushMap(getHMSPollQuestionResponseResult(result))
+    }
+    return results
+  }
+
+  private fun getHMSPollQuestionResponseResult(hmsPollQuestionResponseResult: PollAnswerItem): WritableMap {
+    val result = Arguments.createMap()
+
+    result.putInt("question", hmsPollQuestionResponseResult.questionIndex)
+
+    hmsPollQuestionResponseResult.correct.let {
+      result.putBoolean("correct", it)
+    }
+
+    hmsPollQuestionResponseResult.error?.let {
+      result.putString("error", it.localizedMessage)
+    }
+
+    return result
   }
 }

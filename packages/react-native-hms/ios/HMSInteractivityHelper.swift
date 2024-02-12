@@ -161,6 +161,8 @@ class HMSInteractivityHelper {
                     pollResponseBuilder.addResponse(for: pollQuestion, options: questionOptions)
                 }
             }
+        @unknown default:
+            print("@unknown default case: Invalid pollQuestionType")
         }
         return pollResponseBuilder
     }
