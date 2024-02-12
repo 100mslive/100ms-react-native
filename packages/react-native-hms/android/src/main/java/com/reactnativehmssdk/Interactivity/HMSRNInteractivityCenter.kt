@@ -23,12 +23,6 @@ class HMSRNInteractivityCenter(private val sdk: HMSSDK, private val rnSDK: HMSRN
           hmsPoll: HmsPoll,
           hmsPollUpdateType: HMSPollUpdateType,
         ) {
-          when (hmsPollUpdateType) {
-            HMSPollUpdateType.started -> showPollStartedToast()
-            HMSPollUpdateType.stopped -> loadResultsSummaryIfNeeded()
-            HMSPollUpdateType.resultsupdated -> updateResultsScreen()
-          }
-
           if (rnSDK.eventsEnableStatus["ON_POLL_UPDATE"] != true) {
             return
           }
