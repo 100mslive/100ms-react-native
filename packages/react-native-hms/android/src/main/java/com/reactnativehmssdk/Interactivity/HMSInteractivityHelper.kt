@@ -299,7 +299,29 @@ object HMSInteractivityHelper {
           }
         }
       }
-      HMSPollQuestionType.multiChoice, HMSPollQuestionType.singleChoice -> {
+      HMSPollQuestionType.singleChoice -> {
+        val options = response.getArray("options")?.toArrayList() as? ArrayList<Double>
+        val pollQuestionOptions = pollQuestion.options
+
+        if (options != null && pollQuestionOptions != null && options.isNotEmpty()) {
+          pollQuestionOptions.firstOrNull()?.let { pollQuestionOption ->
+            val questionOption =
+              pollQuestionOptions.firstOrNull { pollQuestionOption ->
+                pollQuestionOption.index == options[0].toInt()
+              }
+
+            if (questionOption != null) {
+              if (response.hasKey("duration")) {
+                val duration = response.getInt("duration")
+                pollResponseBuilder.addResponse(pollQuestion, questionOption, duration.toLong())
+              } else {
+                pollResponseBuilder.addResponse(pollQuestion, questionOption)
+              }
+            }
+          }
+        }
+      }
+      HMSPollQuestionType.multiChoice -> {
         val options = response.getArray("options")?.toArrayList() as? ArrayList<Int>
         val pollQuestionOptions = pollQuestion.options
 
