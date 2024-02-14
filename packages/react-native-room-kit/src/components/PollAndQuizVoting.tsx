@@ -85,7 +85,7 @@ export const PollAndQuizVoting: React.FC<PollAndQuizVotingProps> = () => {
       contentContainerStyle={{ paddingVertical: 24 }}
     >
       <Text style={[styles.normalText, hmsRoomStyles.semiBoldMediumText]}>
-        {selectedPoll?.createdBy?.name} started this poll
+        {selectedPoll?.createdBy?.name} started a Poll
       </Text>
 
       {selectedPoll?.questions

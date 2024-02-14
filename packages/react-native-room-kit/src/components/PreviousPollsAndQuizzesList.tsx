@@ -58,9 +58,11 @@ export const PreviousPollsAndQuizzesList: React.FC<
 
   return (
     <View style={styles.contentContainer}>
-      <Text style={[styles.title, hmsRoomStyles.surfaceHighSemiBoldText]}>
-        Previous Polls
-      </Text>
+      {pollsList.length > 0 && (
+        <Text style={[styles.title, hmsRoomStyles.surfaceHighSemiBoldText]}>
+          Previous Polls
+        </Text>
+      )}
 
       {/* Bug here: startedAt is coming as number instead of number */}
       {pollsList

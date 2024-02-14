@@ -7,7 +7,6 @@ import { useHMSRoomStyleSheet } from '../hooks-util';
 import { BottomSheet } from './BottomSheet';
 import { AddIcon, ChevronIcon, TrashBinIcon } from '../Icons';
 import { HMSTextInput } from './HMSTextInput';
-import { SwitchRow } from './SwitchRow';
 import { HMSBaseButton } from './HMSBaseButton';
 import { PressableIcon } from './PressableIcon';
 import type { PollQuestionUI } from '../redux/actionTypes';
@@ -405,32 +404,6 @@ export const PollQuestion: React.FC<PollQuestionProps> = ({
       ) : null}
 
       <BottomSheet.Divider style={hmsRoomStyles.divider} />
-
-      {[
-        {
-          id: 'skippable' as const,
-          label: 'Allow to skip',
-          enabled: pollQuestion.skippable,
-        },
-        {
-          id: 'responseEditable' as const,
-          label: 'Allow to vote again',
-          enabled: pollQuestion.responseEditable,
-        },
-      ].map((item) => {
-        return (
-          <SwitchRow
-            key={item.id}
-            text={item.label}
-            containerStyle={styles.config}
-            textStyle={[styles.smallText, hmsRoomStyles.regularMediumText]}
-            value={item.enabled}
-            onChange={(value) => {
-              onQuestionFieldChange(currentQuestionIndex, item.id, value);
-            }}
-          />
-        );
-      })}
 
       <View style={styles.saveContainer}>
         <PressableIcon

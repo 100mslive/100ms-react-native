@@ -69,13 +69,10 @@ export const CreatePoll: React.FC<CreatePollProps> = ({}) => {
         value={pollName}
         autoFocus={false}
         onChangeText={handlePollNameChange}
+        placeholder={'My Poll'}
       />
 
       <BottomSheet.Divider style={{ marginVertical: 24 }} />
-
-      <Text style={[styles.pollNameLabel, hmsRoomStyles.pollNameLabel]}>
-        Settings
-      </Text>
 
       {[
         {
@@ -83,14 +80,9 @@ export const CreatePoll: React.FC<CreatePollProps> = ({}) => {
           label: 'Hide vote count',
           enabled: pollConfig.voteCountHidden,
         },
-        {
-          id: 'resultsAnonymous' as const,
-          label: 'Make results anonymous',
-          enabled: pollConfig.resultsAnonymous,
-        },
       ].map((item) => {
         return (
-          <View key={item.id} style={{ marginTop: 16, flexDirection: 'row' }}>
+          <View key={item.id} style={{ marginTop: 4, flexDirection: 'row' }}>
             <Text
               style={[
                 styles.pollNameLabel,
@@ -116,7 +108,7 @@ export const CreatePoll: React.FC<CreatePollProps> = ({}) => {
 
       <HMSPrimaryButton
         disabled={!pollName.trim()}
-        title="Add Questions"
+        title="Create Poll"
         onPress={addQuestions}
         loading={false}
         style={{ marginTop: 24 }}

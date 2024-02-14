@@ -316,7 +316,7 @@ export const RoomSettingsModalContent: React.FC<
             {
               id: 'polls-and-quizes',
               icon: <PollVoteIcon style={{ width: 20, height: 20 }} />,
-              label: 'Polls and Quizzes',
+              label: 'Polls',
               pressHandler: openPollsQuizzesModal,
               isActive: false,
               hide: !canReadOrWritePoll,
