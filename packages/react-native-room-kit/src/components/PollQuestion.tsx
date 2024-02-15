@@ -531,7 +531,7 @@ const styles = StyleSheet.create({
   },
   saveContainer: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
+    justifyContent: 'space-between',
     alignItems: 'center',
   },
   deleteIcon: {
