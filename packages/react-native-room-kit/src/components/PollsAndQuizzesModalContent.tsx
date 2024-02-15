@@ -101,7 +101,12 @@ export const PollsAndQuizzesModalContent: React.FC<
 
           <Text
             testID={TestIds.change_name_modal_heading}
-            style={[styles.headerText, hmsRoomStyles.headerText]}
+            numberOfLines={2}
+            style={[
+              styles.headerText,
+              { flexShrink: 1 },
+              hmsRoomStyles.headerText,
+            ]}
           >
             {headerTitle ?? ('Polls' || 'Polls and Quizzes')}
           </Text>
@@ -115,6 +120,7 @@ export const PollsAndQuizzesModalContent: React.FC<
           testID={TestIds.change_name_modal_close_btn}
           onPress={handleClosePress}
           hitSlop={styles.closeIconHitSlop}
+          style={{ marginLeft: 16 }}
         >
           <CloseIcon />
         </TouchableOpacity>
@@ -160,6 +166,7 @@ const styles = StyleSheet.create({
   headerControls: {
     flexDirection: 'row',
     alignItems: 'center',
+    flexShrink: 1,
   },
   headerText: {
     fontSize: 20,

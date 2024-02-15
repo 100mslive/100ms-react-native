@@ -82,6 +82,20 @@ export const PollAndQuizQuestionResponseCard: React.FC<
       state.polls.pollsResponses[pollId]?.[pollQuestion.index] ?? null
   );
 
+  const canViewPollResponse = useSelector((state: RootState) => {
+    const localPeerRole = state.hmsStates.localPeer?.role;
+    const rolesThatCanViewResponses =
+      state.polls.polls[pollId]?.rolesThatCanViewResponses;
+
+    return (
+      localPeerRole &&
+      Array.isArray(rolesThatCanViewResponses) &&
+      rolesThatCanViewResponses.findIndex(
+        (role) => role.name === localPeerRole.name
+      ) !== -1
+    );
+  });
+
   const handleOptionSelection = (
     selected: boolean,
     option: HMSPollQuestionOption
@@ -161,8 +175,9 @@ export const PollAndQuizQuestionResponseCard: React.FC<
 
       {!InputComponent ? null : (
         <>
-          {pollQuestion.myResponses.length > 0 ||
-          pollState === HMSPollState.stopped ? (
+          {canViewPollResponse &&
+          (pollQuestion.myResponses.length > 0 ||
+            pollState === HMSPollState.stopped) ? (
             <>
               {pollQuestion.options
                 ?.sort((a, b) => a.index - b.index)

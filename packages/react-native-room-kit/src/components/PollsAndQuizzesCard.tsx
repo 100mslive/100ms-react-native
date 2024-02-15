@@ -47,7 +47,10 @@ export const PollsAndQuizzesCard: React.FC<PollsAndQuizzesCardProps> = ({
   return (
     <View style={[hmsRoomStyles.container, styles.container]}>
       <View style={styles.row}>
-        <Text style={[styles.pollTitle, hmsRoomStyles.surfaceHighSemiBoldText]}>
+        <Text
+          numberOfLines={4}
+          style={[styles.pollTitle, hmsRoomStyles.surfaceHighSemiBoldText]}
+        >
           {poll.title}
         </Text>
 
@@ -93,6 +96,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   pollTitle: {
+    flexShrink: 1,
     fontSize: 16,
     lineHeight: 24,
     letterSpacing: 0.15,
