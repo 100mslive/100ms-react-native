@@ -7,12 +7,20 @@ import {
   HMSUpdateListenerActions,
 } from '@100mslive/react-native-hms';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Alert, Keyboard, StatusBar, StyleSheet, View } from 'react-native';
+import {
+  Alert,
+  Keyboard,
+  Platform,
+  StatusBar,
+  StyleSheet,
+  View,
+} from 'react-native';
 import Toast from 'react-native-simple-toast';
 import { batch, useDispatch, useSelector, useStore } from 'react-redux';
 
 import { Preview } from './components';
 import {
+  addCuedPollId,
   addNotification,
   addPoll,
   changeMeetingState,
@@ -415,31 +423,48 @@ export const HMSRoomSetup = () => {
   useEffect(() => {
     const subscription = hmsInstance.interactivityCenter.addPollUpdateListener(
       (poll, pollUpdateType) => {
-        if (
-          pollUpdateType === HMSPollUpdateType.started &&
-          poll.type === HMSPollType.poll &&
-          !isHLSViewer
-        ) {
-          batch(() => {
-            // TODO: Dont show notification if already voted
-            dispatch(
-              addNotification({
-                id: `${poll.pollId}--${pollUpdateType}`,
-                type: NotificationTypes.POLLS_AND_QUIZZES,
-                payload: { poll, pollUpdateType },
-              })
-            );
-            dispatch(addPoll(poll));
-          });
-        } else {
-          dispatch(addPoll(poll));
+        if (poll.type !== HMSPollType.poll) {
+          return;
         }
-        console.log(
-          '🚀 ~ poll Listener 2 > ',
-          pollUpdateType,
-          '\n',
-          JSON.stringify(poll, null, 2)
-        );
+        batch(() => {
+          // Update poll object in store
+          dispatch(addPoll(poll));
+
+          // when poll is started, show notification to user
+          if (pollUpdateType === HMSPollUpdateType.started) {
+            // if user is a viewer
+            if (isHLSViewer) {
+              // Show notification only if poll is started 20 or more seconds ago
+              if (
+                poll.startedAt &&
+                Date.now() -
+                  poll.startedAt.getTime() *
+                    (Platform.OS === 'android' ? 1000 : 1) >=
+                  20_000
+              ) {
+                dispatch(
+                  addNotification({
+                    id: `${poll.pollId}--${pollUpdateType}`,
+                    type: NotificationTypes.POLLS_AND_QUIZZES,
+                    payload: { poll, pollUpdateType },
+                  })
+                );
+                dispatch(addCuedPollId(poll.pollId));
+              }
+            }
+            // if user is not a viewer, show notification
+            else {
+              // TODO: Dont show notification if already voted
+              dispatch(
+                addNotification({
+                  id: `${poll.pollId}--${pollUpdateType}`,
+                  type: NotificationTypes.POLLS_AND_QUIZZES,
+                  payload: { poll, pollUpdateType },
+                })
+              );
+            }
+          }
+        });
       }
     );
 
