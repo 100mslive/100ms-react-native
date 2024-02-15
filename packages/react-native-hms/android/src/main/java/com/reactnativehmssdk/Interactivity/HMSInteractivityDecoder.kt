@@ -58,10 +58,10 @@ object HMSInteractivityDecoder {
       data.putMap("result", getPollResult(it))
     }
 
-    data.putDouble("startedAt", poll.startedAt.toDouble())
+    data.putString("startedAt", poll.startedAt.toString())
 
     poll.stoppedAt?.let {
-      data.putDouble("stoppedAt", it.toDouble())
+      data.putString("stoppedAt", it.toString())
     }
 
     poll.startedBy?.let {

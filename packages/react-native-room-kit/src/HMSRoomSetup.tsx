@@ -437,10 +437,7 @@ export const HMSRoomSetup = () => {
               // Show notification only if poll is started 20 or more seconds ago
               if (
                 poll.startedAt &&
-                Date.now() -
-                  poll.startedAt.getTime() *
-                    (Platform.OS === 'android' ? 1000 : 1) >=
-                  20_000
+                Date.now() - poll.startedAt.getTime() >= 20_000
               ) {
                 dispatch(
                   addNotification({
