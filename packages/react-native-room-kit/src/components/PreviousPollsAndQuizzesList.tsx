@@ -64,13 +64,17 @@ export const PreviousPollsAndQuizzesList: React.FC<
         </Text>
       )}
 
-      {/* Bug here: startedAt is coming as number instead of number */}
       {pollsList
-        .sort((a, b) =>
-          a.startedAt && b.startedAt
-            ? b.startedAt.getTime() - a.startedAt.getTime()
-            : 0
-        )
+        .sort((a, b) => {
+          return a.state === b.state // If polls have same state, then sort as per startedAt
+            ? a.startedAt !== undefined && b.startedAt !== undefined
+              ? b.startedAt.getTime() - a.startedAt.getTime()
+              : 0
+            : // If polls have different state, then sort as per state
+              a.state !== undefined && b.state !== undefined
+              ? a.state - b.state
+              : 0;
+        })
         .map((poll) => (
           <PollsAndQuizzesCard key={poll.pollId} poll={poll} />
         ))}
