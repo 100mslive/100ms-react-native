@@ -87,13 +87,12 @@ export const PollAndQuizQuestionResponseCard: React.FC<
     const rolesThatCanViewResponses =
       state.polls.polls[pollId]?.rolesThatCanViewResponses;
 
-    return (
-      localPeerRole &&
-      Array.isArray(rolesThatCanViewResponses) &&
-      rolesThatCanViewResponses.findIndex(
-        (role) => role.name === localPeerRole.name
-      ) !== -1
-    );
+    return Array.isArray(rolesThatCanViewResponses)
+      ? localPeerRole &&
+          rolesThatCanViewResponses.findIndex(
+            (role) => role.name === localPeerRole.name
+          ) !== -1
+      : true;
   });
 
   const handleOptionSelection = (
