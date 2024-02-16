@@ -199,9 +199,13 @@ export const PollAndQuizQuestionResponseCard: React.FC<
                 .map((option) => {
                   const isSelected =
                     pollQuestion.myResponses.length > 0
-                      ? !!pollQuestion.myResponses.find(
-                          (r) => r.option === option.index
-                        )
+                      ? pollQuestion.type === HMSPollQuestionType.singleChoice
+                        ? !!pollQuestion.myResponses.find(
+                            (r) => r.option === option.index
+                          )
+                        : !!pollQuestion.myResponses.find((r) =>
+                            r.options ? r.options.includes(option.index) : false
+                          )
                       : Array.isArray(selectedOptions)
                         ? selectedOptions.includes(option.index)
                         : selectedOptions === option.index;
