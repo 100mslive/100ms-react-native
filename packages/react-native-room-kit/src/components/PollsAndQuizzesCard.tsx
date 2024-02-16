@@ -1,13 +1,10 @@
 import * as React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { batch, useDispatch, useSelector } from 'react-redux';
+import { batch, useDispatch } from 'react-redux';
 import type { HMSPoll } from '@100mslive/react-native-hms';
-import { HMSPollState, HMSPollType } from '@100mslive/react-native-hms';
 
 import { useHMSRoomStyleSheet } from '../hooks-util';
-import type { RootState } from '../redux';
 import { HMSPrimaryButton } from './HMSPrimaryButton';
-import { HMSSecondaryButton } from './HMSSecondaryButton';
 import { setPollStage, setSelectedPollId } from '../redux/actions';
 import { CreatePollStages } from '../redux/actionTypes';
 import { PollAndQuizzStateLabel } from './PollAndQuizzStateLabel';

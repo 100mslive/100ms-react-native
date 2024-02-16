@@ -18,7 +18,6 @@ import {
   addPollQuestion,
   addPollQuestionOption,
   cleaPollFormState,
-  clearPollsState,
   deletePollQuestionOption,
   editPollQuestionOption,
   setLaunchingPoll,
@@ -36,9 +35,7 @@ export interface PollQuestionsProps {
   dismissModal(): void;
 }
 
-export const PollQuestions: React.FC<PollQuestionsProps> = ({
-  dismissModal,
-}) => {
+export const PollQuestions: React.FC<PollQuestionsProps> = ({}) => {
   const dispatch = useDispatch();
   const hmsInstance = useHMSInstance();
   const reduxStore = useStore<RootState>();

@@ -9,7 +9,6 @@ import {
   useAutoPip,
   useBackButtonPress,
   useFetchHMSRoles,
-  useHLSCuedPolls,
   useHMSMessages,
   useHMSNetworkQualityUpdate,
   useHMSPIPRoomLeave,
