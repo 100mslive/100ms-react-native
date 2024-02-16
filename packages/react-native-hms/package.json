@@ -188,7 +188,6 @@
     ]
   },
   "dependencies": {
-    "immer": "^10.0.3",
     "zustand": "^4.3.8"
   }
 }
