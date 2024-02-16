@@ -688,7 +688,7 @@ class HMSManager(reactContext: ReactApplicationContext) :
     hms?.getAuthTokenByRoomCode(data, promise)
   }
 
-  // region Person-In-Person Mode Action handing
+  // region Picture-In-Picture Mode Action handing
   private val pipReceiver by lazy {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
       PipActionReceiver(
@@ -1342,6 +1342,64 @@ class HMSManager(reactContext: ReactApplicationContext) :
       .emit(event, data)
   }
 
+  // region Polls
+  @ReactMethod
+  fun quickStartPoll(
+    data: ReadableMap,
+    promise: Promise?,
+  ) {
+    val rnSDK = HMSHelper.getHms(data, hmsCollection)
+    rnSDK?.let { sdk ->
+      sdk.interactivityCenter?.let { center ->
+        center.quickStartPoll(data, promise)
+        return
+      }
+    }
+    promise?.reject(
+      "6004",
+      "HMS SDK not initialized",
+    )
+  }
+
+  @ReactMethod
+  fun addResponseOnPollQuestion(
+    data: ReadableMap,
+    promise: Promise?,
+  ) {
+    val rnSDK = HMSHelper.getHms(data, hmsCollection)
+    rnSDK?.let { sdk ->
+      sdk.interactivityCenter?.let { center ->
+        center.addResponseOnPollQuestion(data, promise)
+        return
+      }
+    }
+    promise?.reject(
+      "6004",
+      "HMS SDK not initialized",
+    )
+  }
+
+  @ReactMethod
+  fun stopPoll(
+    data: ReadableMap,
+    promise: Promise?,
+  ) {
+    val rnSDK = HMSHelper.getHms(data, hmsCollection)
+    rnSDK?.let { sdk ->
+      sdk.interactivityCenter?.let { center ->
+        center.stop(data, promise)
+        return
+      }
+    }
+    promise?.reject(
+      "6004",
+      "HMS SDK not initialized",
+    )
+  }
+  // endregion
+
+  // region ActivityLifecycleCallbacks
+
   override fun onActivityCreated(
     activity: Activity,
     savedInstanceState: Bundle?,
@@ -1377,7 +1435,8 @@ class HMSManager(reactContext: ReactApplicationContext) :
         }
       }
     } catch (e: Exception) {
-      //      Log.d("error", e.message)
     }
   }
+
+  // endregion
 }

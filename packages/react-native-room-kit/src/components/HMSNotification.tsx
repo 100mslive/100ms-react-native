@@ -73,7 +73,7 @@ export const HMSNotification: React.FC<HMSNotificationProps> = ({
           </View>
         ) : null}
 
-        <View>
+        <View style={{ flexShrink: 1 }}>
           {typeof text === 'string' ? (
             <Text
               testID={textTestID}

@@ -1,5 +1,6 @@
 // Stores
 
+import type { HMSPoll } from '../classes/polls/HMSPoll';
 import type {
   HMSHLSPlayerPlaybackState,
   HMSHLSPlayerPlaybackCueEventData,
@@ -11,8 +12,9 @@ import type {
 
 export type HMSStore = HMSHLSPlayerPlaybackSlice & HMSViewsSlice;
 export type HMSHLSPlayerStatsStore = HMSHLSPlayerStatsSlice;
+export type HMSInteractivityStore = HMSPollsSlice;
 
-// HMSViews Slice
+//#region HMSViews Slice
 
 export type TrackId = string;
 
@@ -26,7 +28,9 @@ export interface HMSViewsSlice {
   setHmsviewsResolutions(trackId: TrackId, resolution: Resolution): void;
 }
 
-// HLS Player Playback Slice
+//#endregion HMSViews Slice
+
+//#region HLS Player Playback Slice
 
 export interface HMSHLSPlayerPlaybackCue
   extends Omit<HMSHLSPlayerPlaybackCueEventData, 'endDate' | 'startDate'> {
@@ -55,7 +59,9 @@ export interface HMSHLSPlayerPlaybackSlice {
   setPlaybackError(error: HMSHLSPlayerPlaybackError): void;
 }
 
-// HLS Player Stats Slice
+//#endregion HLS Player Playback Slice
+
+//#region HLS Player Stats Slice
 
 export type HMSHLSPlayerStats = HMSHLSPlayerStatsUpdateEventData;
 export type HMSHLSPlayerStatsError =
@@ -68,3 +74,14 @@ export interface HMSHLSPlayerStatsSlice {
   changeStats(stats: HMSHLSPlayerStats): void;
   setError(error: HMSHLSPlayerStatsError): void;
 }
+
+//#endregion HLS Player Stats Slice
+
+//#region Polls Slice
+
+export type HMSPollsSlice = {
+  polls: Record<string, HMSPoll>;
+  setPolls(poll: HMSPoll): void;
+};
+
+//#endregion Polls Slice

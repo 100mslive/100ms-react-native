@@ -12,6 +12,7 @@ import ReplayKit
 class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
     var hms: HMSSDK?
+    var interactivity: HMSRNInteractivityCenter?
 
     var delegate: HMSManager?
     var id: String = "12345"
@@ -26,7 +27,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     private var isScreenShared: Bool? = false
     private var previewInProgress = false
     private var networkQualityUpdatesAttached = false
-    private var eventsEnableStatus: [String: Bool] = [:]
+    internal var eventsEnableStatus: [String: Bool] = [:]
     private var sessionStore: HMSSessionStore?
     private var sessionStoreChangeObservers = [String: NSObjectProtocol]()
     private var peerListIterators = [String: HMSPeerListIterator]()
@@ -35,7 +36,8 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     // MARK: - Setup
     init(data: NSDictionary?, delegate manager: HMSManager?, uid id: String) {
         preferredExtension = data?.value(forKey: "preferredExtension") as? String
-
+        self.delegate = manager
+        self.id = id
         DispatchQueue.main.async { [weak self] in
             self?.hms = HMSSDK.build { sdk in
                 sdk.appGroup = data?.value(forKey: "appGroup") as? String
@@ -44,6 +46,12 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                 let videoSettings = HMSHelper.getLocalVideoSettings(trackSettings?.value(forKey: "video") as? NSDictionary)
                 let audioSettings = HMSHelper.getLocalAudioSettings(trackSettings?.value(forKey: "audio") as? NSDictionary, sdk, self?.delegate, id)
                 sdk.trackSettings = HMSTrackSettings(videoSettings: videoSettings, audioSettings: audioSettings)
+            }
+            if let hms = self?.hms {
+                self?.interactivity = HMSRNInteractivityCenter(
+                    hmssdk: hms,
+                    hmsrnsdk: self
+                )
             }
 
             NotificationCenter.default.addObserver(forName: UIApplication.willTerminateNotification,
@@ -54,8 +62,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                 }
             }
         }
-        self.delegate = manager
-        self.id = id
     }
 
     deinit {

@@ -448,7 +448,9 @@ class HMSDecoder: NSObject {
             "rtmpStreaming": permissions.rtmpStreaming ?? false,
             "mute": permissions.mute ?? false,
             "unmute": permissions.unmute ?? false,
-            "changeRole": permissions.changeRole ?? false
+            "changeRole": permissions.changeRole ?? false,
+            "pollRead": permissions.pollRead ?? false,
+            "pollWrite": permissions.pollWrite ?? false
         ]
     }
 

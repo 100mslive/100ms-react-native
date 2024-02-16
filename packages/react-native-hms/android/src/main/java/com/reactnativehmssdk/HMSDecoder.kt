@@ -340,6 +340,8 @@ object HMSDecoder {
       permissions.putBoolean("hlsStreaming", hmsPermissions.hlsStreaming)
       permissions.putBoolean("rtmpStreaming", hmsPermissions.rtmpStreaming)
       permissions.putBoolean("changeRole", hmsPermissions.changeRole)
+      permissions.putBoolean("pollRead", hmsPermissions.pollRead)
+      permissions.putBoolean("pollWrite", hmsPermissions.pollWrite)
     }
     return permissions
   }
