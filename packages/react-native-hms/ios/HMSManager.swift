@@ -37,7 +37,7 @@ class HMSManager: RCTEventEmitter {
     }
 
     override func supportedEvents() -> [String]! {
-        return [ON_JOIN, ON_PREVIEW, ON_ROOM_UPDATE, ON_PEER_UPDATE, ON_TRACK_UPDATE, ON_ERROR, ON_MESSAGE, ON_SPEAKER, RECONNECTING, RECONNECTED, ON_ROLE_CHANGE_REQUEST, ON_CHANGE_TRACK_STATE_REQUEST, ON_REMOVED_FROM_ROOM, ON_RTC_STATS, ON_LOCAL_AUDIO_STATS, ON_LOCAL_VIDEO_STATS, ON_REMOTE_AUDIO_STATS, ON_REMOTE_VIDEO_STATS, ON_AUDIO_DEVICE_CHANGED, HMSConstants.ON_SESSION_STORE_AVAILABLE, HMSConstants.ON_SESSION_STORE_CHANGED, HMSConstants.ON_PEER_LIST_UPDATED]
+        return [ON_JOIN, ON_PREVIEW, ON_ROOM_UPDATE, ON_PEER_UPDATE, ON_TRACK_UPDATE, ON_ERROR, ON_MESSAGE, ON_SPEAKER, RECONNECTING, RECONNECTED, ON_ROLE_CHANGE_REQUEST, ON_CHANGE_TRACK_STATE_REQUEST, ON_REMOVED_FROM_ROOM, ON_RTC_STATS, ON_LOCAL_AUDIO_STATS, ON_LOCAL_VIDEO_STATS, ON_REMOTE_AUDIO_STATS, ON_REMOTE_VIDEO_STATS, ON_AUDIO_DEVICE_CHANGED, HMSConstants.ON_SESSION_STORE_AVAILABLE, HMSConstants.ON_SESSION_STORE_CHANGED, HMSConstants.ON_PEER_LIST_UPDATED, HMSConstants.ON_POLL_UPDATE]
     }
 
     // MARK: - HMS SDK Delegate Callbacks
@@ -642,5 +642,34 @@ class HMSManager: RCTEventEmitter {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.peerListIteratorNext(data, resolve, reject)
+    }
+
+    // MARK: - Interactivity Center - Polls/Quiz
+
+    @objc
+    func quickStartPoll(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        guard let rnsdk = HMSHelper.getHms(data, hmsCollection), let interactivity = rnsdk.interactivity else {
+            reject?("6004", "HMSRNSDK instance not found!", nil)
+            return
+        }
+        interactivity.quickStartPoll(data, resolve, reject)
+    }
+
+    @objc
+    func addResponseOnPollQuestion(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        guard let rnsdk = HMSHelper.getHms(data, hmsCollection), let interactivity = rnsdk.interactivity else {
+            reject?("6004", "HMSRNSDK instance not found!", nil)
+            return
+        }
+        interactivity.add(data, resolve, reject)
+    }
+
+    @objc
+    func stopPoll(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        guard let rnsdk = HMSHelper.getHms(data, hmsCollection), let interactivity = rnsdk.interactivity else {
+            reject?("6004", "HMSRNSDK instance not found!", nil)
+            return
+        }
+        interactivity.stop(data, resolve, reject)
     }
 }

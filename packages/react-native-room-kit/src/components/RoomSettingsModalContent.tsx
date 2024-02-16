@@ -13,6 +13,7 @@ import {
   HandIcon,
   ParticipantsIcon,
   PencilIcon,
+  PollVoteIcon,
   RecordingIcon,
   ScreenShareIcon,
 } from '../Icons';
@@ -66,6 +67,11 @@ export const RoomSettingsModalContent: React.FC<
   const editUsernameDisabled = useSelector(
     (state: RootState) => state.app.editUsernameDisabled
   );
+
+  const canReadOrWritePoll = useSelector((state: RootState) => {
+    const permissions = state.hmsStates.localPeer?.role?.permissions;
+    return permissions?.pollRead || permissions?.pollWrite;
+  });
 
   const { registerOnModalHideAction } = useBottomSheetActions();
 
@@ -187,6 +193,15 @@ export const RoomSettingsModalContent: React.FC<
     closeRoomSettingsModal();
   };
 
+  const openPollsQuizzesModal = () => {
+    registerOnModalHideAction(() => {
+      setModalVisible(ModalTypes.POLLS_AND_QUIZZES);
+    });
+
+    // Close the current bottom sheet
+    closeRoomSettingsModal();
+  };
+
   const canShowBRB = useHMSLayoutConfig(
     (layoutConfig) =>
       !!layoutConfig?.screens?.conferencing?.default?.elements?.brb
@@ -297,6 +312,14 @@ export const RoomSettingsModalContent: React.FC<
               pressHandler: changeName,
               isActive: false,
               hide: isPublisher || editUsernameDisabled,
+            },
+            {
+              id: 'polls-and-quizes',
+              icon: <PollVoteIcon style={{ width: 20, height: 20 }} />,
+              label: 'Polls',
+              pressHandler: openPollsQuizzesModal,
+              isActive: false,
+              hide: !canReadOrWritePoll,
             },
           ].filter((itm) => !itm.hide),
           true

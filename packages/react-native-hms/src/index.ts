@@ -95,6 +95,15 @@ export type {
 } from './classes/HmsView';
 export type { HMSPIPConfig } from './classes/HMSPIPConfig';
 export { HMSRecordingState } from './classes/HMSRecordingState';
+export type { HMSPoll } from './classes/polls/HMSPoll';
+
+export { HMSPollQuestionType } from './classes/polls/HMSPollQuestionType';
+export { HMSPollType } from './classes/polls/HMSPollType';
+export { HMSPollUserTrackingMode } from './classes/polls/HMSPollUserTrackingMode';
+export { HMSPollUpdateType } from './classes/polls/HMSPollUpdateType';
+export { HMSPollState } from './classes/polls/HMSPollState';
+export { HMSPollQuestion } from './classes/polls/HMSPollQuestion';
+export { HMSPollQuestionOption } from './classes/polls/HMSPollQuestionOption';
 
 import { HMSSDK as HmsManager } from './classes/HMSSDK';
 

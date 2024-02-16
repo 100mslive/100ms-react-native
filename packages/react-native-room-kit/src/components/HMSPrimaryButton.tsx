@@ -8,7 +8,7 @@ import type { HMSBaseButtonProps } from './HMSBaseButton';
 export interface HMSPrimaryButtonProps {
   title: string;
   loading: boolean;
-  onPress(): void;
+  onPress(e: any): void;
   testId?: HMSBaseButtonProps['testID'];
   style?: StyleProp<ViewStyle>;
   disabled?: boolean;

@@ -1,3 +1,9 @@
+import type {
+  HMSPoll,
+  HMSPollQuestion,
+  HMSPollQuestionType,
+} from '@100mslive/react-native-hms';
+
 const createRequests = (base: String) => {
   const statusObject = {
     REQUEST: `${base}_REQUEST`,
@@ -178,4 +184,219 @@ export enum HmsStateActionTypes {
   SET_ACTIVE_SPEAKERS = 'SET_ACTIVE_SPEAKERS',
   SET_RECONNECTING = 'SET_RECONNECTING',
   SET_INITIAL_ROLE = 'SET_INITIAL_ROLE',
+}
+
+/**
+ * Polls
+ */
+
+export enum CreatePollStages {
+  POLL_CONFIG,
+  POLL_QUESTION_CONFIG,
+  POLL_VOTING,
+}
+
+export type PollConfig = {
+  voteCountHidden: boolean;
+  resultsAnonymous: boolean;
+};
+
+export type PollQuestionUI = {
+  type: HMSPollQuestionType;
+  title: string;
+  skippable: boolean;
+  responseEditable: boolean;
+  options?: string[];
+  saved: boolean;
+};
+
+export type PollsActionType =
+  | SetDeleteConfirmationVisible
+  | SetPollNameAction
+  | SetPollConfigAction
+  | SetPollStageAction
+  | AddPollQuestionAction
+  | DeletePollQuestionAction
+  | SetSelectedQuestionIndexAction
+  | SetQuestionTypeAction
+  | SetQuestionTitleAction
+  | AddQuestionOptionAction
+  | DeleteQuestionOptionAction
+  | EditQuestionOptionAction
+  | SetQuestionSkippable
+  | SetQuestionResponseEditable
+  | SetQuestionSavedAction
+  | SetLaunchingPollAction
+  | ClearPollsStateAction
+  | ClearPollFormStateAction
+  | SetSelectedPollIdAction
+  | AddPollAction
+  | UpdatePollAction
+  | SetPollQuestionResponseAction
+  | AddPollQuestionResponseAction
+  | RemovePollQuestionResponseAction
+  | AddCuedPollIdAction
+  | { type: HmsStateActionTypes.CLEAR_STATES };
+
+export type ClearPollFormStateAction = {
+  type: PollsStateActionTypes.CLEAR_POLL_FORM_STATE;
+};
+
+export type SetDeleteConfirmationVisible = {
+  type: PollsStateActionTypes.SET_DELETE_CONFIRMATION_VISIBLE;
+  deleteConfirmationVisible: boolean;
+};
+
+export type SetPollNameAction = {
+  type: PollsStateActionTypes.SET_POLL_NAME;
+  pollName: string;
+};
+
+export type SetPollConfigAction = {
+  type: PollsStateActionTypes.SET_POLL_CONFIG;
+  pollConfig: Partial<PollConfig>;
+};
+
+export type SetPollStageAction = {
+  type: PollsStateActionTypes.SET_POLL_STAGE;
+  pollStage: CreatePollStages;
+};
+
+export type AddPollQuestionAction = {
+  type: PollsStateActionTypes.ADD_POLL_QUESTION;
+};
+
+export type DeletePollQuestionAction = {
+  type: PollsStateActionTypes.DELETE_POLL_QUESTION;
+};
+
+export type SetSelectedQuestionIndexAction = {
+  type: PollsStateActionTypes.SET_SELECTED_QUESTION_INDEX;
+  index: number;
+};
+
+export type SetQuestionTypeAction = {
+  type: PollsStateActionTypes.SET_QUESTION_TYPE;
+  questionIndex: number;
+  questionType: HMSPollQuestionType;
+};
+
+export type SetQuestionTitleAction = {
+  type: PollsStateActionTypes.SET_QUESTION_TITLE;
+  questionIndex: number;
+  title: string;
+};
+
+export type AddQuestionOptionAction = {
+  type: PollsStateActionTypes.ADD_QUESTION_OPTION;
+  questionIndex: number;
+};
+
+export type DeleteQuestionOptionAction = {
+  type: PollsStateActionTypes.DELETE_QUESTION_OPTION;
+  questionIndex: number;
+  index: number;
+};
+
+export type EditQuestionOptionAction = {
+  type: PollsStateActionTypes.EDIT_QUESTION_OPTION;
+  questionIndex: number;
+  optionIndex: number;
+  option: string;
+};
+
+export type SetQuestionSkippable = {
+  type: PollsStateActionTypes.SET_QUESTION_SKIPPABLE;
+  questionIndex: number;
+  skippable: boolean;
+};
+
+export type SetQuestionResponseEditable = {
+  type: PollsStateActionTypes.SET_QUESTION_RES_EDITABLE;
+  questionIndex: number;
+  responseEditable: boolean;
+};
+
+export type SetQuestionSavedAction = {
+  type: PollsStateActionTypes.SET_QUESTION_SAVED;
+  questionIndex: number;
+  saved: boolean;
+};
+
+export type SetLaunchingPollAction = {
+  type: PollsStateActionTypes.SET_LAUNCHING_POLL;
+  launching: boolean;
+};
+
+export type ClearPollsStateAction = {
+  type: PollsStateActionTypes.CLEAR_POLLS_STATE;
+};
+
+export type SetSelectedPollIdAction = {
+  type: PollsStateActionTypes.SET_SELECTED_POLL_ID;
+  pollId: HMSPoll['pollId'];
+};
+
+export type AddPollAction = {
+  type: PollsStateActionTypes.ADD_POLL;
+  poll: HMSPoll;
+};
+
+export type UpdatePollAction = {
+  type: PollsStateActionTypes.UPDATE_POLL;
+  poll: HMSPoll;
+};
+
+export type SetPollQuestionResponseAction = {
+  type: PollsStateActionTypes.SET_POLL_QUESTION_RESPONSE;
+  pollId: HMSPoll['pollId'];
+  questionIndex: HMSPollQuestion['index'];
+  response: number;
+};
+
+export type AddPollQuestionResponseAction = {
+  type: PollsStateActionTypes.ADD_POLL_QUESTION_RESPONSE;
+  pollId: HMSPoll['pollId'];
+  questionIndex: HMSPollQuestion['index'];
+  response: number;
+};
+
+export type RemovePollQuestionResponseAction = {
+  type: PollsStateActionTypes.REMOVE_POLL_QUESTION_RESPONSE;
+  pollId: HMSPoll['pollId'];
+  questionIndex: HMSPollQuestion['index'];
+  response: number;
+};
+
+export type AddCuedPollIdAction = {
+  type: PollsStateActionTypes.ADD_CUED_POLL_ID;
+  pollId: HMSPoll['pollId'];
+};
+
+export enum PollsStateActionTypes {
+  CLEAR_POLL_FORM_STATE = 'CLEAR_POLL_FORM_STATE',
+  SET_DELETE_CONFIRMATION_VISIBLE = 'SET_DELETE_CONFIRMATION_VISIBLE',
+  SET_POLL_NAME = 'SET_POLL_NAME',
+  SET_POLL_CONFIG = 'SET_POLL_CONFIG',
+  SET_POLL_STAGE = 'SET_POLL_STAGE',
+  ADD_POLL_QUESTION = 'ADD_POLL_QUESTION',
+  DELETE_POLL_QUESTION = 'DELETE_POLL_QUESTION',
+  SET_SELECTED_QUESTION_INDEX = 'SET_SELECTED_QUESTION_INDEX',
+  SET_QUESTION_TYPE = 'SET_QUESTION_TYPE',
+  SET_QUESTION_TITLE = 'SET_QUESTION_TITLE',
+  ADD_QUESTION_OPTION = 'ADD_QUESTION_OPTION',
+  DELETE_QUESTION_OPTION = 'DELETE_QUESTION_OPTION',
+  EDIT_QUESTION_OPTION = 'EDIT_QUESTION_OPTION',
+  SET_QUESTION_SKIPPABLE = 'SET_QUESTION_SKIPPABLE',
+  SET_QUESTION_RES_EDITABLE = 'SET_QUESTION_RES_EDITABLE',
+  SET_QUESTION_SAVED = 'SET_QUESTION_SAVED',
+  SET_LAUNCHING_POLL = 'SET_LAUNCHING_POLL',
+  CLEAR_POLLS_STATE = 'CLEAR_POLLS_STATE',
+  SET_SELECTED_POLL_ID = 'SET_SELECTED_POLL_ID',
+  ADD_POLL = 'ADD_POLL',
+  UPDATE_POLL = 'UPDATE_POLL',
+  SET_POLL_QUESTION_RESPONSE = 'SET_POLL_QUESTION_RESPONSE',
+  REMOVE_POLL_QUESTION_RESPONSE = 'REMOVE_POLL_QUESTION_RESPONSE',
+  ADD_POLL_QUESTION_RESPONSE = 'ADD_POLL_QUESTION_RESPONSE',
+  ADD_CUED_POLL_ID = 'ADD_CUED_POLL_ID',
 }

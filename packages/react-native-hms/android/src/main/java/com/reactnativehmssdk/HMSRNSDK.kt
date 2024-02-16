@@ -49,11 +49,13 @@ class HMSRNSDK(
   private var audioMixingMode: AudioMixingMode = AudioMixingMode.TALK_AND_MUSIC
   private var id: String = sdkId
   private var self = this
-  private var eventsEnableStatus = mutableMapOf<String, Boolean>()
+  var eventsEnableStatus = mutableMapOf<String, Boolean>()
   private var sessionStore: HmsSessionStore? = null
   private val keyChangeObservers = mutableMapOf<String, HMSKeyChangeListener?>()
   private val peerListIterators = mutableMapOf<String, PeerListIterator>()
   private var roomMutedLocally = false
+
+  var interactivityCenter: HMSRNInteractivityCenter? = null
 
   init {
     val builder = HMSSDK.Builder(reactApplicationContext)
@@ -85,6 +87,10 @@ class HMSRNSDK(
     }
 
     this.hmsSDK = builder.build()
+
+    hmsSDK?.let {
+      interactivityCenter = HMSRNInteractivityCenter(it, this)
+    }
   }
 
   private fun emitCustomError(message: String) {
@@ -1698,6 +1704,7 @@ class HMSRNSDK(
           if (eventsEnableStatus["ON_AUDIO_DEVICE_CHANGED"] != true) {
             return
           }
+
           val data: WritableMap = Arguments.createMap()
           data.putString("device", selectedAudioDevice.name)
           data.putArray("audioDevicesList", HMSHelper.getAudioDevicesSet(availableAudioDevices))
@@ -1705,8 +1712,8 @@ class HMSRNSDK(
           delegate.emitEvent("ON_AUDIO_DEVICE_CHANGED", data)
         }
 
-        override fun onError(error: HMSException) {
-          self.emitHMSError(error)
+        override fun onError(e: HMSException) {
+          self.emitHMSError(e)
         }
       },
     )

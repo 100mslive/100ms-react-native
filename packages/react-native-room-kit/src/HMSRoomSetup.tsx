@@ -1,5 +1,7 @@
 import {
   HMSException,
+  HMSPollType,
+  HMSPollUpdateType,
   HMSRoom,
   HMSTrack,
   HMSUpdateListenerActions,
@@ -11,7 +13,9 @@ import { batch, useDispatch, useSelector, useStore } from 'react-redux';
 
 import { Preview } from './components';
 import {
+  addCuedPollId,
   addNotification,
+  addPoll,
   changeMeetingState,
   changeStartingHLSStream,
   setHMSLocalPeerState,
@@ -36,6 +40,8 @@ import {
   useLeaveMethods,
   isPublishingAllowed,
   useAndroidSoftInputAdjustResize,
+  useHLSCuedPolls,
+  useIsHLSViewer,
 } from './hooks-util';
 import {
   peerTrackNodeExistForPeerAndTrack,
@@ -77,6 +83,8 @@ export const HMSRoomSetup = () => {
   );
   const [peerTrackNodes, setPeerTrackNodes] = useState<PeerTrackNode[]>([]);
   const [loading, setLoading] = useState(false);
+
+  const isHLSViewer = useIsHLSViewer();
 
   const joinMeeting = useCallback(async () => {
     try {
@@ -392,6 +400,59 @@ export const HMSRoomSetup = () => {
       };
     }
   }, [meetingEnded]);
+
+  useEffect(() => {
+    const subscription = hmsInstance.interactivityCenter.addPollUpdateListener(
+      (poll, pollUpdateType) => {
+        if (poll.type !== HMSPollType.poll) {
+          return;
+        }
+        batch(() => {
+          // Update poll object in store
+          dispatch(addPoll(poll));
+
+          // when poll is started, show notification to user
+          if (pollUpdateType === HMSPollUpdateType.started) {
+            // if user is a viewer
+            if (isHLSViewer) {
+              // Show notification only if poll is started 20 or more seconds ago
+              if (
+                poll.startedAt &&
+                Date.now() - poll.startedAt.getTime() >= 20_000
+              ) {
+                dispatch(
+                  addNotification({
+                    id: `${poll.pollId}--${pollUpdateType}`,
+                    type: NotificationTypes.POLLS_AND_QUIZZES,
+                    payload: { poll, pollUpdateType },
+                  })
+                );
+                dispatch(addCuedPollId(poll.pollId));
+              }
+            }
+            // if user is not a viewer, show notification
+            else {
+              // TODO: Dont show notification if already voted
+              dispatch(
+                addNotification({
+                  id: `${poll.pollId}--${pollUpdateType}`,
+                  type: NotificationTypes.POLLS_AND_QUIZZES,
+                  payload: { poll, pollUpdateType },
+                })
+              );
+            }
+          }
+        });
+      }
+    );
+
+    return () => {
+      subscription.remove();
+    };
+  }, [isHLSViewer]);
+
+  // Syncs showing Polls with HLS Player onCue event
+  useHLSCuedPolls();
 
   useEffect(() => {
     return () => {

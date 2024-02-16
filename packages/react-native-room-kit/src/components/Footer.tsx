@@ -55,6 +55,11 @@ export const _Footer: React.FC<FooterProps> = () => {
       !!state.hmsStates.localPeer?.role?.permissions?.browserRecording
   );
 
+  const canReadOrWritePoll = useSelector((state: RootState) => {
+    const permissions = state.hmsStates.localPeer?.role?.permissions;
+    return permissions?.pollRead || permissions?.pollWrite;
+  });
+
   const canEditUsernameFromRoomModal = isViewer && !editUsernameDisabled;
 
   const canShowHandRaiseInFooter = !isOnStage && isViewer; // on_stage_exp object undefined && viewer -> show in footer
@@ -66,7 +71,8 @@ export const _Footer: React.FC<FooterProps> = () => {
     canShowBRB ||
     canShowHandRaiseInRoomModal ||
     canStartRecording ||
-    canEditUsernameFromRoomModal;
+    canEditUsernameFromRoomModal ||
+    canReadOrWritePoll;
 
   const footerActionButtons = useMemo(() => {
     const actions = [];

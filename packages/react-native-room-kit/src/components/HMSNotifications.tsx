@@ -12,6 +12,7 @@ import { HMSNotification } from './HMSNotification';
 import { AlertTriangleIcon } from '../Icons';
 import { HMSReconnectingNotification } from './HMSReconnectingNotification';
 import { useIsLandscapeOrientation } from '../utils/dimension';
+import { HMSPollsQuizzesNotification } from './HMSPollsQuizzesNotification';
 
 export interface HMSNotificationsProps {}
 
@@ -148,6 +149,12 @@ export const HMSNotifications: React.FC<HMSNotificationsProps> = () => {
                 text={notification.title}
                 autoDismiss={true}
                 dismissable={true}
+              />
+            ) : notification.type === NotificationTypes.POLLS_AND_QUIZZES &&
+              'payload' in notification ? (
+              <HMSPollsQuizzesNotification
+                id={notification.id}
+                payload={notification.payload}
               />
             ) : null}
           </View>

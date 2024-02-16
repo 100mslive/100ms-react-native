@@ -1,15 +1,18 @@
 Board: https://100ms.atlassian.net/jira/software/projects/RN/boards/33
 
-- Resolved issues reported by VAPT testing
-https://100ms.atlassian.net/browse/RN-219
+- Launch Polls Screen
+https://100ms.atlassian.net/browse/RN-202
 
-- Gaayak - Make landscape mode same as Gmeet as default
-https://100ms.atlassian.net/browse/RN-217
+- Poll Ended Screen
+https://100ms.atlassian.net/browse/RN-205
 
-- Hide "Tap to FullScreen" button on Screenshare when in Landscape mode
-https://100ms.atlassian.net/browse/RN-220
+- Toast for Poll being started in Voting Flow
+https://100ms.atlassian.net/browse/RN-206
 
-Room Kit: 1.1.0
-React Native SDK: 1.9.9
-Android SDK: 2.9.0
-iOS SDK: 1.5.0
+- Select an option to vote
+https://100ms.atlassian.net/browse/RN-207
+
+Room Kit: 1.1.1
+React Native SDK: 1.9.10
+Android SDK: 2.9.2
+iOS SDK: 1.5.1
