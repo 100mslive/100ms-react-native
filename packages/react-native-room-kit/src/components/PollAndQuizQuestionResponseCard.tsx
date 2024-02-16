@@ -87,7 +87,8 @@ export const PollAndQuizQuestionResponseCard: React.FC<
     const rolesThatCanViewResponses =
       state.polls.polls[pollId]?.rolesThatCanViewResponses;
 
-    return Array.isArray(rolesThatCanViewResponses)
+    return Array.isArray(rolesThatCanViewResponses) &&
+      rolesThatCanViewResponses.length > 0
       ? localPeerRole &&
           rolesThatCanViewResponses.findIndex(
             (role) => role.name === localPeerRole.name
