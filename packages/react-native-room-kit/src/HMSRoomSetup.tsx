@@ -7,14 +7,7 @@ import {
   HMSUpdateListenerActions,
 } from '@100mslive/react-native-hms';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import {
-  Alert,
-  Keyboard,
-  Platform,
-  StatusBar,
-  StyleSheet,
-  View,
-} from 'react-native';
+import { Alert, Keyboard, StatusBar, StyleSheet, View } from 'react-native';
 import Toast from 'react-native-simple-toast';
 import { batch, useDispatch, useSelector, useStore } from 'react-redux';
 
@@ -407,18 +400,6 @@ export const HMSRoomSetup = () => {
       };
     }
   }, [meetingEnded]);
-
-  useEffect(() => {
-    const subscription = hmsInstance.interactivityCenter.addPollUpdateListener(
-      (poll, pollUpdateType) => {
-        console.log('🚀 ~ poll Listener 1 > ', pollUpdateType, poll);
-      }
-    );
-
-    return () => {
-      subscription.remove();
-    };
-  }, []);
 
   useEffect(() => {
     const subscription = hmsInstance.interactivityCenter.addPollUpdateListener(

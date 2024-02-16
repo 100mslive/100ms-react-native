@@ -32,17 +32,14 @@ type PollQuestionResponseCreateParams = {
 let pollUpdateSubscription: null | HMSEventSubscription = null;
 
 function registerPollUpdateListener(listener: PollUpdateListener) {
-  console.log('***** checking existance of pollUpdateSubscription');
   if (pollUpdateSubscription !== null) {
     return;
   }
-  console.log('***** registering PollUpdateListener');
   pollUpdateSubscription = HMSNativeEventListener.addListener(
     HMSConstants.DEFAULT_SDK_ID,
     HMSPollsListenerActions.ON_POLL_UPDATE,
     listener
   );
-  console.log('***** Registerd PollUpdateListener');
 }
 
 function unregisterPollUpdateListener() {
@@ -51,7 +48,6 @@ function unregisterPollUpdateListener() {
   }
   pollUpdateSubscription.remove();
   pollUpdateSubscription = null;
-  console.log('***** Unregisterd PollUpdateListener');
 }
 
 export class HMSInteractivityCenter {

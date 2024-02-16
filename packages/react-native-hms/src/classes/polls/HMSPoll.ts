@@ -11,6 +11,10 @@ type HMSPeerSubset = {
   name: HMSPeer['name'];
 };
 
+type HMSRoleSubset = {
+  name: HMSRole['name'];
+};
+
 export interface HMSPoll {
   /**
    The unique identifier of the poll.
@@ -40,12 +44,12 @@ export interface HMSPoll {
   /**
    The roles that can vote in the poll.
    */
-  rolesThatCanVote?: HMSRole[];
+  rolesThatCanVote?: HMSRoleSubset[];
 
   /**
    The roles that can view the poll responses.
    */
-  rolesThatCanViewResponses?: HMSRole[];
+  rolesThatCanViewResponses?: HMSRoleSubset[];
 
   /**
    The peer who started the poll.

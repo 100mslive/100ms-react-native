@@ -12,9 +12,9 @@ import {
   HMSTrackSource,
   HMSVideoTrack,
   HMSRole,
-  type HMSPoll,
   HMSPollType,
 } from '@100mslive/react-native-hms';
+import type { HMSPoll } from '@100mslive/react-native-hms';
 
 import type { PeerTrackNode } from './types';
 
