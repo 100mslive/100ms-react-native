@@ -1,3 +1,4 @@
+import type { HMSRole } from '../HMSRole';
 import type { HMSPoll } from './HMSPoll';
 import type { HMSPollQuestionCreateParams } from './HMSPollQuestionCreateParams';
 
@@ -11,9 +12,9 @@ export interface HMSPollCreateParams
     // | 'visibility'
     // | 'locked'
     | 'mode'
-    | 'rolesThatCanVote'
-    | 'rolesThatCanViewResponses'
   > {
   pollId?: HMSPoll['pollId'];
   questions?: HMSPollQuestionCreateParams[];
+  rolesThatCanVote?: HMSRole[];
+  rolesThatCanViewResponses?: HMSRole[];
 }

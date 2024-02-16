@@ -9,6 +9,7 @@ import { HMSPollsListenerActions } from './HMSPollsListenerActions';
 import HMSNativeEventListener from './HMSNativeEventListener';
 import type { HMSEventSubscription } from './HMSNativeEventEmitter';
 import { HMSInteractivityEncoder } from './HMSInteractivityEncoder';
+import { HMSHelper } from './HMSHelper';
 
 type PollUpdateListener = (data: {
   updatedPoll: HMSPoll;
@@ -98,8 +99,18 @@ export class HMSInteractivityCenter {
    * @param pollParams
    */
   async startPoll(pollParams: HMSPollCreateParams) {
-    const data = {
+    const transformedPollParams = {
       ...pollParams,
+      rolesThatCanVote: pollParams.rolesThatCanVote
+        ? HMSHelper.getRoleNames(pollParams.rolesThatCanVote)
+        : undefined,
+      rolesThatCanViewResponses: pollParams.rolesThatCanViewResponses
+        ? HMSHelper.getRoleNames(pollParams.rolesThatCanViewResponses)
+        : undefined,
+    };
+
+    const data = {
+      ...transformedPollParams,
       id: HMSConstants.DEFAULT_SDK_ID,
     };
     logger?.verbose('#Function startPoll', JSON.stringify(data));
