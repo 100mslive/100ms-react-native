@@ -12,6 +12,7 @@ export const createHMSPollsSlice: StateCreator<
   setPolls: (poll: HMSPoll) => {
     set((state) => {
       state.polls[poll.pollId] = poll;
+      return state; // TODO: remove when use immer
     });
   },
   // cue: undefined,
