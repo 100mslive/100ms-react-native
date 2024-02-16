@@ -116,7 +116,6 @@ export * from './components/HMSHLSPlayer';
 // 100ms Hooks
 export * from './hooks/useHMSPeerUpdates';
 export { useHmsViewsResolutionsState } from './hooks/hmsviews';
-export { usePollsState } from './hooks/polls';
 
 // 100ms Utilities
 export type { NotificationResult } from './utils/notification';
