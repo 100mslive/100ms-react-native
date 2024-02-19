@@ -108,7 +108,7 @@ export const PollsAndQuizzesModalContent: React.FC<
               hmsRoomStyles.headerText,
             ]}
           >
-            {headerTitle ?? ('Polls' || 'Polls and Quizzes')}
+            {headerTitle ?? 'Polls and Quizzes'}
           </Text>
 
           {selectedPoll?.state ? (

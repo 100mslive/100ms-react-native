@@ -1,4 +1,4 @@
-import { HMSPollQuestionType } from '@100mslive/react-native-hms';
+import { HMSPollQuestionType, HMSPollType } from '@100mslive/react-native-hms';
 import type { HMSPoll } from '@100mslive/react-native-hms';
 
 import {
@@ -12,14 +12,18 @@ import type {
   PollsActionType,
 } from '../actionTypes';
 
-function getDefaultQuestionObj() {
+function getDefaultQuestionObj(): PollQuestionUI {
   return {
     title: '',
     responseEditable: false,
     saved: false,
     skippable: false,
+    pointWeightage: '10',
     type: HMSPollQuestionType.singleChoice,
-    options: ['', ''],
+    options: [
+      [false, ''],
+      [false, ''],
+    ],
   };
 }
 
@@ -40,6 +44,7 @@ type IntialStateType = {
 const INITIAL_STATE: IntialStateType = {
   pollName: '',
   pollConfig: {
+    type: HMSPollType.poll,
     voteCountHidden: false,
     resultsAnonymous: false,
   },
@@ -76,6 +81,10 @@ const hmsStatesReducer = (
           ...state.pollConfig,
           ...action.pollConfig,
         },
+        questions:
+          'type' in action.pollConfig
+            ? state.questions.map((ques) => ({ ...ques, saved: false }))
+            : state.questions,
         selectedPollQuestionIndex: null,
       };
     case PollsStateActionTypes.SET_POLL_STAGE:
@@ -144,6 +153,18 @@ const hmsStatesReducer = (
             : question
         ),
       };
+    case PollsStateActionTypes.SET_POINT_WEIGHTAGE:
+      return {
+        ...state,
+        questions: state.questions.map((question, idx) =>
+          idx === action.questionIndex
+            ? {
+                ...question,
+                pointWeightage: action.pointWeightage,
+              }
+            : question
+        ),
+      };
     case PollsStateActionTypes.ADD_QUESTION_OPTION:
       return {
         ...state,
@@ -151,7 +172,7 @@ const hmsStatesReducer = (
           idx === action.questionIndex
             ? {
                 ...question,
-                options: [...(question.options || []), ''],
+                options: [...(question.options || []), [false, '']],
               }
             : question
         ),
@@ -180,8 +201,37 @@ const hmsStatesReducer = (
                 options:
                   question.options &&
                   question.options.map((option, idx) =>
-                    idx === action.optionIndex ? action.option : option
+                    idx === action.optionIndex
+                      ? [option[0], action.option]
+                      : option
                   ),
+              }
+            : question
+        ),
+      };
+    case PollsStateActionTypes.SET_QUESTION_CORRECT_OPTION:
+      return {
+        ...state,
+        questions: state.questions.map((question, idx) =>
+          idx === action.questionIndex
+            ? {
+                ...question,
+                options:
+                  question.options &&
+                  question.options.map((option, idx) => {
+                    if (
+                      action.correctOption === false ||
+                      question.type === HMSPollQuestionType.multipleChoice
+                    ) {
+                      return idx === action.optionIndex
+                        ? [action.correctOption, option[1]]
+                        : option;
+                    }
+                    return [
+                      idx === action.optionIndex ? true : false,
+                      option[1],
+                    ];
+                  }),
               }
             : question
         ),

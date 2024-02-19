@@ -22,6 +22,8 @@ import {
   editPollQuestionOption,
   setLaunchingPoll,
   setPollQDeleteConfirmationVisible,
+  setPollQuestionCorrectOption,
+  setPollQuestionPointWeightage,
   setPollQuestionResponseEditable,
   setPollQuestionSaved,
   setPollQuestionSkippable,
@@ -29,7 +31,7 @@ import {
   setPollQuestionType,
   setSelectedPollQuestionIndex,
 } from '../redux/actions';
-import type { PollQuestionUI } from 'src/redux/actionTypes';
+import type { PollQuestionUI } from '../redux/actionTypes';
 
 export interface PollQuestionsProps {
   dismissModal(): void;
@@ -45,6 +47,9 @@ export const PollQuestions: React.FC<PollQuestionsProps> = ({}) => {
   const launchingPoll = useSelector(
     (state: RootState) => state.polls.launchingPoll
   );
+  const pollType = useSelector(
+    (state: RootState) => state.polls.pollConfig.type
+  );
   const questions = useSelector((state: RootState) => state.polls.questions);
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
@@ -55,28 +60,12 @@ export const PollQuestions: React.FC<PollQuestionsProps> = ({}) => {
   }));
 
   const disableLaunchPoll =
-    questions.length <= 0 ||
-    questions.some(
-      (question) =>
-        !question.title ||
-        !question.saved ||
-        (Array.isArray(question.options) &&
-          (question.options.length <= 1 ||
-            question.options.some((option) => !option)))
-    );
+    questions.length <= 0 || questions.some((question) => !question.saved);
 
   const launchPoll = async () => {
     try {
       const pollsData = reduxStore.getState().polls;
-
-      if (
-        !pollsData.pollName ||
-        pollsData.questions.some(
-          (question) =>
-            !question.title ||
-            (question.options && question.options.some((option) => !option))
-        )
-      ) {
+      if (!pollsData.pollName || disableLaunchPoll) {
         console.log('Incorrect data!');
         return;
       }
@@ -84,19 +73,30 @@ export const PollQuestions: React.FC<PollQuestionsProps> = ({}) => {
 
       const result = await hmsInstance.interactivityCenter.startPoll({
         title: pollsData.pollName,
-        type: HMSPollType.poll,
+        type: pollType,
         rolesThatCanViewResponses:
           pollsData.pollConfig.voteCountHidden && localPeerRole
             ? [localPeerRole]
             : undefined,
         // mode: HMSPollUserTrackingMode.customerUserID, // mode: null, // `pollsData.pollConfig.resultsAnonymous` Make results anonymous set user tracking mode to none
-        questions: pollsData.questions.map((question) => ({
-          skippable: question.skippable,
-          once: !question.responseEditable,
-          text: question.title,
-          type: question.type,
-          options: question.options?.map((option) => ({ text: option })),
-        })),
+        questions: pollsData.questions.map((question) => {
+          const weight = parseInt(question.pointWeightage);
+          return {
+            skippable: question.skippable,
+            once: !question.responseEditable,
+            text: question.title,
+            type: question.type,
+            weight:
+              pollType === HMSPollType.quiz && !isNaN(weight)
+                ? weight
+                : undefined,
+            options: question.options?.map((option) =>
+              pollType === HMSPollType.quiz
+                ? { text: option[1], isCorrectAnswer: option[0] }
+                : { text: option[1] }
+            ),
+          };
+        }),
       });
 
       console.log('quickStartPoll result > ', result);
@@ -144,6 +144,10 @@ export const PollQuestions: React.FC<PollQuestionsProps> = ({}) => {
             setPollQuestionType(questionIndex, value as HMSPollQuestionType)
           );
           break;
+        case 'pointWeightage':
+          const cleanNumber = (value as string).replace(/[^0-9]/g, '');
+          dispatch(setPollQuestionPointWeightage(questionIndex, cleanNumber));
+          break;
       }
     },
     []
@@ -170,6 +174,15 @@ export const PollQuestions: React.FC<PollQuestionsProps> = ({}) => {
     []
   );
 
+  const handleSetPollQuestionCorrectOption = React.useCallback(
+    (questionIndex: number, optionIndex: number, corectOption: boolean) => {
+      dispatch(
+        setPollQuestionCorrectOption(questionIndex, optionIndex, corectOption)
+      );
+    },
+    []
+  );
+
   return (
     <ScrollView
       style={styles.contentContainer}
@@ -188,6 +201,9 @@ export const PollQuestions: React.FC<PollQuestionsProps> = ({}) => {
               onAddPollQuestionOption={handleAddPollQuestionOption}
               onDeletePollQuestionOption={handleDeletePollQuestionOption}
               onEditPollQuestionOption={handleEditPollQuestionOption}
+              onSetPollQuestionCorrectOption={
+                handleSetPollQuestionCorrectOption
+              }
               onQuestionFieldChange={onQuestionFieldChange}
               onDelete={deleteQuestion}
             />
@@ -215,7 +231,7 @@ export const PollQuestions: React.FC<PollQuestionsProps> = ({}) => {
 
       <HMSPrimaryButton
         disabled={disableLaunchPoll || launchingPoll}
-        title="Launch Poll"
+        title={`Launch ${pollType === HMSPollType.quiz ? 'Quiz' : 'Poll'}`}
         loading={launchingPoll}
         onPress={launchPoll}
         style={{ marginTop: 16, marginBottom: 56, alignSelf: 'flex-end' }}

@@ -1,17 +1,19 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import type { ColorValue } from 'react-native';
 
 export interface RadioInputProps {
   selected: boolean;
   size?: number;
   color?: ColorValue;
+  onChange?: (selected: boolean) => void;
 }
 
 export const RadioInput: React.FC<RadioInputProps> = ({
   selected,
   size = 24,
   color = 'white',
+  onChange,
 }) => {
   const outerCircleStyle = {
     width: size,
@@ -28,10 +30,20 @@ export const RadioInput: React.FC<RadioInputProps> = ({
     backgroundColor: color,
   };
 
-  return (
+  const radio = (
     <View style={[styles.outerCircle, outerCircleStyle]}>
       {selected ? <View style={innerCircleStyle} /> : null}
     </View>
+  );
+
+  if (typeof onChange !== 'function') {
+    return radio;
+  }
+
+  return (
+    <TouchableOpacity onPress={() => onChange(!selected)}>
+      {radio}
+    </TouchableOpacity>
   );
 };
 
