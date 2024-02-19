@@ -1,5 +1,8 @@
 Board: https://100ms.atlassian.net/jira/software/projects/RN/boards/33
 
+- Added Quiz Creation flow
+https://100ms.atlassian.net/browse/RN-209
+
 Room Kit: 1.1.2
 React Native SDK: 1.9.12
 Android SDK: 2.9.3
