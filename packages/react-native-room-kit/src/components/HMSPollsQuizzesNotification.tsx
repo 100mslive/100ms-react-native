@@ -85,7 +85,7 @@ export const HMSPollsQuizzesNotification: React.FC<
             onPress={handleVotePress}
           >
             <Text style={[styles.buttonText, hmsRoomStyles.buttonText]}>
-              Vote
+              {poll.type === HMSPollType.quiz ? 'Answer' : 'Vote'}
             </Text>
           </TouchableHighlight>
         </GestureDetector>

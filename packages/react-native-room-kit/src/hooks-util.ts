@@ -2572,7 +2572,7 @@ export const useHLSCuedPolls = () => {
             ? store.getState().polls.polls[pollId]
             : null;
 
-        if (poll && poll.type === HMSPollType.poll) {
+        if (poll) {
           console.log('HLS Cued Poll ID: ', pollId);
           dispatch(addCuedPollId(poll.pollId));
           dispatch(

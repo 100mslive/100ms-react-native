@@ -404,9 +404,6 @@ export const HMSRoomSetup = () => {
   useEffect(() => {
     const subscription = hmsInstance.interactivityCenter.addPollUpdateListener(
       (poll, pollUpdateType) => {
-        if (poll.type !== HMSPollType.poll) {
-          return;
-        }
         batch(() => {
           // Update poll object in store
           dispatch(addPoll(poll));

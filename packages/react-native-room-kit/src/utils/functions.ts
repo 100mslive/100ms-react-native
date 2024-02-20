@@ -479,9 +479,7 @@ export const visiblePollsSelector = (
   isHLSViewer: boolean,
   hlsCuedPollIds: HMSPoll['pollId'][]
 ) => {
-  return polls.filter(
-    (poll) =>
-      poll.type !== HMSPollType.quiz &&
-      (isHLSViewer ? hlsCuedPollIds.includes(poll.pollId) : true) // Hiding quizzes from UI
+  return polls.filter((poll) =>
+    isHLSViewer ? hlsCuedPollIds.includes(poll.pollId) : true
   );
 };
