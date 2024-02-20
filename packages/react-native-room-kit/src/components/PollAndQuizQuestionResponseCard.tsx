@@ -1,7 +1,11 @@
 import * as React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
-import { HMSPollQuestionType, HMSPollState } from '@100mslive/react-native-hms';
+import {
+  HMSPollQuestionType,
+  HMSPollState,
+  HMSPollType,
+} from '@100mslive/react-native-hms';
 import type {
   HMSPoll,
   HMSPollQuestion,
@@ -74,12 +78,22 @@ export const PollAndQuizQuestionResponseCard: React.FC<
     },
   }));
 
+  // variable to save timestamp when the question became visible to user
+  const startTime = React.useRef<number | null>(null);
+
+  React.useEffect(() => {
+    startTime.current = Date.now();
+  }, [pollQuestion.index]);
+
   const hmsInstance = useHMSInstance();
   const dispatch = useDispatch();
 
   const selectedOptions = useSelector(
     (state: RootState) =>
       state.polls.pollsResponses[pollId]?.[pollQuestion.index] ?? null
+  );
+  const pollType = useSelector(
+    (state: RootState) => state.polls.polls[pollId]?.type ?? HMSPollType.poll
   );
 
   const canViewPollResponse = useSelector((state: RootState) => {
@@ -129,6 +143,10 @@ export const PollAndQuizQuestionResponseCard: React.FC<
         options: Array.isArray(selectedOptions)
           ? selectedOptions
           : [selectedOptions],
+        duration:
+          pollType === HMSPollType.quiz && startTime.current !== null
+            ? Date.now() - startTime.current
+            : undefined,
       },
     });
     console.log(JSON.stringify(result, null, 4));
@@ -175,7 +193,8 @@ export const PollAndQuizQuestionResponseCard: React.FC<
 
       {!InputComponent ? null : (
         <>
-          {canViewPollResponse &&
+          {pollType === HMSPollType.poll &&
+          canViewPollResponse &&
           (pollQuestion.myResponses.length > 0 ||
             pollState === HMSPollState.stopped) ? (
             <>
@@ -244,7 +263,7 @@ export const PollAndQuizQuestionResponseCard: React.FC<
             hmsRoomStyles.surfaceLowSemiBoldText,
           ]}
         >
-          Voted
+          {pollType === HMSPollType.quiz ? 'Answered' : 'Voted'}
         </Text>
       ) : pollState === HMSPollState.started ? (
         <View style={{ alignSelf: 'flex-end', flexDirection: 'row' }}>
@@ -263,7 +282,7 @@ export const PollAndQuizQuestionResponseCard: React.FC<
             loading={false}
             disabled={!anyOptionSelected}
             onPress={handleVotePress}
-            title="Vote"
+            title={pollType === HMSPollType.quiz ? 'Answer' : 'Vote'}
           />
         </View>
       ) : null}
