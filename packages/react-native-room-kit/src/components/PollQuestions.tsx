@@ -75,7 +75,9 @@ export const PollQuestions: React.FC<PollQuestionsProps> = ({}) => {
         title: pollsData.pollName,
         type: pollType,
         rolesThatCanViewResponses:
-          pollsData.pollConfig.voteCountHidden && localPeerRole
+          pollType === HMSPollType.poll &&
+          pollsData.pollConfig.voteCountHidden &&
+          localPeerRole
             ? [localPeerRole]
             : undefined,
         // mode: HMSPollUserTrackingMode.customerUserID, // mode: null, // `pollsData.pollConfig.resultsAnonymous` Make results anonymous set user tracking mode to none

@@ -4,9 +4,12 @@ import type { ImageProps } from 'react-native';
 
 import { useHMSRoomStyle } from '../../hooks-util';
 
-interface CheckIconProps extends Omit<ImageProps, 'source'> {}
+interface CheckIconProps extends Omit<ImageProps, 'source'> {
+  type?: 'normal' | 'in-circle';
+}
 
 export const CheckIcon: React.FC<CheckIconProps> = ({
+  type = 'normal',
   style,
   ...restProps
 }) => {
@@ -16,7 +19,11 @@ export const CheckIcon: React.FC<CheckIconProps> = ({
 
   return (
     <Image
-      source={require('./assets/check.png')}
+      source={
+        type === 'in-circle'
+          ? require('./assets/check-in-circle.png')
+          : require('./assets/check.png')
+      }
       style={[styles.icon, iconStyles, style]}
       {...restProps}
     />

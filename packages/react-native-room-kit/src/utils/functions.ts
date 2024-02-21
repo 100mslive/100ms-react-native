@@ -12,9 +12,15 @@ import {
   HMSTrackSource,
   HMSVideoTrack,
   HMSRole,
-  HMSPollType,
+  HMSPollQuestionType,
 } from '@100mslive/react-native-hms';
-import type { HMSPoll } from '@100mslive/react-native-hms';
+import type {
+  HMSPoll,
+  HMSPollQuestionAnswer,
+  HMSPollQuestionResponse,
+  HMSPollQuestion,
+  HMSPollQuestionOption,
+} from '@100mslive/react-native-hms';
 
 import type { PeerTrackNode } from './types';
 
@@ -483,3 +489,83 @@ export const visiblePollsSelector = (
     isHLSViewer ? hlsCuedPollIds.includes(poll.pollId) : true
   );
 };
+
+export function checkIsSelected(
+  pollQuestion: HMSPollQuestion,
+  option: HMSPollQuestionOption,
+  selectedOptions: number | number[] | null
+) {
+  return pollQuestion.myResponses.length > 0
+    ? pollQuestion.type === HMSPollQuestionType.singleChoice
+      ? !!pollQuestion.myResponses.find((r) => r.option === option.index)
+      : !!pollQuestion.myResponses.find((r) =>
+          r.options ? r.options.includes(option.index) : false
+        )
+    : Array.isArray(selectedOptions)
+      ? selectedOptions.includes(option.index)
+      : selectedOptions === option.index;
+}
+
+export function checkIsCorrectAnswer(
+  questionType: HMSPollQuestionType,
+  myResponses: HMSPollQuestionResponse[] | undefined,
+  answer: HMSPollQuestionAnswer | undefined
+) {
+  if (!myResponses || myResponses.length < 0 || !answer) {
+    return false;
+  }
+  const correctAnswer =
+    questionType === HMSPollQuestionType.multipleChoice
+      ? answer.options
+      : answer.option;
+
+  if (correctAnswer === undefined) {
+    return false;
+  }
+  if (Array.isArray(correctAnswer)) {
+    return myResponses.every(
+      (r) =>
+        r.options &&
+        r.options.length === correctAnswer.length &&
+        r.options.every((o) => correctAnswer.includes(o))
+    );
+  }
+  return myResponses.every((r) => r.option === correctAnswer);
+}
+
+export function checkIsCorrectOption(
+  questionType: HMSPollQuestionType,
+  option: HMSPollQuestionOption,
+  answer: HMSPollQuestionAnswer | undefined
+) {
+  if (!answer) {
+    return false;
+  }
+  const correctAnswer =
+    questionType === HMSPollQuestionType.multipleChoice
+      ? answer.options
+      : answer.option;
+
+  if (correctAnswer === undefined) {
+    return false;
+  }
+  if (Array.isArray(correctAnswer)) {
+    return correctAnswer.includes(option.index);
+  }
+  return option.index === correctAnswer;
+}
+
+export function getLabelFromPollQuestionType(
+  type: HMSPollQuestionType
+): string {
+  switch (type) {
+    case HMSPollQuestionType.singleChoice:
+      return 'Single Choice';
+    case HMSPollQuestionType.multipleChoice:
+      return 'Multiple Choice';
+    case HMSPollQuestionType.longAnswer:
+      return 'Long Answer';
+    case HMSPollQuestionType.shortAnswer:
+      return 'Short Answer';
+  }
+}

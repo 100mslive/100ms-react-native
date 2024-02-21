@@ -54,7 +54,6 @@ export const PollAndQuizQuestionResponseCards: React.FC<
         totalQuestions={pollQuestions.length}
         pollQuestion={unansweredQuestion}
         containerStyle={{ marginBottom: 16 }}
-        onSubmit={onVote}
       />
     );
   }

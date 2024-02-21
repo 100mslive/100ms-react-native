@@ -153,37 +153,41 @@ export const CreatePoll: React.FC<CreatePollProps> = ({}) => {
           id: 'voteCountHidden' as const,
           label: 'Hide vote count',
           enabled: pollConfig.voteCountHidden,
+          visible: pollConfig.type === HMSPollType.poll,
         },
         // {
         //   id: 'resultsAnonymous' as const,
         //   label: 'Make results anonymous',
         //   enabled: pollConfig.resultsAnonymous,
+        //   visible: true
         // },
-      ].map((item) => {
-        return (
-          <View key={item.id} style={styles.switchWrapper}>
-            <Text
-              style={[
-                styles.pollNameLabel,
-                hmsRoomStyles.typeSelectionLabel,
-                { flexGrow: 1 },
-              ]}
-            >
-              {item.label}
-            </Text>
+      ]
+        .filter((item) => item.visible)
+        .map((item) => {
+          return (
+            <View key={item.id} style={styles.switchWrapper}>
+              <Text
+                style={[
+                  styles.pollNameLabel,
+                  hmsRoomStyles.typeSelectionLabel,
+                  { flexGrow: 1 },
+                ]}
+              >
+                {item.label}
+              </Text>
 
-            <Switch
-              value={item.enabled}
-              thumbColor={COLORS.WHITE}
-              trackColor={{
-                true: COLORS.PRIMARY.DEFAULT,
-                false: COLORS.SECONDARY.DISABLED,
-              }}
-              onValueChange={(value) => handleConfigChange(item.id, value)}
-            />
-          </View>
-        );
-      })}
+              <Switch
+                value={item.enabled}
+                thumbColor={COLORS.WHITE}
+                trackColor={{
+                  true: COLORS.PRIMARY.DEFAULT,
+                  false: COLORS.SECONDARY.DISABLED,
+                }}
+                onValueChange={(value) => handleConfigChange(item.id, value)}
+              />
+            </View>
+          );
+        })}
 
       <HMSPrimaryButton
         disabled={!pollName.trim()}
