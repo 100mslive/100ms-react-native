@@ -9,7 +9,11 @@ import { HMSTextInput } from './HMSTextInput';
 import { HMSPrimaryButton } from './HMSPrimaryButton';
 import { COLORS } from '../utils/theme';
 import type { RootState } from '../redux';
-import { setPollConfig, setPollName, setPollStage } from '../redux/actions';
+import {
+  pushToNavigationStack,
+  setPollConfig,
+  setPollName,
+} from '../redux/actions';
 import { CreatePollStages } from '../redux/actionTypes';
 import type { PollConfig } from '../redux/actionTypes';
 import { PollIcon, QuizIcon } from '../Icons';
@@ -67,7 +71,7 @@ export const CreatePoll: React.FC<CreatePollProps> = ({}) => {
 
   const addQuestions = () => {
     if (pollName.trim().length > 0) {
-      dispatch(setPollStage(CreatePollStages.POLL_QUESTION_CONFIG));
+      dispatch(pushToNavigationStack(CreatePollStages.POLL_QUESTION_CONFIG));
     }
   };
 
@@ -230,6 +234,7 @@ const styles = StyleSheet.create({
   },
   createPollBtn: {
     marginTop: 24,
+    marginBottom: 16,
   },
   contentContainer: {
     marginHorizontal: 24,

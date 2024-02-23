@@ -30,7 +30,7 @@ function getDefaultQuestionObj(): PollQuestionUI {
 type IntialStateType = {
   pollName: string;
   pollConfig: PollConfig;
-  stage: CreatePollStages;
+  navigationStack: CreatePollStages[];
   questions: PollQuestionUI[];
   deleteConfirmationVisible: boolean;
   selectedPollQuestionIndex: number | null;
@@ -48,7 +48,7 @@ const INITIAL_STATE: IntialStateType = {
     voteCountHidden: false,
     resultsAnonymous: false,
   },
-  stage: CreatePollStages.POLL_CONFIG,
+  navigationStack: [CreatePollStages.POLL_CONFIG],
   questions: [getDefaultQuestionObj()],
   deleteConfirmationVisible: false,
   selectedPollQuestionIndex: null,
@@ -87,11 +87,25 @@ const hmsStatesReducer = (
             : state.questions,
         selectedPollQuestionIndex: null,
       };
-    case PollsStateActionTypes.SET_POLL_STAGE:
+    case PollsStateActionTypes.PUSH_TO_NAVIGATION_STACK:
       return {
         ...state,
-        stage: action.pollStage,
-        selectedPollQuestionIndex: null,
+        navigationStack: [...state.navigationStack, action.screen],
+      };
+    case PollsStateActionTypes.POP_FROM_NAVIGATION_STACK: {
+      const updatedNavigationStack = [...state.navigationStack];
+      updatedNavigationStack.pop();
+      return {
+        ...state,
+        navigationStack: updatedNavigationStack,
+      };
+    }
+    case PollsStateActionTypes.REPLACE_TOP_OF_NAVIGATION_STACK:
+      const updatedNavigationStack = [...state.navigationStack];
+      updatedNavigationStack[updatedNavigationStack.length - 1] = action.screen;
+      return {
+        ...state,
+        navigationStack: updatedNavigationStack,
       };
     case PollsStateActionTypes.ADD_POLL_QUESTION:
       return {
