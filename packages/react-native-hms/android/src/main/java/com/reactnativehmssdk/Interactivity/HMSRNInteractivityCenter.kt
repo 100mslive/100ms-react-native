@@ -63,23 +63,23 @@ class HMSRNInteractivityCenter(private val sdk: HMSSDK, private val rnSDK: HMSRN
   ) {
     val pollId = data.getString("pollId")
     if (pollId == null) {
-      promise?.reject("6002", "pollId is required")
+      promise?.reject("6004", "pollId is required")
       return
     }
     val poll = this.sdk.getHmsInteractivityCenter().polls.find { it.pollId == pollId }
     if (poll == null) {
-      promise?.reject("6002", "No HMSPoll with pollId `$pollId`")
+      promise?.reject("6004", "No HMSPoll with pollId `$pollId`")
       return
     }
     val pollQuestionIndex = data.getInt("pollQuestionIndex")
     val pollQuestion = poll.questions?.find { it.questionID == pollQuestionIndex }
     if (pollQuestion == null) {
-      promise?.reject("6002", "No HMSPollQuestion in poll with given question index")
+      promise?.reject("6004", "No HMSPollQuestion in poll with given question index")
       return
     }
     val responses = data.getMap("responses")
     if (responses == null) {
-      promise?.reject("6002", "responses field is required")
+      promise?.reject("6004", "responses field is required")
       return
     }
     val pollResponseBuilder = HMSInteractivityHelper.getPollResponseBuilder(responses, poll, pollQuestion)
@@ -103,12 +103,12 @@ class HMSRNInteractivityCenter(private val sdk: HMSSDK, private val rnSDK: HMSRN
   ) {
     val pollId = data.getString("pollId")
     if (pollId == null) {
-      promise?.reject("6002", "pollId is required")
+      promise?.reject("6004", "pollId is required")
       return
     }
     val poll = this.sdk.getHmsInteractivityCenter().polls.find { it.pollId == pollId }
     if (poll == null) {
-      promise?.reject("6002", "No HMSPoll with pollId `$pollId`")
+      promise?.reject("6004", "No HMSPoll with pollId `$pollId`")
       return
     }
     this.sdk.getHmsInteractivityCenter().stop(
@@ -131,12 +131,12 @@ class HMSRNInteractivityCenter(private val sdk: HMSSDK, private val rnSDK: HMSRN
   ) {
     val pollId = data.getString("pollId")
     if (pollId == null) {
-      promise?.reject("6002", "pollId is required")
+      promise?.reject("6004", "pollId is required")
       return
     }
     val poll = this.sdk.getHmsInteractivityCenter().polls.find { it.pollId == pollId }
     if (poll == null) {
-      promise?.reject("6002", "No HMSPoll with pollId `$pollId`")
+      promise?.reject("6004", "No HMSPoll with pollId `$pollId`")
       return
     }
     val count = data.getInt("count")
