@@ -19,7 +19,7 @@
     "react-native": "0.66.5",
     "react-native-camera": "^4.2.1",
     "react-native-device-info": "^9.0.2",
-    "react-native-document-picker": "^8.1.1",
+    "react-native-document-picker": "^8.2.2",
     "react-native-fs": "^2.19.0",
     "react-native-gesture-handler": "^1.10.3",
     "react-native-modal": "^12.1.0",
