@@ -116,7 +116,7 @@
     "jest": "^26.0.1",
     "prettier": "^2.0.5",
     "react": "17.0.1",
-    "react-native": "0.64.4",
+    "react-native": "0.73.4",
     "react-native-builder-bob": "^0.18.0",
     "typedoc": "^0.24.7",
     "typescript": "^4.6.3"
