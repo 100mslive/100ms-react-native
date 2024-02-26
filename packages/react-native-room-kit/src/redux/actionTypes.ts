@@ -2,6 +2,7 @@ import type {
   HMSPoll,
   HMSPollQuestion,
   HMSPollQuestionType,
+  HMSPollType,
 } from '@100mslive/react-native-hms';
 
 const createRequests = (base: String) => {
@@ -197,6 +198,7 @@ export enum CreatePollStages {
 }
 
 export type PollConfig = {
+  type: HMSPollType;
   voteCountHidden: boolean;
   resultsAnonymous: boolean;
 };
@@ -206,7 +208,8 @@ export type PollQuestionUI = {
   title: string;
   skippable: boolean;
   responseEditable: boolean;
-  options?: string[];
+  pointWeightage: string;
+  options?: [boolean, string][];
   saved: boolean;
 };
 
@@ -220,9 +223,11 @@ export type PollsActionType =
   | SetSelectedQuestionIndexAction
   | SetQuestionTypeAction
   | SetQuestionTitleAction
+  | SetQuestionPointWeightageAction
   | AddQuestionOptionAction
   | DeleteQuestionOptionAction
   | EditQuestionOptionAction
+  | SetQuestionCorrectOptionAction
   | SetQuestionSkippable
   | SetQuestionResponseEditable
   | SetQuestionSavedAction
@@ -287,6 +292,12 @@ export type SetQuestionTitleAction = {
   title: string;
 };
 
+export type SetQuestionPointWeightageAction = {
+  type: PollsStateActionTypes.SET_POINT_WEIGHTAGE;
+  questionIndex: number;
+  pointWeightage: string;
+};
+
 export type AddQuestionOptionAction = {
   type: PollsStateActionTypes.ADD_QUESTION_OPTION;
   questionIndex: number;
@@ -303,6 +314,13 @@ export type EditQuestionOptionAction = {
   questionIndex: number;
   optionIndex: number;
   option: string;
+};
+
+export type SetQuestionCorrectOptionAction = {
+  type: PollsStateActionTypes.SET_QUESTION_CORRECT_OPTION;
+  questionIndex: number;
+  optionIndex: number;
+  correctOption: boolean;
 };
 
 export type SetQuestionSkippable = {
@@ -384,9 +402,11 @@ export enum PollsStateActionTypes {
   SET_SELECTED_QUESTION_INDEX = 'SET_SELECTED_QUESTION_INDEX',
   SET_QUESTION_TYPE = 'SET_QUESTION_TYPE',
   SET_QUESTION_TITLE = 'SET_QUESTION_TITLE',
+  SET_POINT_WEIGHTAGE = 'SET_POINT_WEIGHTAGE',
   ADD_QUESTION_OPTION = 'ADD_QUESTION_OPTION',
   DELETE_QUESTION_OPTION = 'DELETE_QUESTION_OPTION',
   EDIT_QUESTION_OPTION = 'EDIT_QUESTION_OPTION',
+  SET_QUESTION_CORRECT_OPTION = 'SET_QUESTION_CORRECT_OPTION',
   SET_QUESTION_SKIPPABLE = 'SET_QUESTION_SKIPPABLE',
   SET_QUESTION_RES_EDITABLE = 'SET_QUESTION_RES_EDITABLE',
   SET_QUESTION_SAVED = 'SET_QUESTION_SAVED',

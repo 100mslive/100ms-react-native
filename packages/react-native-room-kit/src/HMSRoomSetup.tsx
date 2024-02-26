@@ -1,6 +1,5 @@
 import {
   HMSException,
-  HMSPollType,
   HMSPollUpdateType,
   HMSRoom,
   HMSTrack,
@@ -404,15 +403,18 @@ export const HMSRoomSetup = () => {
   useEffect(() => {
     const subscription = hmsInstance.interactivityCenter.addPollUpdateListener(
       (poll, pollUpdateType) => {
-        if (poll.type !== HMSPollType.poll) {
-          return;
-        }
+        const reduxState = reduxStore.getState();
+        const pollsData = reduxState.polls.polls;
+
         batch(() => {
           // Update poll object in store
           dispatch(addPoll(poll));
 
           // when poll is started, show notification to user
-          if (pollUpdateType === HMSPollUpdateType.started) {
+          if (
+            pollUpdateType === HMSPollUpdateType.started &&
+            !pollsData[poll.pollId]
+          ) {
             // if user is a viewer
             if (isHLSViewer) {
               // Show notification only if poll is started 20 or more seconds ago
@@ -432,7 +434,6 @@ export const HMSRoomSetup = () => {
             }
             // if user is not a viewer, show notification
             else {
-              // TODO: Dont show notification if already voted
               dispatch(
                 addNotification({
                   id: `${poll.pollId}--${pollUpdateType}`,

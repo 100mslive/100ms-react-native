@@ -5,14 +5,15 @@ import {
   ScrollView,
   findNodeHandle,
   UIManager,
+  View,
 } from 'react-native';
 import { useSelector } from 'react-redux';
-import { HMSPollState } from '@100mslive/react-native-hms';
+import { HMSPollState, HMSPollType } from '@100mslive/react-native-hms';
 
 import { useHMSInstance, useHMSRoomStyleSheet } from '../hooks-util';
 import type { RootState } from '../redux';
-import { PollAndQuizQuestionResponseCard } from './PollAndQuizQuestionResponseCard';
 import { HMSDangerButton } from './HMSDangerButton';
+import { PollAndQuizQuestionResponseCards } from './PollAndQuizQuestionResponseCards';
 
 export interface PollAndQuizVotingProps {
   dismissModal(): void;
@@ -79,41 +80,44 @@ export const PollAndQuizVoting: React.FC<PollAndQuizVotingProps> = () => {
   };
 
   return (
-    <ScrollView
-      ref={scrollViewRef}
-      style={styles.contentContainer}
-      contentContainerStyle={{ paddingVertical: 24 }}
-    >
-      <Text style={[styles.normalText, hmsRoomStyles.semiBoldMediumText]}>
-        {selectedPoll?.createdBy?.name} started a Poll
-      </Text>
+    <View style={{ flex: 1 }}>
+      <ScrollView
+        ref={scrollViewRef}
+        style={styles.contentContainer}
+        contentContainerStyle={{ flexGrow: 1, paddingVertical: 24 }}
+      >
+        <Text style={[styles.normalText, hmsRoomStyles.semiBoldMediumText]}>
+          {selectedPoll?.createdBy?.name} started a{' '}
+          {selectedPoll?.type === HMSPollType.quiz ? 'quiz' : 'poll'}
+        </Text>
 
-      {selectedPoll?.questions
-        ?.sort((a, b) => a.index - b.index)
-        .map((question, _, arr) => (
-          <PollAndQuizQuestionResponseCard
-            key={question.index}
-            pollState={selectedPoll.state}
-            pollId={selectedPoll.pollId}
-            totalQuestions={arr.length}
-            pollQuestion={question}
-            containerStyle={{ marginBottom: 16 }}
-            onSubmit={handleVote}
+        {selectedPoll ? (
+          <PollAndQuizQuestionResponseCards
+            poll={selectedPoll}
+            onVote={handleVote}
           />
-        ))}
+        ) : null}
+      </ScrollView>
 
       {selectedPoll &&
       selectedPoll.state === HMSPollState.started &&
       canCreateOrEndPoll ? (
         <HMSDangerButton
           disabled={!selectedPoll}
-          title="End Poll"
+          title={
+            selectedPoll?.type === HMSPollType.quiz ? 'End Quiz' : 'End Poll'
+          }
           loading={false}
           onPress={endPoll}
-          style={{ marginTop: 16, marginBottom: 16, alignSelf: 'flex-end' }}
+          style={{
+            marginTop: 16,
+            marginBottom: 16,
+            marginRight: 24,
+            alignSelf: 'flex-end',
+          }}
         />
       ) : null}
-    </ScrollView>
+    </View>
   );
 };
 

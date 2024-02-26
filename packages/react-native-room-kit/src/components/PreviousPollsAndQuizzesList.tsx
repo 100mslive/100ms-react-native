@@ -50,7 +50,7 @@ export const PreviousPollsAndQuizzesList: React.FC<
             styles.emptyList,
           ]}
         >
-          No Polls to show
+          No Polls or Quizzes to show
         </Text>
       </View>
     );
@@ -60,7 +60,7 @@ export const PreviousPollsAndQuizzesList: React.FC<
     <View style={styles.contentContainer}>
       {pollsList.length > 0 && (
         <Text style={[styles.title, hmsRoomStyles.surfaceHighSemiBoldText]}>
-          Previous Polls
+          Previous Polls And Quizzes
         </Text>
       )}
 
