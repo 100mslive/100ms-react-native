@@ -5,15 +5,14 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  Keyboard,
 } from 'react-native';
 import { HMSPollQuestionType, HMSPollType } from '@100mslive/react-native-hms';
-import { batch, useDispatch, useSelector, useStore } from 'react-redux';
 
-import { AddIcon, ChevronIcon, CloseIcon } from '../Icons';
+import { AddIcon } from '../Icons';
 import { useHMSInstance, useHMSRoomStyleSheet } from '../hooks-util';
 import { HMSPrimaryButton } from './HMSPrimaryButton';
 import { PollQuestion } from './PollQuestion';
+import { batch, useDispatch, useSelector, useStore } from 'react-redux';
 import type { RootState } from '../redux';
 import {
   addPollQuestion,
@@ -21,7 +20,6 @@ import {
   cleaPollFormState,
   deletePollQuestionOption,
   editPollQuestionOption,
-  popFromNavigationStack,
   setLaunchingPoll,
   setPollQDeleteConfirmationVisible,
   setPollQuestionCorrectOption,
@@ -34,18 +32,12 @@ import {
   setSelectedPollQuestionIndex,
 } from '../redux/actions';
 import type { PollQuestionUI } from '../redux/actionTypes';
-import { PollQDeleteConfirmationSheetView } from './PollQDeleteConfirmationSheetView';
-import { BottomSheet } from './BottomSheet';
 
 export interface PollQuestionsProps {
-  currentIdx: number;
   dismissModal(): void;
 }
 
-export const PollQuestions: React.FC<PollQuestionsProps> = ({
-  currentIdx,
-  dismissModal,
-}) => {
+export const PollQuestions: React.FC<PollQuestionsProps> = ({}) => {
   const dispatch = useDispatch();
   const hmsInstance = useHMSInstance();
   const reduxStore = useStore<RootState>();
@@ -58,20 +50,12 @@ export const PollQuestions: React.FC<PollQuestionsProps> = ({
   const pollType = useSelector(
     (state: RootState) => state.polls.pollConfig.type
   );
-  const headerTitle = useSelector((state: RootState) => state.polls.pollName);
   const questions = useSelector((state: RootState) => state.polls.questions);
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
     regularMediumText: {
       color: theme.palette.on_surface_medium,
       fontFamily: `${typography.font_family}-Regular`,
-    },
-    headerText: {
-      color: theme.palette.on_surface_high,
-      fontFamily: `${typography.font_family}-SemiBold`,
-    },
-    container: {
-      backgroundColor: theme.palette.surface_dim,
     },
   }));
 
@@ -201,113 +185,60 @@ export const PollQuestions: React.FC<PollQuestionsProps> = ({
     []
   );
 
-  const handleBackPress = () => {
-    Keyboard.dismiss();
-    dispatch(popFromNavigationStack());
-  };
-
-  const handleClosePress = () => {
-    Keyboard.dismiss();
-    dismissModal();
-  };
-
   return (
-    <View style={[styles.fullView, hmsRoomStyles.container]}>
-      {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.headerControls}>
-          {currentIdx > 0 ? (
-            <TouchableOpacity
-              onPress={handleBackPress}
-              disabled={launchingPoll}
-              hitSlop={styles.closeIconHitSlop}
-              style={[styles.backIcon, launchingPoll ? { opacity: 0.4 } : null]}
-            >
-              <ChevronIcon direction="left" />
-            </TouchableOpacity>
-          ) : null}
+    <ScrollView
+      style={styles.contentContainer}
+      contentContainerStyle={{ paddingTop: 24 }}
+    >
+      {questions.map((pollQuestion, idx, arr) => {
+        const isFirst = idx === 0;
+        return (
+          <React.Fragment key={idx}>
+            {isFirst ? null : <View style={{ height: 16 }} />}
 
-          <Text
-            numberOfLines={2}
-            style={[
-              styles.headerText,
-              { flexShrink: 1 },
-              hmsRoomStyles.headerText,
-            ]}
-          >
-            {headerTitle}
-          </Text>
-        </View>
+            <PollQuestion
+              totalQuestions={arr.length}
+              currentQuestionIndex={idx}
+              pollQuestion={pollQuestion}
+              onAddPollQuestionOption={handleAddPollQuestionOption}
+              onDeletePollQuestionOption={handleDeletePollQuestionOption}
+              onEditPollQuestionOption={handleEditPollQuestionOption}
+              onSetPollQuestionCorrectOption={
+                handleSetPollQuestionCorrectOption
+              }
+              onQuestionFieldChange={onQuestionFieldChange}
+              onDelete={deleteQuestion}
+            />
+          </React.Fragment>
+        );
+      })}
 
+      <View style={[styles.addOptionWrapper, { marginTop: 16 }]}>
         <TouchableOpacity
-          onPress={handleClosePress}
-          hitSlop={styles.closeIconHitSlop}
-          style={{ marginLeft: 16 }}
+          onPress={addQuestion}
+          disabled={launchingPoll}
+          style={[
+            styles.addOptionContainer,
+            launchingPoll ? { opacity: 0.4 } : null,
+          ]}
         >
-          <CloseIcon />
+          <View style={styles.addOptionIconWrapper}>
+            <AddIcon type="circle" />
+          </View>
+          <Text style={[styles.smallText, hmsRoomStyles.regularMediumText]}>
+            Add another question
+          </Text>
         </TouchableOpacity>
       </View>
 
-      {/* Divider */}
-      <BottomSheet.Divider style={styles.halfDivider} />
-
-      <ScrollView
-        style={styles.contentContainer}
-        contentContainerStyle={{ paddingTop: 24 }}
-      >
-        {questions.map((pollQuestion, idx, arr) => {
-          const isFirst = idx === 0;
-          return (
-            <React.Fragment key={idx}>
-              {isFirst ? null : <View style={{ height: 16 }} />}
-
-              <PollQuestion
-                totalQuestions={arr.length}
-                currentQuestionIndex={idx}
-                pollQuestion={pollQuestion}
-                onAddPollQuestionOption={handleAddPollQuestionOption}
-                onDeletePollQuestionOption={handleDeletePollQuestionOption}
-                onEditPollQuestionOption={handleEditPollQuestionOption}
-                onSetPollQuestionCorrectOption={
-                  handleSetPollQuestionCorrectOption
-                }
-                onQuestionFieldChange={onQuestionFieldChange}
-                onDelete={deleteQuestion}
-              />
-            </React.Fragment>
-          );
-        })}
-
-        <View style={[styles.addOptionWrapper, { marginTop: 16 }]}>
-          <TouchableOpacity
-            onPress={addQuestion}
-            disabled={launchingPoll}
-            style={[
-              styles.addOptionContainer,
-              launchingPoll ? { opacity: 0.4 } : null,
-            ]}
-          >
-            <View style={styles.addOptionIconWrapper}>
-              <AddIcon type="circle" />
-            </View>
-            <Text style={[styles.smallText, hmsRoomStyles.regularMediumText]}>
-              Add another question
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        <HMSPrimaryButton
-          disabled={disableLaunchPoll || launchingPoll}
-          title={`Launch ${pollType === HMSPollType.quiz ? 'Quiz' : 'Poll'}`}
-          loading={launchingPoll}
-          onPress={launchPoll}
-          style={{ marginTop: 16, marginBottom: 56, alignSelf: 'flex-end' }}
-        />
-      </ScrollView>
-
-      {/* Modal */}
-      <PollQDeleteConfirmationSheetView />
-    </View>
+      <HMSPrimaryButton
+        disabled={disableLaunchPoll || launchingPoll}
+        title={`Launch ${pollType === HMSPollType.quiz ? 'Quiz' : 'Poll'}`}
+        loading={launchingPoll}
+        onPress={launchPoll}
+        style={{ marginTop: 16, marginBottom: 56, alignSelf: 'flex-end' }}
+      />
+    </ScrollView>
   );
 };
 
@@ -342,52 +273,5 @@ const styles = StyleSheet.create({
   addOptionIconWrapper: {
     marginRight: 8,
     padding: 8,
-  },
-
-  // -------
-
-  // Utilities
-  fullView: {
-    flex: 1,
-  },
-  // Header
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: 24,
-    marginHorizontal: 24,
-  },
-  headerControls: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flexShrink: 1,
-  },
-  headerText: {
-    fontSize: 20,
-    lineHeight: 24,
-    letterSpacing: 0.15,
-    marginRight: 12,
-  },
-  closeIconHitSlop: {
-    bottom: 16,
-    left: 16,
-    right: 16,
-    top: 16,
-  },
-  backIcon: {
-    marginRight: 8,
-  },
-  // Divider
-  halfDivider: {
-    marginHorizontal: 24,
-    marginVertical: 0,
-    marginTop: 24,
-    width: undefined,
-  },
-  divider: {
-    marginHorizontal: 24,
-    marginVertical: 24,
-    width: undefined,
   },
 });

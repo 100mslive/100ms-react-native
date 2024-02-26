@@ -1,6 +1,4 @@
-import type { DecodedPollLeaderboardResponse } from './polls/DecodedPollLeaderboardResponse';
 import type { HMSPoll } from './polls/HMSPoll';
-import type { PollLeaderboardResponse } from './polls/PollLeaderboardResponse';
 
 export class HMSInteractivityEncoder {
   static transformPoll(poll: HMSPoll): HMSPoll {
@@ -27,39 +25,5 @@ export class HMSInteractivityEncoder {
     // --- poll.questions: HMSPollQuestion[]
     // --- poll.result: HMSPollResult
     return poll;
-  }
-
-  static transformPollLeaderboardResponse(
-    decodedPollLeaderboardResponse: DecodedPollLeaderboardResponse
-  ): PollLeaderboardResponse {
-    const summary = decodedPollLeaderboardResponse.summary;
-    if (summary) {
-      if (typeof summary.averageTime === 'string') {
-        summary.averageTime = parseInt(summary.averageTime);
-      }
-    }
-
-    const entries = decodedPollLeaderboardResponse.entries;
-    if (entries) {
-      entries.forEach((entry) => {
-        if (typeof entry.duration === 'string') {
-          entry.duration = parseInt(entry.duration);
-        }
-        if (typeof entry.totalResponses === 'string') {
-          entry.totalResponses = parseInt(entry.totalResponses);
-        }
-        if (typeof entry.correctResponses === 'string') {
-          entry.correctResponses = parseInt(entry.correctResponses);
-        }
-        if (typeof entry.position === 'string') {
-          entry.position = parseInt(entry.position);
-        }
-        if (typeof entry.score === 'string') {
-          entry.score = parseInt(entry.score);
-        }
-      });
-    }
-
-    return decodedPollLeaderboardResponse as PollLeaderboardResponse;
   }
 }

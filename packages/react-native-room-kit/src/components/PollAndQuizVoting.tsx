@@ -6,34 +6,22 @@ import {
   findNodeHandle,
   UIManager,
   View,
-  Keyboard,
-  TouchableOpacity,
 } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { HMSPollState, HMSPollType } from '@100mslive/react-native-hms';
 
 import { useHMSInstance, useHMSRoomStyleSheet } from '../hooks-util';
 import type { RootState } from '../redux';
 import { HMSDangerButton } from './HMSDangerButton';
 import { PollAndQuizQuestionResponseCards } from './PollAndQuizQuestionResponseCards';
-import { popFromNavigationStack } from '../redux/actions';
-import { BottomSheet } from './BottomSheet';
-import { ChevronIcon, CloseIcon } from '../Icons';
-import { PollAndQuizzStateLabel } from './PollAndQuizzStateLabel';
 
 export interface PollAndQuizVotingProps {
-  currentIdx: number;
   dismissModal(): void;
 }
 
-export const PollAndQuizVoting: React.FC<PollAndQuizVotingProps> = ({
-  currentIdx,
-  dismissModal,
-}) => {
+export const PollAndQuizVoting: React.FC<PollAndQuizVotingProps> = () => {
   const scrollViewRef = React.useRef<ScrollView>(null);
   const hmsInstance = useHMSInstance();
-  const dispatch = useDispatch();
-
   const selectedPoll = useSelector((state: RootState) => {
     const pollsData = state.polls;
     if (pollsData.selectedPollId !== null) {
@@ -45,13 +33,6 @@ export const PollAndQuizVoting: React.FC<PollAndQuizVotingProps> = ({
     const permissions = state.hmsStates.localPeer?.role?.permissions;
     return permissions?.pollWrite;
   });
-  const headerTitle = useSelector((state: RootState) => {
-    const pollsData = state.polls;
-    if (pollsData.selectedPollId !== null) {
-      return pollsData.polls[pollsData.selectedPollId]?.title || null;
-    }
-    return null;
-  });
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
     regularMediumText: {
@@ -61,13 +42,6 @@ export const PollAndQuizVoting: React.FC<PollAndQuizVotingProps> = ({
     semiBoldMediumText: {
       color: theme.palette.on_surface_medium,
       fontFamily: `${typography.font_family}-SemiBold`,
-    },
-    headerText: {
-      color: theme.palette.on_surface_high,
-      fontFamily: `${typography.font_family}-SemiBold`,
-    },
-    container: {
-      backgroundColor: theme.palette.surface_dim,
     },
   }));
 
@@ -105,60 +79,8 @@ export const PollAndQuizVoting: React.FC<PollAndQuizVotingProps> = ({
     );
   };
 
-  const handleBackPress = () => {
-    Keyboard.dismiss();
-    dispatch(popFromNavigationStack());
-  };
-
-  const handleClosePress = () => {
-    Keyboard.dismiss();
-    dismissModal();
-  };
-
   return (
-    <View style={[styles.fullView, hmsRoomStyles.container]}>
-      {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.headerControls}>
-          {currentIdx > 0 ? (
-            <TouchableOpacity
-              onPress={handleBackPress}
-              hitSlop={styles.closeIconHitSlop}
-              style={styles.backIcon}
-            >
-              <ChevronIcon direction="left" />
-            </TouchableOpacity>
-          ) : null}
-
-          <Text
-            numberOfLines={2}
-            style={[
-              styles.headerText,
-              { flexShrink: 1 },
-              hmsRoomStyles.headerText,
-            ]}
-          >
-            {headerTitle}
-          </Text>
-
-          {selectedPoll?.state ? (
-            <PollAndQuizzStateLabel state={selectedPoll?.state} />
-          ) : null}
-        </View>
-
-        <TouchableOpacity
-          onPress={handleClosePress}
-          hitSlop={styles.closeIconHitSlop}
-          style={{ marginLeft: 16 }}
-        >
-          <CloseIcon />
-        </TouchableOpacity>
-      </View>
-
-      {/* Divider */}
-      <BottomSheet.Divider style={styles.halfDivider} />
-
-      {/* Content */}
+    <View style={{ flex: 1 }}>
       <ScrollView
         ref={scrollViewRef}
         style={styles.contentContainer}
@@ -235,52 +157,5 @@ const styles = StyleSheet.create({
   addOptionIconWrapper: {
     marginRight: 8,
     padding: 8,
-  },
-
-  // -----------------
-
-  // Utilities
-  fullView: {
-    flex: 1,
-  },
-  // Header
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: 24,
-    marginHorizontal: 24,
-  },
-  headerControls: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flexShrink: 1,
-  },
-  headerText: {
-    fontSize: 20,
-    lineHeight: 24,
-    letterSpacing: 0.15,
-    marginRight: 12,
-  },
-  closeIconHitSlop: {
-    bottom: 16,
-    left: 16,
-    right: 16,
-    top: 16,
-  },
-  backIcon: {
-    marginRight: 8,
-  },
-  // Divider
-  halfDivider: {
-    marginHorizontal: 24,
-    marginVertical: 0,
-    marginTop: 24,
-    width: undefined,
-  },
-  divider: {
-    marginHorizontal: 24,
-    marginVertical: 24,
-    width: undefined,
   },
 });

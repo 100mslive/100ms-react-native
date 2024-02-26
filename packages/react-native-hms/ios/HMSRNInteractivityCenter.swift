@@ -86,35 +86,4 @@ class HMSRNInteractivityCenter {
             resolve?(success)
         })
     }
-
-    func fetchLeaderboard(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        guard let pollId = data["pollId"] as? String,
-              let poll = self.hmssdk?.interactivityCenter.polls.first(where: {poll in poll.pollID == pollId}) else {
-            reject?("6004", "Unable to find HMSPoll with given pollId", nil)
-            return
-        }
-
-        guard let count = data["count"] as? Int,
-            let startIndex = data["startIndex"] as? Int
-        else {
-            reject?("6004", "Unable to find required parameters", nil)
-            return
-        }
-
-        let includeCurrentPeer = data["includeCurrentPeer"] as? Bool ?? false
-
-        self.hmssdk?.interactivityCenter.fetchLeaderboard(for: poll, offset: startIndex, count: count, includeCurrentPeer: includeCurrentPeer) { response, error in
-
-            if let nonnilError = error {
-                reject?("6004", nonnilError.localizedDescription, nil)
-                return
-            }
-
-            if let response = response {
-                resolve?(HMSInteractivityDecoder.getLeaderboardResponse(response))
-            } else {
-                reject?("6004", "Could not fetch leaderboard response", nil)
-            }
-        }
-    }
 }

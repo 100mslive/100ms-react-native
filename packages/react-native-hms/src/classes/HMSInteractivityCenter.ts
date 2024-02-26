@@ -10,8 +10,6 @@ import HMSNativeEventListener from './HMSNativeEventListener';
 import type { HMSEventSubscription } from './HMSNativeEventEmitter';
 import { HMSInteractivityEncoder } from './HMSInteractivityEncoder';
 import { HMSHelper } from './HMSHelper';
-import type { PollLeaderboardResponse } from './polls/PollLeaderboardResponse';
-import type { DecodedPollLeaderboardResponse } from './polls/DecodedPollLeaderboardResponse';
 
 type PollUpdateListener = (data: {
   updatedPoll: HMSPoll;
@@ -135,33 +133,5 @@ export class HMSInteractivityCenter {
     };
     logger?.verbose('#Function stop', JSON.stringify(data));
     return HMSManager.stopPoll(data);
-  }
-
-  /**
-   * Fetches the leaderboard for a poll
-   * @param pollId - The id of the poll
-   * @param count - The number of entries to fetch
-   * @param startIndex - The index to start fetching from
-   * @param includeCurrentPeer - Whether to include the current peer in the fetched leaderboard entries
-   * @returns Promise<PollLeaderboardResponse>
-   */
-  async fetchLeaderboard(
-    pollId: string,
-    count: number,
-    startIndex: number,
-    includeCurrentPeer: boolean
-  ): Promise<PollLeaderboardResponse> {
-    const data = {
-      id: HMSConstants.DEFAULT_SDK_ID,
-      pollId,
-      count,
-      startIndex,
-      includeCurrentPeer,
-    };
-    logger?.verbose('#Function fetchLeaderboard', data);
-
-    const response: DecodedPollLeaderboardResponse =
-      await HMSManager.fetchLeaderboard(data);
-    return HMSInteractivityEncoder.transformPollLeaderboardResponse(response);
   }
 }
