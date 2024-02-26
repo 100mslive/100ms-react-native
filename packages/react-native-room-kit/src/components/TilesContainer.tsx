@@ -2,7 +2,6 @@ import React from 'react';
 import { View, Dimensions } from 'react-native';
 import { useSelector } from 'react-redux';
 import type { ViewStyle } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { HMSView } from '@100mslive/react-native-hms';
 
 import { Tile } from './Tile';
@@ -22,7 +21,6 @@ const _TilesContainer: React.FC<TilesContainerProps> = ({
   setHmsViewRefs,
   onPeerTileMorePress,
 }) => {
-  const { left, right } = useSafeAreaInsets();
   const isLandscapeOrientation = useIsLandscapeOrientation();
 
   const screenshareTilesAvailable = useSelector(
@@ -55,7 +53,7 @@ const _TilesContainer: React.FC<TilesContainerProps> = ({
               ? 'row'
               : 'column',
         },
-        { width: Dimensions.get('window').width + left + right },
+        { width: Dimensions.get('window').width },
       ]}
     >
       {peerTrackNodes.length <= 3 ? (
