@@ -1,7 +1,12 @@
 import * as React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
-import { HMSPollQuestionType, HMSPollState } from '@100mslive/react-native-hms';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  HMSPollQuestionType,
+  HMSPollState,
+  HMSPollType,
+} from '@100mslive/react-native-hms';
 import type {
   HMSPoll,
   HMSPollQuestion,
@@ -16,8 +21,7 @@ import {
 import { RadioInputRow } from './RadioInputRow';
 import { HMSPrimaryButton } from './HMSPrimaryButton';
 import { HMSBaseButton } from './HMSBaseButton';
-import { useDispatch, useSelector } from 'react-redux';
-import type { RootState } from 'src/redux';
+import type { RootState } from '../redux';
 import {
   addPollQuestionResponse,
   removePollQuestionResponse,
@@ -25,6 +29,14 @@ import {
 } from '../redux/actions';
 import { PollResponseProgressView } from './PollResponseProgressView';
 import { CheckboxInputRow } from './CheckboxInputRow';
+import {
+  checkIsCorrectAnswer,
+  checkIsCorrectOption,
+  checkIsSelected,
+  getLabelFromPollQuestionType,
+} from '../utils/functions';
+import { CheckIcon, CrossCircleIcon } from '../Icons';
+import { QuizEndOptionsView } from './QuizEndOptionsView';
 
 export interface PollAndQuizQuestionResponseCardProps {
   pollId: HMSPoll['pollId'];
@@ -53,6 +65,7 @@ export const PollAndQuizQuestionResponseCard: React.FC<
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
     container: {
       backgroundColor: theme.palette.surface_default,
+      borderColor: theme.palette.surface_default,
     },
     surfaceLowSemiBoldText: {
       color: theme.palette.on_surface_low,
@@ -62,7 +75,24 @@ export const PollAndQuizQuestionResponseCard: React.FC<
       color: theme.palette.on_surface_high,
       fontFamily: `${typography.font_family}-Regular`,
     },
-
+    wrongAnswer: {
+      borderColor: theme.palette.alert_error_default,
+    },
+    correctAnswer: {
+      borderColor: theme.palette.alert_success,
+    },
+    wrongAnswerText: {
+      color: theme.palette.alert_error_default,
+    },
+    correctAnswerText: {
+      color: theme.palette.alert_success,
+    },
+    wrongAnswerIcon: {
+      tintColor: theme.palette.alert_error_default,
+    },
+    correctAnswerIcon: {
+      tintColor: theme.palette.alert_success,
+    },
     skipButton: {
       borderColor: theme.palette.border_bright,
       borderWidth: 1,
@@ -74,12 +104,22 @@ export const PollAndQuizQuestionResponseCard: React.FC<
     },
   }));
 
+  // variable to save timestamp when the question became visible to user
+  const startTime = React.useRef<number | null>(null);
+
+  React.useEffect(() => {
+    startTime.current = Date.now();
+  }, [pollQuestion.index]);
+
   const hmsInstance = useHMSInstance();
   const dispatch = useDispatch();
 
   const selectedOptions = useSelector(
     (state: RootState) =>
       state.polls.pollsResponses[pollId]?.[pollQuestion.index] ?? null
+  );
+  const pollType = useSelector(
+    (state: RootState) => state.polls.polls[pollId]?.type ?? HMSPollType.poll
   );
 
   const canViewPollResponse = useSelector((state: RootState) => {
@@ -129,6 +169,10 @@ export const PollAndQuizQuestionResponseCard: React.FC<
         options: Array.isArray(selectedOptions)
           ? selectedOptions
           : [selectedOptions],
+        duration:
+          pollType === HMSPollType.quiz && startTime.current !== null
+            ? Date.now() - startTime.current
+            : undefined,
       },
     });
     console.log(JSON.stringify(result, null, 4));
@@ -150,18 +194,68 @@ export const PollAndQuizQuestionResponseCard: React.FC<
         ? CheckboxInputRow
         : null;
 
+  const isCorrectAnswer = checkIsCorrectAnswer(
+    pollQuestion.type,
+    pollQuestion.myResponses,
+    pollQuestion.answer
+  );
+
   return (
-    <View style={[hmsRoomStyles.container, styles.container, containerStyle]}>
-      <Text
-        style={[
-          styles.tinyText,
-          hmsRoomStyles.surfaceLowSemiBoldText,
-          styles.uppercaseContent,
-        ]}
-      >
-        Question {pollQuestion.index} of {totalQuestions}:{' '}
-        {getLabelFromPollQuestionType(pollQuestion.type)}
-      </Text>
+    <View
+      style={[
+        hmsRoomStyles.container,
+        styles.container,
+        pollType === HMSPollType.quiz &&
+        isVoted &&
+        pollState === HMSPollState.stopped
+          ? isCorrectAnswer
+            ? hmsRoomStyles.correctAnswer
+            : hmsRoomStyles.wrongAnswer
+          : null,
+        containerStyle,
+      ]}
+    >
+      <View style={{ flexDirection: 'row' }}>
+        {pollType === HMSPollType.quiz &&
+        isVoted &&
+        pollState === HMSPollState.stopped ? (
+          isCorrectAnswer ? (
+            <CheckIcon
+              type="in-circle"
+              style={[
+                hmsRoomStyles.correctAnswerIcon,
+                { marginRight: 8, width: 16, height: 16 },
+              ]}
+            />
+          ) : (
+            <CrossCircleIcon
+              style={[
+                hmsRoomStyles.wrongAnswerIcon,
+                { marginRight: 8, width: 16, height: 16 },
+              ]}
+            />
+          )
+        ) : null}
+
+        <Text
+          numberOfLines={2}
+          style={[
+            styles.tinyText,
+            hmsRoomStyles.surfaceLowSemiBoldText,
+            styles.uppercaseContent,
+            pollType === HMSPollType.quiz &&
+            isVoted &&
+            pollState === HMSPollState.stopped
+              ? isCorrectAnswer
+                ? hmsRoomStyles.correctAnswerText
+                : hmsRoomStyles.wrongAnswerText
+              : null,
+          ]}
+        >
+          Question {pollQuestion.index} of {totalQuestions}:{' '}
+          {getLabelFromPollQuestionType(pollQuestion.type)}
+        </Text>
+      </View>
 
       <Text
         style={[
@@ -175,7 +269,8 @@ export const PollAndQuizQuestionResponseCard: React.FC<
 
       {!InputComponent ? null : (
         <>
-          {canViewPollResponse &&
+          {pollType === HMSPollType.poll &&
+          canViewPollResponse &&
           (pollQuestion.myResponses.length > 0 ||
             pollState === HMSPollState.stopped) ? (
             <>
@@ -186,9 +281,36 @@ export const PollAndQuizQuestionResponseCard: React.FC<
                     <PollResponseProgressView
                       key={option.index}
                       option={option}
-                      totalVotes={arr.reduce((acc, curr) => {
-                        return acc + curr.voteCount;
-                      }, 0)}
+                      totalVotes={arr.reduce(
+                        (acc, curr) => acc + curr.voteCount,
+                        0
+                      )}
+                    />
+                  );
+                })}
+            </>
+          ) : pollType === HMSPollType.quiz &&
+            pollState === HMSPollState.stopped ? (
+            <>
+              {pollQuestion.options
+                ?.sort((a, b) => a.index - b.index)
+                .map((option) => {
+                  const isSelected = checkIsSelected(
+                    pollQuestion,
+                    option,
+                    null
+                  );
+                  const isCorrect = checkIsCorrectOption(
+                    pollQuestion.type,
+                    option,
+                    pollQuestion.answer
+                  );
+                  return (
+                    <QuizEndOptionsView
+                      key={option.index}
+                      option={option}
+                      isSelected={isSelected}
+                      isCorrect={isCorrect}
                     />
                   );
                 })}
@@ -198,19 +320,11 @@ export const PollAndQuizQuestionResponseCard: React.FC<
               {pollQuestion.options
                 ?.sort((a, b) => a.index - b.index)
                 .map((option) => {
-                  const isSelected =
-                    pollQuestion.myResponses.length > 0
-                      ? pollQuestion.type === HMSPollQuestionType.singleChoice
-                        ? !!pollQuestion.myResponses.find(
-                            (r) => r.option === option.index
-                          )
-                        : !!pollQuestion.myResponses.find((r) =>
-                            r.options ? r.options.includes(option.index) : false
-                          )
-                      : Array.isArray(selectedOptions)
-                        ? selectedOptions.includes(option.index)
-                        : selectedOptions === option.index;
-
+                  const isSelected = checkIsSelected(
+                    pollQuestion,
+                    option,
+                    selectedOptions
+                  );
                   return (
                     <InputComponent
                       key={option.index}
@@ -236,7 +350,8 @@ export const PollAndQuizQuestionResponseCard: React.FC<
         </>
       )}
 
-      {isVoted ? (
+      {isVoted &&
+      (pollType === HMSPollType.poll || pollState === HMSPollState.started) ? (
         <Text
           style={[
             styles.regularText,
@@ -244,7 +359,7 @@ export const PollAndQuizQuestionResponseCard: React.FC<
             hmsRoomStyles.surfaceLowSemiBoldText,
           ]}
         >
-          Voted
+          {pollType === HMSPollType.quiz ? 'Answered' : 'Voted'}
         </Text>
       ) : pollState === HMSPollState.started ? (
         <View style={{ alignSelf: 'flex-end', flexDirection: 'row' }}>
@@ -263,7 +378,7 @@ export const PollAndQuizQuestionResponseCard: React.FC<
             loading={false}
             disabled={!anyOptionSelected}
             onPress={handleVotePress}
-            title="Vote"
+            title={pollType === HMSPollType.quiz ? 'Answer' : 'Vote'}
           />
         </View>
       ) : null}
@@ -275,6 +390,7 @@ const styles = StyleSheet.create({
   container: {
     padding: 16,
     borderRadius: 8,
+    borderWidth: 1,
   },
   tinyText: {
     fontSize: 10,
@@ -296,16 +412,3 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
 });
-
-function getLabelFromPollQuestionType(type: HMSPollQuestionType): string {
-  switch (type) {
-    case HMSPollQuestionType.singleChoice:
-      return 'Single Choice';
-    case HMSPollQuestionType.multipleChoice:
-      return 'Multiple Choice';
-    case HMSPollQuestionType.longAnswer:
-      return 'Long Answer';
-    case HMSPollQuestionType.shortAnswer:
-      return 'Short Answer';
-  }
-}

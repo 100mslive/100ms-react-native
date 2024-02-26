@@ -52,6 +52,8 @@ import type {
   AddPollQuestionResponseAction,
   SetPollQuestionResponseAction,
   RemovePollQuestionResponseAction,
+  SetQuestionPointWeightageAction,
+  SetQuestionCorrectOptionAction,
 } from '../actionTypes';
 import { MeetingState } from '../../types';
 import type { ChatState, Notification, PinnedMessage } from '../../types';
@@ -529,6 +531,15 @@ export const setPollQuestionTitle = (
   title,
 });
 
+export const setPollQuestionPointWeightage = (
+  questionIndex: SetQuestionPointWeightageAction['questionIndex'],
+  pointWeightage: SetQuestionPointWeightageAction['pointWeightage']
+): SetQuestionPointWeightageAction => ({
+  type: PollsStateActionTypes.SET_POINT_WEIGHTAGE,
+  questionIndex,
+  pointWeightage,
+});
+
 export const addPollQuestionOption = (
   questionIndex: AddQuestionOptionAction['questionIndex']
 ): AddQuestionOptionAction => ({
@@ -554,6 +565,17 @@ export const editPollQuestionOption = (
   questionIndex,
   optionIndex,
   option,
+});
+
+export const setPollQuestionCorrectOption = (
+  questionIndex: SetQuestionCorrectOptionAction['questionIndex'],
+  optionIndex: SetQuestionCorrectOptionAction['optionIndex'],
+  correctOption: SetQuestionCorrectOptionAction['correctOption']
+): SetQuestionCorrectOptionAction => ({
+  type: PollsStateActionTypes.SET_QUESTION_CORRECT_OPTION,
+  questionIndex,
+  optionIndex,
+  correctOption,
 });
 
 export const setPollQuestionSkippable = (

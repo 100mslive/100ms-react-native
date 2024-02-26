@@ -262,7 +262,7 @@ object HMSInteractivityHelper {
     for (i in 0 until options.size) {
       val option = options[i]
 
-      if (option["isCorrect"] != null) {
+      if (option["isCorrectAnswer"] != null) {
         val isCorrect = option["isCorrectAnswer"] as? Boolean
         if (isCorrect != null) {
           questionBuilder.addQuizOption(

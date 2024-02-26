@@ -24,8 +24,6 @@ import {
   WindowController,
   useHMSHLSPlayerCue,
   HMSPollUpdateType,
-  HMSPollType,
-  // useHMSPeerUpdates,
 } from '@100mslive/react-native-hms';
 import type { Chat as ChatConfig } from '@100mslive/types-prebuilt/elements/chat';
 import { SoftInputModes } from '@100mslive/react-native-hms';
@@ -2572,7 +2570,7 @@ export const useHLSCuedPolls = () => {
             ? store.getState().polls.polls[pollId]
             : null;
 
-        if (poll && poll.type === HMSPollType.poll) {
+        if (poll) {
           console.log('HLS Cued Poll ID: ', pollId);
           dispatch(addCuedPollId(poll.pollId));
           dispatch(

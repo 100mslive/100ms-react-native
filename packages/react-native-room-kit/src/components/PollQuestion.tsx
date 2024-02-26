@@ -1,16 +1,23 @@
 import * as React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { HMSPollQuestionType } from '@100mslive/react-native-hms';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Platform,
+} from 'react-native';
+import { HMSPollQuestionType, HMSPollType } from '@100mslive/react-native-hms';
 import { useSelector } from 'react-redux';
 
 import { useHMSRoomStyleSheet } from '../hooks-util';
 import { BottomSheet } from './BottomSheet';
-import { AddIcon, ChevronIcon, TrashBinIcon } from '../Icons';
+import { AddIcon, CheckBoxIcon, ChevronIcon, TrashBinIcon } from '../Icons';
 import { HMSTextInput } from './HMSTextInput';
 import { HMSBaseButton } from './HMSBaseButton';
 import { PressableIcon } from './PressableIcon';
 import type { PollQuestionUI } from '../redux/actionTypes';
 import type { RootState } from '../redux';
+import { RadioInput } from './RadioInput';
 
 export interface PollQuestionProps {
   totalQuestions: number;
@@ -22,6 +29,11 @@ export interface PollQuestionProps {
     questionIndex: number,
     optionIndex: number,
     option: string
+  ): void;
+  onSetPollQuestionCorrectOption(
+    questionIndex: number,
+    optionIndex: number,
+    correctOption: boolean
   ): void;
   onQuestionFieldChange: <K extends keyof Omit<PollQuestionUI, 'options'>>(
     questionIndex: number,
@@ -61,12 +73,16 @@ export const PollQuestion: React.FC<PollQuestionProps> = ({
   onAddPollQuestionOption,
   onDeletePollQuestionOption,
   onEditPollQuestionOption,
+  onSetPollQuestionCorrectOption,
   onQuestionFieldChange,
   onDelete,
 }) => {
   const [questionTypesVisible, setQuestionTypesVisible] = React.useState(false);
   const launchingPoll = useSelector(
     (state: RootState) => state.polls.launchingPoll
+  );
+  const pollType = useSelector(
+    (state: RootState) => state.polls.pollConfig.type
   );
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
@@ -122,12 +138,16 @@ export const PollQuestion: React.FC<PollQuestionProps> = ({
   }));
 
   const saveButtonDisabled =
-    !pollQuestion.title ||
+    // Disable save button if:
+    !pollQuestion.title || // title is not vaild, OR
+    !pollQuestion.pointWeightage || // pointWeightage is not valid, OR
     ((pollQuestion.type === HMSPollQuestionType.singleChoice ||
-      pollQuestion.type === HMSPollQuestionType.multipleChoice) &&
-      pollQuestion.options &&
-      (pollQuestion.options.length <= 1 ||
-        pollQuestion.options.some((option) => !option)));
+      pollQuestion.type === HMSPollQuestionType.multipleChoice) && // If question type is singleChoice or multipleChoice, AND
+      pollQuestion.options && // options are defined
+      (pollQuestion.options.length <= 1 || // options are less than or equal to 1, OR
+        pollQuestion.options.some((option) => !option[1]) || // some options are not valid, OR
+        (pollType === HMSPollType.quiz &&
+          pollQuestion.options.every((option) => !option[0])))); // If poll type is quiz, all options are marked as not correct
 
   if (pollQuestion.saved) {
     return (
@@ -148,14 +168,11 @@ export const PollQuestion: React.FC<PollQuestionProps> = ({
           <TouchableOpacity
             activeOpacity={0.8}
             onPress={() => setQuestionTypesVisible((prev) => !prev)}
-            style={[
-              {
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-              },
-              { marginBottom: 16 },
-            ]}
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}
           >
             <Text style={[styles.normalText, hmsRoomStyles.regularHighText]}>
               {pollQuestion.title}
@@ -163,19 +180,26 @@ export const PollQuestion: React.FC<PollQuestionProps> = ({
             <ChevronIcon direction={questionTypesVisible ? 'top' : 'down'} />
           </TouchableOpacity>
         ) : (
-          <Text
-            style={[
-              styles.normalText,
-              hmsRoomStyles.regularHighText,
-              { marginBottom: 16 },
-            ]}
-          >
+          <Text style={[styles.normalText, hmsRoomStyles.regularHighText]}>
             {pollQuestion.title}
           </Text>
         )}
 
+        {pollType === HMSPollType.quiz ? (
+          <Text
+            style={[
+              styles.smallerText,
+              hmsRoomStyles.regularMediumText,
+              { marginTop: 4 },
+            ]}
+          >
+            {pollQuestion.pointWeightage}{' '}
+            {parseInt(pollQuestion.pointWeightage) <= 1 ? 'point' : 'points'}
+          </Text>
+        ) : null}
+
         {questionTypesVisible && pollQuestion.options ? (
-          <View style={{ marginBottom: 8 }}>
+          <View style={{ marginTop: 16 }}>
             {pollQuestion.options.map((option, idx) => (
               <Text
                 key={idx}
@@ -185,13 +209,13 @@ export const PollQuestion: React.FC<PollQuestionProps> = ({
                   hmsRoomStyles.regularMediumText,
                 ]}
               >
-                {option}
+                {option[1]}
               </Text>
             ))}
           </View>
         ) : null}
 
-        <View style={styles.saveContainer}>
+        <View style={[styles.saveContainer, { marginTop: 16 }]}>
           <PressableIcon
             disabled={launchingPoll}
             style={[styles.deleteIcon, launchingPoll ? { opacity: 0.4 } : null]}
@@ -229,6 +253,15 @@ export const PollQuestion: React.FC<PollQuestionProps> = ({
       </View>
     );
   }
+
+  const InputComponent =
+    pollType === HMSPollType.quiz
+      ? pollQuestion.type === HMSPollQuestionType.singleChoice
+        ? RadioInput
+        : pollQuestion.type === HMSPollQuestionType.multipleChoice
+          ? CheckBoxIcon
+          : null
+      : null;
 
   return (
     <View style={[styles.container, hmsRoomStyles.container]}>
@@ -361,10 +394,30 @@ export const PollQuestion: React.FC<PollQuestionProps> = ({
                     isFirst ? null : styles.topSpace,
                   ]}
                 >
+                  {!InputComponent ? null : (
+                    <View style={{ marginRight: 8 }}>
+                      <InputComponent
+                        selected={option[0]}
+                        type={option[0] ? 'checked' : 'unchecked'}
+                        onChange={(data) => {
+                          onSetPollQuestionCorrectOption(
+                            currentQuestionIndex,
+                            idx,
+                            data === 'checked'
+                              ? true
+                              : data === 'unchecked'
+                                ? false
+                                : data
+                          );
+                        }}
+                      />
+                    </View>
+                  )}
+
                   <HMSTextInput
                     placeholder={`Option ${idx + 1}`}
                     style={hmsRoomStyles.optionText}
-                    value={option}
+                    value={option[1]}
                     autoCapitalize="none"
                     autoCompleteType="off"
                     autoFocus={false}
@@ -404,6 +457,64 @@ export const PollQuestion: React.FC<PollQuestionProps> = ({
       ) : null}
 
       <BottomSheet.Divider style={hmsRoomStyles.divider} />
+
+      {/* {[
+        {
+          id: 'skippable' as const,
+          label: 'Allow to skip',
+          enabled: pollQuestion.skippable,
+        },
+        {
+          id: 'responseEditable' as const,
+          label: 'Allow to vote again',
+          enabled: pollQuestion.responseEditable,
+        },
+      ].map((item) => {
+        return (
+          <SwitchRow
+            key={item.id}
+            text={item.label}
+            containerStyle={styles.config}
+            textStyle={[styles.smallText, hmsRoomStyles.regularMediumText]}
+            value={item.enabled}
+            onChange={(value) => {
+              onQuestionFieldChange(currentQuestionIndex, item.id, value);
+            }}
+          />
+        );
+      })} */}
+
+      {pollType === HMSPollType.quiz ? (
+        <View
+          style={{
+            marginBottom: 16,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
+          <Text style={[styles.smallText, hmsRoomStyles.regularMediumText]}>
+            Point Weightage
+          </Text>
+
+          <HMSTextInput
+            placeholder=""
+            style={[hmsRoomStyles.optionText, { maxWidth: 88, marginLeft: 12 }]}
+            value={pollQuestion.pointWeightage}
+            autoFocus={false}
+            autoCapitalize="none"
+            autoCompleteType="off"
+            keyboardType={Platform.OS === 'android' ? 'numeric' : 'number-pad'}
+            onChangeText={(value) =>
+              onQuestionFieldChange(
+                currentQuestionIndex,
+                'pointWeightage',
+                value
+              )
+            }
+          />
+        </View>
+      ) : null}
 
       <View style={styles.saveContainer}>
         <PressableIcon
@@ -452,6 +563,10 @@ const styles = StyleSheet.create({
     fontSize: 10,
     lineHeight: 16,
     letterSpacing: 1.5,
+  },
+  smallerText: {
+    fontSize: 12,
+    lineHeight: 16,
   },
   smallText: {
     fontSize: 14,
