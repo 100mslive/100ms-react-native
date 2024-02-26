@@ -32,7 +32,6 @@ import type {
   AddPollQuestionAction,
   SetPollConfigAction,
   SetPollNameAction,
-  SetPollStageAction,
   DeletePollQuestionAction,
   SetDeleteConfirmationVisible,
   SetSelectedQuestionIndexAction,
@@ -54,6 +53,9 @@ import type {
   RemovePollQuestionResponseAction,
   SetQuestionPointWeightageAction,
   SetQuestionCorrectOptionAction,
+  PushToNavigationStackAction,
+  PopFromNavigationStackAction,
+  ReplaceTopOfNavigationStackAction,
 } from '../actionTypes';
 import { MeetingState } from '../../types';
 import type { ChatState, Notification, PinnedMessage } from '../../types';
@@ -491,11 +493,22 @@ export const setPollConfig = (
   pollConfig,
 });
 
-export const setPollStage = (
-  pollStage: SetPollStageAction['pollStage']
-): SetPollStageAction => ({
-  type: PollsStateActionTypes.SET_POLL_STAGE,
-  pollStage,
+export const pushToNavigationStack = (
+  screen: PushToNavigationStackAction['screen']
+): PushToNavigationStackAction => ({
+  type: PollsStateActionTypes.PUSH_TO_NAVIGATION_STACK,
+  screen,
+});
+
+export const popFromNavigationStack = (): PopFromNavigationStackAction => ({
+  type: PollsStateActionTypes.POP_FROM_NAVIGATION_STACK,
+});
+
+export const replaceTopOfNavigationStack = (
+  screen: ReplaceTopOfNavigationStackAction['screen']
+): ReplaceTopOfNavigationStackAction => ({
+  type: PollsStateActionTypes.REPLACE_TOP_OF_NAVIGATION_STACK,
+  screen,
 });
 
 export const addPollQuestion = (): AddPollQuestionAction => ({
