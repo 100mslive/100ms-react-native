@@ -1,6 +1,5 @@
 import {
   HMSException,
-  HMSPollType,
   HMSPollUpdateType,
   HMSRoom,
   HMSTrack,
