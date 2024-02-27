@@ -530,6 +530,8 @@ class HMSManager(reactContext: ReactApplicationContext) :
     hms?.stopRtmpAndRecording(callback)
   }
 
+  // region - HLS Streaming
+
   @ReactMethod
   fun startHLSStreaming(
     data: ReadableMap,
@@ -549,6 +551,18 @@ class HMSManager(reactContext: ReactApplicationContext) :
 
     hms?.stopHLSStreaming(callback)
   }
+
+  @ReactMethod
+  fun sendHLSTimedMetadata(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
+    val hms = HMSHelper.getHms(data, hmsCollection)
+
+    hms?.sendHLSTimedMetadata(data, callback)
+  }
+
+  // endregion
 
   @ReactMethod
   fun changeName(

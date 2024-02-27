@@ -364,7 +364,7 @@ class HMSManager: RCTEventEmitter {
 
         hms?.stopHLSStreaming(resolve, reject)
     }
-    
+
     @objc
     func sendHLSTimedMetadata(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
