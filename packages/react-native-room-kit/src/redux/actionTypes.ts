@@ -195,6 +195,7 @@ export enum CreatePollStages {
   POLL_CONFIG,
   POLL_QUESTION_CONFIG,
   POLL_VOTING,
+  QUIZ_LEADERBOARD,
 }
 
 export type PollConfig = {

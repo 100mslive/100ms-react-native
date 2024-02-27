@@ -40,11 +40,13 @@ import { BottomSheet } from './BottomSheet';
 export interface PollQuestionsProps {
   currentIdx: number;
   dismissModal(): void;
+  unmountScreenWithAnimation?: (cb: Function) => void;
 }
 
 export const PollQuestions: React.FC<PollQuestionsProps> = ({
   currentIdx,
   dismissModal,
+  unmountScreenWithAnimation,
 }) => {
   const dispatch = useDispatch();
   const hmsInstance = useHMSInstance();
@@ -203,7 +205,11 @@ export const PollQuestions: React.FC<PollQuestionsProps> = ({
 
   const handleBackPress = () => {
     Keyboard.dismiss();
-    dispatch(popFromNavigationStack());
+    if (typeof unmountScreenWithAnimation === 'function') {
+      unmountScreenWithAnimation(() => dispatch(popFromNavigationStack()));
+    } else {
+      dispatch(popFromNavigationStack());
+    }
   };
 
   const handleClosePress = () => {

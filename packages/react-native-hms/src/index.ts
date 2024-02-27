@@ -106,6 +106,7 @@ export { HMSPollQuestion } from './classes/polls/HMSPollQuestion';
 export { HMSPollQuestionOption } from './classes/polls/HMSPollQuestionOption';
 export { HMSPollQuestionAnswer } from './classes/polls/HMSPollQuestionAnswer';
 export { HMSPollQuestionResponse } from './classes/polls/HMSPollQuestionResponse';
+export { PollLeaderboardResponse } from './classes/polls/PollLeaderboardResponse';
 
 import { HMSSDK as HmsManager } from './classes/HMSSDK';
 

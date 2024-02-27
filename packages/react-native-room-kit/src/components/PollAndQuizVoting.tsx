@@ -16,19 +16,26 @@ import { useHMSInstance, useHMSRoomStyleSheet } from '../hooks-util';
 import type { RootState } from '../redux';
 import { HMSDangerButton } from './HMSDangerButton';
 import { PollAndQuizQuestionResponseCards } from './PollAndQuizQuestionResponseCards';
-import { popFromNavigationStack } from '../redux/actions';
+import {
+  popFromNavigationStack,
+  pushToNavigationStack,
+} from '../redux/actions';
 import { BottomSheet } from './BottomSheet';
 import { ChevronIcon, CloseIcon } from '../Icons';
 import { PollAndQuizzStateLabel } from './PollAndQuizzStateLabel';
+import { HMSPrimaryButton } from './HMSPrimaryButton';
+import { CreatePollStages } from '../redux/actionTypes';
 
 export interface PollAndQuizVotingProps {
   currentIdx: number;
   dismissModal(): void;
+  unmountScreenWithAnimation?(cb: Function): void;
 }
 
 export const PollAndQuizVoting: React.FC<PollAndQuizVotingProps> = ({
   currentIdx,
   dismissModal,
+  unmountScreenWithAnimation,
 }) => {
   const scrollViewRef = React.useRef<ScrollView>(null);
   const hmsInstance = useHMSInstance();
@@ -105,9 +112,17 @@ export const PollAndQuizVoting: React.FC<PollAndQuizVotingProps> = ({
     );
   };
 
+  const viewLeaderboard = () => {
+    dispatch(pushToNavigationStack(CreatePollStages.QUIZ_LEADERBOARD));
+  };
+
   const handleBackPress = () => {
     Keyboard.dismiss();
-    dispatch(popFromNavigationStack());
+    if (typeof unmountScreenWithAnimation === 'function') {
+      unmountScreenWithAnimation(() => dispatch(popFromNavigationStack()));
+    } else {
+      dispatch(popFromNavigationStack());
+    }
   };
 
   const handleClosePress = () => {
@@ -187,6 +202,22 @@ export const PollAndQuizVoting: React.FC<PollAndQuizVotingProps> = ({
           }
           loading={false}
           onPress={endPoll}
+          style={{
+            marginTop: 16,
+            marginBottom: 16,
+            marginRight: 24,
+            alignSelf: 'flex-end',
+          }}
+        />
+      ) : null}
+
+      {selectedPoll &&
+      selectedPoll.state === HMSPollState.stopped &&
+      selectedPoll.type === HMSPollType.quiz ? (
+        <HMSPrimaryButton
+          title={'View Leaderboard'}
+          loading={false}
+          onPress={viewLeaderboard}
           style={{
             marginTop: 16,
             marginBottom: 16,
