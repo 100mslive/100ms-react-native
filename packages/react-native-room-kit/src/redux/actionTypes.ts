@@ -217,7 +217,9 @@ export type PollsActionType =
   | SetDeleteConfirmationVisible
   | SetPollNameAction
   | SetPollConfigAction
-  | SetPollStageAction
+  | PushToNavigationStackAction
+  | PopFromNavigationStackAction
+  | ReplaceTopOfNavigationStackAction
   | AddPollQuestionAction
   | DeletePollQuestionAction
   | SetSelectedQuestionIndexAction
@@ -262,9 +264,18 @@ export type SetPollConfigAction = {
   pollConfig: Partial<PollConfig>;
 };
 
-export type SetPollStageAction = {
-  type: PollsStateActionTypes.SET_POLL_STAGE;
-  pollStage: CreatePollStages;
+export type PushToNavigationStackAction = {
+  type: PollsStateActionTypes.PUSH_TO_NAVIGATION_STACK;
+  screen: CreatePollStages;
+};
+
+export type PopFromNavigationStackAction = {
+  type: PollsStateActionTypes.POP_FROM_NAVIGATION_STACK;
+};
+
+export type ReplaceTopOfNavigationStackAction = {
+  type: PollsStateActionTypes.REPLACE_TOP_OF_NAVIGATION_STACK;
+  screen: CreatePollStages;
 };
 
 export type AddPollQuestionAction = {
@@ -396,7 +407,9 @@ export enum PollsStateActionTypes {
   SET_DELETE_CONFIRMATION_VISIBLE = 'SET_DELETE_CONFIRMATION_VISIBLE',
   SET_POLL_NAME = 'SET_POLL_NAME',
   SET_POLL_CONFIG = 'SET_POLL_CONFIG',
-  SET_POLL_STAGE = 'SET_POLL_STAGE',
+  PUSH_TO_NAVIGATION_STACK = 'PUSH_TO_NAVIGATION_STACK',
+  POP_FROM_NAVIGATION_STACK = 'POP_FROM_NAVIGATION_STACK',
+  REPLACE_TOP_OF_NAVIGATION_STACK = 'REPLACE_TOP_OF_NAVIGATION_STACK',
   ADD_POLL_QUESTION = 'ADD_POLL_QUESTION',
   DELETE_POLL_QUESTION = 'DELETE_POLL_QUESTION',
   SET_SELECTED_QUESTION_INDEX = 'SET_SELECTED_QUESTION_INDEX',

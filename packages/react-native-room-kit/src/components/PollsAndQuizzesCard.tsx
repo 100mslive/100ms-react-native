@@ -5,7 +5,7 @@ import type { HMSPoll } from '@100mslive/react-native-hms';
 
 import { useHMSRoomStyleSheet } from '../hooks-util';
 import { HMSPrimaryButton } from './HMSPrimaryButton';
-import { setPollStage, setSelectedPollId } from '../redux/actions';
+import { pushToNavigationStack, setSelectedPollId } from '../redux/actions';
 import { CreatePollStages } from '../redux/actionTypes';
 import { PollAndQuizzStateLabel } from './PollAndQuizzStateLabel';
 
@@ -36,7 +36,7 @@ export const PollsAndQuizzesCard: React.FC<PollsAndQuizzesCardProps> = ({
 
   const viewPoll = () => {
     batch(() => {
-      dispatch(setPollStage(CreatePollStages.POLL_VOTING));
+      dispatch(pushToNavigationStack(CreatePollStages.POLL_VOTING));
       dispatch(setSelectedPollId(poll.pollId));
     });
   };

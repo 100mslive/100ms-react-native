@@ -18,11 +18,6 @@ export const PreviousPollsAndQuizzesList: React.FC<
     (state: RootState) => state.polls.cuedPollIds
   );
 
-  const canCreateOrEndPoll = useSelector((state: RootState) => {
-    const permissions = state.hmsStates.localPeer?.role?.permissions;
-    return permissions?.pollWrite;
-  });
-
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
     surfaceHighSemiBoldText: {
       color: theme.palette.on_surface_high,
@@ -40,44 +35,42 @@ export const PreviousPollsAndQuizzesList: React.FC<
     hlsCuedPollIds
   );
 
-  if (pollsList.length === 0 && !canCreateOrEndPoll) {
-    return (
-      <View style={styles.contentContainer}>
-        <Text
-          style={[
-            styles.subtitle,
-            hmsRoomStyles.surfaceHighRegularText,
-            styles.emptyList,
-          ]}
-        >
-          No Polls or Quizzes to show
-        </Text>
-      </View>
-    );
-  }
-
   return (
     <View style={styles.contentContainer}>
-      {pollsList.length > 0 && (
-        <Text style={[styles.title, hmsRoomStyles.surfaceHighSemiBoldText]}>
-          Previous Polls And Quizzes
-        </Text>
-      )}
+      <Text style={[styles.title, hmsRoomStyles.surfaceHighSemiBoldText]}>
+        Previous Polls And Quizzes
+      </Text>
 
-      {pollsList
-        .sort((a, b) => {
-          return a.state === b.state // If polls have same state, then sort as per startedAt
-            ? a.startedAt !== undefined && b.startedAt !== undefined
-              ? b.startedAt.getTime() - a.startedAt.getTime()
-              : 0
-            : // If polls have different state, then sort as per state
-              a.state !== undefined && b.state !== undefined
-              ? a.state - b.state
-              : 0;
-        })
-        .map((poll) => (
-          <PollsAndQuizzesCard key={poll.pollId} poll={poll} />
-        ))}
+      {pollsList.length <= 0 ? (
+        <View style={styles.contentContainer}>
+          <Text
+            style={[
+              styles.subtitle,
+              hmsRoomStyles.surfaceHighRegularText,
+              styles.emptyList,
+            ]}
+          >
+            No Polls or Quizzes to show
+          </Text>
+        </View>
+      ) : (
+        <>
+          {pollsList
+            .sort((a, b) => {
+              return a.state === b.state // If polls have same state, then sort as per startedAt
+                ? a.startedAt !== undefined && b.startedAt !== undefined
+                  ? b.startedAt.getTime() - a.startedAt.getTime()
+                  : 0
+                : // If polls have different state, then sort as per state
+                  a.state !== undefined && b.state !== undefined
+                  ? a.state - b.state
+                  : 0;
+            })
+            .map((poll) => (
+              <PollsAndQuizzesCard key={poll.pollId} poll={poll} />
+            ))}
+        </>
+      )}
     </View>
   );
 };
