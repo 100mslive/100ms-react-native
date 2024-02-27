@@ -796,6 +796,9 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             }
         })
     }
+    
+    
+    // MARK: - HLS Streaming
 
     func startHLSStreaming(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let recordConfig = HMSHelper.getHlsRecordingConfig(data.value(forKey: "hlsRecordingConfig") as? NSDictionary)
@@ -827,6 +830,36 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             }
         })
     }
+    
+    func sendHLSTimedMetadata(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        guard let payload = data["payload"] as? String
+        else {
+            let errorMessage = "\(#function) Payload for sendHLSTimedMetadata was not found"
+            reject?("6004", errorMessage, nil)
+            return
+        }
+        
+        let metadata: HMSHLSTimedMetadata
+        
+        if let duration = data["duration"] as? Int {
+            metadata = HMSHLSTimedMetadata(payload: payload, duration: duration)
+        } else {
+            metadata = HMSHLSTimedMetadata(payload: payload)
+        }
+
+        DispatchQueue.main.async { [weak self] in
+            self?.hms?.sendHLSTimedMetadata([metadata]) { _, error in
+                if let error = error as? HMSError {
+                    print(#function, "Unable to send metadata: \(error)")
+                    reject?("6004", error.localizedDescription, nil)
+                }
+                
+                resolve?(nil)
+            }
+        }
+    }
+    
+    // MARK: -
 
     func changeName(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         guard let name = data.value(forKey: "name") as? String

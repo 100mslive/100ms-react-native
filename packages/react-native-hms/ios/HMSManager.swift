@@ -349,7 +349,7 @@ class HMSManager: RCTEventEmitter {
         hms?.stopRtmpAndRecording(resolve, reject)
     }
 
-    // MARK: - HLS Streaming & Recording
+    // MARK: - HLS Streaming
 
     @objc
     func startHLSStreaming(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
@@ -363,6 +363,13 @@ class HMSManager: RCTEventEmitter {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.stopHLSStreaming(resolve, reject)
+    }
+    
+    @objc
+    func sendHLSTimedMetadata(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.sendHLSTimedMetadata(data, resolve, reject)
     }
 
     // MARK: - Screen Share
