@@ -24,8 +24,6 @@ import {
   WindowController,
   useHMSHLSPlayerCue,
   HMSPollUpdateType,
-  HMSPollType,
-  // useHMSPeerUpdates,
 } from '@100mslive/react-native-hms';
 import type { Chat as ChatConfig } from '@100mslive/types-prebuilt/elements/chat';
 import { SoftInputModes } from '@100mslive/react-native-hms';

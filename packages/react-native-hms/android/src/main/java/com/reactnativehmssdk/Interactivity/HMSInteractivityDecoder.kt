@@ -10,12 +10,8 @@ import live.hms.video.polls.models.answer.HMSPollQuestionAnswer
 import live.hms.video.polls.models.answer.HmsPollAnswer
 import live.hms.video.polls.models.answer.PollAnswerItem
 import live.hms.video.polls.models.answer.PollAnswerResponse
-import live.hms.video.polls.models.network.HMSPollResponsePeerInfo
 import live.hms.video.polls.models.question.HMSPollQuestion
 import live.hms.video.polls.models.question.HMSPollQuestionOption
-import live.hms.video.polls.network.HMSPollLeaderboardEntry
-import live.hms.video.polls.network.HMSPollLeaderboardSummary
-import live.hms.video.polls.network.PollLeaderboardResponse
 import live.hms.video.polls.network.PollResultsDisplay
 
 object HMSInteractivityDecoder {
@@ -62,10 +58,10 @@ object HMSInteractivityDecoder {
       data.putMap("result", getPollResult(it))
     }
 
-    data.putString("startedAt", poll.startedAt.toString())
+    data.putString("startedAt", (poll.startedAt * 1000).toString())
 
     poll.stoppedAt?.let {
-      data.putString("stoppedAt", it.toString())
+      data.putString("stoppedAt", (it * 1000).toString())
     }
 
     poll.startedBy?.let {
@@ -312,87 +308,6 @@ object HMSInteractivityDecoder {
       results.pushMap(getHMSPollQuestionResponseResult(result))
     }
     return results
-  }
-
-  fun getPollLeaderboardResponse(pollLeaderboardResponse: PollLeaderboardResponse): WritableMap {
-    val results = Arguments.createMap()
-
-    pollLeaderboardResponse.hasNext?.let {
-      results.putBoolean("hasNext", it)
-    }
-    pollLeaderboardResponse.summary?.let {
-      results.putMap("summary", getHMSPollLeaderboardSummary(it))
-    }
-    pollLeaderboardResponse.entries?.let {
-      results.putArray("entries", getHMSPollLeaderboardEntries(it))
-    }
-    return results
-  }
-
-  private fun getHMSPollLeaderboardSummary(pollLeaderboardSummary: HMSPollLeaderboardSummary): WritableMap {
-    val summary = Arguments.createMap()
-    pollLeaderboardSummary.averageScore?.let {
-      summary.putDouble("averageScore", it.toDouble())
-    }
-    pollLeaderboardSummary.averageTime?.let {
-      summary.putString("averageTime", it.toString())
-    }
-    pollLeaderboardSummary.totalPeersCount?.let {
-      summary.putInt("totalPeersCount", it)
-    }
-    pollLeaderboardSummary.respondedCorrectlyPeersCount?.let {
-      summary.putInt("respondedCorrectlyPeersCount", it)
-    }
-    pollLeaderboardSummary.respondedPeersCount?.let {
-      summary.putInt("respondedPeersCount", it)
-    }
-    return summary
-  }
-
-  private fun getHMSPollLeaderboardEntries(pollLeaderboardEntries: List<HMSPollLeaderboardEntry>): WritableArray {
-    val list = Arguments.createArray()
-    pollLeaderboardEntries.forEach {
-      list.pushMap(getHMSPollLeaderboardEntry(it))
-    }
-    return list
-  }
-
-  private fun getHMSPollLeaderboardEntry(pollLeaderboardEntry: HMSPollLeaderboardEntry): WritableMap {
-    val entry = Arguments.createMap()
-    pollLeaderboardEntry.duration?.let {
-      entry.putString("duration", it.toString())
-    }
-    pollLeaderboardEntry.peer?.let {
-      entry.putMap("peer", getHMSPollResponsePeerInfo(it))
-    }
-    pollLeaderboardEntry.totalResponses?.let {
-      entry.putString("totalResponses", it.toString())
-    }
-    pollLeaderboardEntry.correctResponses?.let {
-      entry.putString("correctResponses", it.toString())
-    }
-    pollLeaderboardEntry.position?.let {
-      entry.putString("position", it.toString())
-    }
-    pollLeaderboardEntry.score?.let {
-      entry.putString("score", it.toString())
-    }
-    return entry
-  }
-
-  private fun getHMSPollResponsePeerInfo(pollResponsePeerInfo: HMSPollResponsePeerInfo): WritableMap {
-    val peerInfo = Arguments.createMap()
-    peerInfo.putString("userHash", pollResponsePeerInfo.hash)
-    pollResponsePeerInfo.peerid?.let {
-      peerInfo.putString("peerId", it)
-    }
-    pollResponsePeerInfo.userid?.let {
-      peerInfo.putString("customerUserId", it)
-    }
-    pollResponsePeerInfo.username?.let {
-      peerInfo.putString("userName", it)
-    }
-    return peerInfo
   }
 
   private fun getHMSPollQuestionResponseResult(hmsPollQuestionResponseResult: PollAnswerItem): WritableMap {
