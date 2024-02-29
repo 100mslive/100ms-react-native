@@ -402,9 +402,21 @@ export const HMSRoomSetup = () => {
 
   useEffect(() => {
     const subscription = hmsInstance.interactivityCenter.addPollUpdateListener(
-      (poll, pollUpdateType) => {
+      async (poll, pollUpdateType) => {
         const reduxState = reduxStore.getState();
         const pollsData = reduxState.polls.polls;
+
+        // Send HLS Timed Metadata for poll if it is started by local peer
+        if (
+          poll.createdBy &&
+          reduxState.hmsStates.localPeer &&
+          poll.createdBy.peerID === reduxState.hmsStates.localPeer.peerID
+        ) {
+          const result = await hmsInstance.sendHLSTimedMetadata([
+            { duration: 20, payload: `poll:${poll.pollId}` },
+          ]);
+          console.log('sendHLSTimedMetadata result: ', result);
+        }
 
         batch(() => {
           // Update poll object in store
