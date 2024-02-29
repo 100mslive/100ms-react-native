@@ -349,7 +349,7 @@ class HMSManager: RCTEventEmitter {
         hms?.stopRtmpAndRecording(resolve, reject)
     }
 
-    // MARK: - HLS Streaming & Recording
+    // MARK: - HLS Streaming
 
     @objc
     func startHLSStreaming(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
@@ -363,6 +363,15 @@ class HMSManager: RCTEventEmitter {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.stopHLSStreaming(resolve, reject)
+    }
+
+    @objc
+    func sendHLSTimedMetadata(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        guard let rnsdk = HMSHelper.getHms(data, hmsCollection) else {
+            reject?("6004", "HMSRNSDK instance not found!", nil)
+            return
+        }
+        rnsdk.sendHLSTimedMetadata(data, resolve, reject)
     }
 
     // MARK: - Screen Share

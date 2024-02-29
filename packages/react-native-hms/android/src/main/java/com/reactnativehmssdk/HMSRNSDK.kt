@@ -1580,6 +1580,8 @@ class HMSRNSDK(
     )
   }
 
+  // region - HLS Streaming
+
   fun startHLSStreaming(
     data: ReadableMap,
     callback: Promise?,
@@ -1613,6 +1615,42 @@ class HMSRNSDK(
       },
     )
   }
+
+  fun sendHLSTimedMetadata(
+    data: ReadableMap,
+    callback: Promise?,
+  ) {
+    val metadataArrayList = data.getArray("metadata")?.toArrayList() as? ArrayList<ReadableMap>
+
+    if (metadataArrayList == null) {
+      val errorMessage = "sendHLSTimedMetadata: INVALID_METADATA"
+      rejectCallback(callback, errorMessage)
+      return
+    }
+
+    val metadata =
+      metadataArrayList.mapNotNull { map ->
+        val payload = map.getString("payload")
+        val duration = map.getInt("duration")
+
+        payload?.let { HMSHLSTimedMetadata(it, duration.toLong()) }
+      }
+
+    hmsSDK?.setHlsSessionMetadata(
+      metadata,
+      object : HMSActionResultListener {
+        override fun onSuccess() {
+          callback?.resolve(true)
+        }
+
+        override fun onError(error: HMSException) {
+          callback?.reject(error.code.toString(), error.message)
+        }
+      },
+    )
+  }
+
+  // endregion
 
   fun changeName(
     data: ReadableMap,
