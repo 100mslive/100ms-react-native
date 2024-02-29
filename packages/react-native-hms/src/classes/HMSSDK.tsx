@@ -47,6 +47,7 @@ import type { HMSPeerListIteratorOptions } from './HMSPeerListIteratorOptions';
 import { HMSPeerListIterator } from './HMSPeerListIterator';
 import type { HMSPIPConfig } from './HMSPIPConfig';
 import { HMSInteractivityCenter } from './HMSInteractivityCenter';
+import type { HMSHLSTimedMetadata } from './HMSHLSTimedMetadata';
 
 type HmsViewProps = Omit<HmsComponentProps, 'id'>;
 
@@ -428,6 +429,17 @@ export class HMSSDK {
   stopHLSStreaming = async () => {
     logger?.verbose('#Function stopHLSStreaming', {});
     return await HMSManager.stopHLSStreaming({ id: this.id });
+  };
+
+  /**
+   * send timed metadata for HLS player
+   * @param metadata list of {@link HMSHLSTimedMetadata} to be sent
+   * @returns Promise<boolean>
+   */
+  sendHLSTimedMetadata = async (metadata: HMSHLSTimedMetadata[]) => {
+    const data = { metadata, id: this.id };
+    logger?.verbose('#Function sendHLSTimedMetadata', data);
+    return await HMSManager.sendHLSTimedMetadata(data);
   };
 
   /**
