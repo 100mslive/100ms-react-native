@@ -56,7 +56,7 @@ export const VoterParticipationSummary: React.FC<
           value:
             localLeaderboardEntry &&
             typeof localLeaderboardEntry.duration === 'number'
-              ? `${localLeaderboardEntry.duration / 1000}s`
+              ? `${(localLeaderboardEntry.duration / 1000).toFixed(2)}s`
               : '-',
         },
       ],

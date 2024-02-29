@@ -106,7 +106,7 @@ export const LeaderboardEntry: React.FC<LeaderboardEntryProps> = ({
               style={[styles.icon, hmsRoomStyles.icon]}
             />
             <Text style={[styles.smallerText, hmsRoomStyles.regularHighText]}>
-              {entry.duration / 1000}s
+              {(entry.duration / 1000).toFixed(2)}s
             </Text>
           </View>
         ) : null}

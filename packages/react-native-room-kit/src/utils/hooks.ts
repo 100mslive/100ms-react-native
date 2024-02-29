@@ -214,7 +214,7 @@ export const useLeaderboardSummaryData = (
           value:
             leaderboardSummary &&
             typeof leaderboardSummary.averageTime === 'number'
-              ? `${leaderboardSummary.averageTime / 1000}s`
+              ? `${(leaderboardSummary.averageTime / 1000).toFixed(2)}s`
               : '-', // averageTime is in milliseconds
         },
         {
@@ -268,7 +268,7 @@ export const useLeaderboardSummaryData = (
           value:
             localLeaderboardEntry &&
             typeof localLeaderboardEntry.duration === 'number'
-              ? `${localLeaderboardEntry.duration / 1000}s`
+              ? `${(localLeaderboardEntry.duration / 1000).toFixed(2)}s`
               : '-',
         },
         {
