@@ -157,13 +157,15 @@ export const useLeaderboardSummaryData = (
   const localPeerUserId = useSelector(
     (state: RootState) => state.hmsStates.localPeer?.customerUserID
   );
-  const localPeerId = useSelector(
-    (state: RootState) => state.hmsStates.localPeer?.peerID
-  );
   const localPeerPollInitiator = useSelector((state: RootState) => {
     if (!pollId) return null;
-    const pollInitiator = state.polls.polls[pollId]?.createdBy?.peerID;
-    return localPeerId && pollInitiator && localPeerId === pollInitiator;
+    const pollInitiatorUserID =
+      state.polls.polls[pollId]?.createdBy?.customerUserID;
+    return (
+      localPeerUserId &&
+      pollInitiatorUserID &&
+      localPeerUserId === pollInitiatorUserID
+    );
   });
   const canCreateOrEndPoll = useSelector((state: RootState) => {
     const permissions = state.hmsStates.localPeer?.role?.permissions;
