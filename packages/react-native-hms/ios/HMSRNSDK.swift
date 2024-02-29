@@ -831,29 +831,31 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     }
 
     func sendHLSTimedMetadata(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        guard let payload = data["payload"] as? String
-        else {
-            let errorMessage = "\(#function) Payload for sendHLSTimedMetadata was not found"
+        guard let metadataArrayList = data["metadata"] as? [NSDictionary] else {
+            let errorMessage = "\(#function) metadata for sendHLSTimedMetadata was not found"
             reject?("6004", errorMessage, nil)
             return
         }
 
-        let metadata: HMSHLSTimedMetadata
-
-        if let duration = data["duration"] as? Int {
-            metadata = HMSHLSTimedMetadata(payload: payload, duration: duration)
-        } else {
-            metadata = HMSHLSTimedMetadata(payload: payload)
+        let metadata = metadataArrayList.compactMap { (dict: NSDictionary) -> HMSHLSTimedMetadata? in
+            guard let payload = dict["payload"] as? String else {
+               return nil
+            }
+            if let duration = dict["duration"] as? Int {
+                return HMSHLSTimedMetadata(payload: payload, duration: duration)
+            } else {
+                return HMSHLSTimedMetadata(payload: payload)
+            }
         }
 
         DispatchQueue.main.async { [weak self] in
-            self?.hms?.sendHLSTimedMetadata([metadata]) { _, error in
+            self?.hms?.sendHLSTimedMetadata(metadata) { success, error in
                 if let error = error as? HMSError {
                     print(#function, "Unable to send metadata: \(error)")
                     reject?("6004", error.localizedDescription, nil)
                 }
 
-                resolve?(nil)
+                resolve?(success)
             }
         }
     }

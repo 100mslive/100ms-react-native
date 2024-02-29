@@ -557,9 +557,15 @@ class HMSManager(reactContext: ReactApplicationContext) :
     data: ReadableMap,
     callback: Promise?,
   ) {
-    val hms = HMSHelper.getHms(data, hmsCollection)
-
-    hms?.sendHLSTimedMetadata(data, callback)
+    val rnSDK = HMSHelper.getHms(data, hmsCollection)
+    rnSDK?.let { sdk ->
+      sdk.sendHLSTimedMetadata(data, callback)
+      return
+    }
+    callback?.reject(
+      "6004",
+      "HMS SDK not initialized",
+    )
   }
 
   // endregion

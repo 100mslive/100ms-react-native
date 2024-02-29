@@ -107,6 +107,10 @@ RCT_EXTERN_METHOD(stopHLSStreaming
                   : (NSDictionary)data
                   : (RCTPromiseResolveBlock)resolve
                   : (RCTPromiseRejectBlock)reject)
+RCT_EXTERN_METHOD(sendHLSTimedMetadata
+                  : (NSDictionary)data
+                  : (RCTPromiseResolveBlock)resolve
+                  : (RCTPromiseRejectBlock)reject)
 RCT_EXTERN_METHOD(changeName
                   : (NSDictionary)data
                   : (RCTPromiseResolveBlock)resolve

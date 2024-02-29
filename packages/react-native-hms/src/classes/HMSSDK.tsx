@@ -431,9 +431,15 @@ export class HMSSDK {
     return await HMSManager.stopHLSStreaming({ id: this.id });
   };
 
-  sendHLSTimedMetadata = async (data: Array<HMSHLSTimedMetadata>) => {
-    logger?.verbose('#Function sendHLSTimedMetadata', { data, id: this.id });
-    return await HMSManager.sendHLSTimedMetadata({ data, id: this.id });
+  /**
+   * send timed metadata for HLS player
+   * @param metadata list of {@link HMSHLSTimedMetadata} to be sent
+   * @returns Promise<boolean>
+   */
+  sendHLSTimedMetadata = async (metadata: HMSHLSTimedMetadata[]) => {
+    const data = { metadata, id: this.id };
+    logger?.verbose('#Function sendHLSTimedMetadata', data);
+    return await HMSManager.sendHLSTimedMetadata(data);
   };
 
   /**

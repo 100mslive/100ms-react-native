@@ -1620,28 +1620,34 @@ class HMSRNSDK(
     data: ReadableMap,
     callback: Promise?,
   ) {
-    val payload = data.getString("payload")
-    val duration = data.getInt("duration")
+    val metadataArrayList = data.getArray("metadata")?.toArrayList() as? ArrayList<ReadableMap>
 
-    val metadata = payload?.let { HMSHLSTimedMetadata(it, duration.toLong()) }
-
-    if (metadata != null) {
-      hmsSDK?.setHlsSessionMetadata(
-        arrayListOf(metadata),
-        object : HMSActionResultListener {
-          override fun onSuccess() {
-            callback?.resolve(null)
-          }
-
-          override fun onError(error: HMSException) {
-            callback?.reject(error.code.toString(), error.message)
-          }
-        },
-      )
-    } else {
+    if (metadataArrayList == null) {
       val errorMessage = "sendHLSTimedMetadata: INVALID_METADATA"
       rejectCallback(callback, errorMessage)
+      return
     }
+
+    val metadata =
+      metadataArrayList.mapNotNull { map ->
+        val payload = map.getString("payload")
+        val duration = map.getInt("duration")
+
+        payload?.let { HMSHLSTimedMetadata(it, duration.toLong()) }
+      }
+
+    hmsSDK?.setHlsSessionMetadata(
+      metadata,
+      object : HMSActionResultListener {
+        override fun onSuccess() {
+          callback?.resolve(true)
+        }
+
+        override fun onError(error: HMSException) {
+          callback?.reject(error.code.toString(), error.message)
+        }
+      },
+    )
   }
 
   // endregion

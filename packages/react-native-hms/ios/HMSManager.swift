@@ -367,9 +367,11 @@ class HMSManager: RCTEventEmitter {
 
     @objc
     func sendHLSTimedMetadata(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        let hms = HMSHelper.getHms(data, hmsCollection)
-
-        hms?.sendHLSTimedMetadata(data, resolve, reject)
+        guard let rnsdk = HMSHelper.getHms(data, hmsCollection) else {
+            reject?("6004", "HMSRNSDK instance not found!", nil)
+            return
+        }
+        rnsdk.sendHLSTimedMetadata(data, resolve, reject)
     }
 
     // MARK: - Screen Share
