@@ -1,3 +1,4 @@
+import { HMSEncoder } from './HMSEncoder';
 import type { DecodedPollLeaderboardResponse } from './polls/DecodedPollLeaderboardResponse';
 import type { HMSPoll } from './polls/HMSPoll';
 import type { PollLeaderboardResponse } from './polls/PollLeaderboardResponse';
@@ -22,8 +23,26 @@ export class HMSInteractivityEncoder {
         poll.stoppedAt = new Date(dateNum);
       }
     }
-    // poll.rolesThatCanVote: HMSRole[];
-    // poll.rolesThatCanViewResponses: HMSRole[];
+    if (poll.createdBy) {
+      poll.createdBy = HMSEncoder.encodeHmsPeer(poll.createdBy);
+    }
+    if (poll.startedBy) {
+      poll.startedBy = HMSEncoder.encodeHmsPeer(poll.startedBy);
+    }
+    if (poll.stoppedBy) {
+      poll.stoppedBy = HMSEncoder.encodeHmsPeer(poll.stoppedBy);
+    }
+    if (poll.rolesThatCanVote) {
+      poll.rolesThatCanVote = poll.rolesThatCanVote.map((role) =>
+        HMSEncoder.encodeHmsRole(role)
+      );
+    }
+    if (poll.rolesThatCanViewResponses) {
+      poll.rolesThatCanViewResponses = poll.rolesThatCanViewResponses.map(
+        (role) => HMSEncoder.encodeHmsRole(role)
+      );
+    }
+
     // --- poll.questions: HMSPollQuestion[]
     // --- poll.result: HMSPollResult
     return poll;
