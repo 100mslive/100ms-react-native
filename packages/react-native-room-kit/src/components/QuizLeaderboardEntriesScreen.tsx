@@ -53,10 +53,6 @@ export const QuizLeaderboardEntriesScreen: React.FC<
     HMSPollLeaderboardEntry[]
   >(initialLeaderboardEntries ? [...initialLeaderboardEntries] : []);
 
-  console.log(
-    'initialLeaderboardEntries --> ',
-    JSON.stringify(initialLeaderboardEntries, null, 2)
-  );
   const startIndexRef = React.useRef(leaderboardEntries.length);
 
   const { primary_default: primaryDefaultColor } = useHMSRoomColorPalette();
@@ -121,11 +117,10 @@ export const QuizLeaderboardEntriesScreen: React.FC<
       const response = await hmsInstance.interactivityCenter.fetchLeaderboard(
         selectedPoll.pollId,
         50,
-        startIndexRef.current,
+        startIndexRef.current + 1, // Indexing starts from 1
         false
       );
       if (mounted) {
-        console.log('response --> ', JSON.stringify(response, null, 4));
         setLoading(false);
         loadingRef.current = false;
         if (Array.isArray(response.entries)) {
@@ -237,7 +232,6 @@ export const QuizLeaderboardEntriesScreen: React.FC<
         }
         estimatedItemSize={56}
         onEndReached={() => {
-          console.log('##### onEndReached');
           fetchLeaderboard();
         }}
         // showsVerticalScrollIndicator={Platform.OS !== 'android'}

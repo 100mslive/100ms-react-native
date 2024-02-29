@@ -133,7 +133,7 @@ export const useFetchLeaderboardResponse = (
         const response = await hmsInstance.interactivityCenter.fetchLeaderboard(
           pollId,
           5,
-          0,
+          1, // Indexing starts from 1
           !hasPollWritePermission // fetchCurrentUser only if user has only pollRead permission
         );
         if (mounted) {
