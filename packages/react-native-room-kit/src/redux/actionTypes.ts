@@ -3,6 +3,7 @@ import type {
   HMSPollQuestion,
   HMSPollQuestionType,
   HMSPollType,
+  PollLeaderboardResponse,
 } from '@100mslive/react-native-hms';
 
 const createRequests = (base: String) => {
@@ -196,6 +197,7 @@ export enum CreatePollStages {
   POLL_QUESTION_CONFIG,
   POLL_VOTING,
   QUIZ_LEADERBOARD,
+  QUIZ_LEADERBOARD_ENTRIES,
 }
 
 export type PollConfig = {
@@ -219,6 +221,7 @@ export type PollsActionType =
   | SetPollNameAction
   | SetPollConfigAction
   | PushToNavigationStackAction
+  | ResetNavigationStackAction
   | PopFromNavigationStackAction
   | ReplaceTopOfNavigationStackAction
   | AddPollQuestionAction
@@ -244,6 +247,7 @@ export type PollsActionType =
   | AddPollQuestionResponseAction
   | RemovePollQuestionResponseAction
   | AddCuedPollIdAction
+  | AddLeaderboardAction
   | { type: HmsStateActionTypes.CLEAR_STATES };
 
 export type ClearPollFormStateAction = {
@@ -268,6 +272,10 @@ export type SetPollConfigAction = {
 export type PushToNavigationStackAction = {
   type: PollsStateActionTypes.PUSH_TO_NAVIGATION_STACK;
   screen: CreatePollStages;
+};
+
+export type ResetNavigationStackAction = {
+  type: PollsStateActionTypes.RESET_NAVIGATION_STACK;
 };
 
 export type PopFromNavigationStackAction = {
@@ -403,12 +411,19 @@ export type AddCuedPollIdAction = {
   pollId: HMSPoll['pollId'];
 };
 
+export type AddLeaderboardAction = {
+  type: PollsStateActionTypes.ADD_LEADERBOARD;
+  pollId: HMSPoll['pollId'];
+  leaderboard: PollLeaderboardResponse;
+};
+
 export enum PollsStateActionTypes {
   CLEAR_POLL_FORM_STATE = 'CLEAR_POLL_FORM_STATE',
   SET_DELETE_CONFIRMATION_VISIBLE = 'SET_DELETE_CONFIRMATION_VISIBLE',
   SET_POLL_NAME = 'SET_POLL_NAME',
   SET_POLL_CONFIG = 'SET_POLL_CONFIG',
   PUSH_TO_NAVIGATION_STACK = 'PUSH_TO_NAVIGATION_STACK',
+  RESET_NAVIGATION_STACK = 'RESET_NAVIGATION_STACK',
   POP_FROM_NAVIGATION_STACK = 'POP_FROM_NAVIGATION_STACK',
   REPLACE_TOP_OF_NAVIGATION_STACK = 'REPLACE_TOP_OF_NAVIGATION_STACK',
   ADD_POLL_QUESTION = 'ADD_POLL_QUESTION',
@@ -433,4 +448,5 @@ export enum PollsStateActionTypes {
   REMOVE_POLL_QUESTION_RESPONSE = 'REMOVE_POLL_QUESTION_RESPONSE',
   ADD_POLL_QUESTION_RESPONSE = 'ADD_POLL_QUESTION_RESPONSE',
   ADD_CUED_POLL_ID = 'ADD_CUED_POLL_ID',
+  ADD_LEADERBOARD = 'ADD_LEADERBOARD',
 }

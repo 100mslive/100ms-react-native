@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   HMSLocalAudioStats,
@@ -13,10 +13,12 @@ import {
   HMSTrackSource,
   HMSUpdateListenerActions,
 } from '@100mslive/react-native-hms';
+import type { HMSPoll } from '@100mslive/react-native-hms';
 
-import type { RootState } from '../redux';
-import { setRTCStats } from '../redux/actions';
 import { ModalTypes } from './types';
+import type { RootState } from '../redux';
+import { addLeaderboard, setRTCStats } from '../redux/actions';
+import { useHMSInstance } from '../hooks-util';
 
 export const useRTCStatsListeners = () => {
   const dispatch = useDispatch();
@@ -101,4 +103,187 @@ export const useRTCStatsListeners = () => {
       };
     }
   }, [hmsInstance, addListeners]);
+};
+
+export const useFetchLeaderboardResponse = (
+  pollId: HMSPoll['pollId'] | undefined
+) => {
+  const dispatch = useDispatch();
+  const hmsInstance = useHMSInstance();
+
+  const hasPollWritePermission = useSelector((state: RootState) => {
+    const permissions = state.hmsStates.localPeer?.role?.permissions;
+    return permissions?.pollWrite;
+  });
+
+  const leaderboardData = useSelector((state: RootState) => {
+    if (!pollId) return null;
+    return state.polls.leaderboards[pollId] || null;
+  });
+
+  const leaderboardDataExist = !!leaderboardData;
+
+  useEffect(() => {
+    if (!!leaderboardData) return;
+
+    let mounted = true;
+
+    async function fetchLeaderboard() {
+      if (pollId) {
+        const response = await hmsInstance.interactivityCenter.fetchLeaderboard(
+          pollId,
+          5,
+          0,
+          !hasPollWritePermission // fetchCurrentUser only if user has only pollRead permission
+        );
+        if (mounted) {
+          dispatch(addLeaderboard(pollId, response));
+        }
+      }
+    }
+    fetchLeaderboard();
+
+    return () => {
+      mounted = false;
+    };
+  }, [pollId, leaderboardDataExist, hasPollWritePermission]);
+
+  return leaderboardData;
+};
+
+export const useLeaderboardSummaryData = (
+  pollId: HMSPoll['pollId'] | undefined
+): { label: string; value: any }[][] | null => {
+  const localPeerUserId = useSelector(
+    (state: RootState) => state.hmsStates.localPeer?.customerUserID
+  );
+  const localPeerId = useSelector(
+    (state: RootState) => state.hmsStates.localPeer?.peerID
+  );
+  const localPeerPollInitiator = useSelector((state: RootState) => {
+    if (!pollId) return null;
+    const pollInitiator = state.polls.polls[pollId]?.createdBy?.peerID;
+    return localPeerId && pollInitiator && localPeerId === pollInitiator;
+  });
+  const canCreateOrEndPoll = useSelector((state: RootState) => {
+    const permissions = state.hmsStates.localPeer?.role?.permissions;
+    return permissions?.pollWrite;
+  });
+
+  const leaderboardData = useSelector((state: RootState) => {
+    if (!pollId) return null;
+    return state.polls.leaderboards[pollId] || null;
+  });
+  const pollQuestionsLength = useSelector((state: RootState) => {
+    if (!pollId) return null;
+    return state.polls.polls[pollId]?.questions?.length;
+  });
+  const leaderboardSummary = leaderboardData?.summary;
+
+  const pollInitiatorSummaryData = useMemo(() => {
+    if (!localPeerPollInitiator) {
+      return null;
+    }
+    return [
+      [
+        {
+          label: 'ANSWERED',
+          value:
+            leaderboardSummary &&
+            typeof leaderboardSummary.respondedPeersCount === 'number' &&
+            typeof leaderboardSummary.totalPeersCount === 'number'
+              ? `${Math.round((leaderboardSummary.respondedPeersCount / leaderboardSummary.totalPeersCount) * 100)}% (${leaderboardSummary.respondedPeersCount}/${leaderboardSummary.totalPeersCount})`
+              : '-',
+        },
+        {
+          label: 'CORRECT ANSWERS',
+          value:
+            leaderboardSummary &&
+            typeof leaderboardSummary.respondedCorrectlyPeersCount ===
+              'number' &&
+            typeof leaderboardSummary.totalPeersCount === 'number'
+              ? `${Math.round((leaderboardSummary.respondedCorrectlyPeersCount / leaderboardSummary?.totalPeersCount) * 100)}% (${leaderboardSummary.respondedCorrectlyPeersCount}/${leaderboardSummary.totalPeersCount})`
+              : '-',
+        },
+      ],
+      [
+        {
+          label: 'AVG. TIME TAKEN',
+          value:
+            leaderboardSummary &&
+            typeof leaderboardSummary.averageTime === 'number'
+              ? `${leaderboardSummary.averageTime / 1000}s`
+              : '-', // averageTime is in milliseconds
+        },
+        {
+          label: 'AVG. SCORE',
+          value:
+            leaderboardSummary &&
+            typeof leaderboardSummary.averageScore === 'number'
+              ? leaderboardSummary.averageScore.toFixed(2)
+              : '-',
+        },
+      ],
+    ];
+  }, [leaderboardSummary, localPeerPollInitiator]);
+
+  const localLeaderboardEntry =
+    localPeerUserId && leaderboardData && Array.isArray(leaderboardData.entries)
+      ? leaderboardData.entries.find(
+          (entry) => entry.peer?.customerUserId === localPeerUserId
+        )
+      : null;
+
+  const voterSummaryData = useMemo(() => {
+    if (!localLeaderboardEntry || canCreateOrEndPoll) {
+      return null;
+    }
+    return [
+      [
+        {
+          label: 'YOUR RANK',
+          value:
+            localLeaderboardEntry &&
+            typeof localLeaderboardEntry.totalResponses === 'number' &&
+            leaderboardSummary &&
+            typeof leaderboardSummary.totalPeersCount === 'number'
+              ? `${localLeaderboardEntry.position}/${leaderboardSummary.totalPeersCount}`
+              : '-',
+        },
+        {
+          label: 'CORRECT ANSWERS',
+          value:
+            localLeaderboardEntry &&
+            typeof localLeaderboardEntry.correctResponses === 'number' &&
+            typeof pollQuestionsLength === 'number'
+              ? `${Math.round((localLeaderboardEntry.correctResponses / pollQuestionsLength) * 100)}% (${localLeaderboardEntry.correctResponses}/${pollQuestionsLength})`
+              : '-',
+        },
+      ],
+      [
+        {
+          label: 'TIME TAKEN',
+          value:
+            localLeaderboardEntry &&
+            typeof localLeaderboardEntry.duration === 'number'
+              ? `${localLeaderboardEntry.duration / 1000}s`
+              : '-',
+        },
+        {
+          label: 'YOUR POINTS',
+          value:
+            localLeaderboardEntry &&
+            typeof localLeaderboardEntry.score === 'number'
+              ? localLeaderboardEntry.score
+              : '-',
+        },
+      ],
+    ];
+  }, [localLeaderboardEntry, leaderboardSummary?.totalPeersCount]);
+
+  return localPeerPollInitiator
+    ? pollInitiatorSummaryData
+    : voterSummaryData
+      ? voterSummaryData
+      : null;
 };

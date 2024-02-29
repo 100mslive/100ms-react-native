@@ -2,41 +2,37 @@ import * as React from 'react';
 import {
   Text,
   StyleSheet,
-  ScrollView,
   View,
   Keyboard,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
+import type { HMSPollLeaderboardEntry } from '@100mslive/react-native-hms';
+import { FlashList } from '@shopify/flash-list';
 
-import { useHMSRoomStyleSheet } from '../hooks-util';
-import type { RootState } from '../redux';
 import {
-  popFromNavigationStack,
-  pushToNavigationStack,
-} from '../redux/actions';
+  useHMSInstance,
+  useHMSRoomColorPalette,
+  useHMSRoomStyleSheet,
+} from '../hooks-util';
+import type { RootState } from '../redux';
+import { popFromNavigationStack } from '../redux/actions';
 import { BottomSheet } from './BottomSheet';
 import { ChevronIcon, CloseIcon } from '../Icons';
 import { PollAndQuizzStateLabel } from './PollAndQuizzStateLabel';
 import { LeaderboardEntry } from './LeaderboardEntry';
-import { CreatePollStages } from '../redux/actionTypes';
-import { QuizLeaderboardSummary } from './QuizLeaderboardSummary';
-import {
-  useFetchLeaderboardResponse,
-  useLeaderboardSummaryData,
-} from '../utils/hooks';
 
-export interface QuizLeaderboardScreenProps {
+export interface QuizLeaderboardEntriesScreenProps {
   currentIdx: number;
   dismissModal(): void;
   unmountScreenWithAnimation?(cb: Function): void;
 }
 
-export const QuizLeaderboardScreen: React.FC<QuizLeaderboardScreenProps> = ({
-  currentIdx,
-  dismissModal,
-  unmountScreenWithAnimation,
-}) => {
+export const QuizLeaderboardEntriesScreen: React.FC<
+  QuizLeaderboardEntriesScreenProps
+> = ({ currentIdx, dismissModal, unmountScreenWithAnimation }) => {
+  const hmsInstance = useHMSInstance();
   const dispatch = useDispatch();
 
   const selectedPoll = useSelector((state: RootState) => {
@@ -46,14 +42,24 @@ export const QuizLeaderboardScreen: React.FC<QuizLeaderboardScreenProps> = ({
     }
     return null;
   });
-  const headerTitle = useSelector((state: RootState) => {
-    const pollsData = state.polls;
-    if (pollsData.selectedPollId !== null) {
-      return pollsData.polls[pollsData.selectedPollId]?.title || null;
-    }
-    return null;
+
+  const initialLeaderboardEntries = useSelector((state: RootState) => {
+    return selectedPoll?.pollId
+      ? state.polls.leaderboards[selectedPoll.pollId]?.entries
+      : null;
   });
 
+  const [leaderboardEntries, setLeaderboardEntries] = React.useState<
+    HMSPollLeaderboardEntry[]
+  >(initialLeaderboardEntries ? [...initialLeaderboardEntries] : []);
+
+  console.log(
+    'initialLeaderboardEntries --> ',
+    JSON.stringify(initialLeaderboardEntries, null, 2)
+  );
+  const startIndexRef = React.useRef(leaderboardEntries.length);
+
+  const { primary_default: primaryDefaultColor } = useHMSRoomColorPalette();
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
     regularHighText: {
       color: theme.palette.on_surface_high,
@@ -103,21 +109,70 @@ export const QuizLeaderboardScreen: React.FC<QuizLeaderboardScreenProps> = ({
     dismissModal();
   };
 
-  const viewAllLeaderboardEntries = () => {
-    dispatch(pushToNavigationStack(CreatePollStages.QUIZ_LEADERBOARD_ENTRIES));
-  };
+  const [loading, setLoading] = React.useState(false);
+  const loadingRef = React.useRef(false);
+  const mounted = React.useRef(true);
+  const canFetchMore = React.useRef(true);
 
-  const leaderboardData = useFetchLeaderboardResponse(selectedPoll?.pollId);
-
-  const leaderboardEntries = leaderboardData?.entries;
-
-  const summaryData = useLeaderboardSummaryData(selectedPoll?.pollId);
+  const fetchLeaderboard = React.useCallback(async () => {
+    if (selectedPoll?.pollId && canFetchMore.current && !loadingRef.current) {
+      setLoading(true);
+      loadingRef.current = true;
+      const response = await hmsInstance.interactivityCenter.fetchLeaderboard(
+        selectedPoll.pollId,
+        50,
+        startIndexRef.current,
+        false
+      );
+      if (mounted) {
+        console.log('response --> ', JSON.stringify(response, null, 4));
+        setLoading(false);
+        loadingRef.current = false;
+        if (Array.isArray(response.entries)) {
+          const entries = response.entries;
+          setLeaderboardEntries((prev) => {
+            const list = [...prev, ...entries];
+            startIndexRef.current = list.length;
+            return list;
+          });
+          if (entries.length <= 0) {
+            canFetchMore.current = false;
+          }
+        }
+        if (response.hasNext === false) {
+          canFetchMore.current = false;
+        }
+      }
+    }
+  }, [selectedPoll?.pollId]);
 
   const totalPoints =
     selectedPoll?.questions?.reduce((acc, curr) => {
       acc += curr.weight;
       return acc;
     }, 0) ?? 0;
+
+  const totalQuestions = selectedPoll?.questions?.length ?? 0;
+
+  const _keyExtractor = React.useCallback(
+    (item: HMSPollLeaderboardEntry, index: number) =>
+      item.peer?.peerId ?? index.toString(),
+    []
+  );
+
+  const _renderItem = React.useCallback(
+    (data: { item: HMSPollLeaderboardEntry }) => {
+      return (
+        <LeaderboardEntry
+          totalPoints={totalPoints}
+          totalQuestions={totalQuestions}
+          entry={data.item}
+          style={{ marginBottom: 16 }}
+        />
+      );
+    },
+    [totalPoints, totalQuestions]
+  );
 
   return (
     <View style={[styles.fullView, hmsRoomStyles.container]}>
@@ -142,7 +197,7 @@ export const QuizLeaderboardScreen: React.FC<QuizLeaderboardScreenProps> = ({
               hmsRoomStyles.headerText,
             ]}
           >
-            {headerTitle}
+            {selectedPoll?.title}
           </Text>
 
           {selectedPoll?.state ? (
@@ -163,69 +218,35 @@ export const QuizLeaderboardScreen: React.FC<QuizLeaderboardScreenProps> = ({
       <BottomSheet.Divider style={styles.halfDivider} />
 
       {/* Content */}
-      <ScrollView
-        style={styles.contentContainer}
-        contentContainerStyle={styles.scrollViewContentContainer}
-      >
-        {summaryData ? <QuizLeaderboardSummary data={summaryData} /> : null}
-
-        {selectedPoll &&
-        Array.isArray(selectedPoll.questions) &&
-        Array.isArray(leaderboardEntries) &&
-        leaderboardEntries.length > 0 ? (
-          <React.Fragment>
+      <FlashList
+        data={leaderboardEntries}
+        ListHeaderComponent={() => (
+          <View style={{ paddingTop: 24, paddingBottom: 28 }}>
             <Text style={[styles.normalText, hmsRoomStyles.semiBoldHighText]}>
               Leaderboard
             </Text>
-            <Text
-              style={[
-                styles.smallerText,
-                hmsRoomStyles.regularMediumText,
-                styles.marginBottom16,
-              ]}
-            >
+            <Text style={[styles.smallerText, hmsRoomStyles.regularMediumText]}>
               Based on time taken to cast the correct answer
             </Text>
-
-            <View style={[styles.entriesCard, hmsRoomStyles.entriesCard]}>
-              {leaderboardEntries.map((entry, index) => {
-                return (
-                  <LeaderboardEntry
-                    key={index}
-                    entry={entry}
-                    totalPoints={totalPoints}
-                    totalQuestions={selectedPoll.questions?.length ?? 0}
-                    style={styles.leaderboardEntry}
-                  />
-                );
-              })}
-
-              {leaderboardData?.hasNext ? (
-                <React.Fragment>
-                  <View style={[styles.divider, hmsRoomStyles.divider]} />
-
-                  <TouchableOpacity
-                    onPress={viewAllLeaderboardEntries}
-                    style={styles.viewAllBtn}
-                  >
-                    <Text
-                      style={[
-                        styles.smallText,
-                        hmsRoomStyles.regularHighText,
-                        { marginRight: 4 },
-                      ]}
-                    >
-                      View All
-                    </Text>
-
-                    <ChevronIcon direction="right" />
-                  </TouchableOpacity>
-                </React.Fragment>
-              ) : null}
-            </View>
-          </React.Fragment>
-        ) : null}
-      </ScrollView>
+          </View>
+        )}
+        ListFooterComponent={() =>
+          loading ? (
+            <ActivityIndicator size="small" color={primaryDefaultColor} />
+          ) : null
+        }
+        estimatedItemSize={56}
+        onEndReached={() => {
+          console.log('##### onEndReached');
+          fetchLeaderboard();
+        }}
+        // showsVerticalScrollIndicator={Platform.OS !== 'android'}
+        contentContainerStyle={{ paddingHorizontal: 24 }}
+        // keyboardShouldPersistTaps="always"
+        // ItemSeparatorComponent={() => <View style={{ height: 16 }} />} // TODO: There is a bug related to this: https://github.com/Shopify/flash-list/issues/638
+        renderItem={_renderItem}
+        keyExtractor={_keyExtractor}
+      />
     </View>
   );
 };
@@ -248,42 +269,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 24,
   },
-  marginBottom8: {
-    marginBottom: 8,
-  },
   marginBottom16: {
     marginBottom: 16,
-  },
-  contentContainer: {
-    paddingHorizontal: 24,
-  },
-  scrollViewContentContainer: {
-    flexGrow: 1,
-    paddingVertical: 24,
-  },
-  summaryWrapper: {
-    flexBasis: '50%',
-    flexGrow: 1,
-    flexShrink: 1,
-    padding: 16,
-    borderRadius: 12,
-  },
-  position: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    textAlign: 'center',
-    textAlignVertical: 'center',
-    marginRight: 12,
-  },
-  firstPosition: {
-    backgroundColor: '#D69516', // '#FFD700'
-  },
-  secondPosition: {
-    backgroundColor: '#3E3E3E', // '#C0C0C0'
-  },
-  thirdPosition: {
-    backgroundColor: '#583B0F', // '#CD7F32'
   },
   iconWrapper: {
     flexDirection: 'row',

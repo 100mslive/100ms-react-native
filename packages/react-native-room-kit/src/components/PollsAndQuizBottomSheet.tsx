@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Platform, StyleSheet } from 'react-native';
+import { useDispatch } from 'react-redux';
 
 import { BottomSheet } from './BottomSheet';
 import { useHMSRoomStyleSheet, useModalType } from '../hooks-util';
@@ -7,8 +8,10 @@ import { useHeaderHeight } from './Header';
 import { useIsLandscapeOrientation } from '../utils/dimension';
 import { PollsAndQuizzesModalContent } from './PollsAndQuizzesModalContent';
 import { ModalTypes } from '../utils/types';
+import { resetNavigationStack } from '../redux/actions';
 
 export const PollsAndQuizBottomSheet = () => {
+  const dispatch = useDispatch();
   const headerHeight = useHeaderHeight();
   const isLandscapeOrientation = useIsLandscapeOrientation();
   const {
@@ -22,7 +25,10 @@ export const PollsAndQuizBottomSheet = () => {
     },
   }));
 
-  const dismissModal = () => setModalVisible(ModalTypes.DEFAULT);
+  const dismissModal = () => {
+    setModalVisible(ModalTypes.DEFAULT);
+    dispatch(resetNavigationStack());
+  };
 
   const containerStyles = [
     styles.bottomSheet,

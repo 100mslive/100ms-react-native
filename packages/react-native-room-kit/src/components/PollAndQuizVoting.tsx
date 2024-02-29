@@ -25,6 +25,7 @@ import { ChevronIcon, CloseIcon } from '../Icons';
 import { PollAndQuizzStateLabel } from './PollAndQuizzStateLabel';
 import { HMSPrimaryButton } from './HMSPrimaryButton';
 import { CreatePollStages } from '../redux/actionTypes';
+import { VoterParticipationSummary } from './VoterParticipationSummary';
 
 export interface PollAndQuizVotingProps {
   currentIdx: number;
@@ -64,6 +65,10 @@ export const PollAndQuizVoting: React.FC<PollAndQuizVotingProps> = ({
     regularMediumText: {
       color: theme.palette.on_surface_medium,
       fontFamily: `${typography.font_family}-Regular`,
+    },
+    semiBoldHighText: {
+      color: theme.palette.on_surface_high,
+      fontFamily: `${typography.font_family}-SemiBold`,
     },
     semiBoldMediumText: {
       color: theme.palette.on_surface_medium,
@@ -179,10 +184,23 @@ export const PollAndQuizVoting: React.FC<PollAndQuizVotingProps> = ({
         style={styles.contentContainer}
         contentContainerStyle={{ flexGrow: 1, paddingVertical: 24 }}
       >
-        <Text style={[styles.normalText, hmsRoomStyles.semiBoldMediumText]}>
-          {selectedPoll?.createdBy?.name} started a{' '}
-          {selectedPoll?.type === HMSPollType.quiz ? 'quiz' : 'poll'}
-        </Text>
+        {selectedPoll &&
+        selectedPoll.type === HMSPollType.quiz &&
+        selectedPoll.state === HMSPollState.stopped &&
+        !canCreateOrEndPoll ? (
+          <React.Fragment>
+            <VoterParticipationSummary pollId={selectedPoll.pollId} />
+
+            <Text style={[styles.normalText, hmsRoomStyles.semiBoldHighText]}>
+              Questions
+            </Text>
+          </React.Fragment>
+        ) : (
+          <Text style={[styles.normalText, hmsRoomStyles.semiBoldMediumText]}>
+            {selectedPoll?.createdBy?.name} started a{' '}
+            {selectedPoll?.type === HMSPollType.quiz ? 'quiz' : 'poll'}
+          </Text>
+        )}
 
         {selectedPoll ? (
           <PollAndQuizQuestionResponseCards

@@ -56,6 +56,8 @@ import type {
   PushToNavigationStackAction,
   PopFromNavigationStackAction,
   ReplaceTopOfNavigationStackAction,
+  AddLeaderboardAction,
+  ResetNavigationStackAction,
 } from '../actionTypes';
 import { MeetingState } from '../../types';
 import type { ChatState, Notification, PinnedMessage } from '../../types';
@@ -500,6 +502,10 @@ export const pushToNavigationStack = (
   screen,
 });
 
+export const resetNavigationStack = (): ResetNavigationStackAction => ({
+  type: PollsStateActionTypes.RESET_NAVIGATION_STACK,
+});
+
 export const popFromNavigationStack = (): PopFromNavigationStackAction => ({
   type: PollsStateActionTypes.POP_FROM_NAVIGATION_STACK,
 });
@@ -684,4 +690,13 @@ export const removePollQuestionResponse = (
 export const addCuedPollId = (pollId: string) => ({
   type: PollsStateActionTypes.ADD_CUED_POLL_ID,
   pollId,
+});
+
+export const addLeaderboard = (
+  pollId: AddLeaderboardAction['pollId'],
+  leaderboard: AddLeaderboardAction['leaderboard']
+): AddLeaderboardAction => ({
+  type: PollsStateActionTypes.ADD_LEADERBOARD,
+  pollId,
+  leaderboard,
 });

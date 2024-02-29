@@ -9,6 +9,7 @@ import { PollsConfigAndList } from './PollsConfigAndList';
 import { PollAndQuizVoting } from './PollAndQuizVoting';
 import { PollAndQuizSheetScreen } from './PollAndQuizSheetScreen';
 import { QuizLeaderboardScreen } from './QuizLeaderboardScreen';
+import { QuizLeaderboardEntriesScreen } from './QuizLeaderboardEntriesScreen';
 
 export interface PollsAndQuizzesModalContentProps {
   dismissModal(): void;
@@ -48,6 +49,11 @@ export const PollsAndQuizzesModalContent: React.FC<
             <PollAndQuizVoting currentIdx={index} dismissModal={dismissModal} />
           ) : stage === CreatePollStages.QUIZ_LEADERBOARD ? (
             <QuizLeaderboardScreen
+              currentIdx={index}
+              dismissModal={dismissModal}
+            />
+          ) : stage === CreatePollStages.QUIZ_LEADERBOARD_ENTRIES ? (
+            <QuizLeaderboardEntriesScreen
               currentIdx={index}
               dismissModal={dismissModal}
             />

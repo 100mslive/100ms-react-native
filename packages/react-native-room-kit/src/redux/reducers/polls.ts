@@ -1,5 +1,8 @@
 import { HMSPollQuestionType, HMSPollType } from '@100mslive/react-native-hms';
-import type { HMSPoll } from '@100mslive/react-native-hms';
+import type {
+  HMSPoll,
+  PollLeaderboardResponse,
+} from '@100mslive/react-native-hms';
 
 import {
   PollsStateActionTypes,
@@ -39,6 +42,7 @@ type IntialStateType = {
   cuedPollIds: HMSPoll['pollId'][]; // In case of HLSViewer, pollIds should be aligned with onCue event
   polls: Record<string, HMSPoll>;
   pollsResponses: Record<string, Record<number, number | number[]>>;
+  leaderboards: Record<string, PollLeaderboardResponse>;
 };
 
 const INITIAL_STATE: IntialStateType = {
@@ -57,6 +61,7 @@ const INITIAL_STATE: IntialStateType = {
   cuedPollIds: [],
   polls: {},
   pollsResponses: {},
+  leaderboards: {},
 };
 
 const hmsStatesReducer = (
@@ -91,6 +96,11 @@ const hmsStatesReducer = (
       return {
         ...state,
         navigationStack: [...state.navigationStack, action.screen],
+      };
+    case PollsStateActionTypes.RESET_NAVIGATION_STACK:
+      return {
+        ...state,
+        navigationStack: INITIAL_STATE.navigationStack,
       };
     case PollsStateActionTypes.POP_FROM_NAVIGATION_STACK: {
       const updatedNavigationStack = [...state.navigationStack];
@@ -372,6 +382,15 @@ const hmsStatesReducer = (
       return {
         ...state,
         cuedPollIds: [...state.cuedPollIds, action.pollId],
+      };
+    }
+    case PollsStateActionTypes.ADD_LEADERBOARD: {
+      return {
+        ...state,
+        leaderboards: {
+          ...state.leaderboards,
+          [action.pollId]: action.leaderboard,
+        },
       };
     }
     case PollsStateActionTypes.CLEAR_POLL_FORM_STATE: {
