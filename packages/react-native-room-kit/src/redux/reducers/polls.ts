@@ -310,6 +310,51 @@ const hmsStatesReducer = (
         selectedPollId: action.pollId,
       };
     case PollsStateActionTypes.ADD_POLL:
+      const prevPoll = state.polls[action.poll.pollId];
+
+      // Hack: Restore previous state of poll if current poll has missing myResponses and voteCount
+      if (
+        prevPoll &&
+        Array.isArray(prevPoll.questions) &&
+        prevPoll.questions.length > 0
+      ) {
+        action.poll.questions?.forEach((question) => {
+          const prevQuestion = prevPoll.questions?.find(
+            (prevQuestion) => prevQuestion.index === question.index
+          );
+
+          //#region Restore previous responses on question if current question has no responses
+          const prevResponsesOnQuestion = prevQuestion?.myResponses;
+          if (
+            Array.isArray(prevResponsesOnQuestion) &&
+            prevResponsesOnQuestion.length > 0 &&
+            (!question.myResponses || question.myResponses.length <= 0)
+          ) {
+            question.myResponses = prevResponsesOnQuestion;
+          }
+          //#endregion
+
+          //#region Restore previous voteCount on question options if current question options has no voteCount
+          const prevOptions = prevQuestion?.options;
+
+          question.options?.forEach((option) => {
+            const prevOption = prevOptions?.find(
+              (prevOption) => prevOption.index === option.index
+            );
+
+            // Edge Case: User changes response on question, due to which new vountCount becomes 0, and we are treating as invalid value
+            if (
+              option.voteCount <= 0 &&
+              prevOption &&
+              prevOption?.voteCount > 0
+            ) {
+              option.voteCount = prevOption.voteCount;
+            }
+          });
+          //#endregion
+        });
+      }
+
       return {
         ...state,
         polls: {
