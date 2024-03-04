@@ -1,11 +1,18 @@
 import React, { useRef } from 'react';
 import type { ComponentRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { View, Text, StyleSheet, Platform } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Platform,
+  useWindowDimensions,
+} from 'react-native';
 import {
   HMSHLSPlayer,
   HMSHLSPlayerPlaybackState,
   useHMSHLSPlayerPlaybackState,
+  useHMSHLSPlayerResolution,
 } from '@100mslive/react-native-hms';
 
 import type { RootState } from '../redux';
@@ -18,6 +25,7 @@ import { HMSHLSNotStarted } from './HMSHLSNotStarted';
 import { CrossCircleIcon } from '../Icons';
 import { useHMSRoomStyleSheet } from '../hooks-util';
 import { useIsHLSStreamingOn } from '../hooks-sdk';
+import { useIsLandscapeOrientation } from '../utils/dimension';
 
 export const _HLSView: React.FC = () => {
   const dispatch = useDispatch();
@@ -26,6 +34,7 @@ export const _HLSView: React.FC = () => {
     (state: RootState) =>
       !!state.hmsStates.room?.hlsStreamingState.variants?.[0]?.hlsStreamUrl
   );
+  const { width, height } = useWindowDimensions();
   const hmsHlsPlayerRef = useRef<ComponentRef<typeof HMSHLSPlayer>>(null);
   const showHLSStats = useSelector(
     (state: RootState) => state.app.joinConfig.showHLSStats
@@ -99,6 +108,8 @@ export const _HLSView: React.FC = () => {
   );
 
   const hlsPlayerPlaybackState = useHMSHLSPlayerPlaybackState();
+  const resolution = useHMSHLSPlayerResolution();
+  const isLandscapeOrientation = useIsLandscapeOrientation();
 
   const isPlaybackFailed =
     hlsPlayerPlaybackState === HMSHLSPlayerPlaybackState.FAILED;
@@ -141,6 +152,21 @@ export const _HLSView: React.FC = () => {
               ref={hmsHlsPlayerRef}
               enableStats={showHLSStats}
               enableControls={enableHLSPlayerControls}
+              style={
+                isLandscapeOrientation
+                  ? {
+                      height,
+                      width: resolution
+                        ? height * (resolution.width / resolution.height)
+                        : width,
+                    }
+                  : {
+                      width,
+                      height: resolution
+                        ? width / (resolution.width / resolution.height)
+                        : height,
+                    }
+              }
             />
 
             <HLSPlayerEmoticons />

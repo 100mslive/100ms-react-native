@@ -56,8 +56,6 @@ const _HMSHLSPlayer: React.ForwardRefRenderFunction<
 ) => {
   const hmsHlsPlayerRef = useRef<RCTHMSHLSPlayerRef | null>(null);
 
-  const [aspectRatio, setAspectRatio] = useState(16 / 9);
-
   useImperativeHandle(
     ref,
     () => ({
@@ -204,12 +202,6 @@ const _HMSHLSPlayer: React.ForwardRefRenderFunction<
       HMSHLSPlayerPlaybackEventTypes.ON_PLAYBACK_RESOLUTION_CHANGE_EVENT
     ) {
       setHMSHLSPlayerResolution({ ...data });
-
-      const aspectRatio = data.width / data.height;
-
-      if (typeof aspectRatio === 'number' && !isNaN(aspectRatio)) {
-        setAspectRatio(aspectRatio);
-      }
     } else {
       setHMSHLSPlayerPlaybackState(data.state);
     }
@@ -232,10 +224,7 @@ const _HMSHLSPlayer: React.ForwardRefRenderFunction<
         <RCTHMSHLSPlayer
           ref={hmsHlsPlayerRef}
           url={url}
-          style={[
-            styles.player,
-            { aspectRatio: aspectRatio, flex: aspectRatio < 1 ? 1 : undefined },
-          ]}
+          style={styles.player}
           enableStats={enableStats}
           enableControls={enableControls}
           onHmsHlsPlaybackEvent={handleHLSPlaybackEvent}
@@ -264,7 +253,7 @@ const styles = StyleSheet.create({
   },
   player: {
     width: '100%',
-    aspectRatio: 16 / 9,
+    height: '100%',
     flex: 1,
   },
 });
