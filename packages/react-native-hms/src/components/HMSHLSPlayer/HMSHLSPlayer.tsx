@@ -1,4 +1,4 @@
-import React, { useImperativeHandle, useRef, useState } from 'react';
+import React, { useImperativeHandle, useRef } from 'react';
 import { View, StyleSheet, UIManager, findNodeHandle } from 'react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
 
