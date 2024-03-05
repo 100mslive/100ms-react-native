@@ -1,8 +1,7 @@
-import {getMeetingUrl} from '../../utils/functions';
 import ActionTypes from '../actionTypes';
 
 type ActionType = {
-  payload: {[key: string]: any};
+  payload: { [key: string]: any };
   type: String;
 };
 
@@ -40,7 +39,7 @@ const INITIAL_STATE: InitialStateType = {
 
 const appReducer = (
   state = INITIAL_STATE,
-  action: ActionType,
+  action: ActionType
 ): InitialStateType => {
   switch (action.type) {
     case ActionTypes.RESET_JOIN_CONFIG:
