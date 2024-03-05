@@ -1,22 +1,17 @@
 import * as React from 'react';
 import { Platform, StyleSheet } from 'react-native';
-import { useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 
 import { BottomSheet } from './BottomSheet';
-import {
-  useHMSRoomStyleSheet,
-  useIsHLSViewer,
-  useModalType,
-} from '../hooks-util';
+import { useHMSRoomStyleSheet, useModalType } from '../hooks-util';
 import { useHeaderHeight } from './Header';
 import { useIsLandscapeOrientation } from '../utils/dimension';
 import { PollsAndQuizzesModalContent } from './PollsAndQuizzesModalContent';
 import { ModalTypes } from '../utils/types';
-import type { RootState } from '../redux';
-import { CreatePollStages } from '../redux/actionTypes';
-import { visiblePollsSelector } from '../utils/functions';
+import { resetNavigationStack } from '../redux/actions';
 
 export const PollsAndQuizBottomSheet = () => {
+  const dispatch = useDispatch();
   const headerHeight = useHeaderHeight();
   const isLandscapeOrientation = useIsLandscapeOrientation();
   const {
@@ -24,40 +19,26 @@ export const PollsAndQuizBottomSheet = () => {
     handleModalVisibleType: setModalVisible,
   } = useModalType();
 
-  const isPollQuestionStage = useSelector(
-    (state: RootState) =>
-      state.polls.stage === CreatePollStages.POLL_QUESTION_CONFIG
-  );
-  const isHLSViewer = useIsHLSViewer();
-  const havePolls = useSelector(
-    (state: RootState) =>
-      visiblePollsSelector(
-        Object.values(state.polls.polls),
-        isHLSViewer,
-        state.polls.cuedPollIds
-      ).length > 0
-  );
-
   const hmsRoomStyles = useHMSRoomStyleSheet((theme) => ({
     contentContainer: {
       backgroundColor: theme.palette.surface_dim,
     },
   }));
 
-  const dismissModal = () => setModalVisible(ModalTypes.DEFAULT);
+  const dismissModal = () => {
+    setModalVisible(ModalTypes.DEFAULT);
+    dispatch(resetNavigationStack());
+  };
 
-  const fullHeight = isPollQuestionStage || havePolls;
-  const containerStyles = fullHeight
-    ? [
-        styles.bottomSheet,
-        {
-          marginTop: isLandscapeOrientation
-            ? 0
-            : headerHeight + (Platform.OS === 'android' ? 24 : 0),
-        },
-        hmsRoomStyles.contentContainer,
-      ]
-    : [hmsRoomStyles.contentContainer];
+  const containerStyles = [
+    styles.bottomSheet,
+    {
+      marginTop: isLandscapeOrientation
+        ? 0
+        : headerHeight + (Platform.OS === 'android' ? 24 : 0),
+    },
+    hmsRoomStyles.contentContainer,
+  ];
 
   return (
     <BottomSheet
@@ -66,12 +47,9 @@ export const PollsAndQuizBottomSheet = () => {
       isVisible={modalVisible === ModalTypes.POLLS_AND_QUIZZES}
       avoidKeyboard={true}
       containerStyle={containerStyles}
-      bottomOffsetSpace={fullHeight ? 0 : undefined}
+      bottomOffsetSpace={0}
     >
-      <PollsAndQuizzesModalContent
-        fullHeight={fullHeight}
-        dismissModal={dismissModal}
-      />
+      <PollsAndQuizzesModalContent dismissModal={dismissModal} />
     </BottomSheet>
   );
 };

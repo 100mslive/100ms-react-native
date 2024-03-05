@@ -412,10 +412,16 @@ export const HMSRoomSetup = () => {
           reduxState.hmsStates.localPeer &&
           poll.createdBy.peerID === reduxState.hmsStates.localPeer.peerID
         ) {
-          const result = await hmsInstance.sendHLSTimedMetadata([
-            { duration: 20, payload: `poll:${poll.pollId}` },
-          ]);
-          console.log('sendHLSTimedMetadata result: ', result);
+          hmsInstance
+            .sendHLSTimedMetadata([
+              { duration: 20, payload: `poll:${poll.pollId}` },
+            ])
+            .then((result) => {
+              console.log('sendHLSTimedMetadata result: ', result);
+            })
+            .catch((error) => {
+              console.log('sendHLSTimedMetadata error: ', error);
+            });
         }
 
         batch(() => {

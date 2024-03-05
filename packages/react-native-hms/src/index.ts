@@ -106,6 +106,9 @@ export { HMSPollQuestion } from './classes/polls/HMSPollQuestion';
 export { HMSPollQuestionOption } from './classes/polls/HMSPollQuestionOption';
 export { HMSPollQuestionAnswer } from './classes/polls/HMSPollQuestionAnswer';
 export { HMSPollQuestionResponse } from './classes/polls/HMSPollQuestionResponse';
+export { PollLeaderboardResponse } from './classes/polls/PollLeaderboardResponse';
+export { HMSPollLeaderboardEntry } from './classes/polls/HMSPollLeaderboardEntry';
+export { HMSPollLeaderboardSummary } from './classes/polls/HMSPollLeaderboardSummary';
 
 import { HMSSDK as HmsManager } from './classes/HMSSDK';
 

@@ -1416,6 +1416,24 @@ class HMSManager(reactContext: ReactApplicationContext) :
       "HMS SDK not initialized",
     )
   }
+
+  @ReactMethod
+  fun fetchLeaderboard(
+    data: ReadableMap,
+    promise: Promise?,
+  ) {
+    val rnSDK = HMSHelper.getHms(data, hmsCollection)
+    rnSDK?.let { sdk ->
+      sdk.interactivityCenter?.let { center ->
+        center.fetchLeaderboard(data, promise)
+        return
+      }
+    }
+    promise?.reject(
+      "6004",
+      "HMS SDK not initialized",
+    )
+  }
   // endregion
 
   // region ActivityLifecycleCallbacks

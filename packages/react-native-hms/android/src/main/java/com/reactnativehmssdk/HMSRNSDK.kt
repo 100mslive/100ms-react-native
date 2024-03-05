@@ -1620,7 +1620,7 @@ class HMSRNSDK(
     data: ReadableMap,
     callback: Promise?,
   ) {
-    val metadataArrayList = data.getArray("metadata")?.toArrayList() as? ArrayList<ReadableMap>
+    val metadataArrayList = data.getArray("metadata")?.toArrayList() as? ArrayList<HashMap<String, Any>>
 
     if (metadataArrayList == null) {
       val errorMessage = "sendHLSTimedMetadata: INVALID_METADATA"
@@ -1630,10 +1630,10 @@ class HMSRNSDK(
 
     val metadata =
       metadataArrayList.mapNotNull { map ->
-        val payload = map.getString("payload")
-        val duration = map.getInt("duration")
+        val payload = map["payload"] as? String
+        val duration = map["duration"] as? Double
 
-        payload?.let { HMSHLSTimedMetadata(it, duration.toLong()) }
+        payload?.let { HMSHLSTimedMetadata(it, duration?.toLong() ?: 1) }
       }
 
     hmsSDK?.setHlsSessionMetadata(

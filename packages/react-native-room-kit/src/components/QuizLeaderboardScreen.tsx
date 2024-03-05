@@ -3,19 +3,14 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  findNodeHandle,
-  UIManager,
   View,
   Keyboard,
   TouchableOpacity,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { HMSPollState, HMSPollType } from '@100mslive/react-native-hms';
 
-import { useHMSInstance, useHMSRoomStyleSheet } from '../hooks-util';
+import { useHMSRoomStyleSheet } from '../hooks-util';
 import type { RootState } from '../redux';
-import { HMSDangerButton } from './HMSDangerButton';
-import { PollAndQuizQuestionResponseCards } from './PollAndQuizQuestionResponseCards';
 import {
   popFromNavigationStack,
   pushToNavigationStack,
@@ -23,23 +18,25 @@ import {
 import { BottomSheet } from './BottomSheet';
 import { ChevronIcon, CloseIcon } from '../Icons';
 import { PollAndQuizzStateLabel } from './PollAndQuizzStateLabel';
-import { HMSPrimaryButton } from './HMSPrimaryButton';
+import { LeaderboardEntry } from './LeaderboardEntry';
 import { CreatePollStages } from '../redux/actionTypes';
-import { VoterParticipationSummary } from './VoterParticipationSummary';
+import { QuizLeaderboardSummary } from './QuizLeaderboardSummary';
+import {
+  useFetchLeaderboardResponse,
+  useLeaderboardSummaryData,
+} from '../utils/hooks';
 
-export interface PollAndQuizVotingProps {
+export interface QuizLeaderboardScreenProps {
   currentIdx: number;
   dismissModal(): void;
   unmountScreenWithAnimation?(cb: Function): void;
 }
 
-export const PollAndQuizVoting: React.FC<PollAndQuizVotingProps> = ({
+export const QuizLeaderboardScreen: React.FC<QuizLeaderboardScreenProps> = ({
   currentIdx,
   dismissModal,
   unmountScreenWithAnimation,
 }) => {
-  const scrollViewRef = React.useRef<ScrollView>(null);
-  const hmsInstance = useHMSInstance();
   const dispatch = useDispatch();
 
   const selectedPoll = useSelector((state: RootState) => {
@@ -48,10 +45,6 @@ export const PollAndQuizVoting: React.FC<PollAndQuizVotingProps> = ({
       return pollsData.polls[pollsData.selectedPollId] || null;
     }
     return null;
-  });
-  const canCreateOrEndPoll = useSelector((state: RootState) => {
-    const permissions = state.hmsStates.localPeer?.role?.permissions;
-    return permissions?.pollWrite;
   });
   const headerTitle = useSelector((state: RootState) => {
     const pollsData = state.polls;
@@ -62,16 +55,20 @@ export const PollAndQuizVoting: React.FC<PollAndQuizVotingProps> = ({
   });
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
+    regularHighText: {
+      color: theme.palette.on_surface_high,
+      fontFamily: `${typography.font_family}-Regular`,
+    },
     regularMediumText: {
       color: theme.palette.on_surface_medium,
       fontFamily: `${typography.font_family}-Regular`,
     },
-    semiBoldHighText: {
-      color: theme.palette.on_surface_high,
-      fontFamily: `${typography.font_family}-SemiBold`,
-    },
     semiBoldMediumText: {
       color: theme.palette.on_surface_medium,
+      fontFamily: `${typography.font_family}-SemiBold`,
+    },
+    semiBoldHighText: {
+      color: theme.palette.on_surface_high,
       fontFamily: `${typography.font_family}-SemiBold`,
     },
     headerText: {
@@ -81,45 +78,16 @@ export const PollAndQuizVoting: React.FC<PollAndQuizVotingProps> = ({
     container: {
       backgroundColor: theme.palette.surface_dim,
     },
+    summaryContainer: {
+      backgroundColor: theme.palette.surface_default,
+    },
+    entriesCard: {
+      backgroundColor: theme.palette.surface_default,
+    },
+    divider: {
+      backgroundColor: theme.palette.border_bright,
+    },
   }));
-
-  const endPoll = async () => {
-    if (!selectedPoll || !canCreateOrEndPoll) {
-      return;
-    }
-    const result = await hmsInstance.interactivityCenter.stop(
-      selectedPoll.pollId
-    );
-    console.log('Poll ended', result);
-  };
-
-  const handleVote = (e: any) => {
-    const handle = findNodeHandle(e.nativeEvent.target);
-    const scrollHandle = findNodeHandle(scrollViewRef.current);
-    if (!handle) {
-      return;
-    }
-    if (scrollHandle === null) {
-      return;
-    }
-    UIManager.measureLayout(
-      handle,
-      scrollHandle,
-      () => {
-        console.log('Failed', e);
-      },
-      (_left, top, _width, _height) => {
-        scrollViewRef.current?.scrollTo({
-          y: top + 400,
-          animated: true,
-        });
-      }
-    );
-  };
-
-  const viewLeaderboard = () => {
-    dispatch(pushToNavigationStack(CreatePollStages.QUIZ_LEADERBOARD));
-  };
 
   const handleBackPress = () => {
     Keyboard.dismiss();
@@ -134,6 +102,22 @@ export const PollAndQuizVoting: React.FC<PollAndQuizVotingProps> = ({
     Keyboard.dismiss();
     dismissModal();
   };
+
+  const viewAllLeaderboardEntries = () => {
+    dispatch(pushToNavigationStack(CreatePollStages.QUIZ_LEADERBOARD_ENTRIES));
+  };
+
+  const leaderboardData = useFetchLeaderboardResponse(selectedPoll?.pollId);
+
+  const leaderboardEntries = leaderboardData?.entries;
+
+  const summaryData = useLeaderboardSummaryData(selectedPoll?.pollId);
+
+  const totalPoints =
+    selectedPoll?.questions?.reduce((acc, curr) => {
+      acc += curr.weight;
+      return acc;
+    }, 0) ?? 0;
 
   return (
     <View style={[styles.fullView, hmsRoomStyles.container]}>
@@ -180,75 +164,82 @@ export const PollAndQuizVoting: React.FC<PollAndQuizVotingProps> = ({
 
       {/* Content */}
       <ScrollView
-        ref={scrollViewRef}
         style={styles.contentContainer}
-        contentContainerStyle={{ flexGrow: 1, paddingVertical: 24 }}
+        contentContainerStyle={styles.scrollViewContentContainer}
       >
+        {summaryData ? <QuizLeaderboardSummary data={summaryData} /> : null}
+
         {selectedPoll &&
-        selectedPoll.type === HMSPollType.quiz &&
-        selectedPoll.state === HMSPollState.stopped &&
-        !canCreateOrEndPoll ? (
+        Array.isArray(selectedPoll.questions) &&
+        Array.isArray(leaderboardEntries) &&
+        leaderboardEntries.length > 0 ? (
           <React.Fragment>
-            <VoterParticipationSummary pollId={selectedPoll.pollId} />
-
             <Text style={[styles.normalText, hmsRoomStyles.semiBoldHighText]}>
-              Questions
+              Leaderboard
             </Text>
-          </React.Fragment>
-        ) : (
-          <Text style={[styles.normalText, hmsRoomStyles.semiBoldMediumText]}>
-            {selectedPoll?.createdBy?.name} started a{' '}
-            {selectedPoll?.type === HMSPollType.quiz ? 'quiz' : 'poll'}
-          </Text>
-        )}
+            <Text
+              style={[
+                styles.smallerText,
+                hmsRoomStyles.regularMediumText,
+                styles.marginBottom16,
+              ]}
+            >
+              Based on time taken to cast the correct answer
+            </Text>
 
-        {selectedPoll ? (
-          <PollAndQuizQuestionResponseCards
-            poll={selectedPoll}
-            onVote={handleVote}
-          />
+            <View style={[styles.entriesCard, hmsRoomStyles.entriesCard]}>
+              {leaderboardEntries.map((entry, index) => {
+                return (
+                  <LeaderboardEntry
+                    key={index}
+                    entry={entry}
+                    totalPoints={totalPoints}
+                    totalQuestions={selectedPoll.questions?.length ?? 0}
+                    style={styles.leaderboardEntry}
+                  />
+                );
+              })}
+
+              {leaderboardData?.hasNext && leaderboardEntries.length <= 5 ? (
+                <React.Fragment>
+                  <View style={[styles.divider, hmsRoomStyles.divider]} />
+
+                  <TouchableOpacity
+                    onPress={viewAllLeaderboardEntries}
+                    style={styles.viewAllBtn}
+                  >
+                    <Text
+                      style={[
+                        styles.smallText,
+                        hmsRoomStyles.regularHighText,
+                        { marginRight: 4 },
+                      ]}
+                    >
+                      View All
+                    </Text>
+
+                    <ChevronIcon direction="right" />
+                  </TouchableOpacity>
+                </React.Fragment>
+              ) : null}
+            </View>
+          </React.Fragment>
         ) : null}
       </ScrollView>
-
-      {selectedPoll &&
-      selectedPoll.state === HMSPollState.started &&
-      canCreateOrEndPoll ? (
-        <HMSDangerButton
-          disabled={!selectedPoll}
-          title={
-            selectedPoll?.type === HMSPollType.quiz ? 'End Quiz' : 'End Poll'
-          }
-          loading={false}
-          onPress={endPoll}
-          style={{
-            marginTop: 16,
-            marginBottom: 16,
-            marginRight: 24,
-            alignSelf: 'flex-end',
-          }}
-        />
-      ) : null}
-
-      {selectedPoll &&
-      selectedPoll.state === HMSPollState.stopped &&
-      selectedPoll.type === HMSPollType.quiz ? (
-        <HMSPrimaryButton
-          title={'View Leaderboard'}
-          loading={false}
-          onPress={viewLeaderboard}
-          style={{
-            marginTop: 16,
-            marginBottom: 16,
-            marginRight: 24,
-            alignSelf: 'flex-end',
-          }}
-        />
-      ) : null}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  tinyText: {
+    fontSize: 10,
+    lineHeight: 16,
+    letterSpacing: 1.5,
+  },
+  smallerText: {
+    fontSize: 12,
+    lineHeight: 16,
+  },
   smallText: {
     fontSize: 14,
     lineHeight: 20,
@@ -256,38 +247,49 @@ const styles = StyleSheet.create({
   normalText: {
     fontSize: 16,
     lineHeight: 24,
+  },
+  marginBottom8: {
+    marginBottom: 8,
+  },
+  marginBottom16: {
     marginBottom: 16,
   },
   contentContainer: {
     paddingHorizontal: 24,
   },
-  typeSelectionLabel: {
-    fontSize: 12,
-    lineHeight: 16,
+  scrollViewContentContainer: {
+    flexGrow: 1,
+    paddingVertical: 24,
   },
-  pollNameLabel: {
-    fontSize: 14,
-    lineHeight: 20,
-    marginBottom: 8,
+  summaryWrapper: {
+    flexBasis: '50%',
+    flexGrow: 1,
+    flexShrink: 1,
+    padding: 16,
+    borderRadius: 12,
   },
-  textInput: {
-    flex: undefined,
+  position: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    textAlign: 'center',
+    textAlignVertical: 'center',
+    marginRight: 12,
   },
-
-  addOptionWrapper: {
-    alignSelf: 'flex-start',
+  firstPosition: {
+    backgroundColor: '#D69516', // '#FFD700'
   },
-  addOptionContainer: {
+  secondPosition: {
+    backgroundColor: '#3E3E3E', // '#C0C0C0'
+  },
+  thirdPosition: {
+    backgroundColor: '#583B0F', // '#CD7F32'
+  },
+  iconWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginLeft: 12,
   },
-  addOptionIconWrapper: {
-    marginRight: 8,
-    padding: 8,
-  },
-
-  // -----------------
-
   // Utilities
   fullView: {
     flex: 1,
@@ -327,9 +329,14 @@ const styles = StyleSheet.create({
     marginTop: 24,
     width: undefined,
   },
-  divider: {
-    marginHorizontal: 24,
-    marginVertical: 24,
-    width: undefined,
+  divider: { height: 1, width: '100%' },
+  viewAllBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
   },
+  leaderboardEntry: { marginBottom: 16, marginHorizontal: 16 },
+  entriesCard: { paddingTop: 12, borderRadius: 8 },
 });
