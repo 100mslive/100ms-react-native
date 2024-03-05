@@ -419,7 +419,7 @@ export const HMSRoomSetup = () => {
             .then((result) => {
               console.log('sendHLSTimedMetadata result: ', result);
             })
-            .catch((error) => {
+            .catch((error: any) => {
               console.log('sendHLSTimedMetadata error: ', error);
             });
         }

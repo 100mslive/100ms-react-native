@@ -436,7 +436,9 @@ export class HMSSDK {
    * @param metadata list of {@link HMSHLSTimedMetadata} to be sent
    * @returns Promise<boolean>
    */
-  sendHLSTimedMetadata = async (metadata: HMSHLSTimedMetadata[]) => {
+  sendHLSTimedMetadata = async (
+    metadata: HMSHLSTimedMetadata[]
+  ): Promise<boolean> => {
     const data = { metadata, id: this.id };
     logger?.verbose('#Function sendHLSTimedMetadata', data);
     return await HMSManager.sendHLSTimedMetadata(data);
