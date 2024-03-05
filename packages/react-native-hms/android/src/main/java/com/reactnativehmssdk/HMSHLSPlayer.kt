@@ -6,8 +6,6 @@ import android.view.LayoutInflater
 import android.widget.FrameLayout
 import androidx.media3.common.Player
 import androidx.media3.common.VideoSize
-import androidx.media3.ui.AspectRatioFrameLayout.RESIZE_MODE_FIT
-import androidx.media3.ui.AspectRatioFrameLayout.RESIZE_MODE_ZOOM
 import androidx.media3.ui.PlayerView
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReactContext
@@ -133,25 +131,12 @@ class HMSHLSPlayer(context: ReactContext) : FrameLayout(context) {
 
     localPlayerView?.player?.addListener(
       object : Player.Listener {
-        override fun onSurfaceSizeChanged(
-          width: Int,
-          height: Int,
-        ) {
-          super.onSurfaceSizeChanged(width, height)
-        }
-
         override fun onVideoSizeChanged(videoSize: VideoSize) {
           super.onVideoSizeChanged(videoSize)
 
           if (videoSize.height != 0 && videoSize.width != 0) {
             val width = videoSize.width.toDouble()
             val height = videoSize.height.toDouble()
-
-            if (width >= height) {
-              playerView?.resizeMode = RESIZE_MODE_FIT
-            } else {
-              playerView?.resizeMode = RESIZE_MODE_ZOOM
-            }
 
             val data = Arguments.createMap()
             data.putDouble("width", width)

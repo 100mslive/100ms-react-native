@@ -1,4 +1,7 @@
+import { HMSEncoder } from './HMSEncoder';
+import type { DecodedPollLeaderboardResponse } from './polls/DecodedPollLeaderboardResponse';
 import type { HMSPoll } from './polls/HMSPoll';
+import type { PollLeaderboardResponse } from './polls/PollLeaderboardResponse';
 
 export class HMSInteractivityEncoder {
   static transformPoll(poll: HMSPoll): HMSPoll {
@@ -20,10 +23,62 @@ export class HMSInteractivityEncoder {
         poll.stoppedAt = new Date(dateNum);
       }
     }
-    // poll.rolesThatCanVote: HMSRole[];
-    // poll.rolesThatCanViewResponses: HMSRole[];
+    if (poll.createdBy) {
+      poll.createdBy = HMSEncoder.encodeHmsPeer(poll.createdBy);
+    }
+    if (poll.startedBy) {
+      poll.startedBy = HMSEncoder.encodeHmsPeer(poll.startedBy);
+    }
+    if (poll.stoppedBy) {
+      poll.stoppedBy = HMSEncoder.encodeHmsPeer(poll.stoppedBy);
+    }
+    if (poll.rolesThatCanVote) {
+      poll.rolesThatCanVote = poll.rolesThatCanVote.map((role) =>
+        HMSEncoder.encodeHmsRole(role)
+      );
+    }
+    if (poll.rolesThatCanViewResponses) {
+      poll.rolesThatCanViewResponses = poll.rolesThatCanViewResponses.map(
+        (role) => HMSEncoder.encodeHmsRole(role)
+      );
+    }
+
     // --- poll.questions: HMSPollQuestion[]
     // --- poll.result: HMSPollResult
     return poll;
+  }
+
+  static transformPollLeaderboardResponse(
+    decodedPollLeaderboardResponse: DecodedPollLeaderboardResponse
+  ): PollLeaderboardResponse {
+    const summary = decodedPollLeaderboardResponse.summary;
+    if (summary) {
+      if (typeof summary.averageTime === 'string') {
+        summary.averageTime = parseInt(summary.averageTime);
+      }
+    }
+
+    const entries = decodedPollLeaderboardResponse.entries;
+    if (entries) {
+      entries.forEach((entry) => {
+        if (typeof entry.duration === 'string') {
+          entry.duration = parseInt(entry.duration);
+        }
+        if (typeof entry.totalResponses === 'string') {
+          entry.totalResponses = parseInt(entry.totalResponses);
+        }
+        if (typeof entry.correctResponses === 'string') {
+          entry.correctResponses = parseInt(entry.correctResponses);
+        }
+        if (typeof entry.position === 'string') {
+          entry.position = parseInt(entry.position);
+        }
+        if (typeof entry.score === 'string') {
+          entry.score = parseInt(entry.score);
+        }
+      });
+    }
+
+    return decodedPollLeaderboardResponse as PollLeaderboardResponse;
   }
 }

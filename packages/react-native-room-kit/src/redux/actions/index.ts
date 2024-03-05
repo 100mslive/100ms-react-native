@@ -32,7 +32,6 @@ import type {
   AddPollQuestionAction,
   SetPollConfigAction,
   SetPollNameAction,
-  SetPollStageAction,
   DeletePollQuestionAction,
   SetDeleteConfirmationVisible,
   SetSelectedQuestionIndexAction,
@@ -54,6 +53,11 @@ import type {
   RemovePollQuestionResponseAction,
   SetQuestionPointWeightageAction,
   SetQuestionCorrectOptionAction,
+  PushToNavigationStackAction,
+  PopFromNavigationStackAction,
+  ReplaceTopOfNavigationStackAction,
+  AddLeaderboardAction,
+  ResetNavigationStackAction,
 } from '../actionTypes';
 import { MeetingState } from '../../types';
 import type { ChatState, Notification, PinnedMessage } from '../../types';
@@ -491,11 +495,26 @@ export const setPollConfig = (
   pollConfig,
 });
 
-export const setPollStage = (
-  pollStage: SetPollStageAction['pollStage']
-): SetPollStageAction => ({
-  type: PollsStateActionTypes.SET_POLL_STAGE,
-  pollStage,
+export const pushToNavigationStack = (
+  screen: PushToNavigationStackAction['screen']
+): PushToNavigationStackAction => ({
+  type: PollsStateActionTypes.PUSH_TO_NAVIGATION_STACK,
+  screen,
+});
+
+export const resetNavigationStack = (): ResetNavigationStackAction => ({
+  type: PollsStateActionTypes.RESET_NAVIGATION_STACK,
+});
+
+export const popFromNavigationStack = (): PopFromNavigationStackAction => ({
+  type: PollsStateActionTypes.POP_FROM_NAVIGATION_STACK,
+});
+
+export const replaceTopOfNavigationStack = (
+  screen: ReplaceTopOfNavigationStackAction['screen']
+): ReplaceTopOfNavigationStackAction => ({
+  type: PollsStateActionTypes.REPLACE_TOP_OF_NAVIGATION_STACK,
+  screen,
 });
 
 export const addPollQuestion = (): AddPollQuestionAction => ({
@@ -671,4 +690,13 @@ export const removePollQuestionResponse = (
 export const addCuedPollId = (pollId: string) => ({
   type: PollsStateActionTypes.ADD_CUED_POLL_ID,
   pollId,
+});
+
+export const addLeaderboard = (
+  pollId: AddLeaderboardAction['pollId'],
+  leaderboard: AddLeaderboardAction['leaderboard']
+): AddLeaderboardAction => ({
+  type: PollsStateActionTypes.ADD_LEADERBOARD,
+  pollId,
+  leaderboard,
 });

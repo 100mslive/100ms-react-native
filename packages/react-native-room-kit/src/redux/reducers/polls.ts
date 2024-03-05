@@ -1,5 +1,8 @@
 import { HMSPollQuestionType, HMSPollType } from '@100mslive/react-native-hms';
-import type { HMSPoll } from '@100mslive/react-native-hms';
+import type {
+  HMSPoll,
+  PollLeaderboardResponse,
+} from '@100mslive/react-native-hms';
 
 import {
   PollsStateActionTypes,
@@ -30,7 +33,7 @@ function getDefaultQuestionObj(): PollQuestionUI {
 type IntialStateType = {
   pollName: string;
   pollConfig: PollConfig;
-  stage: CreatePollStages;
+  navigationStack: CreatePollStages[];
   questions: PollQuestionUI[];
   deleteConfirmationVisible: boolean;
   selectedPollQuestionIndex: number | null;
@@ -39,6 +42,7 @@ type IntialStateType = {
   cuedPollIds: HMSPoll['pollId'][]; // In case of HLSViewer, pollIds should be aligned with onCue event
   polls: Record<string, HMSPoll>;
   pollsResponses: Record<string, Record<number, number | number[]>>;
+  leaderboards: Record<string, PollLeaderboardResponse>;
 };
 
 const INITIAL_STATE: IntialStateType = {
@@ -48,7 +52,7 @@ const INITIAL_STATE: IntialStateType = {
     voteCountHidden: false,
     resultsAnonymous: false,
   },
-  stage: CreatePollStages.POLL_CONFIG,
+  navigationStack: [CreatePollStages.POLL_CONFIG],
   questions: [getDefaultQuestionObj()],
   deleteConfirmationVisible: false,
   selectedPollQuestionIndex: null,
@@ -57,6 +61,7 @@ const INITIAL_STATE: IntialStateType = {
   cuedPollIds: [],
   polls: {},
   pollsResponses: {},
+  leaderboards: {},
 };
 
 const hmsStatesReducer = (
@@ -87,11 +92,30 @@ const hmsStatesReducer = (
             : state.questions,
         selectedPollQuestionIndex: null,
       };
-    case PollsStateActionTypes.SET_POLL_STAGE:
+    case PollsStateActionTypes.PUSH_TO_NAVIGATION_STACK:
       return {
         ...state,
-        stage: action.pollStage,
-        selectedPollQuestionIndex: null,
+        navigationStack: [...state.navigationStack, action.screen],
+      };
+    case PollsStateActionTypes.RESET_NAVIGATION_STACK:
+      return {
+        ...state,
+        navigationStack: INITIAL_STATE.navigationStack,
+      };
+    case PollsStateActionTypes.POP_FROM_NAVIGATION_STACK: {
+      const updatedNavigationStack = [...state.navigationStack];
+      updatedNavigationStack.pop();
+      return {
+        ...state,
+        navigationStack: updatedNavigationStack,
+      };
+    }
+    case PollsStateActionTypes.REPLACE_TOP_OF_NAVIGATION_STACK:
+      const updatedNavigationStack = [...state.navigationStack];
+      updatedNavigationStack[updatedNavigationStack.length - 1] = action.screen;
+      return {
+        ...state,
+        navigationStack: updatedNavigationStack,
       };
     case PollsStateActionTypes.ADD_POLL_QUESTION:
       return {
@@ -286,6 +310,51 @@ const hmsStatesReducer = (
         selectedPollId: action.pollId,
       };
     case PollsStateActionTypes.ADD_POLL:
+      const prevPoll = state.polls[action.poll.pollId];
+
+      // Hack: Restore previous state of poll if current poll has missing myResponses and voteCount
+      if (
+        prevPoll &&
+        Array.isArray(prevPoll.questions) &&
+        prevPoll.questions.length > 0
+      ) {
+        action.poll.questions?.forEach((question) => {
+          const prevQuestion = prevPoll.questions?.find(
+            (prevQuestion) => prevQuestion.index === question.index
+          );
+
+          //#region Restore previous responses on question if current question has no responses
+          const prevResponsesOnQuestion = prevQuestion?.myResponses;
+          if (
+            Array.isArray(prevResponsesOnQuestion) &&
+            prevResponsesOnQuestion.length > 0 &&
+            (!question.myResponses || question.myResponses.length <= 0)
+          ) {
+            question.myResponses = prevResponsesOnQuestion;
+          }
+          //#endregion
+
+          //#region Restore previous voteCount on question options if current question options has no voteCount
+          const prevOptions = prevQuestion?.options;
+
+          question.options?.forEach((option) => {
+            const prevOption = prevOptions?.find(
+              (prevOption) => prevOption.index === option.index
+            );
+
+            // Edge Case: User changes response on question, due to which new vountCount becomes 0, and we are treating as invalid value
+            if (
+              option.voteCount <= 0 &&
+              prevOption &&
+              prevOption?.voteCount > 0
+            ) {
+              option.voteCount = prevOption.voteCount;
+            }
+          });
+          //#endregion
+        });
+      }
+
       return {
         ...state,
         polls: {
@@ -358,6 +427,15 @@ const hmsStatesReducer = (
       return {
         ...state,
         cuedPollIds: [...state.cuedPollIds, action.pollId],
+      };
+    }
+    case PollsStateActionTypes.ADD_LEADERBOARD: {
+      return {
+        ...state,
+        leaderboards: {
+          ...state.leaderboards,
+          [action.pollId]: action.leaderboard,
+        },
       };
     }
     case PollsStateActionTypes.CLEAR_POLL_FORM_STATE: {

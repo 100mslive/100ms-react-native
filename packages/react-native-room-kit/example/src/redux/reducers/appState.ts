@@ -1,4 +1,3 @@
-import { getMeetingUrl } from '../../utils/functions';
 import ActionTypes from '../actionTypes';
 
 type ActionType = {
@@ -34,7 +33,7 @@ const INITIAL_STATE: InitialStateType = {
     softwareDecoder: true, // Android only
     autoResize: false, // Android only
     autoSimulcast: true,
-    staticUserId: false,
+    staticUserId: true,
   },
 };
 

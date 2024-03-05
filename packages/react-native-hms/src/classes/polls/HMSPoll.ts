@@ -6,15 +6,6 @@ import type { HMSPollUserTrackingMode } from './HMSPollUserTrackingMode';
 import type { HMSPollType } from './HMSPollType';
 import type { HMSPeer } from '../HMSPeer';
 
-type HMSPeerSubset = {
-  peerID: HMSPeer['peerID'];
-  name: HMSPeer['name'];
-};
-
-type HMSRoleSubset = {
-  name: HMSRole['name'];
-};
-
 export interface HMSPoll {
   /**
    The unique identifier of the poll.
@@ -44,27 +35,27 @@ export interface HMSPoll {
   /**
    The roles that can vote in the poll.
    */
-  rolesThatCanVote?: HMSRoleSubset[];
+  rolesThatCanVote?: HMSRole[];
 
   /**
    The roles that can view the poll responses.
    */
-  rolesThatCanViewResponses?: HMSRoleSubset[];
+  rolesThatCanViewResponses?: HMSRole[];
 
   /**
    The peer who started the poll.
    */
-  startedBy?: HMSPeerSubset;
+  startedBy?: HMSPeer;
 
   /**
    The peer who stopped the poll.
    */
-  stoppedBy?: HMSPeerSubset;
+  stoppedBy?: HMSPeer;
 
   /**
    The peer who created the poll.
    */
-  createdBy?: HMSPeerSubset;
+  createdBy?: HMSPeer;
 
   /**
    The date and time when the poll was started.

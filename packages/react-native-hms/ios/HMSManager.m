@@ -107,6 +107,10 @@ RCT_EXTERN_METHOD(stopHLSStreaming
                   : (NSDictionary)data
                   : (RCTPromiseResolveBlock)resolve
                   : (RCTPromiseRejectBlock)reject)
+RCT_EXTERN_METHOD(sendHLSTimedMetadata
+                  : (NSDictionary)data
+                  : (RCTPromiseResolveBlock)resolve
+                  : (RCTPromiseRejectBlock)reject)
 RCT_EXTERN_METHOD(changeName
                   : (NSDictionary)data
                   : (RCTPromiseResolveBlock)resolve
@@ -309,6 +313,11 @@ RCT_EXTERN_METHOD(addResponseOnPollQuestion
                   : (RCTPromiseRejectBlock)reject)
 
 RCT_EXTERN_METHOD(stopPoll
+                  : (NSDictionary)data
+                  : (RCTPromiseResolveBlock)resolve
+                  : (RCTPromiseRejectBlock)reject)
+
+RCT_EXTERN_METHOD(fetchLeaderboard
                   : (NSDictionary)data
                   : (RCTPromiseResolveBlock)resolve
                   : (RCTPromiseRejectBlock)reject)

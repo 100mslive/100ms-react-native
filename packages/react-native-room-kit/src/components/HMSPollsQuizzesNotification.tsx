@@ -14,8 +14,8 @@ import {
 import { HMSNotification } from './HMSNotification';
 import { ModalTypes } from '../utils/types';
 import {
+  pushToNavigationStack,
   removeNotification,
-  setPollStage,
   setSelectedPollId,
 } from '../redux/actions';
 import { CreatePollStages } from '../redux/actionTypes';
@@ -56,7 +56,7 @@ export const HMSPollsQuizzesNotification: React.FC<
     //   return;
     // }
     batch(() => {
-      dispatch(setPollStage(CreatePollStages.POLL_VOTING));
+      dispatch(pushToNavigationStack(CreatePollStages.POLL_VOTING));
       dispatch(setSelectedPollId(poll.pollId));
       handleModalVisibleType(ModalTypes.POLLS_AND_QUIZZES);
       dispatch(removeNotification(id));
