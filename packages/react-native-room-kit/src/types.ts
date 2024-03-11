@@ -9,8 +9,7 @@ export enum MeetingState {
   MEETING_ENDED,
   ERROR,
 }
-export interface HMSPrebuiltProps {
-  roomCode: string;
+export interface HMSPrebuiltCommonProps {
   options?: {
     userName?: string;
     userId?: string;
@@ -62,6 +61,19 @@ export interface HMSPrebuiltProps {
    */
   autoEnterPipMode?: boolean;
 }
+
+export type HMSPrebuiltConditionalProps =
+  | {
+      roomCode: string;
+      token?: never;
+    }
+  | {
+      roomCode?: never;
+      token: string;
+    };
+
+export type HMSPrebuiltProps = HMSPrebuiltCommonProps &
+  HMSPrebuiltConditionalProps;
 
 export enum NotificationTypes {
   INFO = 'info',
