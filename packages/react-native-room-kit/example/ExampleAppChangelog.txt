@@ -3,6 +3,9 @@ Board: https://100ms.atlassian.net/jira/software/projects/RN/boards/33
 - Add API for `switchAudioOutput` on React Native iOS
 https://100ms.atlassian.net/browse/RN-250
 
+- Add option to join using Auth Token instead of Room Code on Prebuilt
+https://100ms.atlassian.net/browse/RN-132
+
 Room Kit: 1.1.4
 React Native SDK: 1.10.1
 Android SDK: 2.9.51
