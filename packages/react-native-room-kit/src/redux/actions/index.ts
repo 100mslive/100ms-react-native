@@ -63,7 +63,8 @@ import { MeetingState } from '../../types';
 import type { ChatState, Notification, PinnedMessage } from '../../types';
 
 export const setPrebuiltData = (data: {
-  roomCode: string;
+  roomCode?: string;
+  token?: string;
   options?: {
     userName?: string;
     userId?: string;
@@ -164,9 +165,6 @@ export const clearPeerData = () => ({
 });
 
 export const saveUserData = (data: {
-  userName?: String;
-  roomID?: String;
-  roomCode?: String;
   hmsInstance?: HMSSDK;
   hmsSessionStore?: HMSSessionStore;
   spotlightTrackId?: string | null;

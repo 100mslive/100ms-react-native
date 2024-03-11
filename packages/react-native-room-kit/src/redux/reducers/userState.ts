@@ -3,9 +3,11 @@ import type {
   HMSSDK,
   HMSSessionStore,
 } from '@100mslive/react-native-hms';
-import { getMeetingCode, getMeetingUrl } from '../../utils/functions';
 import ActionTypes, { HmsStateActionTypes } from '../actionTypes';
-import type { HMSIOSScreenShareConfig, OnLeaveHandler } from '../../utils/types';
+import type {
+  HMSIOSScreenShareConfig,
+  OnLeaveHandler,
+} from '../../utils/types';
 
 type ActionType = {
   payload: any;
@@ -15,13 +17,14 @@ type ActionType = {
 type IntialStateType = {
   userName: string;
   userId: string | undefined;
-  endPoints: { init: string; token: string; layout: string; } | undefined;
+  endPoints: { init: string; token: string; layout: string } | undefined;
   debugMode: boolean;
-  roomID: string;
+  roomID: string | undefined;
   hmsInstance?: HMSSDK;
   hmsSessionStore?: HMSSessionStore | null;
   spotlightTrackId?: string | null;
-  roomCode: string;
+  roomCode: string | undefined;
+  token: string | undefined;
   isHLSFlow: boolean;
   roles: HMSRole[];
   iosBuildConfig: HMSIOSScreenShareConfig | null;
@@ -34,8 +37,9 @@ const INITIAL_STATE: IntialStateType = {
   endPoints: undefined,
   debugMode: false,
   hmsInstance: undefined,
-  roomID: getMeetingUrl(),
-  roomCode: getMeetingCode(),
+  roomID: undefined,
+  roomCode: undefined,
+  token: undefined,
   isHLSFlow: true,
   roles: [],
   hmsSessionStore: null,
@@ -73,11 +77,12 @@ const userReducer = (
       };
     case HmsStateActionTypes.SET_PREBUILT_DATA:
       state.roomCode = action.payload.roomCode;
-      state.userName = action.payload.options.userName ?? '';
-      state.userId = action.payload.options.userId;
-      state.endPoints = action.payload.options.endPoints;
-      state.debugMode = action.payload.options.debugMode ?? false;
-      state.iosBuildConfig = action.payload.options.ios ?? null;
+      state.token = action.payload.token;
+      state.userName = action.payload.options?.userName ?? '';
+      state.userId = action.payload.options?.userId;
+      state.endPoints = action.payload.options?.endPoints;
+      state.debugMode = action.payload.options?.debugMode ?? false;
+      state.iosBuildConfig = action.payload.options?.ios ?? null;
 
       return state;
     case HmsStateActionTypes.SET_ON_LEAVE_HANDLER:
