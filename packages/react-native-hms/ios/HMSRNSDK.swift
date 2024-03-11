@@ -748,6 +748,31 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             }
         }
     }
+    
+    func switchAudioOutput(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        
+        guard let audioDevice = data["audioDevice"] as? String else {
+            let errorMessage = "\(#function)" + HMSHelper.getUnavailableRequiredKey(data, ["audioDevice"])
+            reject?("6004", errorMessage, nil)
+            return
+        }
+        
+        DispatchQueue.main.async { [weak self] in
+            let outputDevice: HMSAudioOutputDevice
+            switch audioDevice {
+            case "EARPIECE":
+                outputDevice = HMSAudioOutputDevice.earpiece
+            default:
+                outputDevice = HMSAudioOutputDevice.speaker
+            }
+            do {
+                try self?.hms?.switchAudioOutput(to: outputDevice)
+                resolve?(nil)
+            } catch let error {
+                reject?("6004", error.localizedDescription, nil)
+            }
+        }
+    }
 
     func startRTMPOrRecording(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         guard let record = data.value(forKey: "record") as? Bool

@@ -191,7 +191,7 @@ object HMSInteractivityDecoder {
   private fun getPollAnswer(answer: HmsPollAnswer): WritableMap {
     val data = Arguments.createMap()
 
-    answer.durationMillis.let { data.putDouble("duration", (it * 1000).toDouble()) }
+    answer.durationMillis?.let { data.putDouble("duration", (it * 1000).toDouble()) }
 
     data.putInt("option", answer.selectedOption)
 

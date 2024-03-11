@@ -1018,12 +1018,8 @@ export class HMSSDK {
       id: this.id,
       audioDevice,
     });
-    if (Platform.OS === 'android') {
-      return HMSManager.switchAudioOutput({ id: this.id, audioDevice });
-    } else {
-      console.log('API currently not available for iOS');
-      return 'API currently not available for iOS';
-    }
+
+    return HMSManager.switchAudioOutput({ id: this.id, audioDevice });
   };
 
   switchAudioOutputUsingIOSUI = () => {
