@@ -190,6 +190,13 @@ class HMSManager: RCTEventEmitter {
 
         hms?.setVolume(data, resolve, reject)
     }
+    
+    @objc
+    func switchAudioOutput(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.switchAudioOutput(data, resolve, reject)
+    }
 
     @objc
     func switchAudioOutputUsingIOSUI(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {

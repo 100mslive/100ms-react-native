@@ -143,6 +143,10 @@ RCT_EXTERN_METHOD(isScreenShared
                   : (NSDictionary)data
                   : (RCTPromiseResolveBlock)resolve
                   : (RCTPromiseRejectBlock)reject)
+RCT_EXTERN_METHOD(switchAudioOutput
+                  : (NSDictionary)data
+                  : (RCTPromiseResolveBlock)resolve
+                  : (RCTPromiseRejectBlock)reject)
 RCT_EXTERN_METHOD(switchAudioOutputUsingIOSUI
                   : (NSDictionary)data
                   : (RCTPromiseResolveBlock)resolve

@@ -1,12 +1,9 @@
 Board: https://100ms.atlassian.net/jira/software/projects/RN/boards/33
 
-- Added Quiz Creation flow
-https://100ms.atlassian.net/browse/RN-209
+- Add API for `switchAudioOutput` on React Native iOS
+https://100ms.atlassian.net/browse/RN-250
 
-- Answer on a Quiz
-https://100ms.atlassian.net/browse/RN-232
-
-Room Kit: 1.1.2
-React Native SDK: 1.9.12
-Android SDK: 2.9.3
-iOS SDK: 1.5.1
+Room Kit: 1.1.4
+React Native SDK: 1.10.1
+Android SDK: 2.9.51
+iOS SDK: 1.6.0
