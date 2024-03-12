@@ -2213,7 +2213,6 @@ export const useLeaveMethods = () => {
     try {
       await hmsInstance.leave();
       await hmsInstance.destroy();
-      await hmsInstance.setAlwaysScreenOn(false);
       dispatch(clearStore());
     } catch (error) {
       Toast.showWithGravity(
