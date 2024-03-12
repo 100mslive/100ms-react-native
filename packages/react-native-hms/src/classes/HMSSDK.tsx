@@ -1210,6 +1210,19 @@ export class HMSSDK {
   };
 
   /**
+   * - This function allows the user to set the screen on always.
+   * - This is useful when the user wants to keep the screen on while the app is in the foreground.
+   * @param enabled boolean value to enable or disable the always screen on
+   */
+  setAlwaysScreenOn = async (enabled: boolean) => {
+    logger?.verbose('#Function toggleAlwaysScreenOn', {
+      id: this.id,
+      enabled,
+    });
+    return HMSManager.setAlwaysScreenOn({ id: this.id, enabled });
+  };
+
+  /**
    * - This is a prototype event listener that takes action and listens for updates related to that particular action
    *
    * @param {string} action

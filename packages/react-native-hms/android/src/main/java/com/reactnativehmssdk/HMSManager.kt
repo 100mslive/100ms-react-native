@@ -1353,6 +1353,26 @@ class HMSManager(reactContext: ReactApplicationContext) :
     }
   }
 
+  @ReactMethod
+  fun setAlwaysScreenOn(
+    data: ReadableMap,
+    promise: Promise?,
+  ) {
+    val window = reactApplicationContext?.currentActivity?.window
+    if (window == null) {
+      promise?.reject(Throwable("`window` is not available!"))
+      return
+    }
+    UiThreadUtil.runOnUiThread {
+      if (data.getBoolean("enabled")) {
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+      } else {
+        window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+      }
+      promise?.resolve(null)
+    }
+  }
+
   fun emitEvent(
     event: String,
     data: WritableMap,

@@ -218,6 +218,19 @@ class HMSManager: RCTEventEmitter {
             resolve?(true)
         }
     }
+    
+    @objc
+    func setAlwaysScreenOn(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        
+        guard let enabled = data["enabled"] as? Bool else {
+            let errorMessage = "\(#function)" + HMSHelper.getUnavailableRequiredKey(data, ["enabled"])
+            reject?("6004", errorMessage, nil)
+            return
+        }
+        
+        UIApplication.shared.isIdleTimerDisabled = enabled
+        resolve?(nil)
+    }
 
     // MARK: - Messaging
 
