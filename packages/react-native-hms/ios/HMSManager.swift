@@ -228,8 +228,10 @@ class HMSManager: RCTEventEmitter {
             return
         }
         
-        UIApplication.shared.isIdleTimerDisabled = enabled
-        resolve?(nil)
+        DispatchQueue.main.async {
+            UIApplication.shared.isIdleTimerDisabled = enabled
+            resolve?(nil)
+        }
     }
 
     // MARK: - Messaging
