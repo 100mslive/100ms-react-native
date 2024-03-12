@@ -206,6 +206,11 @@ RCT_EXTERN_METHOD(changeRoleOfPeersWithRoles
                   : (RCTPromiseResolveBlock)resolve
                   : (RCTPromiseRejectBlock)reject)
 
+RCT_EXTERN_METHOD(setAlwaysScreenOn
+                  : (NSDictionary)data
+                  : (RCTPromiseResolveBlock)resolve
+                  : (RCTPromiseRejectBlock)reject)
+
 RCT_EXTERN__BLOCKING_SYNCHRONOUS_METHOD(getPeerProperty : (NSDictionary)data)
 RCT_EXTERN__BLOCKING_SYNCHRONOUS_METHOD(getRoomProperty : (NSDictionary)data)
 

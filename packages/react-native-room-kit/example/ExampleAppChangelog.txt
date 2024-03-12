@@ -6,6 +6,9 @@ https://100ms.atlassian.net/browse/RN-250
 - Add option to join using Auth Token instead of Room Code on Prebuilt
 https://100ms.atlassian.net/browse/RN-132
 
+- Added API to natively enable Wakelock after joining the Room
+https://100ms.atlassian.net/browse/RN-239
+
 - Skip preview screen based on flag in the layout API
 https://100ms.atlassian.net/browse/RN-216
 

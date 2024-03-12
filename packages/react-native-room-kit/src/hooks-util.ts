@@ -2176,6 +2176,7 @@ export const useLeaveMethods = () => {
           // Otherwise default action is to show "Meeting Ended" screen
           dispatch(changeMeetingState(MeetingState.MEETING_ENDED));
         }
+        hmsInstance.setAlwaysScreenOn(false);
       } catch (e) {
         console.log(`Destroy HMS instance Error: ${e}`);
         Toast.showWithGravity(

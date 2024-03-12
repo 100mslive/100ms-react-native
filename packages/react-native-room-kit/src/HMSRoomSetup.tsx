@@ -92,6 +92,7 @@ export const HMSRoomSetup = () => {
       const hmsConfig = await getConfig();
       // TODO: handle case when promise returned from `getConfig()` is resolved when Root component has been unmounted
       hmsInstance.join(hmsConfig);
+      await hmsInstance.setAlwaysScreenOn(true);
     } catch (error: any) {
       Alert.alert(
         error.code,
