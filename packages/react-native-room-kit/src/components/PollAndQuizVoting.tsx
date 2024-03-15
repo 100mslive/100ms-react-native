@@ -49,6 +49,18 @@ export const PollAndQuizVoting: React.FC<PollAndQuizVotingProps> = ({
     }
     return null;
   });
+  const pollId = selectedPoll?.pollId;
+  const localPeerPollInitiator = useSelector((state: RootState) => {
+    if (!pollId) return null;
+    const localPeerUserId = state.hmsStates.localPeer?.customerUserID;
+    const pollInitiatorUserID =
+      state.polls.polls[pollId]?.createdBy?.customerUserID;
+    return (
+      localPeerUserId &&
+      pollInitiatorUserID &&
+      localPeerUserId === pollInitiatorUserID
+    );
+  });
   const canCreateOrEndPoll = useSelector((state: RootState) => {
     const permissions = state.hmsStates.localPeer?.role?.permissions;
     return permissions?.pollWrite;
@@ -187,7 +199,7 @@ export const PollAndQuizVoting: React.FC<PollAndQuizVotingProps> = ({
         {selectedPoll &&
         selectedPoll.type === HMSPollType.quiz &&
         selectedPoll.state === HMSPollState.stopped &&
-        !canCreateOrEndPoll ? (
+        !localPeerPollInitiator ? (
           <React.Fragment>
             <VoterParticipationSummary pollId={selectedPoll.pollId} />
 
