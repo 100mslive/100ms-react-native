@@ -111,9 +111,16 @@ export const useFetchLeaderboardResponse = (
   const dispatch = useDispatch();
   const hmsInstance = useHMSInstance();
 
-  const hasPollWritePermission = useSelector((state: RootState) => {
-    const permissions = state.hmsStates.localPeer?.role?.permissions;
-    return permissions?.pollWrite;
+  const localPeerPollInitiator = useSelector((state: RootState) => {
+    if (!pollId) return null;
+    const localPeerUserId = state.hmsStates.localPeer?.customerUserID;
+    const pollInitiatorUserID =
+      state.polls.polls[pollId]?.createdBy?.customerUserID;
+    return (
+      localPeerUserId &&
+      pollInitiatorUserID &&
+      localPeerUserId === pollInitiatorUserID
+    );
   });
 
   const leaderboardData = useSelector((state: RootState) => {
@@ -134,7 +141,7 @@ export const useFetchLeaderboardResponse = (
           pollId,
           5,
           1, // Indexing starts from 1
-          !hasPollWritePermission // fetchCurrentUser only if user has only pollRead permission
+          !localPeerPollInitiator // fetchCurrentUser only if user is voter, and not poll initiator
         );
         if (mounted) {
           dispatch(addLeaderboard(pollId, response));
@@ -146,7 +153,7 @@ export const useFetchLeaderboardResponse = (
     return () => {
       mounted = false;
     };
-  }, [pollId, leaderboardDataExist, hasPollWritePermission]);
+  }, [pollId, leaderboardDataExist, localPeerPollInitiator]);
 
   return leaderboardData;
 };
@@ -166,10 +173,6 @@ export const useLeaderboardSummaryData = (
       pollInitiatorUserID &&
       localPeerUserId === pollInitiatorUserID
     );
-  });
-  const canCreateOrEndPoll = useSelector((state: RootState) => {
-    const permissions = state.hmsStates.localPeer?.role?.permissions;
-    return permissions?.pollWrite;
   });
 
   const leaderboardData = useSelector((state: RootState) => {
@@ -237,9 +240,6 @@ export const useLeaderboardSummaryData = (
       : null;
 
   const voterSummaryData = useMemo(() => {
-    if (!localLeaderboardEntry || canCreateOrEndPoll) {
-      return null;
-    }
     return [
       [
         {
