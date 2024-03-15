@@ -54,7 +54,11 @@ class PipActionReceiver(
 
     IntentFilter().also {
       it.addAction(PIP_INTENT_ACTION)
-      activity.registerReceiver(this, it)
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        activity.registerReceiver(this, it, Context.RECEIVER_NOT_EXPORTED)
+      } else {
+        activity.registerReceiver(this, it)
+      }
     }
     registered = true
   }
