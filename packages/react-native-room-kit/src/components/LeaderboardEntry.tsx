@@ -44,10 +44,8 @@ export const LeaderboardEntry: React.FC<LeaderboardEntryProps> = ({
   return (
     <View style={[styles.container, style]}>
       <View style={styles.namePositionWrapper}>
-        <Text
+        <View
           style={[
-            styles.smallerText,
-            hmsRoomStyles.semiBoldWhiteText,
             styles.position,
             entry.position === 1
               ? styles.firstPosition
@@ -58,8 +56,19 @@ export const LeaderboardEntry: React.FC<LeaderboardEntryProps> = ({
                   : null,
           ]}
         >
-          {entry.position}
-        </Text>
+          <Text
+            style={[
+              styles.smallerText,
+              hmsRoomStyles.semiBoldWhiteText,
+              {
+                textAlign: 'center',
+                textAlignVertical: 'center',
+              },
+            ]}
+          >
+            {entry.position}
+          </Text>
+        </View>
 
         <View style={styles.flexShrink}>
           <Text
@@ -146,8 +155,8 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 12,
-    textAlign: 'center',
-    textAlignVertical: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
     marginRight: 12,
   },
   firstPosition: {
