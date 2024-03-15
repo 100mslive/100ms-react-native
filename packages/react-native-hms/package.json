@@ -90,7 +90,11 @@
     "connection",
     "service",
     "telecom",
-    "reaction"
+    "reaction",
+    "cpaas",
+    "polls",
+    "quiz",
+    "leaderboard"
   ],
   "repository": "https://github.com/100mslive/100ms-react-native",
   "author": "Yogesh <yogesh@100ms.live> (https://www.100ms.live/)",
