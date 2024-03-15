@@ -24,7 +24,7 @@ import {
   setMiniViewPeerTrackNode,
   updateLocalPeerTrackNode,
 } from './redux/actions';
-import { createPeerTrackNode } from './utils/functions';
+import { createPeerTrackNode, getRandomUserId } from './utils/functions';
 import { OnLeaveReason, TerminalExceptionCodes } from './utils/types';
 import type { PeerTrackNode } from './utils/types';
 import { Meeting } from './components/Meeting';
@@ -76,7 +76,7 @@ export const HMSRoomSetup = () => {
   const reduxStore = useStore<RootState>();
   const { leave, destroy } = useLeaveMethods();
 
-  const { getConfig, clearConfig } = useHMSConfig();
+  const { getConfig, clearConfig, updateConfig } = useHMSConfig();
   const meetingState = useSelector(
     (state: RootState) => state.app.meetingState
   );
@@ -92,6 +92,7 @@ export const HMSRoomSetup = () => {
       const hmsConfig = await getConfig();
       // TODO: handle case when promise returned from `getConfig()` is resolved when Root component has been unmounted
       hmsInstance.join(hmsConfig);
+      await hmsInstance.setAlwaysScreenOn(true);
     } catch (error: any) {
       Alert.alert(
         error.code,
@@ -377,8 +378,19 @@ export const HMSRoomSetup = () => {
       // let ignore = false;
 
       const handleMeetingPreviewOrJoin = async () => {
+        const hmsConfig = await getConfig();
+
+        const reduxState = reduxStore.getState();
+        const layoutData = reduxState.hmsStates.layoutConfig?.[0];
+
         try {
-          if (getJoinConfig().skipPreview) {
+          if (
+            getJoinConfig().skipPreview ||
+            (layoutData && layoutData.screens?.preview?.skip_preview_screen)
+          ) {
+            if (!hmsConfig.username) {
+              updateConfig({ username: getRandomUserId(16) });
+            }
             joinMeeting();
           } else {
             previewMeeting();
@@ -398,7 +410,7 @@ export const HMSRoomSetup = () => {
         // ignore = true;
       };
     }
-  }, [meetingEnded]);
+  }, [meetingEnded, getConfig, updateConfig]);
 
   useEffect(() => {
     const subscription = hmsInstance.interactivityCenter.addPollUpdateListener(

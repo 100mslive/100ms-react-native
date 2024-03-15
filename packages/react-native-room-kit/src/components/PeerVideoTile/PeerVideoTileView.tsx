@@ -23,7 +23,7 @@ import type { PeerTrackNode } from '../../utils/types';
 import { isTileOnSpotlight } from '../../utils/functions';
 import {
   selectAllowedTracksToPublish,
-  selectCanPublishTrackForRole,
+  // selectCanPublishTrackForRole,
 } from '../../hooks-sdk-selectors';
 import { useHMSRoomStyleSheet } from '../../hooks-util';
 import { HMSFullScreenButton } from './HMSFullScreenButton';
@@ -89,14 +89,14 @@ export const _PeerVideoTileView = React.forwardRef<
 
     const { peer, track, isDegraded } = peerTrackNode;
 
-    const peerCanPublishAudio = selectCanPublishTrackForRole(
-      peer.role,
-      'audio'
-    );
-    const peerCanPublishVideo = selectCanPublishTrackForRole(
-      peer.role,
-      'video'
-    );
+    // const peerCanPublishAudio = selectCanPublishTrackForRole(
+    //   peer.role,
+    //   'audio'
+    // );
+    // const peerCanPublishVideo = selectCanPublishTrackForRole(
+    //   peer.role,
+    //   'video'
+    // );
 
     const allowedToPublish = useSelector((state: RootState) => {
       const allowed = selectAllowedTracksToPublish(state);
@@ -134,7 +134,7 @@ export const _PeerVideoTileView = React.forwardRef<
       !!trackSource && trackSource === HMSTrackSource.SCREEN;
 
     const showingVideoTrack =
-      peerCanPublishVideo &&
+      // peerCanPublishVideo && // Refer #RN-254@Jira, when user skips preview, it receives stub role object which has `publishPermissions` as `undefined`
       track &&
       track.trackId &&
       track.type === HMSTrackType.VIDEO &&
@@ -187,8 +187,8 @@ export const _PeerVideoTileView = React.forwardRef<
           isPipModeActive || isLandscapeOrientation ? null : (
             <HMSFullScreenButton peerTrackNode={peerTrackNode} />
           )
-        ) : peerCanPublishAudio ? (
-          <PeerAudioIndicator isMuted={peer.audioTrack?.isMute()} peer={peer} />
+        ) : peer.audioTrack && peer.audioTrack.id ? (
+          <PeerAudioIndicator isMuted={peer.audioTrack.isMute()} peer={peer} />
         ) : null}
 
         {/* Handling showing Peer name */}

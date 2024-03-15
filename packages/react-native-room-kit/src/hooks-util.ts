@@ -1777,11 +1777,22 @@ export const useHMSConfig = () => {
 
     const storeState = store.getState() as RootState;
 
-    const token = await hmsInstance.getAuthTokenByRoomCode(
-      storeState.user.roomCode,
-      storeState.user.userId,
-      storeState.user.endPoints?.token
-    );
+    const givenToken = storeState.user.token;
+    let genToken = null;
+
+    if (!givenToken) {
+      if (storeState.user.roomCode) {
+        genToken = await hmsInstance.getAuthTokenByRoomCode(
+          storeState.user.roomCode,
+          storeState.user.userId,
+          storeState.user.endPoints?.token
+        );
+      } else {
+        throw new Error('`token` or `roomCode` is required to join a HMS Room');
+      }
+    }
+
+    const token = (givenToken || genToken) as string;
 
     // TODO: [REMOVE LATER] added trycatch block so that we can join rooms where we are getting error from Layout API
     try {
@@ -2165,6 +2176,7 @@ export const useLeaveMethods = () => {
           // Otherwise default action is to show "Meeting Ended" screen
           dispatch(changeMeetingState(MeetingState.MEETING_ENDED));
         }
+        hmsInstance.setAlwaysScreenOn(false);
       } catch (e) {
         console.log(`Destroy HMS instance Error: ${e}`);
         Toast.showWithGravity(
@@ -2591,17 +2603,23 @@ export const useSavePropsToStore = (
   props: HMSPrebuiltProps,
   dispatch: AppDispatch
 ) => {
-  const { roomCode, options, onLeave, handleBackButton, autoEnterPipMode } =
-    props;
+  const {
+    roomCode,
+    token,
+    options,
+    onLeave,
+    handleBackButton,
+    autoEnterPipMode,
+  } = props;
 
-  dispatch(setPrebuiltData({ roomCode, options }));
+  dispatch(setPrebuiltData({ roomCode, token, options }));
 
   useEffect(() => {
     const passedUserName = options?.userName;
     if (passedUserName && passedUserName.length > 0) {
       dispatch(setEditUsernameDisabled(true));
     }
-  }, [roomCode, options]);
+  }, [roomCode, token, options]);
 
   useEffect(() => {
     dispatch(setOnLeaveHandler(onLeave));

@@ -200,7 +200,7 @@ export const QuizLeaderboardScreen: React.FC<QuizLeaderboardScreenProps> = ({
                 );
               })}
 
-              {leaderboardData?.hasNext && leaderboardEntries.length <= 5 ? (
+              {leaderboardData?.hasNext && leaderboardEntries.length >= 5 ? (
                 <React.Fragment>
                   <View style={[styles.divider, hmsRoomStyles.divider]} />
 

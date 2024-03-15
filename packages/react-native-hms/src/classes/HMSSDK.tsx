@@ -1005,8 +1005,7 @@ export class HMSSDK {
   };
 
   /**
-   * Android Only
-   * - This wrapper function used to switch output to device other than the default, currently available only for android.
+   * - This wrapper function used to switch output to device other than the default route.
    *
    * checkout {@link https://www.100ms.live/docs/react-native/v2/features/audio-output-routing#switch-audio-focus-to-another-device} for more info
    *
@@ -1018,12 +1017,8 @@ export class HMSSDK {
       id: this.id,
       audioDevice,
     });
-    if (Platform.OS === 'android') {
-      return HMSManager.switchAudioOutput({ id: this.id, audioDevice });
-    } else {
-      console.log('API currently not available for iOS');
-      return 'API currently not available for iOS';
-    }
+
+    return HMSManager.switchAudioOutput({ id: this.id, audioDevice });
   };
 
   switchAudioOutputUsingIOSUI = () => {
@@ -1212,6 +1207,19 @@ export class HMSSDK {
     }
 
     return new HMSPeerListIterator(data.uniqueId, data.totalCount);
+  };
+
+  /**
+   * - This function allows the user to set the screen on always.
+   * - This is useful when the user wants to keep the screen on while the app is in the foreground.
+   * @param enabled boolean value to enable or disable the always screen on
+   */
+  setAlwaysScreenOn = async (enabled: boolean) => {
+    logger?.verbose('#Function toggleAlwaysScreenOn', {
+      id: this.id,
+      enabled,
+    });
+    return HMSManager.setAlwaysScreenOn({ id: this.id, enabled });
   };
 
   /**

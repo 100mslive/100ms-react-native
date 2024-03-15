@@ -190,6 +190,13 @@ class HMSManager: RCTEventEmitter {
 
         hms?.setVolume(data, resolve, reject)
     }
+    
+    @objc
+    func switchAudioOutput(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        let hms = HMSHelper.getHms(data, hmsCollection)
+
+        hms?.switchAudioOutput(data, resolve, reject)
+    }
 
     @objc
     func switchAudioOutputUsingIOSUI(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
@@ -209,6 +216,21 @@ class HMSManager: RCTEventEmitter {
                 }
             }
             resolve?(true)
+        }
+    }
+    
+    @objc
+    func setAlwaysScreenOn(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        
+        guard let enabled = data["enabled"] as? Bool else {
+            let errorMessage = "\(#function)" + HMSHelper.getUnavailableRequiredKey(data, ["enabled"])
+            reject?("6004", errorMessage, nil)
+            return
+        }
+        
+        DispatchQueue.main.async {
+            UIApplication.shared.isIdleTimerDisabled = enabled
+            resolve?(nil)
         }
     }
 

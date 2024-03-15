@@ -12,6 +12,10 @@ import { useSavePropsToStore } from './hooks-util';
 import type { HMSPrebuiltProps } from './types';
 
 const _HMSPrebuilt: React.FC<HMSPrebuiltProps> = (props) => {
+  if (!props.token && !props.roomCode) {
+    throw new Error('`token` or `roomCode` is required to join a HMS Room');
+  }
+
   useSavePropsToStore(props, store.dispatch);
 
   // @ts-ignore Not using `useContext` hook because we don't want to subscribe to updates

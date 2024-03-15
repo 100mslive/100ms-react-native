@@ -178,7 +178,7 @@ export const HMSManageAudioOutput: React.FC = () => {
               <AudioOutputDevice
                 id={'ios-audio-device'}
                 hideDivider={true}
-                selected={!roomLocallyMuted}
+                selected={false}
                 text={'Auto'}
                 icon={<SpeakerIcon muted={false} />}
                 onPress={handleSelectAudioDevice}
