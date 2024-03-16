@@ -112,7 +112,7 @@
     "registry": "https://registry.npmjs.org/"
   },
   "dependencies": {
-    "@100mslive/types-prebuilt": "^0.12.7",
+    "@100mslive/types-prebuilt": "^0.12.8",
     "@react-navigation/native": "^6.0.8",
     "react-redux": "^7.2.4",
     "redux": "^4.1.0"
