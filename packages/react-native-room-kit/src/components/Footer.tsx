@@ -35,6 +35,13 @@ export const _Footer: React.FC<FooterProps> = () => {
   const editUsernameDisabled = useSelector(
     (state: RootState) => state.app.editUsernameDisabled
   );
+  const noiseCancellationPlugin = useSelector(
+    (state: RootState) => state.hmsStates.noiseCancellationPlugin
+  );
+  const isNoiseCancellationAvailable = !!(
+    noiseCancellationPlugin &&
+    noiseCancellationPlugin.isNoiseCancellationAvailable()
+  );
 
   const isViewer = !(canPublishAudio || canPublishVideo || canPublishScreen);
 
@@ -72,7 +79,8 @@ export const _Footer: React.FC<FooterProps> = () => {
     canShowHandRaiseInRoomModal ||
     canStartRecording ||
     canEditUsernameFromRoomModal ||
-    canReadOrWritePoll;
+    canReadOrWritePoll ||
+    isNoiseCancellationAvailable;
 
   const footerActionButtons = useMemo(() => {
     const actions = [];

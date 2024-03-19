@@ -16,6 +16,7 @@ import {
   PollVoteIcon,
   RecordingIcon,
   ScreenShareIcon,
+  WaveIcon,
 } from '../Icons';
 import { BottomSheet, useBottomSheetActions } from './BottomSheet';
 import {
@@ -183,6 +184,35 @@ export const RoomSettingsModalContent: React.FC<
   };
   // #endregion
 
+  // #region Noise Cancellation Plugin
+  const noiseCancellationPlugin = useSelector(
+    (state: RootState) => state.hmsStates.noiseCancellationPlugin
+  );
+  const isNoiseCancellationEnabled = !!(
+    noiseCancellationPlugin && noiseCancellationPlugin.isEnabled()
+  );
+  const isNoiseCancellationAvailable = !!(
+    noiseCancellationPlugin &&
+    noiseCancellationPlugin.isNoiseCancellationAvailable()
+  );
+
+  const handleNoiseCancellation = () => {
+    // Register callback to be called when bottom sheet is hiddden
+    registerOnModalHideAction(() => {
+      if (!noiseCancellationPlugin || !isNoiseCancellationAvailable) return;
+
+      if (isNoiseCancellationEnabled) {
+        noiseCancellationPlugin.disable();
+      } else {
+        noiseCancellationPlugin.enable();
+      }
+    });
+
+    // Close the current bottom sheet
+    closeRoomSettingsModal();
+  };
+  // #endregion
+
   const changeName = () => {
     // Register callback to be called when bottom sheet is hiddden
     registerOnModalHideAction(() => {
@@ -320,6 +350,16 @@ export const RoomSettingsModalContent: React.FC<
               pressHandler: openPollsQuizzesModal,
               isActive: false,
               hide: !canReadOrWritePoll,
+            },
+            {
+              id: 'noise-cancellation',
+              icon: <WaveIcon style={{ width: 20, height: 20 }} />,
+              label: isNoiseCancellationEnabled
+                ? 'Noise Reduced'
+                : 'Reduce Noise',
+              pressHandler: handleNoiseCancellation,
+              isActive: isNoiseCancellationEnabled,
+              hide: !isNoiseCancellationAvailable,
             },
           ].filter((itm) => !itm.hide),
           true
