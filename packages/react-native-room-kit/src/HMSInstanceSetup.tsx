@@ -51,6 +51,12 @@ const getTrackSettings = (
      */
     audioMode: joinConfig.musicMode ? HMSIOSAudioMode.MUSIC : undefined,
 
+    /**
+     * The noise cancellation plugin to use for the audio track.
+     * @type {HMSNoiseCancellationPlugin}
+     *
+     * Checkout Music Mode docs for more details {@link https://www.100ms.live/docs/ios/v2/how-to-guides/extend-capabilities/plugins/noise-cancellation}
+     */
     noiseCancellationPlugin,
   });
 

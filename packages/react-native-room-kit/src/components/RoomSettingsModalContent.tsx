@@ -193,7 +193,7 @@ export const RoomSettingsModalContent: React.FC<
   );
   const isNoiseCancellationAvailable = !!(
     noiseCancellationPlugin &&
-    noiseCancellationPlugin.isNoiseCancellationAvailable()
+    noiseCancellationPlugin.isNoiseCancellationAvailable
   );
 
   const handleNoiseCancellation = () => {

@@ -40,7 +40,7 @@ export const _Footer: React.FC<FooterProps> = () => {
   );
   const isNoiseCancellationAvailable = !!(
     noiseCancellationPlugin &&
-    noiseCancellationPlugin.isNoiseCancellationAvailable()
+    noiseCancellationPlugin.isNoiseCancellationAvailable
   );
 
   const isViewer = !(canPublishAudio || canPublishVideo || canPublishScreen);

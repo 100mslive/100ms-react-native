@@ -2,16 +2,26 @@ import HMSManagerModule from '../modules/HMSManagerModule';
 import { HMSConstants } from './HMSConstants';
 import { logger } from './HMSLogger';
 
-export class HMSNoiseCancellationPlugin {
-  // __isNCAvailable: boolean | null = null;
+let _isNCAvailable: { current: boolean | null } = { current: null };
 
+/**
+ * Class representing an HMS Noise Cancellation Plugin.
+ */
+export class HMSNoiseCancellationPlugin {
   modelName: HMSNoiseCancellationModels;
   initialState: HMSNoiseCancellationInitialState;
 
+  /**
+   * Creates an instance of HMSNoiseCancellationPlugin.
+   * @param {Object} [config] - The configuration options.
+   * @param {HMSNoiseCancellationModels} [config.modelName] - The model name for noise cancellation.
+   * @param {HMSNoiseCancellationInitialState} [config.initialState] - The initial state for noise cancellation.
+   */
   constructor(config?: {
     modelName: HMSNoiseCancellationModels;
     initialState: HMSNoiseCancellationInitialState;
   }) {
+    _isNCAvailable.current = null;
     const data = {
       modelName: HMSNoiseCancellationModels.SmallFullBand,
       initialState: HMSNoiseCancellationInitialState.Enabled,
@@ -21,33 +31,29 @@ export class HMSNoiseCancellationPlugin {
     this.initialState = data.initialState;
   }
 
-  isNoiseCancellationAvailable(): boolean {
-    // console.log('##### Local state isNoiseCancellationPluginAvailable > ', this.__isNCAvailable);
-    // if (typeof this.__isNCAvailable === 'boolean') {
-    //   console.log('##### returning early > ', this.__isNCAvailable);
-    //   return this.__isNCAvailable;
-    // }
-
-    // try {
-    //   const data = HMSManagerModule.isNoiseCancellationPluginAvailable({
-    //     id: HMSConstants.DEFAULT_SDK_ID,
-    //   });
-    //   this.__isNCAvailable = data.isAvailable;
-    //   console.log('##### returning > ', data.isAvailable);
-    //   return data.isAvailable;
-    // } catch (e) {
-    //   logger?.error('#Error in #Getter HMSNoiseCancellationPlugin#isNoiseCancellationAvailable ', e);
-    //   return false;
-    // }
-    // console.log('##### __isNCAvailable > ', this.__isNCAvailable);
+  /**
+   * To make noise cancellation work your room needs to have noise cancellation feature enabled.
+   *
+   * Gets whether noise cancellation is available for your room.
+   * @returns {boolean} True if noise cancellation is available, false otherwise.
+   *
+   * Note: You can call this API to check the state of noise cancellation only after successfully joining the room.
+   */
+  get isNoiseCancellationAvailable() {
+    if (typeof _isNCAvailable.current === 'boolean') {
+      return _isNCAvailable.current;
+    }
     const data = HMSManagerModule.isNoiseCancellationPluginAvailable({
       id: HMSConstants.DEFAULT_SDK_ID,
     });
-    // this.__isNCAvailable = data.isAvailable;
-
-    return data.isAvailable;
+    _isNCAvailable.current = data.isAvailable as boolean;
+    return _isNCAvailable.current;
   }
 
+  /**
+   * Enables noise cancellation.
+   * @returns {Promise<boolean>} A promise that resolves to true if noise cancellation is enabled, otherwise, rejected promise is returned
+   */
   async enable(): Promise<boolean> {
     logger?.verbose('#Function HMSNoiseCancellationPlugin#enable', null);
 
@@ -64,6 +70,10 @@ export class HMSNoiseCancellationPlugin {
     }
   }
 
+  /**
+   * Disables noise cancellation.
+   * @returns {Promise<boolean>} A promise that resolves to true if noise cancellation is disabled, otherwise, rejected promise is returned
+   */
   async disable(): Promise<boolean> {
     logger?.verbose('#Function HMSNoiseCancellationPlugin#disable', null);
 
@@ -80,6 +90,10 @@ export class HMSNoiseCancellationPlugin {
     }
   }
 
+  /**
+   * Checks if noise cancellation is enabled.
+   * @returns {boolean} true if noise cancellation is enabled, false otherwise.
+   */
   isEnabled(): boolean {
     logger?.verbose('#Function HMSNoiseCancellationPlugin#isEnabled', null);
 
@@ -98,10 +112,18 @@ export class HMSNoiseCancellationPlugin {
   }
 }
 
+/**
+ * Enum for HMS Noise Cancellation Models.
+ * @enum {String}
+ */
 export enum HMSNoiseCancellationModels {
   SmallFullBand = 'SMALL_FULL_BAND',
 }
 
+/**
+ * Enum for HMS Noise Cancellation Initial State.
+ * @enum {String}
+ */
 export enum HMSNoiseCancellationInitialState {
   Enabled = 'ENABLED',
   Disabled = 'DISABLED',
