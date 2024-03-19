@@ -32,6 +32,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     private var sessionStoreChangeObservers = [String: NSObjectProtocol]()
     private var peerListIterators = [String: HMSPeerListIterator]()
     private var roomMutedLocally = false
+    private var noiseCancellationPlugin: HMSNoiseCancellationPlugin? = nil
 
     // MARK: - Setup
     init(data: NSDictionary?, delegate manager: HMSManager?, uid id: String) {
@@ -39,14 +40,19 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         self.delegate = manager
         self.id = id
         DispatchQueue.main.async { [weak self] in
+             var noiseCancellationPlugin: HMSNoiseCancellationPlugin? = nil
+
             self?.hms = HMSSDK.build { sdk in
                 sdk.appGroup = data?.value(forKey: "appGroup") as? String
                 sdk.frameworkInfo = HMSHelper.getFrameworkInfo(data?.value(forKey: "frameworkInfo") as? NSDictionary)
                 let trackSettings = data?.value(forKey: "trackSettings") as? NSDictionary
                 let videoSettings = HMSHelper.getLocalVideoSettings(trackSettings?.value(forKey: "video") as? NSDictionary)
-                let audioSettings = HMSHelper.getLocalAudioSettings(trackSettings?.value(forKey: "audio") as? NSDictionary, sdk, self?.delegate, id)
+                let audioSettingsDict = trackSettings?.value(forKey: "audio") as? NSDictionary
+                noiseCancellationPlugin = HMSHelper.getHMSNoiseCancellationPlugin(audioSettingsDict?.value(forKey: "noiseCancellationPlugin") as? NSDictionary)
+                let audioSettings = HMSHelper.getLocalAudioSettings(audioSettingsDict, noiseCancellationPlugin, sdk, self?.delegate, id)
                 sdk.trackSettings = HMSTrackSettings(videoSettings: videoSettings, audioSettings: audioSettings)
             }
+            self?.noiseCancellationPlugin = noiseCancellationPlugin
             if let hms = self?.hms {
                 self?.interactivity = HMSRNInteractivityCenter(
                     hmssdk: hms,
@@ -2080,6 +2086,54 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                 reject?("6004", errorMessage, nil)
             }
         }
+    }
+
+    // MARK: - Noise Cancellation Plugin Functions
+
+    func enableNoiseCancellationPlugin(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        guard let noiseCancellationPlugin = self.noiseCancellationPlugin else {
+            let errorMessage = "\(#function) noiseCancellationPlugin instance is not available!"
+            reject?("6004", errorMessage, nil)
+            return
+        }
+        do {
+            try noiseCancellationPlugin.enable()
+            resolve?(true)
+        } catch {
+            reject?("6004", error.localizedDescription, nil)
+        }
+    }
+
+    func disableNoiseCancellationPlugin(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        guard let noiseCancellationPlugin = self.noiseCancellationPlugin else {
+            let errorMessage = "\(#function) noiseCancellationPlugin instance is not available!"
+            reject?("6004", errorMessage, nil)
+            return
+        }
+        do {
+            try noiseCancellationPlugin.disable()
+            resolve?(true)
+        } catch {
+            reject?("6004", error.localizedDescription, nil)
+        }
+    }
+
+    func isNoiseCancellationPluginEnabled() -> Bool {
+        guard let noiseCancellationPlugin = self.noiseCancellationPlugin else {
+            let errorMessage = "\(#function) noiseCancellationPlugin instance is not available!"
+            print(errorMessage)
+            return false
+        }
+        return noiseCancellationPlugin.isEnabled()
+    }
+
+    func isNoiseCancellationPluginAvailable() -> Bool {
+        guard let noiseCancellationPlugin = self.noiseCancellationPlugin else {
+            let errorMessage = "\(#function) noiseCancellationPlugin instance is not available!"
+            print(errorMessage)
+            return false
+        }
+        return noiseCancellationPlugin.isNoiseCancellationAvailable
     }
 
     // MARK: - Helper Functions

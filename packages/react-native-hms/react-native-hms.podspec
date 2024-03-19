@@ -20,4 +20,5 @@ Pod::Spec.new do |s|
   s.dependency "HMSSDK", sdkVersions["ios"]
   s.dependency 'HMSBroadcastExtensionSDK', sdkVersions["iOSBroadcastExtension"]
   s.dependency 'HMSHLSPlayerSDK', sdkVersions["iOSHMSHLSPlayer"]
+  s.dependency 'HMSNoiseCancellationModels', sdkVersions["iOSHMSNoiseCancellationModels"]
 end

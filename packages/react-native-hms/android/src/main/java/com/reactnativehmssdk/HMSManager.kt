@@ -8,6 +8,7 @@ import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.util.Rational
 import android.view.WindowManager
 import androidx.annotation.RequiresApi
@@ -19,6 +20,7 @@ import com.facebook.react.module.annotations.ReactModule
 import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.reactnativehmssdk.HMSManager.Companion.REACT_CLASS
 import live.hms.video.error.HMSException
+import live.hms.video.factories.noisecancellation.AvailabilityStatus
 import java.util.UUID
 
 @ReactModule(name = REACT_CLASS)
@@ -1453,6 +1455,105 @@ class HMSManager(reactContext: ReactApplicationContext) :
       "6004",
       "HMS SDK not initialized",
     )
+  }
+  // endregion
+
+  // region Noise Cancellation Plugin
+  @ReactMethod
+  fun enableNoiseCancellationPlugin(
+    data: ReadableMap,
+    promise: Promise?,
+  ) {
+    val rnSDK =
+      HMSHelper.getHms(data, hmsCollection) ?: run {
+        promise?.reject(
+          "6004",
+          "RN HMS SDK not initialized",
+        )
+        return
+      }
+    val hmsSdk =
+      rnSDK.hmsSDK ?: run {
+        promise?.reject(
+          "6004",
+          "HMS SDK not initialized",
+        )
+        return
+      }
+    hmsSdk.setNoiseCancellationEnabled(true)
+    promise?.resolve(true)
+  }
+
+  @ReactMethod
+  fun disableNoiseCancellationPlugin(
+    data: ReadableMap,
+    promise: Promise?,
+  ) {
+    val rnSDK =
+      HMSHelper.getHms(data, hmsCollection) ?: run {
+        promise?.reject(
+          "6004",
+          "RN HMS SDK not initialized",
+        )
+        return
+      }
+    val hmsSdk =
+      rnSDK.hmsSDK ?: run {
+        promise?.reject(
+          "6004",
+          "HMS SDK not initialized",
+        )
+        return
+      }
+    hmsSdk.setNoiseCancellationEnabled(false)
+    promise?.resolve(true)
+  }
+
+  @ReactMethod(isBlockingSynchronousMethod = true)
+  fun isNoiseCancellationPluginEnabled(data: ReadableMap): WritableMap {
+    val config: WritableMap = Arguments.createMap()
+
+    val rnSDK =
+      HMSHelper.getHms(data, hmsCollection) ?: run {
+        config.putBoolean("isEnabled", false)
+        return config
+      }
+    val hmsSdk =
+      rnSDK.hmsSDK ?: run {
+        config.putBoolean("isEnabled", false)
+        return config
+      }
+    val isEnabled = hmsSdk.getNoiseCancellationEnabled()
+    config.putBoolean("isEnabled", isEnabled)
+    return config
+  }
+
+  @ReactMethod(isBlockingSynchronousMethod = true)
+  fun isNoiseCancellationPluginAvailable(data: ReadableMap): WritableMap {
+    val config: WritableMap = Arguments.createMap()
+
+    val rnSDK =
+      HMSHelper.getHms(data, hmsCollection) ?: run {
+        config.putBoolean("isAvailable", false)
+        return config
+      }
+    val hmsSdk =
+      rnSDK.hmsSDK ?: run {
+        config.putBoolean("isAvailable", false)
+        return config
+      }
+
+    val availability: AvailabilityStatus = hmsSdk.isNoiseCancellationAvailable()
+    val isAvailable =
+      if (availability == AvailabilityStatus.Available) {
+        true
+      } else {
+        val reason = (availability as AvailabilityStatus.NotAvailable).reason
+        Log.d("HMSManager", "NoiseCancellation Not available because of $reason")
+        false
+      }
+    config.putBoolean("isAvailable", isAvailable)
+    return config
   }
   // endregion
 
