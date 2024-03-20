@@ -343,8 +343,14 @@ RCT_EXTERN_METHOD(disableNoiseCancellationPlugin
                   : (RCTPromiseResolveBlock)resolve
                   : (RCTPromiseRejectBlock)reject)
 
-RCT_EXTERN__BLOCKING_SYNCHRONOUS_METHOD(isNoiseCancellationPluginEnabled : (NSDictionary)data)
+RCT_EXTERN_METHOD(isNoiseCancellationPluginEnabled
+                  : (NSDictionary)data
+                  : (RCTPromiseResolveBlock)resolve
+                  : (RCTPromiseRejectBlock)reject)
 
-RCT_EXTERN__BLOCKING_SYNCHRONOUS_METHOD(isNoiseCancellationPluginAvailable : (NSDictionary)data)
+RCT_EXTERN_METHOD(isNoiseCancellationPluginAvailable
+                  : (NSDictionary)data
+                  : (RCTPromiseResolveBlock)resolve
+                  : (RCTPromiseRejectBlock)reject)
 
 @end

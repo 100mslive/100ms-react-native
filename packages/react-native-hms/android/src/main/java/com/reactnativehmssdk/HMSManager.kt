@@ -1509,38 +1509,51 @@ class HMSManager(reactContext: ReactApplicationContext) :
     promise?.resolve(true)
   }
 
-  @ReactMethod(isBlockingSynchronousMethod = true)
-  fun isNoiseCancellationPluginEnabled(data: ReadableMap): WritableMap {
-    val config: WritableMap = Arguments.createMap()
-
+  @ReactMethod
+  fun isNoiseCancellationPluginEnabled(
+    data: ReadableMap,
+    promise: Promise?,
+  ) {
     val rnSDK =
       HMSHelper.getHms(data, hmsCollection) ?: run {
-        config.putBoolean("isEnabled", false)
-        return config
+        promise?.reject(
+          "6004",
+          "RN HMS SDK not initialized",
+        )
+        return
       }
     val hmsSdk =
       rnSDK.hmsSDK ?: run {
-        config.putBoolean("isEnabled", false)
-        return config
+        promise?.reject(
+          "6004",
+          "HMS SDK not initialized",
+        )
+        return
       }
     val isEnabled = hmsSdk.getNoiseCancellationEnabled()
-    config.putBoolean("isEnabled", isEnabled)
-    return config
+    promise?.resolve(isEnabled)
   }
 
-  @ReactMethod(isBlockingSynchronousMethod = true)
-  fun isNoiseCancellationPluginAvailable(data: ReadableMap): WritableMap {
-    val config: WritableMap = Arguments.createMap()
-
+  @ReactMethod
+  fun isNoiseCancellationPluginAvailable(
+    data: ReadableMap,
+    promise: Promise?,
+  ) {
     val rnSDK =
       HMSHelper.getHms(data, hmsCollection) ?: run {
-        config.putBoolean("isAvailable", false)
-        return config
+        promise?.reject(
+          "6004",
+          "RN HMS SDK not initialized",
+        )
+        return
       }
     val hmsSdk =
       rnSDK.hmsSDK ?: run {
-        config.putBoolean("isAvailable", false)
-        return config
+        promise?.reject(
+          "6004",
+          "HMS SDK not initialized",
+        )
+        return
       }
 
     val availability: AvailabilityStatus = hmsSdk.isNoiseCancellationAvailable()
@@ -1552,8 +1565,7 @@ class HMSManager(reactContext: ReactApplicationContext) :
         Log.d("HMSManager", "NoiseCancellation Not available because of $reason")
         false
       }
-    config.putBoolean("isAvailable", isAvailable)
-    return config
+    promise?.resolve(isAvailable)
   }
   // endregion
 

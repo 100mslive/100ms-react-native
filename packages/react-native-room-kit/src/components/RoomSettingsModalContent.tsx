@@ -188,13 +188,41 @@ export const RoomSettingsModalContent: React.FC<
   const noiseCancellationPlugin = useSelector(
     (state: RootState) => state.hmsStates.noiseCancellationPlugin
   );
-  const isNoiseCancellationEnabled = !!(
-    noiseCancellationPlugin && noiseCancellationPlugin.isEnabled()
-  );
-  const isNoiseCancellationAvailable = !!(
-    noiseCancellationPlugin &&
-    noiseCancellationPlugin.isNoiseCancellationAvailable
-  );
+  const [isNoiseCancellationEnabled, setIsNoiseCancellationEnabled] =
+    React.useState(false);
+  const [isNoiseCancellationAvailable, setIsNoiseCancellationAvailable] =
+    React.useState(false);
+
+  React.useEffect(() => {
+    if (noiseCancellationPlugin) {
+      let mounted = true;
+
+      Promise.all(
+        [
+          noiseCancellationPlugin.isEnabled(),
+          noiseCancellationPlugin.isNoiseCancellationAvailable(),
+        ].map((promise) =>
+          promise
+            .then((value) => ({ status: 'fulfilled' as const, value }))
+            .catch((reason) => ({ status: 'rejected' as const, reason }))
+        )
+      ).then((results) => {
+        const [isEnabledResult, isAvailableResult] = results;
+        if (mounted) {
+          if (isEnabledResult && isEnabledResult.status === 'fulfilled') {
+            setIsNoiseCancellationEnabled(isEnabledResult.value);
+          }
+          if (isAvailableResult && isAvailableResult.status === 'fulfilled') {
+            setIsNoiseCancellationAvailable(isAvailableResult.value);
+          }
+        }
+      });
+
+      return () => {
+        mounted = false;
+      };
+    }
+  }, [noiseCancellationPlugin]);
 
   const handleNoiseCancellation = () => {
     // Register callback to be called when bottom sheet is hiddden

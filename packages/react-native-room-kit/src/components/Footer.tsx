@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from 'react';
+import React, { memo, useEffect, useMemo, useState } from 'react';
 import { View, StyleSheet, Platform } from 'react-native';
 import {
   SafeAreaView,
@@ -35,13 +35,28 @@ export const _Footer: React.FC<FooterProps> = () => {
   const editUsernameDisabled = useSelector(
     (state: RootState) => state.app.editUsernameDisabled
   );
+  const [isNoiseCancellationAvailable, setIsNoiseCancellationAvailable] =
+    useState(false);
   const noiseCancellationPlugin = useSelector(
     (state: RootState) => state.hmsStates.noiseCancellationPlugin
   );
-  const isNoiseCancellationAvailable = !!(
-    noiseCancellationPlugin &&
-    noiseCancellationPlugin.isNoiseCancellationAvailable
-  );
+  useEffect(() => {
+    if (noiseCancellationPlugin) {
+      let mounted = true;
+
+      noiseCancellationPlugin
+        .isNoiseCancellationAvailable()
+        .then((isAvailable) => {
+          if (mounted) {
+            setIsNoiseCancellationAvailable(isAvailable);
+          }
+        });
+
+      return () => {
+        mounted = false;
+      };
+    }
+  }, [noiseCancellationPlugin]);
 
   const isViewer = !(canPublishAudio || canPublishVideo || canPublishScreen);
 

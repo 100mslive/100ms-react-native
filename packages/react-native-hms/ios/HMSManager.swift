@@ -734,22 +734,20 @@ class HMSManager: RCTEventEmitter {
     }
 
     @objc
-    func isNoiseCancellationPluginEnabled(_ data: NSDictionary) -> [AnyHashable: Any] {
+    func isNoiseCancellationPluginEnabled(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         guard let rnsdk = HMSHelper.getHms(data, hmsCollection) else {
-            print("6004: HMSRNSDK instance not found!")
-            return ["isEnabled": false]
+            reject?("6004", "HMSRNSDK instance not found!", nil)
+            return
         }
-        let isEnabled = rnsdk.isNoiseCancellationPluginEnabled()
-        return ["isEnabled": isEnabled]
+        rnsdk.isNoiseCancellationPluginEnabled(data, resolve, reject)
     }
 
     @objc
-    func isNoiseCancellationPluginAvailable(_ data: NSDictionary) -> [AnyHashable: Any] {
+    func isNoiseCancellationPluginAvailable(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         guard let rnsdk = HMSHelper.getHms(data, hmsCollection) else {
-            print("6004: HMSRNSDK instance not found!")
-            return ["isAvailable": false]
+            reject?("6004", "HMSRNSDK instance not found!", nil)
+            return
         }
-        let isAvailable = rnsdk.isNoiseCancellationPluginAvailable()
-        return ["isAvailable": isAvailable]
+        rnsdk.isNoiseCancellationPluginAvailable(data, resolve, reject)
     }
 }

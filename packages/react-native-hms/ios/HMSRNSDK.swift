@@ -2118,22 +2118,24 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         }
     }
 
-    func isNoiseCancellationPluginEnabled() -> Bool {
+    func isNoiseCancellationPluginEnabled(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         guard let noiseCancellationPlugin = self.noiseCancellationPlugin else {
             let errorMessage = "\(#function) noiseCancellationPlugin instance is not available!"
-            print(errorMessage)
-            return false
+            reject?("6004", errorMessage, nil)
+            return
         }
-        return noiseCancellationPlugin.isEnabled()
+        let isEnabled = noiseCancellationPlugin.isEnabled()
+        resolve?(isEnabled)
     }
 
-    func isNoiseCancellationPluginAvailable() -> Bool {
+    func isNoiseCancellationPluginAvailable(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         guard let noiseCancellationPlugin = self.noiseCancellationPlugin else {
             let errorMessage = "\(#function) noiseCancellationPlugin instance is not available!"
-            print(errorMessage)
-            return false
+            reject?("6004", errorMessage, nil)
+            return
         }
-        return noiseCancellationPlugin.isNoiseCancellationAvailable
+        let isAvailable = noiseCancellationPlugin.isNoiseCancellationAvailable
+        resolve?(isAvailable)
     }
 
     // MARK: - Helper Functions

@@ -2,8 +2,6 @@ import HMSManagerModule from '../modules/HMSManagerModule';
 import { HMSConstants } from './HMSConstants';
 import { logger } from './HMSLogger';
 
-let _isNCAvailable: { current: boolean | null } = { current: null };
-
 /**
  * Class representing an HMS Noise Cancellation Plugin.
  */
@@ -21,10 +19,9 @@ export class HMSNoiseCancellationPlugin {
     modelName: HMSNoiseCancellationModels;
     initialState: HMSNoiseCancellationInitialState;
   }) {
-    _isNCAvailable.current = null;
     const data = {
       modelName: HMSNoiseCancellationModels.SmallFullBand,
-      initialState: HMSNoiseCancellationInitialState.Enabled,
+      initialState: HMSNoiseCancellationInitialState.Disabled,
       ...config,
     };
     this.modelName = data.modelName;
@@ -39,15 +36,22 @@ export class HMSNoiseCancellationPlugin {
    *
    * Note: You can call this API to check the state of noise cancellation only after successfully joining the room.
    */
-  get isNoiseCancellationAvailable() {
-    if (typeof _isNCAvailable.current === 'boolean') {
-      return _isNCAvailable.current;
+  async isNoiseCancellationAvailable(): Promise<boolean> {
+    const data = { id: HMSConstants.DEFAULT_SDK_ID };
+    logger?.verbose(
+      '#Function HMSNoiseCancellationPlugin#isNoiseCancellationAvailable',
+      data
+    );
+
+    try {
+      return HMSManagerModule.isNoiseCancellationPluginAvailable(data);
+    } catch (e) {
+      logger?.error(
+        '#Error in #Function HMSNoiseCancellationPlugin#isNoiseCancellationAvailable ',
+        e
+      );
+      return Promise.reject(e);
     }
-    const data = HMSManagerModule.isNoiseCancellationPluginAvailable({
-      id: HMSConstants.DEFAULT_SDK_ID,
-    });
-    _isNCAvailable.current = data.isAvailable as boolean;
-    return _isNCAvailable.current;
   }
 
   /**
@@ -55,12 +59,11 @@ export class HMSNoiseCancellationPlugin {
    * @returns {Promise<boolean>} A promise that resolves to true if noise cancellation is enabled, otherwise, rejected promise is returned
    */
   async enable(): Promise<boolean> {
-    logger?.verbose('#Function HMSNoiseCancellationPlugin#enable', null);
+    const data = { id: HMSConstants.DEFAULT_SDK_ID };
+    logger?.verbose('#Function HMSNoiseCancellationPlugin#enable', data);
 
     try {
-      return HMSManagerModule.enableNoiseCancellationPlugin({
-        id: HMSConstants.DEFAULT_SDK_ID,
-      });
+      return HMSManagerModule.enableNoiseCancellationPlugin(data);
     } catch (e) {
       logger?.error(
         '#Error in #Function HMSNoiseCancellationPlugin#enable ',
@@ -75,12 +78,11 @@ export class HMSNoiseCancellationPlugin {
    * @returns {Promise<boolean>} A promise that resolves to true if noise cancellation is disabled, otherwise, rejected promise is returned
    */
   async disable(): Promise<boolean> {
-    logger?.verbose('#Function HMSNoiseCancellationPlugin#disable', null);
+    const data = { id: HMSConstants.DEFAULT_SDK_ID };
+    logger?.verbose('#Function HMSNoiseCancellationPlugin#disable', data);
 
     try {
-      return HMSManagerModule.disableNoiseCancellationPlugin({
-        id: HMSConstants.DEFAULT_SDK_ID,
-      });
+      return HMSManagerModule.disableNoiseCancellationPlugin(data);
     } catch (e) {
       logger?.error(
         '#Error in #Function HMSNoiseCancellationPlugin#disable ',
@@ -94,20 +96,18 @@ export class HMSNoiseCancellationPlugin {
    * Checks if noise cancellation is enabled.
    * @returns {boolean} true if noise cancellation is enabled, false otherwise.
    */
-  isEnabled(): boolean {
-    logger?.verbose('#Function HMSNoiseCancellationPlugin#isEnabled', null);
+  async isEnabled(): Promise<boolean> {
+    const data = { id: HMSConstants.DEFAULT_SDK_ID };
+    logger?.verbose('#Function HMSNoiseCancellationPlugin#isEnabled', data);
 
     try {
-      const data = HMSManagerModule.isNoiseCancellationPluginEnabled({
-        id: HMSConstants.DEFAULT_SDK_ID,
-      });
-      return data.isEnabled;
+      return HMSManagerModule.isNoiseCancellationPluginEnabled(data);
     } catch (e) {
       logger?.error(
         '#Error in #Function HMSNoiseCancellationPlugin#isEnabled ',
         e
       );
-      return false;
+      return Promise.reject(e);
     }
   }
 }
