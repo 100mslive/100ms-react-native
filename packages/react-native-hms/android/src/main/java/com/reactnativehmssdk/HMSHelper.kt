@@ -318,6 +318,21 @@ object HMSHelper {
       val initialState = getHMSTrackSettingsInitState(data.getString("initialState"))
       builder.initialState(initialState)
     }
+
+    if (areAllRequiredKeysAvailable(data, arrayOf(Pair("noiseCancellationPlugin", "Map")))) {
+      val plugin = data.getMap("noiseCancellationPlugin")
+
+      /**
+       * ***** Plugin Signature *****
+       *  {
+       *    modelName: "SMALL_FULL_BAND"
+       *    initialState: "ENABLED" | "DISABLED"
+       *  }
+       */
+      val initialState = plugin?.getString("initialState") ?: "DISABLED"
+      builder.enableNoiseCancellation(initialState == "ENABLED")
+    }
+
     return builder.build()
   }
 

@@ -1,5 +1,8 @@
 Board: https://100ms.atlassian.net/jira/software/projects/RN/boards/33
 
+- Added Noise cancellation support
+https://100ms.atlassian.net/browse/RN-261
+
 Room Kit: 1.1.5
 React Native SDK: 1.10.2
 Android SDK: 2.9.51

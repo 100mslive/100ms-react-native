@@ -79,10 +79,11 @@ PODS:
   - HMSBroadcastExtensionSDK (0.0.9)
   - HMSHLSPlayerSDK (0.0.2):
     - HMSAnalyticsSDK (= 0.0.2)
-  - HMSSDK (1.6.0):
+  - HMSNoiseCancellationModels (1.0.0)
+  - HMSSDK (1.7.0):
     - HMSAnalyticsSDK (= 0.0.2)
-    - HMSWebRTC (= 1.0.5116)
-  - HMSWebRTC (1.0.5116)
+    - HMSWebRTC (= 1.0.5118)
+  - HMSWebRTC (1.0.5118)
   - libevent (2.1.12)
   - lottie-ios (3.4.4)
   - lottie-react-native (5.1.6):
@@ -318,10 +319,11 @@ PODS:
     - React-Core
   - react-native-camera/RN (4.2.1):
     - React-Core
-  - react-native-hms (1.10.1):
+  - react-native-hms (1.10.2):
     - HMSBroadcastExtensionSDK (= 0.0.9)
     - HMSHLSPlayerSDK (= 0.0.2)
-    - HMSSDK (= 1.6.0)
+    - HMSNoiseCancellationModels (= 1.0.0)
+    - HMSSDK (= 1.7.0)
     - React-Core
   - react-native-lottie-splash-screen (1.1.1):
     - React
@@ -537,6 +539,7 @@ SPEC REPOS:
     - HMSAnalyticsSDK
     - HMSBroadcastExtensionSDK
     - HMSHLSPlayerSDK
+    - HMSNoiseCancellationModels
     - HMSSDK
     - HMSWebRTC
     - libevent
@@ -667,8 +670,9 @@ SPEC CHECKSUMS:
   HMSAnalyticsSDK: 4d2a88a729b1eb42f3d25f217c28937ec318a5b7
   HMSBroadcastExtensionSDK: d80fe325f6c928bd8e5176290b5a4b7ae15d6fbb
   HMSHLSPlayerSDK: 6a54ad4d12f3dc2270d1ecd24019d71282a4f6a3
-  HMSSDK: 8bb7d5c9d593c4c1a15bdd28dbbc6dbc9a46c8e8
-  HMSWebRTC: ae54e9dd91b869051b283b43b14f57d43b7bf8e1
+  HMSNoiseCancellationModels: a3bda1405a16015632f4bcabd46ce48f35103b02
+  HMSSDK: 421b4ce83a601bbda283b3b9fbcd1da6898d2a84
+  HMSWebRTC: 4487c7200f1e9358412c1d8cd974edd2766467dc
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   lottie-ios: 8f97d3271e155c2d688875c29cd3c74908aef5f8
   lottie-react-native: 8f9d4be452e23f6e5ca0fdc11669dc99ab52be81
@@ -690,7 +694,7 @@ SPEC CHECKSUMS:
   React-logger: a1f028f6d8639a3f364ef80419e5e862e1115250
   react-native-blur: 172abeaa2de2d3ba4dc586fa23488d01c533818f
   react-native-camera: 3eae183c1d111103963f3dd913b65d01aef8110f
-  react-native-hms: 70255b228ae3f7139905074845eb766a441236b2
+  react-native-hms: fd0321d3d55626ea4e65190a2885ece787868b1f
   react-native-lottie-splash-screen: 015423265bac5f46016dff2e31c97b9590808856
   react-native-safe-area-context: 61c8c484a3a9e7d1fda19f7b1794b35bbfd2262a
   react-native-simple-toast: bf002828cf816775a6809f7a9ec3907509bce11f

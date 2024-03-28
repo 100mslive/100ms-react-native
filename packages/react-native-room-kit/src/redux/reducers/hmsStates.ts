@@ -1,5 +1,6 @@
 import type {
   HMSLocalPeer,
+  HMSNoiseCancellationPlugin,
   HMSPeer,
   HMSRole,
   HMSRoleChangeRequest,
@@ -29,7 +30,8 @@ type ActionType =
   | AddUpdateParticipant
   | ReplaceParticipantsList
   | SetActiveSpeakers
-  | SetReconnecting;
+  | SetReconnecting
+  | SetNoiseCancellationPlugin;
 
 type SetRoomAction = {
   type: HmsStateActionTypes.SET_ROOM_STATE;
@@ -131,6 +133,11 @@ type SetReconnecting = {
   reconnecting: boolean;
 };
 
+type SetNoiseCancellationPlugin = {
+  type: HmsStateActionTypes.SET_NOISE_CANCELLATION_PLUGIN;
+  noiseCancellationPlugin: HMSNoiseCancellationPlugin;
+};
+
 type IntialStateType = {
   isLocalAudioMuted: boolean | undefined;
   isLocalVideoMuted: boolean | undefined;
@@ -145,6 +152,7 @@ type IntialStateType = {
   previewPeersList: HMSPeer[];
   layoutConfig: Layout[] | null;
   roleChangeRequest: HMSRoleChangeRequest | null;
+  noiseCancellationPlugin: HMSNoiseCancellationPlugin | null;
 };
 
 const INITIAL_STATE: IntialStateType = {
@@ -161,6 +169,7 @@ const INITIAL_STATE: IntialStateType = {
   previewPeersList: [],
   layoutConfig: null,
   roleChangeRequest: null,
+  noiseCancellationPlugin: null,
 };
 
 const hmsStatesReducer = (
@@ -556,6 +565,11 @@ const hmsStatesReducer = (
       return {
         ...state,
         reconnecting: action.reconnecting,
+      };
+    case HmsStateActionTypes.SET_NOISE_CANCELLATION_PLUGIN:
+      return {
+        ...state,
+        noiseCancellationPlugin: action.noiseCancellationPlugin,
       };
     case HmsStateActionTypes.CLEAR_STATES:
       return INITIAL_STATE;
