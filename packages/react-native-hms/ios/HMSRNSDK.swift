@@ -1274,6 +1274,8 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                 return ["name": peer.name]
             case "isLocal":
                 return ["isLocal": peer.isLocal]
+            case "type":
+                return ["type": HMSDecoder.getPeerType(type: peer.type)]
             case "networkQuality":
                 if peer.networkQuality != nil {
                     return ["networkQuality": HMSDecoder.getHmsNetworkQuality(peer.networkQuality)]
