@@ -177,6 +177,8 @@ class HMSDecoder: NSObject {
             data["metadata"] = metadata
         }
         data["isHandRaised"] = peer.isHandRaised
+        
+        data["type"] = getPeerType(type: peer.type)
 
         // joinedAt
 
@@ -248,6 +250,15 @@ class HMSDecoder: NSObject {
         let kind: String = HMSHelper.getHmsTrackType(hmsTrack.kind) ?? ""
 
         return ["trackId": trackId, "source": source, "trackDescription": trackDescription, "isMute": isMute, "isDegraded": isDegraded, "type": kind, "kind": kind]
+    }
+    
+    static func getPeerType(type: HMSPeerType) -> String {
+        switch type {
+        case .sip:
+            return "SIP"
+        default:
+            return "REGULAR"
+        }
     }
 
     static func getHmsLocalPeer(_ hmsLocalPeer: HMSLocalPeer?) -> [String: Any] {
