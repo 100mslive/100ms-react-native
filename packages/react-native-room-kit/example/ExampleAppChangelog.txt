@@ -3,7 +3,13 @@ Board: https://100ms.atlassian.net/jira/software/projects/RN/boards/33
 - Added Noise cancellation support
 https://100ms.atlassian.net/browse/RN-261
 
+- Implement SIP HMSPeer type in SDK
+https://100ms.atlassian.net/browse/RN-262
+
+- Hand Raise as a Layout Config
+https://100ms.atlassian.net/browse/RN-277
+
 Room Kit: 1.1.5
 React Native SDK: 1.10.2
-Android SDK: 2.9.51
-iOS SDK: 1.7.0
+Android SDK: 2.9.52
+iOS SDK: 1.8.0
