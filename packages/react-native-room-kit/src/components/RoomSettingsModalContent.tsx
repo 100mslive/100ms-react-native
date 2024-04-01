@@ -21,6 +21,7 @@ import {
 import { BottomSheet, useBottomSheetActions } from './BottomSheet';
 import {
   isPublishingAllowed,
+  useHMSConferencingScreenConfig,
   useHMSLayoutConfig,
   useHMSRoomColorPalette,
   useHMSRoomStyleSheet,
@@ -265,22 +266,18 @@ export const RoomSettingsModalContent: React.FC<
       !!layoutConfig?.screens?.conferencing?.default?.elements?.brb
   );
 
-  const canRaiseHand = useHMSLayoutConfig((layoutConfig) => {
-    return (
-      !!layoutConfig?.screens?.conferencing?.default?.elements?.hand_raise ||
-      !!layoutConfig?.screens?.conferencing?.hls_live_streaming?.elements
-        ?.hand_raise
-    );
+  const canRaiseHand = useHMSConferencingScreenConfig(
+    (confScreenConfig) => !!confScreenConfig?.elements?.hand_raise
+  );
+
+  const isOnStage = useHMSLayoutConfig((layoutConfig) => {
+    return !!layoutConfig?.screens?.conferencing?.default?.elements
+      ?.on_stage_exp;
   });
 
   const allowedToPublish = useSelector((state: RootState) => {
     const allowed = selectAllowedTracksToPublish(state);
     return (allowed && allowed.length > 0) ?? false;
-  });
-
-  const isOnStage = useHMSLayoutConfig((layoutConfig) => {
-    return !!layoutConfig?.screens?.conferencing?.default?.elements
-      ?.on_stage_exp;
   });
 
   const showHandRaiseIcon = canRaiseHand && !isOnStage && allowedToPublish;

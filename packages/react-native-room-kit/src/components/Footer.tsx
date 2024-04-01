@@ -6,6 +6,7 @@ import {
 } from 'react-native-safe-area-context';
 
 import {
+  useHMSConferencingScreenConfig,
   useHMSLayoutConfig,
   useHMSRoomStyle,
   useIsHLSViewer,
@@ -72,13 +73,9 @@ export const _Footer: React.FC<FooterProps> = () => {
       ?.on_stage_exp;
   });
 
-  const canRaiseHand = useHMSLayoutConfig((layoutConfig) => {
-    return (
-      !!layoutConfig?.screens?.conferencing?.default?.elements?.hand_raise ||
-      !!layoutConfig?.screens?.conferencing?.hls_live_streaming?.elements
-        ?.hand_raise
-    );
-  });
+  const canRaiseHand = useHMSConferencingScreenConfig(
+    (confScreenConfig) => !!confScreenConfig?.elements?.hand_raise
+  );
 
   const canStartRecording = useSelector(
     (state: RootState) =>
