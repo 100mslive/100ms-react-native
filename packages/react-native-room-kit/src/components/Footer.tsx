@@ -50,6 +50,14 @@ export const _Footer: React.FC<FooterProps> = () => {
       ?.on_stage_exp;
   });
 
+  const canRaiseHand = useHMSLayoutConfig((layoutConfig) => {
+    return (
+      !!layoutConfig?.screens?.conferencing?.default?.elements?.hand_raise ||
+      !!layoutConfig?.screens?.conferencing?.hls_live_streaming?.elements
+        ?.hand_raise
+    );
+  });
+
   const canStartRecording = useSelector(
     (state: RootState) =>
       !!state.hmsStates.localPeer?.role?.permissions?.browserRecording
@@ -62,14 +70,12 @@ export const _Footer: React.FC<FooterProps> = () => {
 
   const canEditUsernameFromRoomModal = isViewer && !editUsernameDisabled;
 
-  const canShowHandRaiseInFooter = !isOnStage && isViewer; // on_stage_exp object undefined && viewer -> show in footer
-  const canShowHandRaiseInRoomModal = !isOnStage && !isViewer; // on_stage_exp object undefined && publisher -> show in room modal
+  const canShowHandRaiseInFooter = canRaiseHand && !isOnStage && isViewer;
 
   const canShowOptions =
     canShowParticipants ||
     canPublishScreen ||
     canShowBRB ||
-    canShowHandRaiseInRoomModal ||
     canStartRecording ||
     canEditUsernameFromRoomModal ||
     canReadOrWritePoll;

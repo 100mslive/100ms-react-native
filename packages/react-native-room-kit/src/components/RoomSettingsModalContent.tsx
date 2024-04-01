@@ -207,9 +207,12 @@ export const RoomSettingsModalContent: React.FC<
       !!layoutConfig?.screens?.conferencing?.default?.elements?.brb
   );
 
-  const isOnStage = useHMSLayoutConfig((layoutConfig) => {
-    return !!layoutConfig?.screens?.conferencing?.default?.elements
-      ?.on_stage_exp;
+  const canRaiseHand = useHMSLayoutConfig((layoutConfig) => {
+    return (
+      !!layoutConfig?.screens?.conferencing?.default?.elements?.hand_raise ||
+      !!layoutConfig?.screens?.conferencing?.hls_live_streaming?.elements
+        ?.hand_raise
+    );
   });
 
   const allowedToPublish = useSelector((state: RootState) => {
@@ -217,7 +220,12 @@ export const RoomSettingsModalContent: React.FC<
     return (allowed && allowed.length > 0) ?? false;
   });
 
-  const showHandRaiseIcon = !isOnStage && allowedToPublish;
+  const isOnStage = useHMSLayoutConfig((layoutConfig) => {
+    return !!layoutConfig?.screens?.conferencing?.default?.elements
+      ?.on_stage_exp;
+  });
+
+  const showHandRaiseIcon = canRaiseHand && !isOnStage && allowedToPublish;
 
   return (
     <View>
