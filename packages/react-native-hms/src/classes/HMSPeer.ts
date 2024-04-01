@@ -5,6 +5,7 @@ import type { HMSTrack } from './HMSTrack';
 import type { HMSVideoTrack } from './HMSVideoTrack';
 import { getHmsPeersCache, getPeerPropertyFromNative } from './HMSPeersCache';
 import { HMSConstants } from './HMSConstants';
+import { HMSPeerType } from './HMSPeerType';
 
 export class HMSPeer {
   peerID: string;
@@ -14,6 +15,7 @@ export class HMSPeer {
   private _metadata: string | undefined;
   private _role: HMSRole | undefined;
   private _isHandRaised: boolean = false;
+  private _type: HMSPeerType = HMSPeerType.REGULAR;
 
   private _updateIsLocal(value: boolean) {
     // If `_isLocal` is outdated, update it
@@ -47,6 +49,13 @@ export class HMSPeer {
     // If `_role` is outdated, update it
     if (this._role !== value) {
       this._role = value;
+    }
+  }
+
+  private _updateType(value: HMSPeerType) {
+    // If `_type` is outdated, update it
+    if (this._type !== value) {
+      this._type = value;
     }
   }
 
@@ -194,5 +203,22 @@ export class HMSPeer {
       this.peerID,
       'auxiliaryTracks'
     );
+  }
+
+  get type(): HMSPeerType {
+    const hmsPeersCache = getHmsPeersCache();
+
+    const value = hmsPeersCache
+      ? hmsPeersCache.getProperty(this.peerID, 'type')
+      : getPeerPropertyFromNative(
+          HMSConstants.DEFAULT_SDK_ID,
+          this.peerID,
+          'type'
+        );
+
+    if (value) {
+      this._updateType(value);
+    }
+    return value ?? this._type;
   }
 }

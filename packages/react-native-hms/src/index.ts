@@ -22,6 +22,7 @@ export * from './classes/HMSRemoteAudioTrack';
 export * from './classes/HMSPublishSettings';
 export * from './classes/HMSPermissions';
 export * from './classes/HMSPeer';
+export * from './classes/HMSPeerType';
 export * from './classes/HMSLocalVideoTrack';
 export * from './classes/HMSLocalPeer';
 export * from './classes/HMSLocalAudioTrack';

@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import {
+  HMSPeerType,
   HMSTrackSource,
   HMSTrackType,
   HMSVideoViewMode,
@@ -194,6 +195,7 @@ export const _PeerVideoTileView = React.forwardRef<
         {/* Handling showing Peer name */}
         {insetMode || isPipModeActive ? null : (
           <PeerNameAndNetwork
+            isSIPPeerType={peer.type === HMSPeerType.SIP}
             name={peer.name}
             isLocal={peer.isLocal}
             trackSource={trackSource}

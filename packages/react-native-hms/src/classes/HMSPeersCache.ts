@@ -10,6 +10,7 @@ import type { HMSNetworkQuality } from './HMSNetworkQuality';
 import type { HMSRole } from './HMSRole';
 import type { HMSAudioTrack } from './HMSAudioTrack';
 import type { HMSVideoTrack } from './HMSVideoTrack';
+import type { HMSPeerType } from './HMSPeerType';
 
 export let hmsPeersCache: HMSPeersCache | undefined;
 
@@ -40,6 +41,7 @@ export type HMSPeerCacheProps = {
   videoTrack?: HMSVideoTrack | undefined;
   auxiliaryTracks?: HMSTrack[] | undefined;
   isHandRaised?: boolean | undefined;
+  type?: HMSPeerType | undefined;
 };
 
 export class HMSPeersCache {
