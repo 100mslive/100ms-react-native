@@ -21,6 +21,7 @@ import {
 import { BottomSheet, useBottomSheetActions } from './BottomSheet';
 import {
   isPublishingAllowed,
+  useHMSConferencingScreenConfig,
   useHMSLayoutConfig,
   useHMSRoomColorPalette,
   useHMSRoomStyleSheet,
@@ -265,6 +266,10 @@ export const RoomSettingsModalContent: React.FC<
       !!layoutConfig?.screens?.conferencing?.default?.elements?.brb
   );
 
+  const canRaiseHand = useHMSConferencingScreenConfig(
+    (confScreenConfig) => !!confScreenConfig?.elements?.hand_raise
+  );
+
   const isOnStage = useHMSLayoutConfig((layoutConfig) => {
     return !!layoutConfig?.screens?.conferencing?.default?.elements
       ?.on_stage_exp;
@@ -275,7 +280,7 @@ export const RoomSettingsModalContent: React.FC<
     return (allowed && allowed.length > 0) ?? false;
   });
 
-  const showHandRaiseIcon = !isOnStage && allowedToPublish;
+  const showHandRaiseIcon = canRaiseHand && !isOnStage && allowedToPublish;
 
   return (
     <View>
