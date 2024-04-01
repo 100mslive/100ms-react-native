@@ -1,7 +1,9 @@
 import * as React from 'react';
 import type { HMSRemotePeer } from '@100mslive/react-native-hms';
-import { FlashList, type ListRenderItem } from '@shopify/flash-list';
+import type { ListRenderItem } from '@shopify/flash-list';
+import { FlashList } from '@shopify/flash-list';
 import { StyleSheet, Text, View } from 'react-native';
+import { HMSPeerType } from '@100mslive/react-native-hms';
 import { useDispatch, useSelector } from 'react-redux';
 
 import {
@@ -61,7 +63,9 @@ const _ChatFilterView: React.FC<ChatFilterViewProps> = ({ onDismiss }) => {
         const fetchedRemotePeers = await hmsInstance.getRemotePeers();
         if (mounted) {
           setLoadingPeersList(false);
-          setRemotePeers(fetchedRemotePeers);
+          setRemotePeers(
+            fetchedRemotePeers.filter((rp) => rp.type !== HMSPeerType.SIP)
+          );
         }
       };
 

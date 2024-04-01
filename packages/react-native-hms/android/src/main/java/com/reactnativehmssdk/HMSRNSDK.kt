@@ -1847,6 +1847,9 @@ class HMSRNSDK(
         "isLocal" -> {
           result.putBoolean("isLocal", peer.isLocal)
         }
+        "type" -> {
+          result.putString("type", peer.type.name)
+        }
         "networkQuality" -> {
           if (peer.networkQuality !== null) {
             result.putMap("networkQuality", HMSDecoder.getHmsNetworkQuality(peer.networkQuality))
