@@ -3,6 +3,7 @@ import type {
   HMSLocalAudioStats,
   HMSLocalVideoStats,
   HMSMessage,
+  HMSNoiseCancellationPlugin,
   HMSPeer,
   HMSPoll,
   HMSPollQuestion,
@@ -429,6 +430,13 @@ export const setActiveSpeakers = (activeSpeakers: HMSSpeaker[]) => ({
 export const setReconnecting = (reconnecting: boolean) => ({
   type: HmsStateActionTypes.SET_RECONNECTING,
   reconnecting,
+});
+
+export const setNoiseCancellationPlugin = (
+  noiseCancellationPlugin: HMSNoiseCancellationPlugin
+) => ({
+  type: HmsStateActionTypes.SET_NOISE_CANCELLATION_PLUGIN,
+  noiseCancellationPlugin,
 });
 
 export const setHandleBackButton = (handleBackButton?: boolean) => ({
