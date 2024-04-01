@@ -1,4 +1,5 @@
 import type { HMSIOSAudioMode } from './HMSIOSAudioMode';
+import type { HMSNoiseCancellationPlugin } from './HMSNoiseCancellationPlugin';
 import type { HMSTrackSettingsInitState } from './HMSTrackSettingsInitState';
 
 /**
@@ -19,15 +20,25 @@ export class HMSAudioTrackSettings {
    */
   audioMode?: HMSIOSAudioMode; // ios only
 
+  /**
+   * The noise cancellation plugin to use for the audio track.
+   * @type {HMSNoiseCancellationPlugin}
+   *
+   * Checkout Noise Cancellation docs for more details {@link https://www.100ms.live/docs/ios/v2/how-to-guides/extend-capabilities/plugins/noise-cancellation}
+   */
+  noiseCancellationPlugin?: HMSNoiseCancellationPlugin;
+
   constructor(params: {
     initialState?: HMSTrackSettingsInitState;
     useHardwareEchoCancellation?: boolean;
     audioSource?: string[];
     audioMode?: HMSIOSAudioMode;
+    noiseCancellationPlugin?: HMSNoiseCancellationPlugin;
   }) {
     this.useHardwareEchoCancellation = params.useHardwareEchoCancellation;
     this.initialState = params.initialState;
     this.audioSource = params.audioSource;
     this.audioMode = params.audioMode;
+    this.noiseCancellationPlugin = params.noiseCancellationPlugin;
   }
 }
