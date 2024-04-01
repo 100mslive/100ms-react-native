@@ -11,8 +11,13 @@ import com.facebook.react.uimanager.SimpleViewManager
 import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.annotations.ReactProp
 
+// class HMSSDKViewManager constructor(private val rtcStatViewModel: RTCStatViewModel) : SimpleViewManager<HMSView>() {
 class HMSSDKViewManager : SimpleViewManager<HMSView>() {
   private var reactContext: ThemedReactContext? = null
+
+//  init {
+//    Log.d("HMSSDKViewManager", "HMSSDKViewManager: rtcStatViewModel state = ${rtcStatViewModel}")
+//  }
 
   override fun getName(): String {
     return REACT_CLASS

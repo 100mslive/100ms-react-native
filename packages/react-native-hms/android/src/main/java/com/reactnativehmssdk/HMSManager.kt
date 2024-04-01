@@ -23,6 +23,7 @@ import live.hms.video.error.HMSException
 import live.hms.video.factories.noisecancellation.AvailabilityStatus
 import java.util.UUID
 
+// class HMSManager(reactContext: ReactApplicationContext, rtcStatsDataSource: Flow<Int>) :
 @ReactModule(name = REACT_CLASS)
 class HMSManager(reactContext: ReactApplicationContext) :
   ReactContextBaseJavaModule(reactContext), Application.ActivityLifecycleCallbacks {
@@ -121,6 +122,7 @@ class HMSManager(reactContext: ReactApplicationContext) :
         callback?.resolve(randomUUIDString)
       } else {
         val randomUUIDString = "12345"
+//        val sdkInstance = HMSRNSDK(data, this, randomUUIDString, reactApplicationContext, rtcStatsDataSource)
         val sdkInstance = HMSRNSDK(data, this, randomUUIDString, reactApplicationContext)
 
         hmsCollection[randomUUIDString] = sdkInstance
