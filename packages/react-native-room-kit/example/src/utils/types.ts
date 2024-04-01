@@ -8,4 +8,5 @@ export enum Theme {
 export const Constants = {
   MEET_URL: 'MEET_URL',
   STATIC_USERID: `rn-${Platform.OS}-static-userid`,
+  NAME: 'NAME',
 } as const;
