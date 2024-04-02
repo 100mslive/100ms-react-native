@@ -100,7 +100,12 @@ export const Preview = ({
     (state: RootState) => state.hmsStates.isLocalAudioMuted
   );
 
-  const showNoiseCancellationButton = canPublishAudio && !isLocalAudioMuted;
+  const isNoiseCancellationAvailable = useSelector((state: RootState) =>
+    state.hmsStates.noiseCancellationPlugin?.isNoiseCancellationAvailable()
+  );
+
+  const showNoiseCancellationButton =
+    canPublishAudio && !isLocalAudioMuted && isNoiseCancellationAvailable;
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
