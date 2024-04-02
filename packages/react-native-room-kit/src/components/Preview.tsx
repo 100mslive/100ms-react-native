@@ -30,6 +30,9 @@ import {
 } from '../hooks-util';
 import { HMSKeyboardAvoidingView } from './HMSKeyboardAvoidingView';
 import { hexToRgbA } from '../utils/theme';
+import { HMSManageNoiseCancellation } from './HMSManageNoiseCancellation';
+import { useSelector } from 'react-redux';
+import type { RootState } from '../redux';
 
 const backButtonEdges = ['top'] as const;
 const headerEdges = ['top', 'left', 'right'] as const;
@@ -88,6 +91,10 @@ export const Preview = ({
     setupAudioVideoOnPreview().then((r) => console.log(r));
   }, []);
 
+  const isLocalAudioMuted = useSelector(
+    (state: RootState) => state.hmsStates.isLocalAudioMuted
+  );
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={[styles.container, hmsRoomStyles.container]}>
@@ -138,12 +145,14 @@ export const Preview = ({
                 <View style={styles.micAndCameraControls}>
                   <HMSManageLocalAudio />
 
-                  <View style={styles.manageLocalVideoWrapper}>
+                  <View style={styles.manageLocalButtonWrapper}>
                     <HMSManageLocalVideo />
                   </View>
 
                   <HMSManageCameraRotation />
                 </View>
+
+                {!isLocalAudioMuted && <HMSManageNoiseCancellation />}
 
                 <HMSManageAudioOutput />
               </View>
@@ -201,8 +210,9 @@ const styles = StyleSheet.create({
   },
   micAndCameraControls: {
     flexDirection: 'row',
+    alignItems: 'center',
   },
-  manageLocalVideoWrapper: {
+  manageLocalButtonWrapper: {
     marginHorizontal: 16,
   },
   joinButtonRow: {

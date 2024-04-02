@@ -956,6 +956,10 @@ const styles = StyleSheet.create({
     height: '100%',
     zIndex: 10,
   },
+  noiseButton: {
+    marginLeft: 'auto',
+    marginRight: 16,
+  },
 });
 
 export { styles };
