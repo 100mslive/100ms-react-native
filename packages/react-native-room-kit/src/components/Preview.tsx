@@ -20,7 +20,11 @@ import { HMSPreviewTile } from './HMSPreviewTile';
 import { HMSPreviewTitle } from './HMSPreviewTitle';
 import { HMSManageAudioOutput } from './HMSManageAudioOutput';
 import { HMSPreviewNetworkQuality } from './HMSPreviewNetworkQuality';
-import { useCanPublishVideo, useHMSActions } from '../hooks-sdk';
+import {
+  useCanPublishAudio,
+  useCanPublishVideo,
+  useHMSActions,
+} from '../hooks-sdk';
 import { HMSPreviewHLSLiveIndicator } from './HMSPreviewHLSLiveIndicator';
 import { CompanyLogo } from './CompanyLogo';
 import {
@@ -30,6 +34,9 @@ import {
 } from '../hooks-util';
 import { HMSKeyboardAvoidingView } from './HMSKeyboardAvoidingView';
 import { hexToRgbA } from '../utils/theme';
+import { HMSManageNoiseCancellation } from './HMSManageNoiseCancellation';
+import { useSelector } from 'react-redux';
+import type { RootState } from '../redux';
 
 const backButtonEdges = ['top'] as const;
 const headerEdges = ['top', 'left', 'right'] as const;
@@ -88,6 +95,18 @@ export const Preview = ({
     setupAudioVideoOnPreview().then((r) => console.log(r));
   }, []);
 
+  const canPublishAudio = useCanPublishAudio();
+  const isLocalAudioMuted = useSelector(
+    (state: RootState) => state.hmsStates.isLocalAudioMuted
+  );
+
+  const isNoiseCancellationAvailable = useSelector((state: RootState) =>
+    state.hmsStates.noiseCancellationPlugin?.isNoiseCancellationAvailable()
+  );
+
+  const showNoiseCancellationButton =
+    canPublishAudio && !isLocalAudioMuted && isNoiseCancellationAvailable;
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={[styles.container, hmsRoomStyles.container]}>
@@ -138,12 +157,14 @@ export const Preview = ({
                 <View style={styles.micAndCameraControls}>
                   <HMSManageLocalAudio />
 
-                  <View style={styles.manageLocalVideoWrapper}>
+                  <View style={styles.manageLocalButtonWrapper}>
                     <HMSManageLocalVideo />
                   </View>
 
                   <HMSManageCameraRotation />
                 </View>
+
+                {showNoiseCancellationButton && <HMSManageNoiseCancellation />}
 
                 <HMSManageAudioOutput />
               </View>
@@ -201,8 +222,9 @@ const styles = StyleSheet.create({
   },
   micAndCameraControls: {
     flexDirection: 'row',
+    alignItems: 'center',
   },
-  manageLocalVideoWrapper: {
+  manageLocalButtonWrapper: {
     marginHorizontal: 16,
   },
   joinButtonRow: {

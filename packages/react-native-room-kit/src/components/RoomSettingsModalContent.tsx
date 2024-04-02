@@ -194,6 +194,13 @@ export const RoomSettingsModalContent: React.FC<
   const [isNoiseCancellationAvailable, setIsNoiseCancellationAvailable] =
     React.useState(false);
 
+  const isLocalAudioMuted = useSelector(
+    (state: RootState) => state.hmsStates.isLocalAudioMuted
+  );
+
+  const showNoiseCancellationButton =
+    isNoiseCancellationAvailable && !isLocalAudioMuted;
+
   React.useEffect(() => {
     if (noiseCancellationPlugin) {
       let mounted = true;
@@ -392,7 +399,7 @@ export const RoomSettingsModalContent: React.FC<
                 : 'Reduce Noise',
               pressHandler: handleNoiseCancellation,
               isActive: isNoiseCancellationEnabled,
-              hide: !isNoiseCancellationAvailable,
+              hide: !showNoiseCancellationButton,
             },
           ].filter((itm) => !itm.hide),
           true
