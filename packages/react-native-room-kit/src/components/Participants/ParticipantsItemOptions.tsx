@@ -168,7 +168,8 @@ const _ParticipantsItemOptions: React.FC<ParticipantsItemOptionsProps> = ({
     !insideHandRaiseGroup &&
     localPeerCanMuteTrack &&
     peerCanPublishVideo &&
-    peer.videoTrack?.isMute() === false;
+    peer.videoTrack?.isMute() === false &&
+    peer.type === HMSPeerType.REGULAR;
 
   const showUnmuteVideoOption =
     !insideHandRaiseGroup &&
