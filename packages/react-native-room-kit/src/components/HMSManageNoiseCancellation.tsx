@@ -13,15 +13,18 @@ export const HMSManageNoiseCancellation = () => {
     React.useState(false);
 
   const handleButtonPress = async () => {
-    if (!noiseCancellationPlugin) {
+    const isAvailable =
+      await noiseCancellationPlugin?.isNoiseCancellationAvailable();
+
+    if (!noiseCancellationPlugin && isAvailable) {
       console.error('Noise Cancellation Plugin not found');
       return;
     }
 
     if (isNoiseCancellationEnabled) {
-      await noiseCancellationPlugin.disable();
+      await noiseCancellationPlugin?.disable();
     } else {
-      await noiseCancellationPlugin.enable();
+      await noiseCancellationPlugin?.enable();
     }
     setIsNoiseCancellationEnabled(!isNoiseCancellationEnabled);
   };
