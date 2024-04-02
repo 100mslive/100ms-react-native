@@ -20,7 +20,11 @@ import { HMSPreviewTile } from './HMSPreviewTile';
 import { HMSPreviewTitle } from './HMSPreviewTitle';
 import { HMSManageAudioOutput } from './HMSManageAudioOutput';
 import { HMSPreviewNetworkQuality } from './HMSPreviewNetworkQuality';
-import { useCanPublishVideo, useHMSActions } from '../hooks-sdk';
+import {
+  useCanPublishAudio,
+  useCanPublishVideo,
+  useHMSActions,
+} from '../hooks-sdk';
 import { HMSPreviewHLSLiveIndicator } from './HMSPreviewHLSLiveIndicator';
 import { CompanyLogo } from './CompanyLogo';
 import {
@@ -91,9 +95,12 @@ export const Preview = ({
     setupAudioVideoOnPreview().then((r) => console.log(r));
   }, []);
 
+  const canPublishAudio = useCanPublishAudio();
   const isLocalAudioMuted = useSelector(
     (state: RootState) => state.hmsStates.isLocalAudioMuted
   );
+
+  const showNoiseCancellationButton = canPublishAudio && !isLocalAudioMuted;
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -152,7 +159,7 @@ export const Preview = ({
                   <HMSManageCameraRotation />
                 </View>
 
-                {!isLocalAudioMuted && <HMSManageNoiseCancellation />}
+                {showNoiseCancellationButton && <HMSManageNoiseCancellation />}
 
                 <HMSManageAudioOutput />
               </View>
