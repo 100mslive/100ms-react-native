@@ -1,11 +1,8 @@
 import * as React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useSelector } from 'react-redux';
-import {
-  type HMSLocalPeer,
-  type HMSPeer,
-  HMSPeerType,
-} from '@100mslive/react-native-hms';
+import type { HMSLocalPeer, HMSPeer } from '@100mslive/react-native-hms';
+import { HMSPeerType } from '@100mslive/react-native-hms';
 
 import {
   useHMSInstance,
@@ -160,13 +157,15 @@ const _ParticipantsItemOptions: React.FC<ParticipantsItemOptionsProps> = ({
     !insideHandRaiseGroup &&
     localPeerCanMuteTrack &&
     peerCanPublishAudio &&
-    peer.audioTrack?.isMute() === false;
+    peer.audioTrack?.isMute() === false &&
+    peer.type === HMSPeerType.REGULAR;
 
   const showUnmuteAudioOption =
     !insideHandRaiseGroup &&
     localPeerCanUnmuteTrack &&
     peerCanPublishAudio &&
-    peer.audioTrack?.isMute();
+    peer.audioTrack?.isMute() &&
+    peer.type === HMSPeerType.REGULAR;
 
   const showMuteVideoOption =
     !insideHandRaiseGroup &&
@@ -179,7 +178,8 @@ const _ParticipantsItemOptions: React.FC<ParticipantsItemOptionsProps> = ({
     !insideHandRaiseGroup &&
     localPeerCanUnmuteTrack &&
     peerCanPublishVideo &&
-    peer.videoTrack?.isMute();
+    peer.videoTrack?.isMute() &&
+    peer.type === HMSPeerType.REGULAR;
 
   const showBringOnStageOptions =
     offStageRoles && offStageRoles.includes(peer.role?.name || '');
