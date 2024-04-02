@@ -1,7 +1,11 @@
 import * as React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useSelector } from 'react-redux';
-import type { HMSLocalPeer, HMSPeer } from '@100mslive/react-native-hms';
+import {
+  type HMSLocalPeer,
+  type HMSPeer,
+  HMSPeerType,
+} from '@100mslive/react-native-hms';
 
 import {
   useHMSInstance,
