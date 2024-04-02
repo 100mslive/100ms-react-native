@@ -100,7 +100,29 @@ export const Preview = ({
     (state: RootState) => state.hmsStates.isLocalAudioMuted
   );
 
-  const showNoiseCancellationButton = canPublishAudio && !isLocalAudioMuted;
+  const [isNCAvailable, setIsNCAvailable] = React.useState(false);
+
+  const noiseCancellationPlugin = useSelector(
+    (state: RootState) => state.hmsStates.noiseCancellationPlugin
+  );
+
+  useEffect(() => {
+    if (noiseCancellationPlugin) {
+      let isMounted = true;
+
+      noiseCancellationPlugin.isNoiseCancellationAvailable().then((r) => {
+        if (isMounted) {
+          setIsNCAvailable(r);
+        }
+      });
+      return () => {
+        isMounted = false;
+      };
+    }
+  }, [noiseCancellationPlugin]);
+
+  const showNoiseCancellationButton =
+    canPublishAudio && !isLocalAudioMuted && isNCAvailable;
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
