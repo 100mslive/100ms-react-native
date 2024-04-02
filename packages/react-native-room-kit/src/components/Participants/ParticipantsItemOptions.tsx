@@ -160,13 +160,15 @@ const _ParticipantsItemOptions: React.FC<ParticipantsItemOptionsProps> = ({
     !insideHandRaiseGroup &&
     localPeerCanMuteTrack &&
     peerCanPublishAudio &&
-    peer.audioTrack?.isMute() === false;
+    peer.audioTrack?.isMute() === false &&
+    peer.type === HMSPeerType.REGULAR;
 
   const showUnmuteAudioOption =
     !insideHandRaiseGroup &&
     localPeerCanUnmuteTrack &&
     peerCanPublishAudio &&
-    peer.audioTrack?.isMute();
+    peer.audioTrack?.isMute() &&
+    peer.type === HMSPeerType.REGULAR;
 
   const showMuteVideoOption =
     !insideHandRaiseGroup &&
@@ -179,7 +181,8 @@ const _ParticipantsItemOptions: React.FC<ParticipantsItemOptionsProps> = ({
     !insideHandRaiseGroup &&
     localPeerCanUnmuteTrack &&
     peerCanPublishVideo &&
-    peer.videoTrack?.isMute();
+    peer.videoTrack?.isMute() &&
+    peer.type === HMSPeerType.REGULAR;
 
   const showBringOnStageOptions =
     offStageRoles && offStageRoles.includes(peer.role?.name || '');

@@ -1,19 +1,19 @@
 import React from 'react';
-import {
-  View,
-  TouchableOpacity,
-  Text,
-  StyleSheet,
-  LayoutAnimation,
-  InteractionManager,
-} from 'react-native';
 import type { StyleProp, TextStyle, TouchableOpacityProps } from 'react-native';
+import {
+  InteractionManager,
+  LayoutAnimation,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { HMSTrack } from '@100mslive/react-native-hms';
+import { HMSPeerType, HMSTrack } from '@100mslive/react-native-hms';
 
 import type { RootState } from '../redux';
-import { ModalTypes } from '../utils/types';
 import type { PeerTrackNode } from '../utils/types';
+import { ModalTypes } from '../utils/types';
 import { setInsetViewMinimized } from '../redux/actions';
 import { useHMSRoomStyle, useModalType } from '../hooks-util';
 import {
@@ -157,7 +157,9 @@ export const PeerSettingsModalContent: React.FC<
             ) : null}
 
             {/* If Peer's Audio is Unmuted and Local Peer has mute Permissions */}
-            {!isPeerAudioMute && localPeerPermissions?.mute ? (
+            {!isPeerAudioMute &&
+            localPeerPermissions?.mute &&
+            peer.type === HMSPeerType.REGULAR ? (
               <SettingItem
                 text={'Mute Audio'}
                 icon={<MicIcon muted={true} style={styles.customIcon} />}
@@ -180,7 +182,9 @@ export const PeerSettingsModalContent: React.FC<
             ) : null}
 
             {/* If Peer's Video is Unmuted and Local Peer has mute Permissions */}
-            {!isPeerVideoMute && localPeerPermissions?.mute ? (
+            {!isPeerVideoMute &&
+            localPeerPermissions?.mute &&
+            peer.type === HMSPeerType.REGULAR ? (
               <SettingItem
                 text={'Mute Video'}
                 icon={<CameraIcon muted={true} style={styles.customIcon} />}
