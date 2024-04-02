@@ -55,11 +55,11 @@ export const PeerNameAndNetwork: React.FC<PeerNameAndNetworkProps> = ({
           testID={TestIds.tile_user_name}
           style={[styles.name, hmsRoomStyles.name]}
           numberOfLines={1}
-          ellipsizeMode={showTrackSource ? 'middle' : 'tail'}
+          ellipsizeMode={showTrackSource || isSIPPeerType ? 'middle' : 'tail'}
         >
           {name}
-          {isLocal ? ' (You)' : ''}
-          {showTrackSource ? `'s ${trackSource}` : ''}
+          {isLocal && ' (You)'}
+          {showTrackSource && `'s ${trackSource}`}
         </Text>
 
         {isSIPPeerType ? null : (
