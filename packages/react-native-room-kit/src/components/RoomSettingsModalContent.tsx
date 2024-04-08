@@ -202,7 +202,7 @@ export const RoomSettingsModalContent: React.FC<
   );
 
   const showNoiseCancellationButton =
-    canPublishAudio && isNoiseCancellationAvailable && !isLocalAudioMuted;
+    canPublishAudio && isNoiseCancellationAvailable;
 
   React.useEffect(() => {
     if (noiseCancellationPlugin) {
@@ -403,6 +403,7 @@ export const RoomSettingsModalContent: React.FC<
               pressHandler: handleNoiseCancellation,
               isActive: isNoiseCancellationEnabled,
               hide: !showNoiseCancellationButton,
+              disabled: isLocalAudioMuted,
             },
           ].filter((itm) => !itm.hide),
           true
