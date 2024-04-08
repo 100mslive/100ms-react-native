@@ -181,14 +181,14 @@ class HMSHelper: NSObject {
         let initialState = settings?.value(forKey: "initialState") as? String
         let initialStateEncoded = HMSHelper.getHMSTrackSettingsInitState(initialState)
         let hmsTrackSettings = HMSVideoTrackSettings(codec: codec,
-                                                     resolution: resolution,
-                                                     maxBitrate: maxBitrate,
-                                                     maxFrameRate: maxFrameRate,
-                                                     cameraFacing: cameraFacingEncoded,
-                                                     simulcastSettings: nil,
-                                                     trackDescription: trackDescription,
-                                                     initialMuteState: initialStateEncoded,
-                                                     videoPlugins: nil)
+                                                    resolution: resolution,
+                                                    maxBitrate: maxBitrate,
+                                                    maxFrameRate: maxFrameRate,
+                                                    cameraFacing: cameraFacingEncoded,
+                                                    simulcastSettings: nil,
+                                                    trackDescription: trackDescription,
+                                                    initialMuteState: initialStateEncoded,
+                                                    videoPlugins: nil)
         return hmsTrackSettings
     }
 
@@ -283,10 +283,10 @@ class HMSHelper: NSObject {
         }
 
         if let pathForNCModel = HMSNoiseCancellationModels.path(for: getHMSNoiseCancellationModelName(modeName)) {
-             return HMSNoiseCancellationPlugin(modelPath: pathForNCModel, initialState: getHMSNoiseCancellationInitialState(initState))
-        }
-        else {
-             assertionFailure("noise cancellation model was not found")
+            return HMSNoiseCancellationPlugin(modelPath: pathForNCModel,
+                                              initialState: getHMSNoiseCancellationInitialState(initState))
+        } else {
+            assertionFailure("noise cancellation model was not found")
         }
         return nil
     }
