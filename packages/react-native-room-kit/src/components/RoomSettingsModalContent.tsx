@@ -29,6 +29,7 @@ import {
   useStartRecording,
 } from '../hooks-util';
 import {
+  useCanPublishAudio,
   useCanPublishScreen,
   useHMSActions,
   useIsAnyStreamingOn,
@@ -194,12 +195,14 @@ export const RoomSettingsModalContent: React.FC<
   const [isNoiseCancellationAvailable, setIsNoiseCancellationAvailable] =
     React.useState(false);
 
+  const canPublishAudio = useCanPublishAudio();
+
   const isLocalAudioMuted = useSelector(
     (state: RootState) => state.hmsStates.isLocalAudioMuted
   );
 
   const showNoiseCancellationButton =
-    isNoiseCancellationAvailable && !isLocalAudioMuted;
+    canPublishAudio && isNoiseCancellationAvailable && !isLocalAudioMuted;
 
   React.useEffect(() => {
     if (noiseCancellationPlugin) {
