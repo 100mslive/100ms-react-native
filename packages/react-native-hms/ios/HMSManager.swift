@@ -190,7 +190,7 @@ class HMSManager: RCTEventEmitter {
 
         hms?.setVolume(data, resolve, reject)
     }
-    
+
     @objc
     func switchAudioOutput(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
@@ -218,16 +218,16 @@ class HMSManager: RCTEventEmitter {
             resolve?(true)
         }
     }
-    
+
     @objc
     func setAlwaysScreenOn(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        
+
         guard let enabled = data["enabled"] as? Bool else {
             let errorMessage = "\(#function)" + HMSHelper.getUnavailableRequiredKey(data, ["enabled"])
             reject?("6004", errorMessage, nil)
             return
         }
-        
+
         DispatchQueue.main.async {
             UIApplication.shared.isIdleTimerDisabled = enabled
             resolve?(nil)
@@ -711,5 +711,55 @@ class HMSManager: RCTEventEmitter {
             return
         }
         interactivity.fetchLeaderboard(data, resolve, reject)
+    }
+
+    // MARK: - Noise Cancellation Plugin Functions
+
+    @objc
+    func enableNoiseCancellationPlugin( _ data: NSDictionary,
+                                        _ resolve: RCTPromiseResolveBlock?,
+                                        _ reject: RCTPromiseRejectBlock?) {
+
+        guard let rnsdk = HMSHelper.getHms(data, hmsCollection) else {
+            reject?("6004", "HMSRNSDK instance not found!", nil)
+            return
+        }
+        rnsdk.enableNoiseCancellationPlugin(data, resolve, reject)
+    }
+
+    @objc
+    func disableNoiseCancellationPlugin(_ data: NSDictionary,
+                                        _ resolve: RCTPromiseResolveBlock?,
+                                        _ reject: RCTPromiseRejectBlock?) {
+
+        guard let rnsdk = HMSHelper.getHms(data, hmsCollection) else {
+            reject?("6004", "HMSRNSDK instance not found!", nil)
+            return
+        }
+        rnsdk.disableNoiseCancellationPlugin(data, resolve, reject)
+    }
+
+    @objc
+    func isNoiseCancellationPluginEnabled(_ data: NSDictionary,
+                                          _ resolve: RCTPromiseResolveBlock?,
+                                          _ reject: RCTPromiseRejectBlock?) {
+
+        guard let rnsdk = HMSHelper.getHms(data, hmsCollection) else {
+            reject?("6004", "HMSRNSDK instance not found!", nil)
+            return
+        }
+        rnsdk.isNoiseCancellationPluginEnabled(data, resolve, reject)
+    }
+
+    @objc
+    func isNoiseCancellationPluginAvailable(_ data: NSDictionary,
+                                            _ resolve: RCTPromiseResolveBlock?,
+                                            _ reject: RCTPromiseRejectBlock?) {
+
+        guard let rnsdk = HMSHelper.getHms(data, hmsCollection) else {
+            reject?("6004", "HMSRNSDK instance not found!", nil)
+            return
+        }
+        rnsdk.isNoiseCancellationPluginAvailable(data, resolve, reject)
     }
 }

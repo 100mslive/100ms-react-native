@@ -10,7 +10,7 @@ import {
   requestMicrophonePermissionsAsync,
 } from "expo-camera";
 
-const ROOM_CODE = "edr-ftkl-dsc";
+const ROOM_CODE = "rky-hzlr-ybr"; // Join this Room from Web with - https://mobilevideoconference.app.100ms.live/meeting/rky-hzlr-ybr
 const APP_GROUP = "group.com.hms.rnhmsexpodemo";
 const PREFERRED_EXTENSION =
   "com.hms.rnhmsexpodemo.RNHMSExpoDemoBroadcastUpload";

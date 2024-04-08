@@ -2,10 +2,16 @@ import * as React from 'react';
 import { useSelector } from 'react-redux';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import type { HMSLocalPeer, HMSPeer } from '@100mslive/react-native-hms';
+import { HMSPeerType } from '@100mslive/react-native-hms';
 
 import { isParticipantHostOrBroadcaster } from '../../utils/functions';
 import { useHMSRoomStyleSheet } from '../../hooks-util';
-import { HandIcon, NetworkQualityIcon, ThreeDotsIcon } from '../../Icons';
+import {
+  AnswerPhoneIcon,
+  HandIcon,
+  NetworkQualityIcon,
+  ThreeDotsIcon,
+} from '../../Icons';
 import { Menu } from '../MenuModal';
 import { ParticipantsItemOptions } from './ParticipantsItemOptions';
 import type { RootState } from '../../redux';
@@ -45,6 +51,7 @@ const _ParticipantsItem: React.FC<ParticipantsItemProps> = ({
   }));
 
   const show3Dots = selfHostOrBroadcaster && !peer.isLocal;
+  const isSIPPeerType = peer.type === HMSPeerType.SIP;
 
   const showOptions = () => setOptionsVisible(true);
 
@@ -52,7 +59,12 @@ const _ParticipantsItem: React.FC<ParticipantsItemProps> = ({
 
   return (
     <View style={styles.container}>
-      <Text testID={TestIds.participant_name} style={[styles.label, hmsRoomStyles.label]}>
+      <Text
+        testID={TestIds.participant_name}
+        style={[styles.label, hmsRoomStyles.label]}
+        ellipsizeMode="middle"
+        numberOfLines={1}
+      >
         {peer.name}
         {peer.isLocal ? ' (You)' : null}
       </Text>
@@ -70,7 +82,20 @@ const _ParticipantsItem: React.FC<ParticipantsItemProps> = ({
           </View>
         ) : null}
 
-        {peer.networkQuality &&
+        {isSIPPeerType ? (
+          <View
+            style={[
+              styles.control,
+              styles.iconWrapper,
+              hmsRoomStyles.iconWrapper,
+            ]}
+          >
+            <AnswerPhoneIcon style={styles.networkIcon} />
+          </View>
+        ) : null}
+
+        {!isSIPPeerType &&
+        peer.networkQuality &&
         peer.networkQuality.downlinkQuality >= 0 &&
         peer.networkQuality.downlinkQuality < 4 ? (
           <View
@@ -119,6 +144,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   label: {
+    flexShrink: 1,
     fontSize: 14,
     lineHeight: 20,
     letterSpacing: 0.1,

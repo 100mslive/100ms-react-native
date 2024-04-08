@@ -1,5 +1,6 @@
 import HMSSDK
 import Foundation
+import HMSNoiseCancellationModels
 
 class HMSHelper: NSObject {
     static var audioMixerSourceHashMap: [String: HMSAudioNode]?
@@ -180,18 +181,18 @@ class HMSHelper: NSObject {
         let initialState = settings?.value(forKey: "initialState") as? String
         let initialStateEncoded = HMSHelper.getHMSTrackSettingsInitState(initialState)
         let hmsTrackSettings = HMSVideoTrackSettings(codec: codec,
-                                                     resolution: resolution,
-                                                     maxBitrate: maxBitrate,
-                                                     maxFrameRate: maxFrameRate,
-                                                     cameraFacing: cameraFacingEncoded,
-                                                     simulcastSettings: nil,
-                                                     trackDescription: trackDescription,
-                                                     initialMuteState: initialStateEncoded,
-                                                     videoPlugins: nil)
+                                                    resolution: resolution,
+                                                    maxBitrate: maxBitrate,
+                                                    maxFrameRate: maxFrameRate,
+                                                    cameraFacing: cameraFacingEncoded,
+                                                    simulcastSettings: nil,
+                                                    trackDescription: trackDescription,
+                                                    initialMuteState: initialStateEncoded,
+                                                    videoPlugins: nil)
         return hmsTrackSettings
     }
 
-    static func getLocalAudioSettings(_ settings: NSDictionary?, _ hms: HMSSDK?, _ delegate: HMSManager?, _ id: String) -> HMSAudioTrackSettings? {
+    static func getLocalAudioSettings(_ settings: NSDictionary?, _ noiseCancellationPlugin: HMSNoiseCancellationPlugin?, _ hms: HMSSDK?, _ delegate: HMSManager?, _ id: String) -> HMSAudioTrackSettings? {
 
         guard let settings = settings
         else {
@@ -239,6 +240,10 @@ class HMSHelper: NSObject {
                         if let audioMode = audioMode {
                             builder.audioMode = audioMode
                         }
+
+                        if let noiseCancellationPlugin = noiseCancellationPlugin {
+                            builder.noiseCancellationPlugin = noiseCancellationPlugin
+                        }
                     }
 
                 } catch {
@@ -255,7 +260,35 @@ class HMSHelper: NSObject {
             if let audioMode = audioMode {
                 builder.audioMode = audioMode
             }
+
+            if let noiseCancellationPlugin = noiseCancellationPlugin {
+                builder.noiseCancellationPlugin = noiseCancellationPlugin
+            }
         }
+    }
+
+    static func getHMSNoiseCancellationPlugin(_ modelData: NSDictionary?) -> HMSNoiseCancellationPlugin? {
+        guard let modelData = modelData
+        else {
+            print(#function, "No Noise Cancellation Model data passed!")
+            return nil
+        }
+        guard let modeName = modelData.value(forKey: "modelName") as? String else {
+            print(#function, "Noise Cancellation Model Name not passed!")
+            return nil
+        }
+        guard let initState = modelData.value(forKey: "initialState") as? String else {
+            print(#function, "Noise Cancellation Model initialState not passed!")
+            return nil
+        }
+
+        if let pathForNCModel = HMSNoiseCancellationModels.path(for: getHMSNoiseCancellationModelName(modeName)) {
+            return HMSNoiseCancellationPlugin(modelPath: pathForNCModel,
+                                              initialState: getHMSNoiseCancellationInitialState(initState))
+        } else {
+            assertionFailure("noise cancellation model was not found")
+        }
+        return nil
     }
 
     static func getAudioMixerSourceMap() -> [String: HMSAudioNode]? {
@@ -270,6 +303,28 @@ class HMSHelper: NSObject {
         }
 
         return HMSVideoResolution.init(width: width, height: height)
+    }
+
+    static func getHMSNoiseCancellationModelName(_ modelNameString: String?) -> HMSNoiseCancellationModels.ModelName {
+        switch modelNameString {
+        case "SMALL_FULL_BAND":
+            return .smallFullBand
+        default:
+            print(#function, "Unknown Noise Cancellation Model name passed, using smallFullBand as default!")
+            return .smallFullBand
+        }
+    }
+
+    static func getHMSNoiseCancellationInitialState(_ initState: String?) -> HMSNoiseCancellationInitialState {
+        switch initState {
+        case "ENABLED":
+            return .enabled
+        case "DISABLED":
+            return .disabled
+        default:
+            print(#function, "Unknown Noise Cancellation Model initState passed, using Enabled as default!")
+            return .enabled
+        }
     }
 
     static func getVideoCodec(_ codecString: String?) -> HMSCodec {

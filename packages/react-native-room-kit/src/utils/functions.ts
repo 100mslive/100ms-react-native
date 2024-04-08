@@ -445,6 +445,7 @@ export function groupIntoPairs(totalNumber: number) {
 
 /**
  * @param list array of items
+ * @param fill boolean to fill the last triplet with `undefined` if it has less than 3 items
  * @returns list of triplets
  *
  * Example: If list is `[a, b, c, d]`, then output will be `[ [a, b, c], [d] ]`

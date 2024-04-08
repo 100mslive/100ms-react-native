@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from 'react';
+import React, { memo, useEffect, useMemo, useState } from 'react';
 import { View, StyleSheet, Platform } from 'react-native';
 import {
   SafeAreaView,
@@ -6,6 +6,7 @@ import {
 } from 'react-native-safe-area-context';
 
 import {
+  useHMSConferencingScreenConfig,
   useHMSLayoutConfig,
   useHMSRoomStyle,
   useIsHLSViewer,
@@ -35,6 +36,28 @@ export const _Footer: React.FC<FooterProps> = () => {
   const editUsernameDisabled = useSelector(
     (state: RootState) => state.app.editUsernameDisabled
   );
+  const [isNoiseCancellationAvailable, setIsNoiseCancellationAvailable] =
+    useState(false);
+  const noiseCancellationPlugin = useSelector(
+    (state: RootState) => state.hmsStates.noiseCancellationPlugin
+  );
+  useEffect(() => {
+    if (noiseCancellationPlugin) {
+      let mounted = true;
+
+      noiseCancellationPlugin
+        .isNoiseCancellationAvailable()
+        .then((isAvailable) => {
+          if (mounted) {
+            setIsNoiseCancellationAvailable(isAvailable);
+          }
+        });
+
+      return () => {
+        mounted = false;
+      };
+    }
+  }, [noiseCancellationPlugin]);
 
   const isViewer = !(canPublishAudio || canPublishVideo || canPublishScreen);
 
@@ -50,6 +73,10 @@ export const _Footer: React.FC<FooterProps> = () => {
       ?.on_stage_exp;
   });
 
+  const canRaiseHand = useHMSConferencingScreenConfig(
+    (confScreenConfig) => !!confScreenConfig?.elements?.hand_raise
+  );
+
   const canStartRecording = useSelector(
     (state: RootState) =>
       !!state.hmsStates.localPeer?.role?.permissions?.browserRecording
@@ -62,17 +89,16 @@ export const _Footer: React.FC<FooterProps> = () => {
 
   const canEditUsernameFromRoomModal = isViewer && !editUsernameDisabled;
 
-  const canShowHandRaiseInFooter = !isOnStage && isViewer; // on_stage_exp object undefined && viewer -> show in footer
-  const canShowHandRaiseInRoomModal = !isOnStage && !isViewer; // on_stage_exp object undefined && publisher -> show in room modal
+  const canShowHandRaiseInFooter = canRaiseHand && !isOnStage && isViewer;
 
   const canShowOptions =
     canShowParticipants ||
     canPublishScreen ||
     canShowBRB ||
-    canShowHandRaiseInRoomModal ||
     canStartRecording ||
     canEditUsernameFromRoomModal ||
-    canReadOrWritePoll;
+    canReadOrWritePoll ||
+    isNoiseCancellationAvailable;
 
   const footerActionButtons = useMemo(() => {
     const actions = [];

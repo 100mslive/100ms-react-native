@@ -258,6 +258,8 @@ object HMSDecoder {
       hmsPeer.auxiliaryTracks.let {
         peer.putArray("auxiliaryTracks", this.getAllTracks(it))
       }
+
+      peer.putString("type", hmsPeer.type.name)
     }
     return peer
   }

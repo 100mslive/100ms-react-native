@@ -16,10 +16,12 @@ import {
   PollVoteIcon,
   RecordingIcon,
   ScreenShareIcon,
+  WaveIcon,
 } from '../Icons';
 import { BottomSheet, useBottomSheetActions } from './BottomSheet';
 import {
   isPublishingAllowed,
+  useHMSConferencingScreenConfig,
   useHMSLayoutConfig,
   useHMSRoomColorPalette,
   useHMSRoomStyleSheet,
@@ -27,6 +29,7 @@ import {
   useStartRecording,
 } from '../hooks-util';
 import {
+  useCanPublishAudio,
   useCanPublishScreen,
   useHMSActions,
   useIsAnyStreamingOn,
@@ -183,6 +186,72 @@ export const RoomSettingsModalContent: React.FC<
   };
   // #endregion
 
+  // #region Noise Cancellation Plugin
+  const noiseCancellationPlugin = useSelector(
+    (state: RootState) => state.hmsStates.noiseCancellationPlugin
+  );
+  const [isNoiseCancellationEnabled, setIsNoiseCancellationEnabled] =
+    React.useState(false);
+  const [isNoiseCancellationAvailable, setIsNoiseCancellationAvailable] =
+    React.useState(false);
+
+  const canPublishAudio = useCanPublishAudio();
+
+  const isLocalAudioMuted = useSelector(
+    (state: RootState) => state.hmsStates.isLocalAudioMuted
+  );
+
+  const showNoiseCancellationButton =
+    canPublishAudio && isNoiseCancellationAvailable;
+
+  React.useEffect(() => {
+    if (noiseCancellationPlugin) {
+      let mounted = true;
+
+      Promise.all(
+        [
+          noiseCancellationPlugin.isEnabled(),
+          noiseCancellationPlugin.isNoiseCancellationAvailable(),
+        ].map((promise) =>
+          promise
+            .then((value) => ({ status: 'fulfilled' as const, value }))
+            .catch((reason) => ({ status: 'rejected' as const, reason }))
+        )
+      ).then((results) => {
+        const [isEnabledResult, isAvailableResult] = results;
+        if (mounted) {
+          if (isEnabledResult && isEnabledResult.status === 'fulfilled') {
+            setIsNoiseCancellationEnabled(isEnabledResult.value);
+          }
+          if (isAvailableResult && isAvailableResult.status === 'fulfilled') {
+            setIsNoiseCancellationAvailable(isAvailableResult.value);
+          }
+        }
+      });
+
+      return () => {
+        mounted = false;
+      };
+    }
+  }, [noiseCancellationPlugin]);
+
+  const handleNoiseCancellation = () => {
+    // Register callback to be called when bottom sheet is hiddden
+    registerOnModalHideAction(() => {
+      if (!noiseCancellationPlugin || !isNoiseCancellationAvailable) return;
+
+      if (isNoiseCancellationEnabled) {
+        noiseCancellationPlugin.disable();
+      } else {
+        noiseCancellationPlugin.enable();
+      }
+    });
+
+    // Close the current bottom sheet
+    closeRoomSettingsModal();
+  };
+  // #endregion
+
   const changeName = () => {
     // Register callback to be called when bottom sheet is hiddden
     registerOnModalHideAction(() => {
@@ -207,6 +276,10 @@ export const RoomSettingsModalContent: React.FC<
       !!layoutConfig?.screens?.conferencing?.default?.elements?.brb
   );
 
+  const canRaiseHand = useHMSConferencingScreenConfig(
+    (confScreenConfig) => !!confScreenConfig?.elements?.hand_raise
+  );
+
   const isOnStage = useHMSLayoutConfig((layoutConfig) => {
     return !!layoutConfig?.screens?.conferencing?.default?.elements
       ?.on_stage_exp;
@@ -217,7 +290,7 @@ export const RoomSettingsModalContent: React.FC<
     return (allowed && allowed.length > 0) ?? false;
   });
 
-  const showHandRaiseIcon = !isOnStage && allowedToPublish;
+  const showHandRaiseIcon = canRaiseHand && !isOnStage && allowedToPublish;
 
   return (
     <View>
@@ -320,6 +393,17 @@ export const RoomSettingsModalContent: React.FC<
               pressHandler: openPollsQuizzesModal,
               isActive: false,
               hide: !canReadOrWritePoll,
+            },
+            {
+              id: 'noise-cancellation',
+              icon: <WaveIcon style={{ width: 20, height: 20 }} />,
+              label: isNoiseCancellationEnabled
+                ? 'Noise Reduced'
+                : 'Reduce Noise',
+              pressHandler: handleNoiseCancellation,
+              isActive: isNoiseCancellationEnabled,
+              hide: !showNoiseCancellationButton,
+              disabled: isLocalAudioMuted,
             },
           ].filter((itm) => !itm.hide),
           true
