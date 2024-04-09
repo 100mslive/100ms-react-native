@@ -62,6 +62,7 @@ type IntialStateType = {
   selectedMessageForAction: null | HMSMessage;
   initialRole: HMSRole | null;
   chatPeerBlacklist: string[]; // list of userIds
+  hlsDescriptionPaneVisible: boolean;
 };
 
 const INITIAL_STATE: IntialStateType = {
@@ -99,6 +100,7 @@ const INITIAL_STATE: IntialStateType = {
   selectedMessageForAction: null,
   initialRole: null,
   chatPeerBlacklist: [],
+  hlsDescriptionPaneVisible: false,
 };
 
 const appReducer = (
@@ -355,6 +357,12 @@ const appReducer = (
         ...state,
         chatPeerBlacklist:
           action.payload.chatPeerBlacklist ?? INITIAL_STATE.chatPeerBlacklist,
+      };
+    }
+    case ActionTypes.SET_HLS_DESC_PANE_VISIBLE: {
+      return {
+        ...state,
+        hlsDescriptionPaneVisible: action.payload.visible,
       };
     }
     case HmsStateActionTypes.CLEAR_STATES:

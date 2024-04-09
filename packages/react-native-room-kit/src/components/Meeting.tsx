@@ -15,6 +15,7 @@ import {
   useHMSReconnection,
   useHMSRemovedFromRoomUpdate,
   useHMSRoomStyle,
+  useIsHLSViewer,
   useLandscapeImmersiveMode,
   usePIPListener,
   useSetDefaultChatRecipient,
@@ -22,6 +23,7 @@ import {
 import { MeetingScreenContent } from './MeetingScreenContent';
 import { HMSHLSStreamLoading } from './HMSHLSStreamLoading';
 import type { RootState } from '../redux';
+import { HLSViewerScreenContent } from './HLSViewerScreenContent';
 
 interface MeetingProps {
   peerTrackNodes: Array<PeerTrackNode>;
@@ -31,6 +33,8 @@ export const Meeting: React.FC<MeetingProps> = ({ peerTrackNodes }) => {
   const startingHLSStream = useSelector(
     (state: RootState) => state.app.startingHLSStream
   );
+
+  const isHLSViewer = useIsHLSViewer();
 
   // TODO: Fetch latest Room and localPeer on mount of this component?
 
@@ -81,7 +85,11 @@ export const Meeting: React.FC<MeetingProps> = ({ peerTrackNodes }) => {
 
   return (
     <View style={[styles.container, containerStyles]}>
-      <MeetingScreenContent peerTrackNodes={peerTrackNodes} />
+      {isHLSViewer ? (
+        <HLSViewerScreenContent />
+      ) : (
+        <MeetingScreenContent peerTrackNodes={peerTrackNodes} />
+      )}
     </View>
   );
 };

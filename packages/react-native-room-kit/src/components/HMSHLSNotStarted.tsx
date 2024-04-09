@@ -18,7 +18,11 @@ export const HMSHLSNotStarted = () => {
 
   return (
     <View style={styles.container}>
-      <RadioIcon size="extra-large" containerStyle={styles.icon} />
+      <RadioIcon
+        size="extra-large"
+        containerStyle={styles.iconWrapper}
+        style={styles.icon}
+      />
       <Text style={[styles.title, hmsRoomStyles.title]}>
         Stream yet to start
       </Text>
@@ -36,20 +40,27 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  icon: {
+  iconWrapper: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     marginBottom: 24,
   },
+  icon: {
+    width: 24,
+    height: 24,
+  },
   title: {
-    fontSize: 24,
-    lineHeight: 32,
+    fontSize: 16,
+    lineHeight: 20,
     textAlign: 'center',
   },
   description: {
-    fontSize: 16,
-    lineHeight: 24,
+    fontSize: 14,
+    lineHeight: 20,
     letterSpacing: 0.5,
     textAlign: 'center',
-    marginTop: 8,
+    marginTop: 4,
   },
   taleLessSpaceAsYouCan: {
     flex: 0,

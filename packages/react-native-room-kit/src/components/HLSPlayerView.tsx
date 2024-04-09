@@ -1,18 +1,11 @@
 import React, { useRef } from 'react';
 import type { ComponentRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Platform,
-  useWindowDimensions,
-} from 'react-native';
+import { View, Text, StyleSheet, Platform } from 'react-native';
 import {
   HMSHLSPlayer,
   HMSHLSPlayerPlaybackState,
   useHMSHLSPlayerPlaybackState,
-  useHMSHLSPlayerResolution,
 } from '@100mslive/react-native-hms';
 
 import type { RootState } from '../redux';
@@ -23,18 +16,20 @@ import { CustomControls } from './CustomHLSPlayerControls';
 import { COLORS, hexToRgbA } from '../utils/theme';
 import { HMSHLSNotStarted } from './HMSHLSNotStarted';
 import { CrossCircleIcon } from '../Icons';
-import { useHMSRoomStyleSheet } from '../hooks-util';
+import {
+  useHLSPlayerConstraints,
+  useHLSViewsConstraints,
+  useHMSRoomStyleSheet,
+} from '../hooks-util';
 import { useIsHLSStreamingOn } from '../hooks-sdk';
-import { useIsLandscapeOrientation } from '../utils/dimension';
 
-export const _HLSView: React.FC = () => {
+export const _HLSPlayerView: React.FC = () => {
   const dispatch = useDispatch();
   const isHLSStreaming = useIsHLSStreamingOn();
   const isStreamUrlPresent = useSelector(
     (state: RootState) =>
       !!state.hmsStates.room?.hlsStreamingState.variants?.[0]?.hlsStreamUrl
   );
-  const { width, height } = useWindowDimensions();
   const hmsHlsPlayerRef = useRef<ComponentRef<typeof HMSHLSPlayer>>(null);
   const showHLSStats = useSelector(
     (state: RootState) => state.app.joinConfig.showHLSStats
@@ -100,6 +95,8 @@ export const _HLSView: React.FC = () => {
     }
   };
 
+  const { playerWrapperConstraints } = useHLSViewsConstraints();
+  const hlsPlayerConstraints = useHLSPlayerConstraints();
   const [playerKey, setPlayerKey] = React.useState(1);
 
   const prevReconnectingRef = React.useRef<null | boolean>(null);
@@ -108,8 +105,6 @@ export const _HLSView: React.FC = () => {
   );
 
   const hlsPlayerPlaybackState = useHMSHLSPlayerPlaybackState();
-  const resolution = useHMSHLSPlayerResolution();
-  const isLandscapeOrientation = useIsLandscapeOrientation();
 
   const isPlaybackFailed =
     hlsPlayerPlaybackState === HMSHLSPlayerPlaybackState.FAILED;
@@ -140,80 +135,82 @@ export const _HLSView: React.FC = () => {
       color: theme.palette.on_surface_high,
       fontFamily: `${typography.font_family}-Regular`,
     },
+    warningText: {
+      color: theme.palette.alert_warning,
+      fontFamily: `${typography.font_family}-SemiBold`,
+    },
   }));
 
   return (
-    <View style={styles.hlsView}>
-      {isHLSStreaming ? (
-        isStreamUrlPresent ? (
-          <View style={styles.hlsPlayerContainer}>
-            <HMSHLSPlayer
-              key={playerKey}
-              ref={hmsHlsPlayerRef}
-              enableStats={showHLSStats}
-              enableControls={enableHLSPlayerControls}
-              style={
-                isLandscapeOrientation
-                  ? {
-                      height,
-                      width: resolution
-                        ? height * (resolution.width / resolution.height)
-                        : width,
-                    }
-                  : {
-                      width,
-                      height: resolution
-                        ? width / (resolution.width / resolution.height)
-                        : height,
-                    }
-              }
-            />
-
-            <HLSPlayerEmoticons />
-
-            {showHLSStats ? (
-              <HLSPlayerStatsView onClosePress={handleClosePress} />
-            ) : null}
-
-            {showCustomHLSPlayerControls ? (
-              <CustomControls handleControlPress={hlsPlayerActions} />
-            ) : null}
-
-            {isPlaybackFailed ? (
-              <View
-                style={[
-                  styles.playbackFailedContainer,
-                  hmsRoomStyles.failedContainer,
-                ]}
-              >
-                <CrossCircleIcon />
-
-                <Text style={[styles.playbackFailed, hmsRoomStyles.failedText]}>
-                  Playback Failed
-                </Text>
-              </View>
-            ) : null}
-          </View>
-        ) : (
-          <View style={styles.textContainer}>
-            <Text style={styles.warningSubtitle}>Stream URL not found!</Text>
-          </View>
-        )
-      ) : (
+    <View
+      style={[
+        styles.hlsPlayerContainer,
+        {
+          backgroundColor: 'black',
+          width: playerWrapperConstraints.width,
+          height: playerWrapperConstraints.height,
+        },
+      ]}
+    >
+      {!isHLSStreaming ? (
         <HMSHLSNotStarted />
+      ) : !isStreamUrlPresent ? (
+        <View style={styles.textContainer}>
+          <Text style={[styles.warningSubtitle, hmsRoomStyles.warningText]}>
+            Stream URL not found!
+          </Text>
+        </View>
+      ) : (
+        <>
+          <HMSHLSPlayer
+            key={playerKey}
+            ref={hmsHlsPlayerRef}
+            enableStats={showHLSStats}
+            enableControls={enableHLSPlayerControls}
+            style={{
+              width: hlsPlayerConstraints.width,
+              height: hlsPlayerConstraints.height,
+            }}
+          />
+
+          <HLSPlayerEmoticons />
+
+          {showHLSStats ? (
+            <HLSPlayerStatsView onClosePress={handleClosePress} />
+          ) : null}
+
+          {showCustomHLSPlayerControls ? (
+            <CustomControls handleControlPress={hlsPlayerActions} />
+          ) : null}
+
+          {isPlaybackFailed ? (
+            <View
+              style={[
+                styles.playbackFailedContainer,
+                hmsRoomStyles.failedContainer,
+              ]}
+            >
+              <CrossCircleIcon />
+
+              <Text style={[styles.playbackFailed, hmsRoomStyles.failedText]}>
+                Playback Failed
+              </Text>
+            </View>
+          ) : null}
+        </>
       )}
     </View>
   );
 };
 
-export const HLSView = React.memo(_HLSView);
+export const HLSPlayerView = React.memo(_HLSPlayerView);
 
 const styles = StyleSheet.create({
   hlsView: {
     flex: 1,
   },
   hlsPlayerContainer: {
-    flex: 1,
+    // flex: 1,
     position: 'relative',
   },
   textContainer: {
@@ -223,15 +220,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   warningSubtitle: {
-    color: COLORS.INDICATORS.WARNING,
-    fontFamily: 'Inter',
-    fontSize: 20,
-    fontWeight: '600',
+    fontSize: 16,
+    lineHeight: 20,
     letterSpacing: 0.25,
     textAlign: 'center',
-  },
-  taleLessSpaceAsYouCan: {
-    flex: 0,
   },
   playbackFailedContainer: {
     flex: 1,

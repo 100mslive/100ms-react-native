@@ -476,6 +476,11 @@ export const filterOutMsgsFromBlockedPeers = (chatPeerBlacklist: string[]) => ({
   payload: chatPeerBlacklist,
 });
 
+export const setHlsDescriptionPaneVisible = (visible: boolean) => ({
+  type: actionTypes.SET_HLS_DESC_PANE_VISIBLE,
+  payload: { visible },
+});
+
 /**
  * POLLS
  */

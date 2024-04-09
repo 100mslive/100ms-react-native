@@ -5,6 +5,7 @@ import {
   // FlashListProps
 } from '@shopify/flash-list';
 import { Platform, StyleSheet, View } from 'react-native';
+import type { StyleProp, ViewStyle } from 'react-native';
 import { useSelector } from 'react-redux';
 
 import type { RootState } from '../../redux';
@@ -14,10 +15,11 @@ import { PinnedMessages } from './PinnedMessages';
 import { useIsAllowedToSendMessage } from '../../hooks-util';
 
 type ChatListProps = {
+  style?: StyleProp<ViewStyle>;
   // estimatedListSize?: FlashListProps<HMSMessage>['estimatedListSize'];
 };
 
-const _ChatList: React.FC<ChatListProps> = () => {
+const _ChatList: React.FC<ChatListProps> = ({ style }) => {
   const flashlistRef = React.useRef<null | FlashList<HMSMessage>>(null);
   const isAllowedToSendMessage = useIsAllowedToSendMessage();
   const messages = useSelector((state: RootState) => state.messages.messages);
@@ -36,6 +38,7 @@ const _ChatList: React.FC<ChatListProps> = () => {
       style={[
         chatListStyle.list,
         isAllowedToSendMessage ? chatListStyle.bottomSpace : null,
+        style,
       ]}
     >
       <PinnedMessages />

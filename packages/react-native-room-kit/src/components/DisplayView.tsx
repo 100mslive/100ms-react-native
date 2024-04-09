@@ -9,14 +9,12 @@ import { ModalTypes, PipModes } from '../utils/types';
 import type { PeerTrackNode } from '../utils/types';
 import { requestExternalStoragePermission } from '../utils/functions';
 import {
-  ChangeAspectRatio,
   ChangeRoleModal,
   ChangeTrackStateModal,
   SaveScreenshot,
 } from './Modals';
 import type { RootState } from '../redux';
 import { GridView } from './GridView';
-import { HLSView } from './HLSView';
 import { PeerSettingsModalContent } from '../components/PeerSettingsModalContent';
 import { StreamingQualityModalContent } from '../components/StreamingQualityModalContent';
 import {
@@ -24,7 +22,6 @@ import {
   useHMSInstance,
   useHMSRoleChangeRequest,
   useHMSSessionStoreListeners,
-  useIsHLSViewer,
   useModalType,
 } from '../hooks-util';
 import { WebrtcView } from './WebrtcView';
@@ -48,7 +45,6 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
 }) => {
   // --- 100ms SDK Instance ---
   const hmsInstance = useHMSInstance();
-  const isHLSViewer = useIsHLSViewer();
 
   const {
     modalVisibleType: modalVisible,
@@ -130,16 +126,12 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
 
   return (
     <View style={{ flex: 1 }}>
-      {isHLSViewer ? (
-        <HLSView />
-      ) : (
-        <WebrtcView
-          ref={gridViewRef}
-          offset={offset}
-          peerTrackNodes={peerTrackNodes}
-          handlePeerTileMorePress={handlePeerTileMorePress}
-        />
-      )}
+      <WebrtcView
+        ref={gridViewRef}
+        offset={offset}
+        peerTrackNodes={peerTrackNodes}
+        handlePeerTileMorePress={handlePeerTileMorePress}
+      />
 
       {isPipModeActive ? null : (
         <>
@@ -171,15 +163,6 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
             ) : null}
           </BottomSheet>
 
-          <DefaultModal
-            modalPosiion="center"
-            modalVisible={modalVisible === ModalTypes.HLS_PLAYER_ASPECT_RATIO}
-            setModalVisible={() => setModalVisible(ModalTypes.DEFAULT)}
-          >
-            <ChangeAspectRatio
-              cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
-            />
-          </DefaultModal>
           {/* Save Image Captured from Local Camera */}
           <DefaultModal
             modalPosiion="center"
@@ -193,6 +176,7 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
               />
             ) : null}
           </DefaultModal>
+
           <DefaultModal
             modalPosiion="center"
             modalVisible={modalVisible === ModalTypes.STREAMING_QUALITY_SETTING}
@@ -207,6 +191,7 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
               />
             ) : null}
           </DefaultModal>
+
           <DefaultModal
             modalPosiion="center"
             modalVisible={modalVisible === ModalTypes.CHANGE_TRACK}
@@ -219,6 +204,7 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
               />
             ) : null}
           </DefaultModal>
+
           <DefaultModal
             modalPosiion="center"
             modalVisible={modalVisible === ModalTypes.CHANGE_ROLE}
