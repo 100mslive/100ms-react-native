@@ -47,3 +47,4 @@ export * from './TrashBin';
 export * from './Add';
 export * from './PollVote';
 export * from './CheckBox';
+export * from './CC';

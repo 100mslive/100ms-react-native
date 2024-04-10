@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { HMSStatusBar } from './StatusBar';
-import { HLSPlayerView } from './HLSPlayerView';
+import { HLSPlayerContainer } from './HLSPlayerContainer';
 import { LeaveRoomBottomSheet } from './LeaveRoomBottomSheet';
 import { PreviewForRoleChangeModal } from './PreviewForRoleChangeModal';
 import { ChatAndParticipantsBottomSheet } from './ChatAndParticipants';
@@ -48,7 +48,7 @@ export const HLSViewerScreenContent: React.FC<
           isLandscapeOrientation ? styles.landscapeContainer : null,
         ]}
       >
-        <HLSPlayerView />
+        <HLSPlayerContainer />
 
         <HLSChatView />
       </SafeAreaView>

@@ -21,7 +21,6 @@ export const HLSChatView = () => {
   return (
     <View
       style={{
-        // backgroundColor: 'rgba(255, 0, 0, 0.3)',
         position: 'absolute',
         bottom: isLandscapeOrientation ? undefined : 0,
         right: 0,
@@ -30,14 +29,14 @@ export const HLSChatView = () => {
       }}
     >
       <View style={[{ flex: 1 }, hmsRoomStyles.wrapper]}>
-        <HLSChatHeaderView />
+        {isLandscapeOrientation ? null : <HLSChatHeaderView />}
 
         <HLSChatMessages />
 
         <HLSChatFooterView />
 
         {/* Below is absolute positioned and only visible when state is true */}
-        <HLSDescriptionPane />
+        {isLandscapeOrientation ? null : <HLSDescriptionPane />}
       </View>
     </View>
   );

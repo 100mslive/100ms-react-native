@@ -4,13 +4,15 @@ import type { ImageProps } from 'react-native';
 
 import { useHMSRoomStyle } from '../../hooks-util';
 
-interface CloseIconProps extends Omit<ImageProps, 'source'> {
-  size?: 'normal' | 'medium';
+interface CCIconProps extends Omit<ImageProps, 'source'> {
+  size?: 'medium';
+  enabled?: boolean;
 }
 
-export const CloseIcon: React.FC<CloseIconProps> = ({
+export const CCIcon: React.FC<CCIconProps> = ({
   style,
-  size = 'normal',
+  size = 'medium',
+  enabled = false,
   ...restProps
 }) => {
   const iconStyles = useHMSRoomStyle((theme) => ({
@@ -20,9 +22,9 @@ export const CloseIcon: React.FC<CloseIconProps> = ({
   return (
     <Image
       source={
-        size === 'medium'
-          ? require('./assets/close-med.png')
-          : require('./assets/close.png')
+        enabled
+          ? require('./assets/cc-on-med.png')
+          : require('./assets/cc-off-med.png')
       }
       style={[
         styles.icon,

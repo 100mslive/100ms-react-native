@@ -103,7 +103,10 @@ export const _HLSChatHeaderView: React.FC<HLSChatHeaderViewProps> = ({
           ) : null}
 
           {isValidHeaderDescription && !expanded ? (
-            <Pressable onPress={showDescriptionPane}>
+            <Pressable
+              onPress={showDescriptionPane}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
               <Text
                 style={[
                   styles.subtitle,

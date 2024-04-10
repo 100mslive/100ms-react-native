@@ -3164,10 +3164,15 @@ export const useHLSPlayerConstraints = () => {
 
   if (isLandscapeOrientation) {
     return resolution
-      ? {
-          width: wrapperWidth,
-          height: (resolution.height / resolution.width) * wrapperWidth,
-        }
+      ? resolution.width / resolution.height > 1
+        ? {
+            width: wrapperWidth,
+            height: (resolution.height / resolution.width) * wrapperWidth,
+          }
+        : {
+            width: (resolution.width / resolution.height) * wrapperHeight,
+            height: wrapperHeight,
+          }
       : {
           width: wrapperWidth,
           height: wrapperHeight,

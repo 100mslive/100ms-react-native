@@ -16,14 +16,10 @@ import { CustomControls } from './CustomHLSPlayerControls';
 import { COLORS, hexToRgbA } from '../utils/theme';
 import { HMSHLSNotStarted } from './HMSHLSNotStarted';
 import { CrossCircleIcon } from '../Icons';
-import {
-  useHLSPlayerConstraints,
-  useHLSViewsConstraints,
-  useHMSRoomStyleSheet,
-} from '../hooks-util';
+import { useHLSPlayerConstraints, useHMSRoomStyleSheet } from '../hooks-util';
 import { useIsHLSStreamingOn } from '../hooks-sdk';
 
-export const _HLSPlayerView: React.FC = () => {
+export const _HLSPlayer: React.FC = () => {
   const dispatch = useDispatch();
   const isHLSStreaming = useIsHLSStreamingOn();
   const isStreamUrlPresent = useSelector(
@@ -95,7 +91,6 @@ export const _HLSPlayerView: React.FC = () => {
     }
   };
 
-  const { playerWrapperConstraints } = useHLSViewsConstraints();
   const hlsPlayerConstraints = useHLSPlayerConstraints();
   const [playerKey, setPlayerKey] = React.useState(1);
 
@@ -141,69 +136,59 @@ export const _HLSPlayerView: React.FC = () => {
     },
   }));
 
+  if (!isHLSStreaming) return <HMSHLSNotStarted />;
+
+  if (!isStreamUrlPresent)
+    return (
+      <View style={styles.textContainer}>
+        <Text style={[styles.warningSubtitle, hmsRoomStyles.warningText]}>
+          Stream URL not found!
+        </Text>
+      </View>
+    );
+
   return (
-    <View
-      style={[
-        styles.hlsPlayerContainer,
-        {
-          backgroundColor: 'black',
-          width: playerWrapperConstraints.width,
-          height: playerWrapperConstraints.height,
-        },
-      ]}
-    >
-      {!isHLSStreaming ? (
-        <HMSHLSNotStarted />
-      ) : !isStreamUrlPresent ? (
-        <View style={styles.textContainer}>
-          <Text style={[styles.warningSubtitle, hmsRoomStyles.warningText]}>
-            Stream URL not found!
+    <>
+      <HMSHLSPlayer
+        key={playerKey}
+        ref={hmsHlsPlayerRef}
+        enableStats={showHLSStats}
+        enableControls={enableHLSPlayerControls}
+        style={{
+          width: hlsPlayerConstraints.width,
+          height: hlsPlayerConstraints.height,
+        }}
+      />
+
+      <HLSPlayerEmoticons />
+
+      {showHLSStats ? (
+        <HLSPlayerStatsView onClosePress={handleClosePress} />
+      ) : null}
+
+      {showCustomHLSPlayerControls ? (
+        <CustomControls handleControlPress={hlsPlayerActions} />
+      ) : null}
+
+      {isPlaybackFailed ? (
+        <View
+          style={[
+            styles.playbackFailedContainer,
+            hmsRoomStyles.failedContainer,
+          ]}
+        >
+          <CrossCircleIcon />
+
+          <Text style={[styles.playbackFailed, hmsRoomStyles.failedText]}>
+            Playback Failed
           </Text>
         </View>
-      ) : (
-        <>
-          <HMSHLSPlayer
-            key={playerKey}
-            ref={hmsHlsPlayerRef}
-            enableStats={showHLSStats}
-            enableControls={enableHLSPlayerControls}
-            style={{
-              width: hlsPlayerConstraints.width,
-              height: hlsPlayerConstraints.height,
-            }}
-          />
-
-          <HLSPlayerEmoticons />
-
-          {showHLSStats ? (
-            <HLSPlayerStatsView onClosePress={handleClosePress} />
-          ) : null}
-
-          {showCustomHLSPlayerControls ? (
-            <CustomControls handleControlPress={hlsPlayerActions} />
-          ) : null}
-
-          {isPlaybackFailed ? (
-            <View
-              style={[
-                styles.playbackFailedContainer,
-                hmsRoomStyles.failedContainer,
-              ]}
-            >
-              <CrossCircleIcon />
-
-              <Text style={[styles.playbackFailed, hmsRoomStyles.failedText]}>
-                Playback Failed
-              </Text>
-            </View>
-          ) : null}
-        </>
-      )}
-    </View>
+      ) : null}
+    </>
   );
 };
 
-export const HLSPlayerView = React.memo(_HLSPlayerView);
+export const HLSPlayer = React.memo(_HLSPlayer);
 
 const styles = StyleSheet.create({
   hlsView: {
