@@ -3110,7 +3110,6 @@ export const useCanShowRoomOptionsButton = () => {
 };
 
 export const useHLSViewsConstraints = () => {
-  // const { width, height } = useWindowDimensions();
   const hlsFullScreen = useSelector(
     (state: RootState) => state.app.hlsFullScreen
   );
@@ -3124,14 +3123,12 @@ export const useHLSViewsConstraints = () => {
     right: rightInset,
   } = useSafeAreaInsets();
 
-  // console.log('Window Width > ', width, ' Window Height > ', height);
-  // console.log('Safe Width > ', safeAreaWidthFrame, ' Safe Height > ', safeAreaHeightFrame);
-  // console.log('Safe Top Inset > ', topInset, ' Safe Bottom Inset > ', bottomInset);
-
   const playerWrapperConstraints = hlsFullScreen
     ? {
-        width: safeAreaWidthFrame,
-        height: safeAreaHeightFrame,
+        width: safeAreaWidthFrame - leftInset - rightInset,
+        height: isLandscapeOrientation
+          ? safeAreaHeightFrame
+          : safeAreaHeightFrame - topInset - bottomInset,
       }
     : {
         width: isLandscapeOrientation
@@ -3173,46 +3170,43 @@ export const useHLSPlayerConstraints = () => {
   const wrapperWidth = playerWrapperConstraints.width;
   const wrapperHeight = playerWrapperConstraints.height;
 
-  if (isLandscapeOrientation) {
-    return resolution
-      ? resolution.width / resolution.height > 1
-        ? {
-            width: wrapperWidth,
-            height: (resolution.height / resolution.width) * wrapperWidth,
-          }
-        : {
-            width: (resolution.width / resolution.height) * wrapperHeight,
-            height: wrapperHeight,
-          }
-      : {
-          width: wrapperWidth,
-          height: wrapperHeight,
-        };
-  }
-
-  if (resolution) {
-    const ar = resolution.width / resolution.height; // stream width/height ratio
-
-    if (hlsFullScreen) {
-      const wr = wrapperWidth / wrapperHeight; // Wrapper width/height ratio
-
-      // console.log('wrapper ratio > ', wr);
-      // console.log('player ratio > ', ar);
-
-      return {
-        width: ar > wr ? wrapperWidth : wrapperHeight * ar,
-        height: ar > wr ? wrapperWidth / ar : wrapperHeight,
-      };
-    }
-
+  if (!resolution) {
     return {
-      width: wrapperHeight * ar,
+      width: wrapperWidth,
       height: wrapperHeight,
     };
   }
 
+  const sr = resolution.width / resolution.height; // stream width/height ratio
+  const wr = wrapperWidth / wrapperHeight; // Wrapper width/height ratio
+
+  /**
+   * Handling Landscape Orientation for both Full and Normal screen
+   */
+  if (isLandscapeOrientation) {
+    return sr > 1 || sr > wr
+      ? {
+          width: wrapperWidth,
+          height: wrapperWidth / sr,
+        }
+      : {
+          width: sr * wrapperHeight,
+          height: wrapperHeight,
+        };
+  }
+
+  /**
+   * Handling Portrait Orientation
+   */
+  if (hlsFullScreen) {
+    return {
+      width: sr > wr ? wrapperWidth : wrapperHeight * sr,
+      height: sr > wr ? wrapperWidth / sr : wrapperHeight,
+    };
+  }
+
   return {
-    width: wrapperWidth,
+    width: wrapperHeight * sr,
     height: wrapperHeight,
   };
 };
