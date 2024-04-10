@@ -1042,7 +1042,7 @@ export const useHMSRoleChangeRequest = (
 type SessionStoreListeners = Array<{ remove: () => void }>;
 
 export const useHMSSessionStoreListeners = (
-  gridViewRef: React.MutableRefObject<GridViewRefAttrs | null>
+  gridViewRef?: React.MutableRefObject<GridViewRefAttrs | null>
 ) => {
   const store = useStore<RootState>();
   const dispatch = useDispatch();
@@ -1063,7 +1063,7 @@ export const useHMSSessionStoreListeners = (
             // set value to the state to rerender the component to reflect changes
             dispatch(saveUserData({ spotlightTrackId: id }));
             // Scroll to start of the list
-            gridViewRef.current
+            gridViewRef?.current
               ?.getRegularTilesFlatlistRef()
               .current?.scrollToOffset({ animated: true, offset: 0 });
           }

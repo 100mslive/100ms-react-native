@@ -10,7 +10,12 @@ import { PreviewForRoleChangeModal } from './PreviewForRoleChangeModal';
 import { ChatAndParticipantsBottomSheet } from './ChatAndParticipants';
 import { DefaultModal } from './DefaultModal';
 import { ModalTypes, PipModes } from '../utils/types';
-import { useHMSRoomStyleSheet, useModalType } from '../hooks-util';
+import {
+  useHMSRoleChangeRequest,
+  useHMSRoomStyleSheet,
+  useHMSSessionStoreListeners,
+  useModalType,
+} from '../hooks-util';
 import { ChangeAspectRatio } from './Modals';
 import type { RootState } from '../redux';
 import { HLSChatView } from './HLSChatView';
@@ -36,6 +41,10 @@ export const HLSViewerScreenContent: React.FC<
     modalVisibleType: modalVisible,
     handleModalVisibleType: setModalVisible,
   } = useModalType();
+
+  useHMSSessionStoreListeners();
+
+  useHMSRoleChangeRequest();
 
   return (
     <View style={[styles.container, hmsRoomStyles.container]}>
