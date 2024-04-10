@@ -1,15 +1,15 @@
 Board: https://100ms.atlassian.net/jira/software/projects/RN/boards/33
 
-- Added Noise cancellation support
-https://100ms.atlassian.net/browse/RN-261
+- HLS: Remove webrtc header and footer + Bottom toolbar from HLS screen
+https://100ms.atlassian.net/browse/RN-266
 
-- Implement SIP HMSPeer type in SDK
-https://100ms.atlassian.net/browse/RN-262
+- HLS: Main Player UI with Chat below
+https://100ms.atlassian.net/browse/RN-264
 
-- Hand Raise as a Layout Config
-https://100ms.atlassian.net/browse/RN-277
+- HLS: Description Pane
+https://100ms.atlassian.net/browse/RN-265
 
-Room Kit: 1.1.5
-React Native SDK: 1.10.2
+Room Kit: 1.1.6
+React Native SDK: 1.10.3
 Android SDK: 2.9.53
 iOS SDK: 1.8.0
