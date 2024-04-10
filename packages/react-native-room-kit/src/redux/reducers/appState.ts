@@ -63,6 +63,7 @@ type IntialStateType = {
   initialRole: HMSRole | null;
   chatPeerBlacklist: string[]; // list of userIds
   hlsDescriptionPaneVisible: boolean;
+  hlsFullScreen: boolean;
 };
 
 const INITIAL_STATE: IntialStateType = {
@@ -101,6 +102,7 @@ const INITIAL_STATE: IntialStateType = {
   initialRole: null,
   chatPeerBlacklist: [],
   hlsDescriptionPaneVisible: false,
+  hlsFullScreen: false,
 };
 
 const appReducer = (
@@ -363,6 +365,12 @@ const appReducer = (
       return {
         ...state,
         hlsDescriptionPaneVisible: action.payload.visible,
+      };
+    }
+    case ActionTypes.SET_HLS_FULL_SCREEN: {
+      return {
+        ...state,
+        hlsFullScreen: action.payload.fullScreen,
       };
     }
     case HmsStateActionTypes.CLEAR_STATES:

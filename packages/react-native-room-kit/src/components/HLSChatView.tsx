@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { View } from 'react-native';
+import { useSelector } from 'react-redux';
 
 import { useHLSViewsConstraints, useHMSRoomStyleSheet } from '../hooks-util';
 import { HLSChatHeaderView } from './HLSChatHeaderView';
@@ -7,16 +8,24 @@ import { HLSChatFooterView } from './HLSChatFooterView';
 import { HLSChatMessages } from './HLSChatMessages';
 import { HLSDescriptionPane } from './HLSDescriptionPane';
 import { useIsLandscapeOrientation } from '../utils/dimension';
+import type { RootState } from '../redux';
 
 export const HLSChatView = () => {
   const isLandscapeOrientation = useIsLandscapeOrientation();
   const { chatWrapperConstraints } = useHLSViewsConstraints();
+  const hlsFullScreen = useSelector(
+    (state: RootState) => state.app.hlsFullScreen
+  );
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme) => ({
     wrapper: {
       backgroundColor: theme.palette.surface_dim,
     },
   }));
+
+  if (hlsFullScreen) {
+    return null;
+  }
 
   return (
     <View

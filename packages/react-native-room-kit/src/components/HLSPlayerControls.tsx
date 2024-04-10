@@ -1,12 +1,17 @@
 import React from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
 
 import {
   // CCIcon,
   CloseIcon,
+  MaximizeIcon,
+  MinimizeIcon,
 } from '../Icons';
 import { ModalTypes } from '../utils/types';
 import { useModalType } from '../hooks-util';
+import type { RootState } from '../redux';
+import { setHlsFullScreen } from '../redux/actions';
 
 export const _HLSPlayerControls: React.FC = () => {
   // const isHLSStreaming = useIsHLSStreamingOn();
@@ -14,7 +19,10 @@ export const _HLSPlayerControls: React.FC = () => {
   //   (state: RootState) =>
   //     !!state.hmsStates.room?.hlsStreamingState.variants?.[0]?.hlsStreamUrl
   // );
-
+  const dispatch = useDispatch();
+  const hlsFullScreen = useSelector(
+    (state: RootState) => state.app.hlsFullScreen
+  );
   const { handleModalVisibleType } = useModalType();
 
   const handleCloseBtnPress = () => {
@@ -25,9 +33,13 @@ export const _HLSPlayerControls: React.FC = () => {
   //   //
   // };
 
+  const toggleFullScreen = () => {
+    dispatch(setHlsFullScreen(!hlsFullScreen));
+  };
+
   return (
     <View style={styles.container}>
-      <View style={styles.topControlsRow}>
+      <View style={styles.controlsRow}>
         <TouchableOpacity onPress={handleCloseBtnPress} style={styles.icon}>
           <CloseIcon size="medium" />
         </TouchableOpacity>
@@ -41,11 +53,20 @@ export const _HLSPlayerControls: React.FC = () => {
           </TouchableOpacity>
         </View> */}
       </View>
-      {/* <View style={styles.topControlsRow}>
-        <TouchableOpacity onPress={handleCloseBtnPress} style={styles.icon}>
-          <CloseIcon size="medium" />
-        </TouchableOpacity>
-      </View> */}
+
+      <View style={styles.controlsRow}>
+        <View />
+
+        <View style={[styles.normalRow, styles.gap]}>
+          <TouchableOpacity onPress={toggleFullScreen} style={styles.icon}>
+            {hlsFullScreen ? (
+              <MinimizeIcon size="medium" />
+            ) : (
+              <MaximizeIcon size="medium" />
+            )}
+          </TouchableOpacity>
+        </View>
+      </View>
     </View>
   );
 };
@@ -58,8 +79,9 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     zIndex: 5,
+    justifyContent: 'space-between',
   },
-  topControlsRow: {
+  controlsRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',

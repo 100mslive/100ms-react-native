@@ -3111,6 +3111,9 @@ export const useCanShowRoomOptionsButton = () => {
 
 export const useHLSViewsConstraints = () => {
   // const { width, height } = useWindowDimensions();
+  const hlsFullScreen = useSelector(
+    (state: RootState) => state.app.hlsFullScreen
+  );
   const isLandscapeOrientation = useIsLandscapeOrientation();
   const { width: safeAreaWidthFrame, height: safeAreaHeightFrame } =
     useSafeAreaFrame();
@@ -3125,14 +3128,19 @@ export const useHLSViewsConstraints = () => {
   // console.log('Safe Width > ', safeAreaWidthFrame, ' Safe Height > ', safeAreaHeightFrame);
   // console.log('Safe Top Inset > ', topInset, ' Safe Bottom Inset > ', bottomInset);
 
-  const playerWrapperConstraints = {
-    width: isLandscapeOrientation
-      ? (safeAreaWidthFrame - leftInset - rightInset) * 0.6
-      : safeAreaWidthFrame,
-    height: isLandscapeOrientation
-      ? safeAreaHeightFrame
-      : (safeAreaWidthFrame * 9) / 16,
-  };
+  const playerWrapperConstraints = hlsFullScreen
+    ? {
+        width: safeAreaWidthFrame,
+        height: safeAreaHeightFrame,
+      }
+    : {
+        width: isLandscapeOrientation
+          ? (safeAreaWidthFrame - leftInset - rightInset) * 0.6
+          : safeAreaWidthFrame,
+        height: isLandscapeOrientation
+          ? safeAreaHeightFrame
+          : (safeAreaWidthFrame * 9) / 16,
+      };
 
   const chatWrapperConstraints = {
     width: isLandscapeOrientation
@@ -3153,6 +3161,9 @@ export const useHLSViewsConstraints = () => {
 };
 
 export const useHLSPlayerConstraints = () => {
+  const hlsFullScreen = useSelector(
+    (state: RootState) => state.app.hlsFullScreen
+  );
   const isLandscapeOrientation = useIsLandscapeOrientation();
 
   const resolution = useHMSHLSPlayerResolution();
@@ -3179,13 +3190,29 @@ export const useHLSPlayerConstraints = () => {
         };
   }
 
-  return resolution
-    ? {
-        width: wrapperHeight * (resolution.width / resolution.height),
-        height: wrapperHeight,
-      }
-    : {
-        width: wrapperWidth,
-        height: wrapperHeight,
+  if (resolution) {
+    const ar = resolution.width / resolution.height; // stream width/height ratio
+
+    if (hlsFullScreen) {
+      const wr = wrapperWidth / wrapperHeight; // Wrapper width/height ratio
+
+      // console.log('wrapper ratio > ', wr);
+      // console.log('player ratio > ', ar);
+
+      return {
+        width: ar > wr ? wrapperWidth : wrapperHeight * ar,
+        height: ar > wr ? wrapperWidth / ar : wrapperHeight,
       };
+    }
+
+    return {
+      width: wrapperHeight * ar,
+      height: wrapperHeight,
+    };
+  }
+
+  return {
+    width: wrapperWidth,
+    height: wrapperHeight,
+  };
 };

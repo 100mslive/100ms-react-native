@@ -481,6 +481,11 @@ export const setHlsDescriptionPaneVisible = (visible: boolean) => ({
   payload: { visible },
 });
 
+export const setHlsFullScreen = (fullScreen: boolean) => ({
+  type: actionTypes.SET_HLS_FULL_SCREEN,
+  payload: { fullScreen },
+});
+
 /**
  * POLLS
  */
