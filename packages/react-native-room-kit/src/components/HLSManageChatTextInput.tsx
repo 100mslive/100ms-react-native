@@ -1,8 +1,10 @@
 import * as React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useSelector } from 'react-redux';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
+  useHLSViewsConstraints,
   useHMSChatState,
   useHMSRoomStyleSheet,
   useIsAllowedToSendMessage,
@@ -14,6 +16,7 @@ import { ChatFilterBottomSheetOpener } from './Chat/ChatFilterBottomSheetOpener'
 import { HMSSendMessageInput } from './HMSSendMessageInput';
 import type { RootState } from '../redux';
 import { ChatFilterBottomSheet } from './Chat/ChatFilterBottomSheet';
+import { HMSKeyboardAvoidingView } from './HMSKeyboardAvoidingView';
 
 export const HLSManageChatTextInput = () => {
   const { chatState } = useHMSChatState();
@@ -30,6 +33,17 @@ export const HLSManageChatTextInput = () => {
     },
   }));
 
+  const { chatWrapperConstraints } = useHLSViewsConstraints();
+  const { bottom: bottomInset } = useSafeAreaInsets();
+
+  const keyboardAvoidingStyles = React.useMemo(
+    () => ({
+      active: { width: chatWrapperConstraints.width - 32 },
+      inactive: { width: '100%' },
+    }),
+    [chatWrapperConstraints]
+  );
+
   if (isLocalPeerBlockedFromChat) {
     return <PeerBlockedFromChat style={styles.shrink} />;
   }
@@ -43,9 +57,15 @@ export const HLSManageChatTextInput = () => {
           <ChatFilterBottomSheetOpener useFilterModal={true} />
 
           {isAllowedToSendMessage && isChatRecipientSelected ? (
-            <HMSSendMessageInput
-              containerStyle={[styles.input, hmsRoomStyles.input]}
-            />
+            <HMSKeyboardAvoidingView
+              bottomOffset={bottomInset}
+              styleWhenActive={keyboardAvoidingStyles.active}
+              styleWhenInactive={keyboardAvoidingStyles.inactive}
+            >
+              <HMSSendMessageInput
+                containerStyle={[styles.input, hmsRoomStyles.input]}
+              />
+            </HMSKeyboardAvoidingView>
           ) : null}
         </View>
 

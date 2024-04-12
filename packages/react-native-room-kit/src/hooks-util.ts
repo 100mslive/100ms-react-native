@@ -1840,6 +1840,7 @@ export const useHMSConfig = () => {
 };
 
 export const useShowChatAndParticipants = () => {
+  const isHLSViewer = useIsHLSViewer();
   const dispatch = useDispatch();
   const { modalVisibleType, handleModalVisibleType: setModalVisible } =
     useModalType();
@@ -1848,7 +1849,8 @@ export const useShowChatAndParticipants = () => {
     (chatConfig) => chatConfig?.is_overlay
   );
   const canShowChat = useHMSConferencingScreenConfig(
-    (conferencingScreenConfig) => !!conferencingScreenConfig?.elements?.chat
+    (conferencingScreenConfig) =>
+      !!conferencingScreenConfig?.elements?.chat && !isHLSViewer
   );
   const canShowParticipants = useHMSConferencingScreenConfig(
     (conferencingScreenConfig) =>
@@ -2560,15 +2562,16 @@ export const useBackButtonPress = () => {
 };
 
 export const useLandscapeImmersiveMode = () => {
+  const isHLSViewer = useIsHLSViewer();
   const isLandscapeOrientation = useIsLandscapeOrientation();
 
   useEffect(() => {
-    if (isLandscapeOrientation) {
+    if (!isHLSViewer && isLandscapeOrientation) {
       WindowController.hideSystemBars();
 
       return WindowController.showSystemBars;
     }
-  }, [isLandscapeOrientation]);
+  }, [isHLSViewer, isLandscapeOrientation]);
 };
 
 export const useHLSCuedPolls = () => {
