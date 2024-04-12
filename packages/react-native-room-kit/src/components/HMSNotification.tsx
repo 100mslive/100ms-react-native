@@ -4,7 +4,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import type { StyleProp, ViewStyle, TextStyle, TextProps } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
-import { useHMSRoomStyleSheet } from '../hooks-util';
+import { useHMSRoomStyleSheet, useIsHLSViewer } from '../hooks-util';
 import { ChatIcon, CloseIcon } from '../Icons';
 import { UnmountAfterDelay } from './UnmountAfterDelay';
 import { removeNotification } from '../redux/actions';
@@ -39,20 +39,26 @@ export const HMSNotification: React.FC<HMSNotificationProps> = ({
   dismissable = false,
 }) => {
   const dispatch = useDispatch();
+  const isHLSViewer = useIsHLSViewer();
 
-  const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
-    container: {
-      backgroundColor: theme.palette.surface_dim,
-    },
-    text: {
-      color: theme.palette.on_surface_high,
-      fontFamily: `${typography.font_family}-SemiBold`,
-    },
-    description: {
-      color: theme.palette.on_surface_medium,
-      fontFamily: `${typography.font_family}-Regular`,
-    },
-  }));
+  const hmsRoomStyles = useHMSRoomStyleSheet(
+    (theme, typography) => ({
+      container: {
+        backgroundColor: isHLSViewer
+          ? theme.palette.surface_default
+          : theme.palette.surface_dim,
+      },
+      text: {
+        color: theme.palette.on_surface_high,
+        fontFamily: `${typography.font_family}-SemiBold`,
+      },
+      description: {
+        color: theme.palette.on_surface_medium,
+        fontFamily: `${typography.font_family}-Regular`,
+      },
+    }),
+    [isHLSViewer]
+  );
 
   const dismissNotification =
     onDismiss ||
