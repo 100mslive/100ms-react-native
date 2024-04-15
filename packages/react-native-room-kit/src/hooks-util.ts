@@ -155,7 +155,16 @@ import { getRoomLayout } from './modules/HMSManager';
 import { DEFAULT_THEME, DEFAULT_TYPOGRAPHY } from './utils/theme';
 import { NotificationTypes } from './types';
 import { KeyboardState, useSharedValue } from 'react-native-reanimated';
-import { useHMSActions } from './hooks-sdk';
+import {
+  useCanPublishAudio,
+  useCanPublishScreen,
+  useCanPublishVideo,
+  useHMSActions,
+} from './hooks-sdk';
+import {
+  useSafeAreaFrame,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
 
 export const useHMSListeners = (
   setPeerTrackNodes: React.Dispatch<React.SetStateAction<PeerTrackNode[]>>
@@ -1033,7 +1042,7 @@ export const useHMSRoleChangeRequest = (
 type SessionStoreListeners = Array<{ remove: () => void }>;
 
 export const useHMSSessionStoreListeners = (
-  gridViewRef: React.MutableRefObject<GridViewRefAttrs | null>
+  gridViewRef?: React.MutableRefObject<GridViewRefAttrs | null>
 ) => {
   const store = useStore<RootState>();
   const dispatch = useDispatch();
@@ -1054,7 +1063,7 @@ export const useHMSSessionStoreListeners = (
             // set value to the state to rerender the component to reflect changes
             dispatch(saveUserData({ spotlightTrackId: id }));
             // Scroll to start of the list
-            gridViewRef.current
+            gridViewRef?.current
               ?.getRegularTilesFlatlistRef()
               .current?.scrollToOffset({ animated: true, offset: 0 });
           }
@@ -1831,6 +1840,7 @@ export const useHMSConfig = () => {
 };
 
 export const useShowChatAndParticipants = () => {
+  const isHLSViewer = useIsHLSViewer();
   const dispatch = useDispatch();
   const { modalVisibleType, handleModalVisibleType: setModalVisible } =
     useModalType();
@@ -1839,7 +1849,8 @@ export const useShowChatAndParticipants = () => {
     (chatConfig) => chatConfig?.is_overlay
   );
   const canShowChat = useHMSConferencingScreenConfig(
-    (conferencingScreenConfig) => !!conferencingScreenConfig?.elements?.chat
+    (conferencingScreenConfig) =>
+      !!conferencingScreenConfig?.elements?.chat && !isHLSViewer
   );
   const canShowParticipants = useHMSConferencingScreenConfig(
     (conferencingScreenConfig) =>
@@ -2551,15 +2562,16 @@ export const useBackButtonPress = () => {
 };
 
 export const useLandscapeImmersiveMode = () => {
+  const isHLSViewer = useIsHLSViewer();
   const isLandscapeOrientation = useIsLandscapeOrientation();
 
   useEffect(() => {
-    if (isLandscapeOrientation) {
+    if (!isHLSViewer && isLandscapeOrientation) {
       WindowController.hideSystemBars();
 
       return WindowController.showSystemBars;
     }
-  }, [isLandscapeOrientation]);
+  }, [isHLSViewer, isLandscapeOrientation]);
 };
 
 export const useHLSCuedPolls = () => {
@@ -3033,4 +3045,171 @@ export const useAllowBlockingPeerFromChat = () => {
   return useHMSChatLayoutConfig(
     (config) => config?.real_time_controls?.can_block_user ?? false
   );
+};
+
+export const useCanShowRoomOptionsButton = () => {
+  const canPublishAudio = useCanPublishAudio();
+  const canPublishVideo = useCanPublishVideo();
+  const canPublishScreen = useCanPublishScreen();
+
+  const isViewer = !(canPublishAudio || canPublishVideo || canPublishScreen);
+
+  const editUsernameDisabled = useSelector(
+    (state: RootState) => state.app.editUsernameDisabled
+  );
+
+  const [isNoiseCancellationAvailable, setIsNoiseCancellationAvailable] =
+    useState(false);
+  const noiseCancellationPlugin = useSelector(
+    (state: RootState) => state.hmsStates.noiseCancellationPlugin
+  );
+  useEffect(() => {
+    if (noiseCancellationPlugin) {
+      let mounted = true;
+
+      noiseCancellationPlugin
+        .isNoiseCancellationAvailable()
+        .then((isAvailable) => {
+          if (mounted) {
+            setIsNoiseCancellationAvailable(isAvailable);
+          }
+        });
+
+      return () => {
+        mounted = false;
+      };
+    }
+  }, [noiseCancellationPlugin]);
+
+  const canShowBRB = useHMSLayoutConfig(
+    (layoutConfig) =>
+      !!layoutConfig?.screens?.conferencing?.default?.elements?.brb
+  );
+
+  const canStartRecording = useSelector(
+    (state: RootState) =>
+      !!state.hmsStates.localPeer?.role?.permissions?.browserRecording
+  );
+
+  const canReadOrWritePoll = useSelector((state: RootState) => {
+    const permissions = state.hmsStates.localPeer?.role?.permissions;
+    return permissions?.pollRead || permissions?.pollWrite;
+  });
+
+  const { canShowParticipants } = useShowChatAndParticipants();
+
+  const canEditUsernameFromRoomModal = isViewer && !editUsernameDisabled;
+
+  const canShowOptions =
+    canShowParticipants ||
+    canPublishScreen ||
+    canShowBRB ||
+    canStartRecording ||
+    canEditUsernameFromRoomModal ||
+    canReadOrWritePoll ||
+    isNoiseCancellationAvailable;
+
+  return canShowOptions;
+};
+
+export const useHLSViewsConstraints = () => {
+  const hlsFullScreen = useSelector(
+    (state: RootState) => state.app.hlsFullScreen
+  );
+  const isLandscapeOrientation = useIsLandscapeOrientation();
+  const { width: safeAreaWidthFrame, height: safeAreaHeightFrame } =
+    useSafeAreaFrame();
+  const {
+    top: topInset,
+    bottom: bottomInset,
+    left: leftInset,
+    right: rightInset,
+  } = useSafeAreaInsets();
+
+  const playerWrapperConstraints = hlsFullScreen
+    ? {
+        width: safeAreaWidthFrame - leftInset - rightInset,
+        height: isLandscapeOrientation
+          ? safeAreaHeightFrame
+          : safeAreaHeightFrame - topInset - bottomInset,
+      }
+    : {
+        width: isLandscapeOrientation
+          ? (safeAreaWidthFrame - leftInset - rightInset) * 0.6
+          : safeAreaWidthFrame,
+        height: isLandscapeOrientation
+          ? safeAreaHeightFrame
+          : (safeAreaWidthFrame * 9) / 16,
+      };
+
+  const chatWrapperConstraints = {
+    width: isLandscapeOrientation
+      ? safeAreaWidthFrame - playerWrapperConstraints.width - leftInset
+      : playerWrapperConstraints.width,
+    height: isLandscapeOrientation
+      ? playerWrapperConstraints.height
+      : safeAreaHeightFrame - playerWrapperConstraints.height - topInset,
+  };
+
+  const descriptionPaneConstraints = chatWrapperConstraints;
+
+  return {
+    playerWrapperConstraints,
+    chatWrapperConstraints,
+    descriptionPaneConstraints,
+  };
+};
+
+export const useHLSPlayerConstraints = () => {
+  const hlsFullScreen = useSelector(
+    (state: RootState) => state.app.hlsFullScreen
+  );
+  const isLandscapeOrientation = useIsLandscapeOrientation();
+
+  const resolution = useHMSHLSPlayerResolution();
+
+  const { playerWrapperConstraints } = useHLSViewsConstraints();
+
+  const wrapperWidth = playerWrapperConstraints.width;
+  const wrapperHeight = playerWrapperConstraints.height;
+
+  if (!resolution) {
+    return {
+      width: wrapperWidth,
+      height: wrapperHeight,
+    };
+  }
+
+  const sr = resolution.width / resolution.height; // stream width/height ratio
+  const wr = wrapperWidth / wrapperHeight; // Wrapper width/height ratio
+
+  /**
+   * Handling Landscape Orientation for both Full and Normal screen
+   */
+  if (isLandscapeOrientation) {
+    return sr > 1 || sr > wr
+      ? {
+          width: wrapperWidth,
+          height: wrapperWidth / sr,
+        }
+      : {
+          width: sr * wrapperHeight,
+          height: wrapperHeight,
+        };
+  }
+
+  /**
+   * Handling Portrait Orientation
+   */
+  if (hlsFullScreen) {
+    return {
+      width: sr > wr ? wrapperWidth : wrapperHeight * sr,
+      height: sr > wr ? wrapperWidth / sr : wrapperHeight,
+    };
+  }
+
+  return {
+    width: wrapperHeight * sr,
+    height: wrapperHeight,
+  };
 };

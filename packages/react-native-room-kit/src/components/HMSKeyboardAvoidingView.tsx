@@ -12,12 +12,20 @@ import { useKeyboardState } from '../hooks-util';
 
 export interface HMSKeyboardAvoidingViewProps {
   style?: StyleProp<Animated.AnimateStyle<StyleProp<ViewStyle>>>;
+  styleWhenInactive?: ViewStyle;
+  styleWhenActive?: ViewStyle;
   bottomOffset?: number | SharedValue<number>;
 }
 
 export const HMSKeyboardAvoidingView: React.FC<
   HMSKeyboardAvoidingViewProps
-> = ({ children, style, bottomOffset = 0 }) => {
+> = ({
+  children,
+  style,
+  styleWhenInactive,
+  styleWhenActive,
+  bottomOffset = 0,
+}) => {
   const animatedKeyboard = useAnimatedKeyboard();
   const { keyboardState } = useKeyboardState();
 
@@ -27,14 +35,16 @@ export const HMSKeyboardAvoidingView: React.FC<
 
   const keyboardAvoidStyle = useAnimatedStyle(() => {
     const keyboardHeight = animatedKeyboard.height.value;
+    const keyboardHidden =
+      keyboardHeight <= initialPageY.value ||
+      keyboardState.value === KeyboardState.CLOSED;
     return {
+      ...(keyboardHidden ? styleWhenInactive : styleWhenActive),
       transform: [
         {
-          translateY:
-            keyboardHeight <= initialPageY.value ||
-            keyboardState.value === KeyboardState.CLOSED
-              ? 0 // Keep element at original `pageY` till and when keyboard height is less than `pageY`
-              : -(keyboardHeight - initialPageY.value),
+          translateY: keyboardHidden
+            ? 0 // Keep element at original `pageY` till and when keyboard height is less than `pageY`
+            : -(keyboardHeight - initialPageY.value),
         },
       ],
     };

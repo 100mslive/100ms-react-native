@@ -44,6 +44,7 @@ const styles = StyleSheet.create({
     // transform: [Platform.OS === 'android' ? { scale: -1 } : { scaleY: -1 }],
   },
   landscapeCoverImage: {
+    height: '30%',
     flexShrink: 1,
     resizeMode: 'contain',
   },

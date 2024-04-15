@@ -4,10 +4,13 @@ import type { ImageProps } from 'react-native';
 
 import { useHMSRoomStyle } from '../../hooks-util';
 
-interface MinimizeIconProps extends Omit<ImageProps, 'source'> {}
+interface MinimizeIconProps extends Omit<ImageProps, 'source'> {
+  size?: 'normal' | 'medium';
+}
 
 export const MinimizeIcon: React.FC<MinimizeIconProps> = ({
   style,
+  size = 'normal',
   ...restProps
 }) => {
   const iconStyles = useHMSRoomStyle((theme) => ({
@@ -16,8 +19,17 @@ export const MinimizeIcon: React.FC<MinimizeIconProps> = ({
 
   return (
     <Image
-      source={require('./assets/minimize.png')}
-      style={[styles.icon, iconStyles, style]}
+      source={
+        size === 'medium'
+          ? require('./assets/minimize-med.png')
+          : require('./assets/minimize.png')
+      }
+      style={[
+        styles.icon,
+        iconStyles,
+        size === 'medium' ? styles.medSize : null,
+        style,
+      ]}
       {...restProps}
     />
   );
@@ -29,5 +41,9 @@ const styles = StyleSheet.create({
     height: 24,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  medSize: {
+    width: 32,
+    height: 32,
   },
 });

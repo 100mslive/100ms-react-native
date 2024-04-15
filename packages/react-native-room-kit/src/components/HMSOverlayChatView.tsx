@@ -32,11 +32,13 @@ const colors = [
 ];
 const colorLocations = [0, 0.4, 1];
 
-export interface HLSChatViewProps {
+export interface HMSOverlayChatViewProps {
   offset?: SharedValue<number>;
 }
 
-export const HLSChatView: React.FC<HLSChatViewProps> = ({ offset }) => {
+export const HMSOverlayChatView: React.FC<HMSOverlayChatViewProps> = ({
+  offset,
+}) => {
   const footerHeight = useFooterHeight();
   const hmsNotificationsHeight = useHMSNotificationsHeight();
   const { chatState } = useHMSChatState();
@@ -77,7 +79,12 @@ export const HLSChatView: React.FC<HLSChatViewProps> = ({ offset }) => {
         {chatState.enabled ? (
           <>
             <View style={styles.filterSheetWrapper}>
-              <ChatFilterBottomSheetOpener insetMode={true} />
+              <ChatFilterBottomSheetOpener
+                overlay={true}
+                useFilterModal={true}
+                showActionBtn={true}
+                useActionModal={true}
+              />
             </View>
 
             {isLocalPeerBlockedFromChat ? (

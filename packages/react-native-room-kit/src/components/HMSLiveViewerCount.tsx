@@ -5,17 +5,14 @@ import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
 import {
   useHMSRoomStyleSheet,
-  useIsHLSViewer,
   useShowChatAndParticipants,
 } from '../hooks-util';
 import { EyeIcon } from '../Icons';
-import { hexToRgbA } from '../utils/theme';
 import type { RootState } from '../redux';
 import { TestIds } from '../utils/constants';
 import { useIsAnyStreamingOn } from '../hooks-sdk';
 
 const _HMSLiveViewerCount = () => {
-  const isHLSViewer = useIsHLSViewer();
   const previewPeerCount = useSelector(
     (state: RootState) => state.hmsStates.room?.peerCount
   );
@@ -23,11 +20,8 @@ const _HMSLiveViewerCount = () => {
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typograhy) => ({
     viewers: {
-      backgroundColor: isHLSViewer
-        ? theme.palette.background_dim &&
-          hexToRgbA(theme.palette.background_dim, 0.64)
-        : undefined,
-      borderWidth: isHLSViewer ? 0 : 1,
+      backgroundColor: undefined,
+      borderWidth: 1,
       borderColor: theme.palette.border_bright,
     },
     count: {
