@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import { View, StyleSheet } from 'react-native';
 
 import { useHLSViewsConstraints } from '../hooks-util';
@@ -6,7 +6,7 @@ import { HLSPlayer } from './HLSPlayer';
 import { HLSPlayerControls } from './HLSPlayerControls';
 
 export const _HLSPlayerContainer: React.FC = () => {
-  const hlsPlayerRef = useRef(null);
+  // const hlsPlayerRef = useRef(null);
   const { playerWrapperConstraints } = useHLSViewsConstraints();
 
   return (
