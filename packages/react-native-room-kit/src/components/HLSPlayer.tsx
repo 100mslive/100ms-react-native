@@ -1,7 +1,13 @@
 import React, { useRef } from 'react';
 import type { ComponentRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { View, Text, StyleSheet, Platform } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Platform,
+  ActivityIndicator,
+} from 'react-native';
 import {
   HMSHLSPlayer,
   HMSHLSPlayerPlaybackState,
@@ -16,7 +22,11 @@ import { CustomControls } from './CustomHLSPlayerControls';
 import { COLORS, hexToRgbA } from '../utils/theme';
 import { HMSHLSNotStarted } from './HMSHLSNotStarted';
 import { CrossCircleIcon } from '../Icons';
-import { useHLSPlayerConstraints, useHMSRoomStyleSheet } from '../hooks-util';
+import {
+  useHLSPlayerConstraints,
+  useHMSRoomColorPalette,
+  useHMSRoomStyleSheet,
+} from '../hooks-util';
 import { useIsHLSStreamingOn } from '../hooks-sdk';
 
 export const _HLSPlayer: React.FC = () => {
@@ -104,6 +114,9 @@ export const _HLSPlayer: React.FC = () => {
   const isPlaybackFailed =
     hlsPlayerPlaybackState === HMSHLSPlayerPlaybackState.FAILED;
 
+  const isPlayerBuffering =
+    hlsPlayerPlaybackState === HMSHLSPlayerPlaybackState.BUFFERING;
+
   React.useEffect(() => {
     const prevReconnecting = prevReconnectingRef.current;
 
@@ -135,6 +148,8 @@ export const _HLSPlayer: React.FC = () => {
       fontFamily: `${typography.font_family}-SemiBold`,
     },
   }));
+
+  const { primary_bright: PrimaryBrightColor } = useHMSRoomColorPalette();
 
   if (!isHLSStreaming) return <HMSHLSNotStarted />;
 
@@ -168,6 +183,17 @@ export const _HLSPlayer: React.FC = () => {
 
       {showCustomHLSPlayerControls ? (
         <CustomControls handleControlPress={hlsPlayerActions} />
+      ) : null}
+
+      {isPlayerBuffering ? (
+        <View
+          style={[
+            styles.playbackFailedContainer,
+            hmsRoomStyles.failedContainer,
+          ]}
+        >
+          <ActivityIndicator size={'large'} color={PrimaryBrightColor} />
+        </View>
       ) : null}
 
       {isPlaybackFailed ? (
