@@ -8,7 +8,6 @@ import Animated, {
 import type { SharedValue } from 'react-native-reanimated';
 
 import { useHeaderHeight } from './Header';
-import { useIsHLSViewer } from '../hooks-util';
 
 export interface AnimatedHeaderProps {
   offset: SharedValue<number>;
@@ -18,23 +17,16 @@ export const AnimatedHeader: React.FC<AnimatedHeaderProps> = ({
   children,
   offset,
 }) => {
-  const isHLSViewer = useIsHLSViewer();
   const headerHeight = useHeaderHeight();
 
   const animatedStyles = useAnimatedStyle(() => {
-    if (isHLSViewer) {
-      return {
-        opacity: offset.value,
-        transform: [{ translateY: 0 }],
-      };
-    }
     return {
       opacity: interpolate(offset.value, [0, 0.3, 1], [0, 0.7, 1]),
       transform: [
         { translateY: interpolate(offset.value, [0, 1], [-headerHeight, 0]) },
       ],
     };
-  }, [headerHeight, isHLSViewer]);
+  }, [headerHeight]);
 
   const animatedProps = useAnimatedProps((): {
     pointerEvents: 'none' | 'auto';

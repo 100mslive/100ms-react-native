@@ -13,6 +13,7 @@ import { AlertTriangleIcon } from '../Icons';
 import { HMSReconnectingNotification } from './HMSReconnectingNotification';
 import { useIsLandscapeOrientation } from '../utils/dimension';
 import { HMSPollsQuizzesNotification } from './HMSPollsQuizzesNotification';
+import { useIsHLSViewer } from '../hooks-util';
 
 export interface HMSNotificationsProps {}
 
@@ -25,6 +26,7 @@ export const HMSNotifications: React.FC<HMSNotificationsProps> = () => {
   const isLocalScreenShared = useSelector(
     (state: RootState) => state.hmsStates.isLocalScreenShared
   );
+  const isHLSViewer = useIsHLSViewer();
   const isLandscapeOrientation = useIsLandscapeOrientation();
 
   // notifications is a stack, first will appear last
@@ -84,7 +86,7 @@ export const HMSNotifications: React.FC<HMSNotificationsProps> = () => {
   return (
     <View
       style={[
-        isLandscapeOrientation
+        isLandscapeOrientation && !isHLSViewer
           ? styles.absoluteLandscapeContainer
           : styles.absoluteContainer,
         { paddingTop: (notifications.length - 1) * 16 },

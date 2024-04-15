@@ -4,7 +4,6 @@ import type { TouchableOpacityProps } from 'react-native';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 
 import { useHMSRoomStyleSheet, useIsHLSViewer } from '../hooks-util';
-import { hexToRgbA } from '../utils/theme';
 
 interface PressableIconProps extends Omit<TouchableOpacityProps, 'children'> {
   children: Pick<TouchableOpacityProps, 'children'>;
@@ -27,8 +26,7 @@ export const PressableIcon: React.FC<PressableIconProps> = ({
     (theme) => ({
       pressable: {
         backgroundColor: isHLSViewer
-          ? theme.palette.background_dim &&
-            hexToRgbA(theme.palette.background_dim, 0.64)
+          ? theme.palette.surface_default
           : undefined,
       },
       border: {

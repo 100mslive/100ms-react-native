@@ -28,12 +28,20 @@ import { ChatBroadcastFilter, ModalTypes } from '../../utils/types';
 import { hexToRgbA } from '../../utils/theme';
 
 interface ChatFilterBottomSheetOpenerProps {
-  insetMode?: boolean;
+  overlay?: boolean;
+  useFilterModal?: boolean;
+  showActionBtn?: boolean;
+  useActionModal?: boolean;
 }
 
 const _ChatFilterBottomSheetOpener: React.FC<
   ChatFilterBottomSheetOpenerProps
-> = ({ insetMode = false }) => {
+> = ({
+  overlay = false,
+  useFilterModal = false,
+  showActionBtn = false,
+  useActionModal = false,
+}) => {
   const dispatch = useDispatch();
   const canDisableChat = useHMSCanDisableChat();
   const chatRecipients = useHMSChatRecipientSelector();
@@ -51,7 +59,7 @@ const _ChatFilterBottomSheetOpener: React.FC<
         fontFamily: `${typography.font_family}-Regular`,
       },
       button: {
-        backgroundColor: insetMode
+        backgroundColor: overlay
           ? theme.palette.background_dim &&
             hexToRgbA(theme.palette.background_dim, 0.64)
           : theme.palette.primary_default,
@@ -66,16 +74,16 @@ const _ChatFilterBottomSheetOpener: React.FC<
           hexToRgbA(theme.palette.background_dim, 0.64),
       },
       moreActionIcon: {
-        tintColor: insetMode
+        tintColor: overlay
           ? theme.palette.on_surface_low
           : theme.palette.on_surface_medium,
       },
     }),
-    [insetMode]
+    [overlay]
   );
 
   const openChatFiltersSheet = () => {
-    if (insetMode) {
+    if (useFilterModal) {
       handleModalVisibleType(ModalTypes.CHAT_FILTER);
     } else {
       dispatch(setChatFilterSheetVisible(true));
@@ -83,7 +91,7 @@ const _ChatFilterBottomSheetOpener: React.FC<
   };
 
   const openChatMoreActionsSheet = () => {
-    if (insetMode) {
+    if (useActionModal) {
       handleModalVisibleType(ModalTypes.CHAT_MORE_ACTIONS);
     } else {
       dispatch(setChatMoreActionsSheetVisible(true));
@@ -155,7 +163,7 @@ const _ChatFilterBottomSheetOpener: React.FC<
         <View />
       )}
 
-      {canDisableChat && insetMode ? (
+      {canDisableChat && showActionBtn ? (
         <PressableIcon
           onPress={openChatMoreActionsSheet}
           style={[styles.moreAction, hmsRoomStyles.moreAction]}
