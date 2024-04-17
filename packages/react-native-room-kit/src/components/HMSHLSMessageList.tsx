@@ -5,8 +5,8 @@ import { FlashList } from '@shopify/flash-list';
 import type { HMSMessage } from '@100mslive/react-native-hms';
 
 import type { RootState } from '../redux';
-import { HMSHLSMessage } from './HMSHLSMessage';
 import { useIsLandscapeOrientation } from '../utils/dimension';
+import { HMSOverlayMessageView } from './HMSOverlayMessageView';
 
 export const HMSHLSMessageList: React.FC = () => {
   const { height: windowHeight } = useWindowDimensions();
@@ -19,7 +19,7 @@ export const HMSHLSMessageList: React.FC = () => {
   );
 
   const _renderItem = React.useCallback((data: { item: HMSMessage }) => {
-    return <HMSHLSMessage message={data.item} />;
+    return <HMSOverlayMessageView message={data.item} />;
   }, []);
 
   if (messages.length <= 0) {
