@@ -1,6 +1,17 @@
 import React from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import type { ViewProps, ViewStyle } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
+import Animated, {
+  Easing,
+  cancelAnimation,
+  useAnimatedProps,
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withTiming,
+} from 'react-native-reanimated';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
 import {
   // CCIcon,
@@ -38,7 +49,7 @@ export const _HLSPlayerControls: React.FC = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <AutoHideView>
       <View style={styles.controlsRow}>
         <TouchableOpacity onPress={handleCloseBtnPress} style={styles.icon}>
           <CloseIcon size="medium" />
@@ -67,18 +78,80 @@ export const _HLSPlayerControls: React.FC = () => {
           </TouchableOpacity>
         </View>
       </View>
-    </View>
+    </AutoHideView>
   );
 };
+
+interface AutoHideViewProps {}
+
+const _AutoHideView: React.FC<AutoHideViewProps> = ({ children }) => {
+  const animatedValue = useSharedValue(1);
+
+  const hideControlsStyles: ViewStyle = useAnimatedStyle(
+    () => ({
+      opacity: animatedValue.value,
+    }),
+    []
+  );
+
+  const hideControlsProps: ViewProps = useAnimatedProps(
+    () => ({
+      pointerEvents: animatedValue.value < 0.8 ? 'none' : 'auto',
+    }),
+    []
+  );
+
+  React.useEffect(() => {
+    cancelAnimation(animatedValue);
+    animatedValue.value = withDelay(
+      5000,
+      withTiming(0, { duration: 500, easing: Easing.ease })
+    );
+  }, []);
+
+  const tapGesture = Gesture.Tap().onStart(() => {
+    cancelAnimation(animatedValue);
+    animatedValue.value = withTiming(
+      1,
+      { duration: 200, easing: Easing.ease },
+      (finished) => {
+        if (finished) {
+          animatedValue.value = withDelay(
+            5000,
+            withTiming(0, { duration: 500, easing: Easing.ease })
+          );
+        }
+      }
+    );
+  });
+
+  return (
+    <GestureDetector gesture={tapGesture}>
+      <View collapsable={false} style={styles.detectorContainer}>
+        <Animated.View
+          animatedProps={hideControlsProps}
+          style={[styles.container, hideControlsStyles]}
+        >
+          {children}
+        </Animated.View>
+      </View>
+    </GestureDetector>
+  );
+};
+
+const AutoHideView = React.memo(_AutoHideView);
 
 export const HLSPlayerControls = React.memo(_HLSPlayerControls);
 
 const styles = StyleSheet.create({
-  container: {
+  detectorContainer: {
     position: 'absolute',
     width: '100%',
     height: '100%',
     zIndex: 5,
+  },
+  container: {
+    flex: 1,
     justifyContent: 'space-between',
   },
   controlsRow: {
