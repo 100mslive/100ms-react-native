@@ -117,7 +117,7 @@ const _AutoHideView: React.FC<AutoHideViewProps> = ({ children }) => {
       (finished) => {
         if (finished) {
           animatedValue.value = withDelay(
-            3000,
+            5000,
             withTiming(0, { duration: 500, easing: Easing.ease })
           );
         }
