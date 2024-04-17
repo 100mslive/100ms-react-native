@@ -8,6 +8,7 @@ import type {
 import type {
   HMSHLSPlayerPlaybackEvent,
   HMSHLSPlayerStatsEvent,
+  RequestedDataEvent,
 } from '../../types';
 
 export type HmsHlsPlaybackEventHandler = (
@@ -18,6 +19,10 @@ export type HmsHlsStatsEventHandler = (
   event: NativeSyntheticEvent<HMSHLSPlayerStatsEvent>
 ) => void;
 
+export type RequestedDataEventHandler = (
+  event: NativeSyntheticEvent<RequestedDataEvent>
+) => void;
+
 export type RCTHMSHLSPlayerProps = {
   url?: string;
   style?: StyleProp<ViewStyle>;
@@ -25,6 +30,7 @@ export type RCTHMSHLSPlayerProps = {
   enableControls?: boolean;
   onHmsHlsPlaybackEvent?: HmsHlsPlaybackEventHandler;
   onHmsHlsStatsEvent?: HmsHlsStatsEventHandler;
+  onDataReturned?: RequestedDataEventHandler;
 };
 
 export const RCTHMSHLSPlayer =

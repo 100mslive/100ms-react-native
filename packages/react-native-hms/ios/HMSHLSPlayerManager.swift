@@ -87,6 +87,38 @@ class HMSHLSPlayerManager: RCTViewManager {
             }
         }
     }
+
+    @objc func areClosedCaptionSupported(_ node: NSNumber, requestId: NSNumber) {
+        DispatchQueue.main.async {
+            if let component = self.bridge.uiManager.view(forReactTag: node) as? HMSHLSPlayer {
+                component.areClosedCaptionSupported(requestId: UInt(truncating: requestId))
+            }
+        }
+    }
+
+    @objc func isClosedCaptionEnabled(_ node: NSNumber, requestId: NSNumber) {
+        DispatchQueue.main.async {
+            if let component = self.bridge.uiManager.view(forReactTag: node) as? HMSHLSPlayer {
+                component.isClosedCaptionEnabled(requestId: UInt(truncating: requestId))
+            }
+        }
+    }
+
+    @objc func enableClosedCaption(_ node: NSNumber) {
+        DispatchQueue.main.async {
+            if let component = self.bridge.uiManager.view(forReactTag: node) as? HMSHLSPlayer {
+                component.enableClosedCaption()
+            }
+        }
+    }
+
+    @objc func disableClosedCaption(_ node: NSNumber) {
+        DispatchQueue.main.async {
+            if let component = self.bridge.uiManager.view(forReactTag: node) as? HMSHLSPlayer {
+                component.disableClosedCaption()
+            }
+        }
+    }
 }
 
 class HMSHLSPlayer: UIView {
@@ -104,6 +136,8 @@ class HMSHLSPlayer: UIView {
     }
 
     // MARK: Handle HMSHLSPlayer RN Component props
+
+    @objc var onDataReturned: RCTDirectEventBlock?
 
     @objc var onHmsHlsPlaybackEvent: RCTDirectEventBlock?
 
@@ -156,6 +190,81 @@ class HMSHLSPlayer: UIView {
 
     @objc func stop() {
         hmsHLSPlayer.stop()
+    }
+
+    private func isCCSupported() -> Bool {
+        guard let playerItem = hmsHLSPlayer._nativePlayer.currentItem else {
+            return false
+        }
+        guard let mediaSelectionGroup = playerItem.asset.mediaSelectionGroup(forMediaCharacteristic: .legible) else {
+            return false
+        }
+        guard let firstMediaSelectionGroupOption = mediaSelectionGroup.options.first else {
+            return false
+        }
+        return firstMediaSelectionGroupOption.mediaType == .subtitle
+    }
+
+    private func isCCEnabled() -> Bool {
+        guard let playerItem = hmsHLSPlayer._nativePlayer.currentItem else {
+            return false
+        }
+        guard let availableSubtitleTracks = playerItem.asset.mediaSelectionGroup(forMediaCharacteristic: .legible) else {
+            return false
+        }
+        let selectedOption = playerItem.currentMediaSelection.selectedMediaOption(in: availableSubtitleTracks)
+        return selectedOption != nil
+    }
+
+    @objc func areClosedCaptionSupported(requestId: UInt) {
+        let supported = isCCSupported()
+
+        sendRequestedDataToJS(requestId, supported)
+    }
+
+    @objc func isClosedCaptionEnabled(requestId: UInt) {
+        let enabled = isCCEnabled()
+
+        sendRequestedDataToJS(requestId, enabled)
+    }
+
+    @objc func enableClosedCaption() {
+        if !isCCSupported() {
+            print("#func Closed Caption is not supported")
+            return
+        }
+        if isCCEnabled() {
+            print("#func Closed Caption already enabled!")
+            return
+        }
+        guard let playerItem = hmsHLSPlayer._nativePlayer.currentItem else {
+            return
+        }
+        guard let availableSubtitleTracks = playerItem.asset.mediaSelectionGroup(forMediaCharacteristic: .legible) else {
+            return
+        }
+        guard let firstSubtitleTrack = availableSubtitleTracks.options.first(where: {$0.mediaType == .subtitle}) else {
+            return
+        }
+        playerItem.select(firstSubtitleTrack, in: availableSubtitleTracks)
+    }
+
+    @objc func disableClosedCaption() {
+        if !isCCSupported() {
+            print("#func Closed Caption is not supported")
+            return
+        }
+        if !isCCEnabled() {
+            print("#func Closed Caption already disabled!")
+            return
+        }
+        guard let playerItem = hmsHLSPlayer._nativePlayer.currentItem else {
+            return
+        }
+        guard let availableSubtitleTracks = playerItem.asset.mediaSelectionGroup(forMediaCharacteristic: .legible) else {
+            return
+        }
+        playerItem.select(nil, in: availableSubtitleTracks)
     }
 
     @objc func pause() {
@@ -232,6 +341,12 @@ class HMSHLSPlayer: UIView {
         guard let onHmsHlsPlaybackEvent = onHmsHlsPlaybackEvent else { return }
 
         onHmsHlsPlaybackEvent(["event": eventName, "data": data])
+    }
+
+    private func sendRequestedDataToJS(_ requestId: UInt, _ data: Any) {
+        guard let onDataReturned = onDataReturned else { return }
+
+        onDataReturned(["requestId": requestId, "data": data])
     }
 
     private func sendHLSStatsEventToJS(_ eventName: String, _ data: [String: Any]) {

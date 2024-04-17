@@ -125,6 +125,11 @@ export type HMSHLSPlayerStatsEvent =
   | HMSHLSPlayerStatsErrorEvent
   | HMSHLSPlayerStatsUpdateEvent;
 
+export type RequestedDataEvent = {
+  requestId: number;
+  data: any;
+};
+
 // #endregion HMS HLSPlayer Stats Events
 
 // #region Utility types
