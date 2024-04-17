@@ -20,6 +20,7 @@ import { PinIcon, ThreeDotsIcon } from '../Icons';
 import { setSelectedMessageForAction } from '../redux/actions';
 import { ModalTypes } from '../utils/types';
 import type { RootState } from '../redux';
+import { COLORS } from '../utils/theme';
 
 interface HMSHLSMessageProps {
   message: HMSMessage;
@@ -51,12 +52,12 @@ const _HMSHLSMessage: React.FC<HMSHLSMessageProps> = ({ message }) => {
   const hmsRoomStyles = useHMSRoomStyleSheet(
     (_theme, typography) => ({
       senderName: {
-        color: '#ffffff',
+        color: COLORS.SURFACE.ON_SURFACE.LOW,
         fontFamily: `${typography.font_family}-SemiBold`,
         textShadowColor: 'rgba(0, 0, 0, 0.5)',
       },
       message: {
-        color: '#ffffff',
+        color: COLORS.SURFACE.ON_SURFACE.HIGH,
         fontFamily: `${typography.font_family}-Regular`,
         textShadowColor: 'rgba(0, 0, 0, 0.5)',
       },
@@ -110,6 +111,10 @@ const _HMSHLSMessage: React.FC<HMSHLSMessageProps> = ({ message }) => {
             : 'Anonymous'}
         </Text>
 
+        <Text style={[styles.message, hmsRoomStyles.message]}>
+          {message.message}
+        </Text>
+
         {canTakeAction ? (
           <GestureDetector gesture={Gesture.Tap()}>
             <TouchableOpacity
@@ -124,10 +129,6 @@ const _HMSHLSMessage: React.FC<HMSHLSMessageProps> = ({ message }) => {
           </GestureDetector>
         ) : null}
       </View>
-
-      <Text style={[styles.message, hmsRoomStyles.message]}>
-        {message.message}
-      </Text>
     </View>
   );
 };
@@ -141,9 +142,10 @@ const styles = StyleSheet.create({
   },
   nameWrapper: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
   },
   senderName: {
+    flex: 1,
     flexGrow: 1,
     fontSize: 14,
     lineHeight: Platform.OS === 'android' ? 20 : undefined,
@@ -152,10 +154,10 @@ const styles = StyleSheet.create({
     textShadowRadius: 2,
   },
   message: {
+    flex: 4,
     fontSize: 14,
     lineHeight: Platform.OS === 'android' ? 20 : undefined,
     letterSpacing: 0.25,
-    marginTop: 2,
     textShadowOffset: { height: 0.5, width: 0.5 },
     textShadowRadius: 2,
   },
