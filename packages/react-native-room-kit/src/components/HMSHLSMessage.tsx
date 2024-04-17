@@ -99,7 +99,7 @@ const _HMSHLSMessage: React.FC<HMSHLSMessageProps> = ({ message }) => {
         </View>
       ) : null}
 
-      <View style={styles.nameWrapper}>
+      <View style={styles.messageWrapper}>
         <Text
           style={[styles.senderName, hmsRoomStyles.senderName]}
           numberOfLines={1}
@@ -110,7 +110,6 @@ const _HMSHLSMessage: React.FC<HMSHLSMessageProps> = ({ message }) => {
               : messageSender.name
             : 'Anonymous'}
         </Text>
-
         <Text style={[styles.message, hmsRoomStyles.message]}>
           {message.message}
         </Text>
@@ -140,13 +139,12 @@ const styles = StyleSheet.create({
     marginTop: 8,
     width: '100%',
   },
-  nameWrapper: {
+  messageWrapper: {
+    flex: 1,
     flexDirection: 'row',
-    alignItems: 'flex-start',
   },
   senderName: {
     flex: 1,
-    flexGrow: 1,
     fontSize: 14,
     lineHeight: Platform.OS === 'android' ? 20 : undefined,
     letterSpacing: 0.1,
