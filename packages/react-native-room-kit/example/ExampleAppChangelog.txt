@@ -1,5 +1,8 @@
 Board: https://100ms.atlassian.net/jira/software/projects/RN/boards/33
 
+- Captions in HLS Player
+https://100ms.atlassian.net/browse/RN-267
+
 - Header + Description from Layout API in Description Pane
 https://100ms.atlassian.net/browse/RN-273
 
