@@ -1,5 +1,11 @@
 import React, { useImperativeHandle, useMemo, useRef } from 'react';
-import { View, StyleSheet, UIManager, findNodeHandle } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  UIManager,
+  findNodeHandle,
+  Platform,
+} from 'react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
 
 import {
@@ -9,12 +15,14 @@ import {
   setHMSHLSPlayerResolution,
   setHMSHLSPlayerStats,
   setHMSHLSPlayerStatsError,
+  setHMSHLSPlayerSubtitles,
 } from './hooks';
 import {
   RCTHMSHLSPlayer,
   RCTHMSHLSPlayerViewManagerConfig,
 } from './RCTHMSHLSPlayer';
 import type {
+  HlsSPlayerCuesEventHandler,
   HmsHlsPlaybackEventHandler,
   HmsHlsStatsEventHandler,
   RCTHMSHLSPlayerRef,
@@ -294,6 +302,17 @@ const _HMSHLSPlayer: React.ForwardRefRenderFunction<
     }
   };
 
+  // Handle HLS Player Cues events (e.g. usage - Closed Captions)
+  const handleHLSPlayerCuesEvent: HlsSPlayerCuesEventHandler = ({
+    nativeEvent,
+  }) => {
+    const { event, data } = nativeEvent;
+
+    if (event === 'ON_CLOSED_CAPTION_UPDATE') {
+      setHMSHLSPlayerSubtitles(data);
+    }
+  };
+
   // Handle Requested data
   const handleRequestedDataReturned: RequestedDataEventHandler = ({
     nativeEvent,
@@ -323,6 +342,9 @@ const _HMSHLSPlayer: React.ForwardRefRenderFunction<
           enableControls={enableControls}
           onHmsHlsPlaybackEvent={handleHLSPlaybackEvent}
           onHmsHlsStatsEvent={handleHLSStatsEvent}
+          onHlsPlayerCuesEvent={
+            Platform.OS === 'android' ? handleHLSPlayerCuesEvent : undefined
+          }
           onDataReturned={handleRequestedDataReturned}
         />
       </View>

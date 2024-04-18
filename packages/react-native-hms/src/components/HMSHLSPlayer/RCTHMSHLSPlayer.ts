@@ -6,6 +6,7 @@ import type {
   NativeMethods,
 } from 'react-native';
 import type {
+  HMSHLSPlayerCuesEvent,
   HMSHLSPlayerPlaybackEvent,
   HMSHLSPlayerStatsEvent,
   RequestedDataEvent,
@@ -17,6 +18,10 @@ export type HmsHlsPlaybackEventHandler = (
 
 export type HmsHlsStatsEventHandler = (
   event: NativeSyntheticEvent<HMSHLSPlayerStatsEvent>
+) => void;
+
+export type HlsSPlayerCuesEventHandler = (
+  event: NativeSyntheticEvent<HMSHLSPlayerCuesEvent>
 ) => void;
 
 export type RequestedDataEventHandler = (
@@ -31,6 +36,7 @@ export type RCTHMSHLSPlayerProps = {
   onHmsHlsPlaybackEvent?: HmsHlsPlaybackEventHandler;
   onHmsHlsStatsEvent?: HmsHlsStatsEventHandler;
   onDataReturned?: RequestedDataEventHandler;
+  onHlsPlayerCuesEvent?: HlsSPlayerCuesEventHandler;
 };
 
 export const RCTHMSHLSPlayer =
