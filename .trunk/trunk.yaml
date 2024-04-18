@@ -14,7 +14,7 @@ lint:
     - actionlint@1.6.27
     - prettier@3.2.5
     - swiftlint@0.54.0
-    - checkov@3.2.69
+    - checkov@3.2.71
     - trivy@0.50.1
     - trufflehog@3.71.0
     - oxipng@9.0.0
@@ -26,7 +26,7 @@ lint:
     - shellcheck@0.10.0
     - git-diff-check
     - markdownlint@0.39.0
-    - buildifier@7.1.0
+    - buildifier@7.1.1
 runtimes:
   enabled:
     - python@3.10.8
