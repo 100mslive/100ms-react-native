@@ -209,10 +209,10 @@ class HMSHLSPlayer: UIView {
         guard let playerItem = hmsHLSPlayer._nativePlayer.currentItem else {
             return false
         }
-        guard let availableSubtitleTracks = playerItem.asset.mediaSelectionGroup(forMediaCharacteristic: .legible) else {
+        guard let subtitle = playerItem.asset.mediaSelectionGroup(forMediaCharacteristic: .legible) else {
             return false
         }
-        let selectedOption = playerItem.currentMediaSelection.selectedMediaOption(in: availableSubtitleTracks)
+        let selectedOption = playerItem.currentMediaSelection.selectedMediaOption(in: subtitle)
         return selectedOption != nil
     }
 
@@ -240,13 +240,13 @@ class HMSHLSPlayer: UIView {
         guard let playerItem = hmsHLSPlayer._nativePlayer.currentItem else {
             return
         }
-        guard let availableSubtitleTracks = playerItem.asset.mediaSelectionGroup(forMediaCharacteristic: .legible) else {
+        guard let subtitle = playerItem.asset.mediaSelectionGroup(forMediaCharacteristic: .legible) else {
             return
         }
-        guard let firstSubtitleTrack = availableSubtitleTracks.options.first(where: {$0.mediaType == .subtitle}) else {
+        guard let firstSubtitleTrack = subtitle.options.first(where: {$0.mediaType == .subtitle}) else {
             return
         }
-        playerItem.select(firstSubtitleTrack, in: availableSubtitleTracks)
+        playerItem.select(firstSubtitleTrack, in: subtitle)
     }
 
     @objc func disableClosedCaption() {
@@ -261,10 +261,10 @@ class HMSHLSPlayer: UIView {
         guard let playerItem = hmsHLSPlayer._nativePlayer.currentItem else {
             return
         }
-        guard let availableSubtitleTracks = playerItem.asset.mediaSelectionGroup(forMediaCharacteristic: .legible) else {
+        guard let subtitle = playerItem.asset.mediaSelectionGroup(forMediaCharacteristic: .legible) else {
             return
         }
-        playerItem.select(nil, in: availableSubtitleTracks)
+        playerItem.select(nil, in: subtitle)
     }
 
     @objc func pause() {
@@ -291,7 +291,7 @@ class HMSHLSPlayer: UIView {
         hmsHLSPlayer.volume = level
     }
 
-    // MARK: Constructor & Deconstructor
+    // MARK: Lifecycle methods
 
     override init(frame: CGRect) {
         super.init(frame: frame)
