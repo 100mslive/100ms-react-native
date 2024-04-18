@@ -31,7 +31,7 @@ export const ParticipantsList: React.FC<ParticipantsListProps> = ({
   const fetchedInitialDataRef = React.useRef(false);
   const hmsInstance = useHMSInstance();
 
-  // Currect is current selected group and off-stage gorup
+  // Current is current selected group and off-stage group
   const isOffStageGroup = useHMSLayoutConfig((layoutConfig) => {
     const offStageRoles =
       layoutConfig?.screens?.conferencing?.default?.elements?.on_stage_exp
@@ -39,12 +39,12 @@ export const ParticipantsList: React.FC<ParticipantsListProps> = ({
     return offStageRoles ? offStageRoles.includes(selectedGroupId) : false;
   });
 
-  // Getting initial data for the selected group Id
-  const dataForGroupId = useSelector(
-    (state: RootState) => {
-      return selectedGroupId === 'hand-raised' ? state.hmsStates.groupedParticipants : state.hmsStates.groupedParticipants[selectedGroupId]
-    }
-  );
+  // Getting initial data for the selected group ID
+  const dataForGroupId = useSelector((state: RootState) => {
+    return selectedGroupId === 'hand-raised'
+      ? state.hmsStates.groupedParticipants
+      : state.hmsStates.groupedParticipants[selectedGroupId];
+  });
 
   const finalDataForGroupId = React.useMemo(() => {
     if (Array.isArray(dataForGroupId)) {
@@ -52,7 +52,9 @@ export const ParticipantsList: React.FC<ParticipantsListProps> = ({
     }
 
     if (dataForGroupId && selectedGroupId === 'hand-raised') {
-      return Object.values(dataForGroupId).flat().filter(peer  => peer.isHandRaised);
+      return Object.values(dataForGroupId)
+        .flat()
+        .filter((peer) => peer.isHandRaised);
     }
 
     return null;
@@ -119,7 +121,7 @@ export const ParticipantsList: React.FC<ParticipantsListProps> = ({
 
   const filteredSearchText = searchText.trim().toLowerCase();
 
-  //#region Flaslist props
+  //#region FlashList props
   const data = React.useMemo(() => {
     return (isOffStageGroup ? offStageData : dataWithHeader).filter((item) =>
       'id' in item ? true : item.name.toLowerCase().includes(filteredSearchText)
@@ -186,7 +188,7 @@ export const ParticipantsList: React.FC<ParticipantsListProps> = ({
         });
     }
   }, [loading, peerListIterator]);
-  //#endregion Flaslist props
+  //#endregion FlashList props
 
   const searchTextExists = searchText.length > 0;
 
