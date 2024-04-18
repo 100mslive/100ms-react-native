@@ -747,6 +747,9 @@ object HMSDecoder {
         variant.startedAt?.let {
           input.putString("startedAt", it.toString())
         }
+        variant.playlistType?.let {
+          input.putString("playlistType", it.name.uppercase())
+        }
         variants.pushMap(input)
       }
     }

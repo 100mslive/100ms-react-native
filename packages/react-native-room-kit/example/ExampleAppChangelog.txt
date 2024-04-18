@@ -1,15 +1,15 @@
 Board: https://100ms.atlassian.net/jira/software/projects/RN/boards/33
 
-- HLS: Remove webrtc header and footer + Bottom toolbar from HLS screen
-https://100ms.atlassian.net/browse/RN-266
+- Header + Description from Layout API in Description Pane
+https://100ms.atlassian.net/browse/RN-273
 
-- HLS: Main Player UI with Chat below
-https://100ms.atlassian.net/browse/RN-264
+- Chat Messages starting from the Top
+https://100ms.atlassian.net/browse/RN-275
 
-- HLS: Description Pane
-https://100ms.atlassian.net/browse/RN-265
+- New Chat Messages design for HLS Player
+https://100ms.atlassian.net/browse/RN-276
 
-Room Kit: 1.1.6
-React Native SDK: 1.10.3
+Room Kit: 1.1.7
+React Native SDK: 1.10.4
 Android SDK: 2.9.53
 iOS SDK: 1.8.0

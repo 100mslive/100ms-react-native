@@ -40,6 +40,7 @@ import { HMSLayer } from './HMSLayer';
 import { HMSSimulcastLayerDefinition } from './HMSSimulcastLayerDefinition';
 import { HMSQualityLimitationReasons } from './HMSQualityLimitationReasons';
 import { HMSTrackType } from './HMSTrackType';
+import { HMSHLSPlaylistType } from './HMSHLSPlaylistType';
 
 interface InitialData {
   roles: Record<string, HMSRole>;
@@ -520,11 +521,23 @@ export class HMSEncoder {
         meetingUrl: item.meetingUrl,
         metadata: item?.metaData ? item?.metadata : undefined,
         startedAt: HMSEncoder.encodeDate(item?.startedAt),
+        playlistType: item?.playlistType
+          ? this.getHLSVariantPlaylistType(item.playlistType.toUpperCase())
+          : undefined,
       });
       variants.push(variant);
     });
 
     return variants;
+  }
+
+  static getHLSVariantPlaylistType(type: String) {
+    switch (type) {
+      case 'DVR':
+        return HMSHLSPlaylistType.DVR;
+      default:
+        return HMSHLSPlaylistType.noDVR;
+    }
   }
 
   static encodeHMSNetworkQuality(data: any) {

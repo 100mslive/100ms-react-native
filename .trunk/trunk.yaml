@@ -14,7 +14,7 @@ lint:
     - actionlint@1.6.27
     - prettier@3.2.5
     - swiftlint@0.54.0
-    - checkov@3.2.60
+    - checkov@3.2.69
     - trivy@0.50.1
     - trufflehog@3.71.0
     - oxipng@9.0.0
