@@ -238,6 +238,15 @@ class HMSHLSPlayer(context: ReactContext) : FrameLayout(context) {
     sendHLSPlayerCuesEventToJS(null)
   }
 
+  fun getPlayerDurationDetails(requestId: Int) {
+    val data: WritableMap = Arguments.createMap()
+    hmsHlsPlayer?.getNativePlayer()?.let { exoPlayer ->
+      data.putInt("rollingWindowTime", exoPlayer.seekParameters.toleranceAfterUs.div(1000).toInt())
+      data.putInt("streamDuration", exoPlayer.duration.toInt())
+    }
+    sendHLSDataRequestEventToJS(requestId, data)
+  }
+
   fun enableStats(enable: Boolean) {
     if (enable) {
       attachStatsMonitor()

@@ -23,5 +23,6 @@ RCT_EXTERN_METHOD(areClosedCaptionSupported:(nonnull NSNumber *)node requestId:(
 RCT_EXTERN_METHOD(isClosedCaptionEnabled:(nonnull NSNumber *)node requestId:(nonnull NSNumber *)requestId)
 RCT_EXTERN_METHOD(enableClosedCaption:(nonnull NSNumber *)node)
 RCT_EXTERN_METHOD(disableClosedCaption:(nonnull NSNumber *)node)
+RCT_EXTERN_METHOD(getPlayerDurationDetails:(nonnull NSNumber *)node requestId:(nonnull NSNumber *)requestId)
 
 @end

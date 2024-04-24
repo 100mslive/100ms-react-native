@@ -88,6 +88,13 @@ class HMSHLSPlayerManager : SimpleViewManager<HMSHLSPlayer>() {
       }
       110 -> root.enableClosedCaption()
       120 -> root.disableClosedCaption()
+      130 -> {
+        args.let {
+          if (it != null) {
+            root.getPlayerDurationDetails(it.getInt(0))
+          }
+        }
+      }
     }
   }
 
@@ -105,6 +112,7 @@ class HMSHLSPlayerManager : SimpleViewManager<HMSHLSPlayer>() {
       .put("isClosedCaptionEnabled", 100)
       .put("enableClosedCaption", 110)
       .put("disableClosedCaption", 120)
+      .put("getPlayerDurationDetails", 130)
       .build()
   }
 

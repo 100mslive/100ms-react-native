@@ -119,6 +119,14 @@ class HMSHLSPlayerManager: RCTViewManager {
             }
         }
     }
+
+    @objc func getPlayerDurationDetails(_ node: NSNumber, requestId: NSNumber) {
+        DispatchQueue.main.async {
+            if let component = self.bridge.uiManager.view(forReactTag: node) as? HMSHLSPlayer {
+                component.getPlayerDurationDetails(requestId: UInt(truncating: requestId))
+            }
+        }
+    }
 }
 
 class HMSHLSPlayer: UIView {
@@ -265,6 +273,22 @@ class HMSHLSPlayer: UIView {
             return
         }
         playerItem.select(nil, in: subtitle)
+    }
+
+    @objc func getPlayerDurationDetails(requestId: UInt) {
+        var map = [String: Any?]()
+        guard let playerItem = hmsHLSPlayer._nativePlayer.currentItem else {
+          sendRequestedDataToJS(requestId, map)
+          return
+        }
+        // If duration is known
+        if !playerItem.duration.isIndefinite {
+            map["streamDuration"] = playerItem.duration.seconds
+        }
+        if let timeRange = playerItem.seekableTimeRanges.last as? CMTimeRange {
+            map["rollingWindowTime"] = timeRange.duration.seconds * 1000
+        }
+        sendRequestedDataToJS(requestId, map)
     }
 
     @objc func pause() {

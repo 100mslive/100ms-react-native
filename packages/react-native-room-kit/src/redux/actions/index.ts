@@ -486,6 +486,11 @@ export const setHlsFullScreen = (fullScreen: boolean) => ({
   payload: { fullScreen },
 });
 
+export const setAndroidHLSStreamPaused = (paused: boolean) => ({
+  type: actionTypes.SET_ANDROID_HLS_STREAM_PAUSED,
+  payload: { hlsStreamPaused_android: paused },
+});
+
 /**
  * POLLS
  */

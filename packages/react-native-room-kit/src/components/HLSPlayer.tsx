@@ -1,5 +1,5 @@
 import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import {
   View,
   Text,
@@ -15,8 +15,8 @@ import {
 } from '@100mslive/react-native-hms';
 
 import type { RootState } from '../redux';
-import { changeShowHLSStats } from '../redux/actions';
-import { HLSPlayerStatsView } from './HLSPlayerStatsView';
+// import { changeShowHLSStats } from '../redux/actions';
+// import { HLSPlayerStatsView } from './HLSPlayerStatsView';
 import { HLSPlayerEmoticons } from './HLSPlayerEmoticons';
 import { COLORS, hexToRgbA } from '../utils/theme';
 import { HMSHLSNotStarted } from './HMSHLSNotStarted';
@@ -35,15 +35,15 @@ export const _HLSPlayer = React.forwardRef<
   React.ElementRef<typeof HMSHLSPlayer>,
   HLSPlayerProps
 >((_props, hlsPlayerRef) => {
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
   const isHLSStreaming = useIsHLSStreamingOn();
   const isStreamUrlPresent = useSelector(
     (state: RootState) =>
       !!state.hmsStates.room?.hlsStreamingState.variants?.[0]?.hlsStreamUrl
   );
-  const showHLSStats = useSelector(
-    (state: RootState) => state.app.joinConfig.showHLSStats
-  );
+  // const showHLSStats = useSelector(
+  //   (state: RootState) => state.app.joinConfig.showHLSStats
+  // );
   // const showCustomHLSPlayerControls = useSelector(
   //   (state: RootState) => state.app.joinConfig.showCustomHLSPlayerControls
   // );
@@ -51,9 +51,9 @@ export const _HLSPlayer = React.forwardRef<
     (state: RootState) => state.app.joinConfig.enableHLSPlayerControls
   );
 
-  const handleClosePress = () => {
-    dispatch(changeShowHLSStats(false));
-  };
+  // const handleClosePress = () => {
+  //   dispatch(changeShowHLSStats(false));
+  // };
 
   const hlsPlayerConstraints = useHLSPlayerConstraints();
   const { playerWrapperConstraints } = useHLSViewsConstraints();
@@ -138,7 +138,7 @@ export const _HLSPlayer = React.forwardRef<
           <HMSHLSPlayer
             key={playerKey}
             ref={hlsPlayerRef}
-            enableStats={showHLSStats}
+            enableStats={true}
             enableControls={enableHLSPlayerControls}
             containerStyle={styles.playerContainer}
             style={{
@@ -162,9 +162,9 @@ export const _HLSPlayer = React.forwardRef<
 
       <HLSPlayerEmoticons />
 
-      {showHLSStats ? (
+      {/* {showHLSStats ? (
         <HLSPlayerStatsView onClosePress={handleClosePress} />
-      ) : null}
+      ) : null} */}
 
       {isPlayerBuffering ? (
         <View

@@ -32,7 +32,10 @@ import {
   HMSHLSPlayerPlaybackEventTypes,
   HMSHLSPlayerStatsEventTypes,
 } from '../../types';
-import type { HMSHLSPlayerPlaybackCueEventData } from '../../types';
+import type {
+  HLSPlayerDurationDetails,
+  HMSHLSPlayerPlaybackCueEventData,
+} from '../../types';
 import { HMSEncoder } from '../../classes/HMSEncoder';
 import type { HMSHLSPlayerPlaybackCue } from '../../stores/types';
 
@@ -58,6 +61,7 @@ export interface HMSHLSPlayerRefProperties {
   isClosedCaptionEnabled: () => Promise<boolean>;
   enableClosedCaption: () => void;
   disableClosedCaption: () => void;
+  getPlayerDurationDetails: () => Promise<HLSPlayerDurationDetails>;
 }
 
 const _HMSHLSPlayer: React.ForwardRefRenderFunction<
@@ -260,6 +264,30 @@ const _HMSHLSPlayer: React.ForwardRefRenderFunction<
             undefined
           );
         }
+      },
+      getPlayerDurationDetails: () => {
+        if (
+          hmsHlsPlayerRef.current &&
+          RCTHMSHLSPlayerViewManagerConfig.Commands.getPlayerDurationDetails
+        ) {
+          const requestId = currentRequestId.current++;
+          const promise = new Promise<HLSPlayerDurationDetails>(
+            (resolve, reject) => {
+              promiseAndIdsMap.set(requestId, { resolve, reject });
+            }
+          );
+
+          UIManager.dispatchViewManagerCommand(
+            findNodeHandle(hmsHlsPlayerRef.current),
+            RCTHMSHLSPlayerViewManagerConfig.Commands.getPlayerDurationDetails,
+            [requestId]
+          );
+          return promise;
+        }
+        return Promise.resolve({
+          streamDuration: undefined,
+          rollingWindowTime: undefined,
+        });
       },
     }),
     [currentRequestId, promiseAndIdsMap]

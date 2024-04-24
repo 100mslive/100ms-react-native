@@ -83,6 +83,7 @@ export * from './classes/HMSCameraControl';
 export * from './classes/HMSIOSAudioMode';
 export * from './classes/HMSRecordingState';
 export * from './classes/HMSStreamingState';
+export * from './classes/HMSHLSPlaylistType';
 export type {
   HMSSessionStore,
   JsonArray,
