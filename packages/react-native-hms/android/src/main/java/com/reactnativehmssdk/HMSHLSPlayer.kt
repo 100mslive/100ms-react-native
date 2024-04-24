@@ -3,6 +3,7 @@ package com.reactnativehmssdk
 import android.annotation.SuppressLint
 import android.content.Context
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.FrameLayout
 import androidx.media3.common.Player
 import androidx.media3.common.VideoSize
@@ -132,6 +133,8 @@ class HMSHLSPlayer(context: ReactContext) : FrameLayout(context) {
 
     // setting 100ms HLS Player on Exoplayer
     localPlayerView.player = localHmsHlsPlayer.getNativePlayer()
+
+    localPlayerView.subtitleView?.visibility = View.GONE
 
     localPlayerView?.player?.addListener(
       object : Player.Listener {
