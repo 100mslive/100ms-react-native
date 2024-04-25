@@ -1,4 +1,4 @@
-import React, { useImperativeHandle, useMemo, useRef } from 'react';
+import React, { useEffect, useImperativeHandle, useMemo, useRef } from 'react';
 import {
   View,
   StyleSheet,
@@ -38,6 +38,8 @@ import type {
 } from '../../types';
 import { HMSEncoder } from '../../classes/HMSEncoder';
 import type { HMSHLSPlayerPlaybackCue } from '../../stores/types';
+import { useHMSStore } from '../../stores/hms-store';
+import { useHMSHLSPlayerStatsStore } from '../../stores/hls-player-stats-store';
 
 export interface HMSHLSPlayerProps {
   url?: string;
@@ -358,6 +360,13 @@ const _HMSHLSPlayer: React.ForwardRefRenderFunction<
     }
     promiseMethods.resolve(data);
   };
+
+  useEffect(() => {
+    return () => {
+      useHMSStore.getState().resetPlaybackSlice();
+      useHMSHLSPlayerStatsStore.getState().reset();
+    };
+  }, []);
 
   return (
     <View style={[styles.container, containerStyle]}>
