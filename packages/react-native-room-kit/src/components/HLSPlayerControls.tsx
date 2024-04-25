@@ -3,15 +3,10 @@ import { View, StyleSheet } from 'react-native';
 import type { ViewProps, ViewStyle } from 'react-native';
 import { useSelector } from 'react-redux';
 import Animated, {
-  Easing,
-  cancelAnimation,
   useAnimatedProps,
   useAnimatedStyle,
-  useSharedValue,
-  withDelay,
-  withTiming,
 } from 'react-native-reanimated';
-import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import type { SharedValue } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { HMSHLSPlayer } from '@100mslive/react-native-hms';
 
@@ -27,51 +22,22 @@ import { HLSPlayPauseControl } from './HLSPlayPauseControl';
 
 interface HLSPlayerControlsProps {
   playerRef: React.RefObject<React.ElementRef<typeof HMSHLSPlayer>>;
+  cancelCurrentControlAnimation: () => void;
+  hideControlsAfterDelay: () => void;
+  animatedValue: SharedValue<number>;
 }
 
 export const _HLSPlayerControls: React.FC<HLSPlayerControlsProps> = ({
   playerRef,
+  cancelCurrentControlAnimation,
+  hideControlsAfterDelay,
+  animatedValue,
 }) => {
   const { bottom: bottomSafeInset } = useSafeAreaInsets();
   const isLandscapeOrientation = useIsLandscapeOrientation();
   const hlsFullScreen = useSelector(
     (state: RootState) => state.app.hlsFullScreen
   );
-
-  const animatedValue = useSharedValue(1);
-
-  const cancelCurrentControlAnimation = React.useCallback(() => {
-    'worklet';
-    cancelAnimation(animatedValue);
-  }, []);
-
-  const hideControlsAfterDelay = React.useCallback(() => {
-    'worklet';
-    animatedValue.value = withDelay(
-      5000,
-      withTiming(0, { duration: 500, easing: Easing.ease })
-    );
-  }, []);
-
-  React.useEffect(() => {
-    cancelCurrentControlAnimation();
-    hideControlsAfterDelay();
-  }, [cancelCurrentControlAnimation, hideControlsAfterDelay]);
-
-  const tapGesture = React.useMemo(() => {
-    return Gesture.Tap().onStart(() => {
-      cancelCurrentControlAnimation();
-      animatedValue.value = withTiming(
-        1,
-        { duration: 200, easing: Easing.ease },
-        (finished) => {
-          if (finished) {
-            hideControlsAfterDelay();
-          }
-        }
-      );
-    });
-  }, [cancelCurrentControlAnimation, hideControlsAfterDelay]);
 
   const hideControlsStyles: ViewStyle = useAnimatedStyle(
     () => ({
@@ -88,77 +54,83 @@ export const _HLSPlayerControls: React.FC<HLSPlayerControlsProps> = ({
   );
 
   return (
-    <GestureDetector gesture={tapGesture}>
-      <View
-        collapsable={false}
+    <React.Fragment>
+      {/* Play/Pause Controls */}
+      <Animated.View
+        animatedProps={hideControlsProps}
         style={[
-          styles.detectorContainer,
-          {
-            paddingBottom: isLandscapeOrientation ? bottomSafeInset : 0,
-          },
+          { height: '100%' },
+          styles.floatingContainer,
+          hideControlsStyles,
         ]}
       >
-        <Animated.View
-          animatedProps={hideControlsProps}
-          style={[styles.container, hideControlsStyles]}
+        <View style={{ flex: 1, flexDirection: 'row' }}>
+          <View style={{ flex: 1 }} />
+          <HLSPlayPauseControl playerRef={playerRef} />
+          <View style={{ flex: 1 }} />
+        </View>
+      </Animated.View>
+
+      {/* Header Controls */}
+      <Animated.View
+        animatedProps={hideControlsProps}
+        style={[{ top: 0 }, styles.floatingContainer, hideControlsStyles]}
+      >
+        <View style={styles.controlsRow}>
+          <HLSCloseMeetingControl />
+
+          <View style={[styles.normalRow, styles.gap]}>
+            <HLSClosedCaptionControl playerRef={playerRef} />
+          </View>
+        </View>
+      </Animated.View>
+
+      {/* Footer Controls */}
+      <Animated.View
+        animatedProps={hideControlsProps}
+        style={[
+          { bottom: isLandscapeOrientation ? bottomSafeInset : 0 },
+          styles.floatingContainer,
+          hideControlsStyles,
+        ]}
+      >
+        <View
+          style={{
+            flexDirection:
+              isLandscapeOrientation || hlsFullScreen
+                ? 'column-reverse'
+                : 'column',
+          }}
         >
           <View style={styles.controlsRow}>
-            <HLSCloseMeetingControl />
+            <View style={styles.normalRow}>
+              <HLSGoLiveControl playerRef={playerRef} />
+              <HLSDistanceFromLive />
+            </View>
 
             <View style={[styles.normalRow, styles.gap]}>
-              <HLSClosedCaptionControl playerRef={playerRef} />
+              <HLSFullScreenControl />
             </View>
           </View>
 
-          <View style={{ flex: 1, flexDirection: 'row' }}>
-            <View style={{ flex: 1 }} />
-            <HLSPlayPauseControl playerRef={playerRef} />
-            <View style={{ flex: 1 }} />
-          </View>
-
-          <View
-            style={{
-              flexDirection:
-                isLandscapeOrientation || hlsFullScreen
-                  ? 'column-reverse'
-                  : 'column',
-            }}
-          >
-            <View style={styles.controlsRow}>
-              <View style={styles.normalRow}>
-                <HLSGoLiveControl playerRef={playerRef} />
-                <HLSDistanceFromLive />
-              </View>
-
-              <View style={[styles.normalRow, styles.gap]}>
-                <HLSFullScreenControl />
-              </View>
-            </View>
-
-            <HLSSeekbar
-              playerRef={playerRef}
-              onStart={cancelCurrentControlAnimation}
-              onEnd={hideControlsAfterDelay}
-            />
-          </View>
-        </Animated.View>
-      </View>
-    </GestureDetector>
+          <HLSSeekbar
+            playerRef={playerRef}
+            onStart={cancelCurrentControlAnimation}
+            onEnd={hideControlsAfterDelay}
+          />
+        </View>
+      </Animated.View>
+    </React.Fragment>
   );
 };
 
 export const HLSPlayerControls = React.memo(_HLSPlayerControls);
 
 const styles = StyleSheet.create({
-  detectorContainer: {
+  floatingContainer: {
     position: 'absolute',
     width: '100%',
-    height: '100%',
     zIndex: 5,
-  },
-  container: {
-    flex: 1,
-    justifyContent: 'space-between',
   },
   controlsRow: {
     flexDirection: 'row',

@@ -28,6 +28,7 @@ import {
   useHMSRoomStyleSheet,
 } from '../hooks-util';
 import { useIsHLSStreamingOn } from '../hooks-sdk';
+import { HMSPinchGesture } from './PeerVideoTile/HMSPinchGesture';
 
 export interface HLSPlayerProps {}
 
@@ -135,17 +136,21 @@ export const _HLSPlayer = React.forwardRef<
             },
           ]}
         >
-          <HMSHLSPlayer
-            key={playerKey}
-            ref={hlsPlayerRef}
-            enableStats={true}
-            enableControls={enableHLSPlayerControls}
-            containerStyle={styles.playerContainer}
-            style={{
-              width: hlsPlayerConstraints.width,
-              height: hlsPlayerConstraints.height,
-            }}
-          />
+          <HMSPinchGesture>
+            <View pointerEvents="none" style={styles.playerContainer}>
+              <HMSHLSPlayer
+                key={playerKey}
+                ref={hlsPlayerRef}
+                enableStats={true}
+                enableControls={enableHLSPlayerControls}
+                containerStyle={styles.playerContainer}
+                style={{
+                  width: hlsPlayerConstraints.width,
+                  height: hlsPlayerConstraints.height,
+                }}
+              />
+            </View>
+          </HMSPinchGesture>
 
           <View
             style={[
