@@ -29,7 +29,7 @@ class HMSHLSPlayer(context: ReactContext) : FrameLayout(context) {
   private var hmsHlsPlayer: HmsHlsPlayer? = null // 100ms HLS Player
   private var hmssdkInstance: HMSSDK? = null
   private var statsMonitorAttached = false
-  private var shouldSendCaptionsToJS = true
+  private var shouldSendCaptionsToJS = false
   private val hmsHlsPlaybackEventsObject =
     object : HmsHlsPlaybackEvents {
       override fun onCue(cue: HmsHlsCue) {
