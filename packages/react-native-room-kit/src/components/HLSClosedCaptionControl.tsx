@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { useSelector } from 'react-redux';
 import {
@@ -24,16 +24,16 @@ export const _HLSClosedCaptionControl: React.FC<
       !!state.hmsStates.room?.hlsStreamingState.variants?.[0]?.hlsStreamUrl
   );
 
-  let startedPlayingFirstTime = false;
-  let prevPlaybackState = HMSHLSPlayerPlaybackState.UNKNOWN;
+  let startedPlayingFirstTimeRef = useRef(false);
+  let prevPlaybackStateRef = useRef(HMSHLSPlayerPlaybackState.UNKNOWN);
   const playbackState = useHMSHLSPlayerPlaybackState();
 
   if (
-    prevPlaybackState === HMSHLSPlayerPlaybackState.UNKNOWN &&
+    prevPlaybackStateRef.current === HMSHLSPlayerPlaybackState.UNKNOWN &&
     playbackState === HMSHLSPlayerPlaybackState.PLAYING
   ) {
-    prevPlaybackState = playbackState;
-    startedPlayingFirstTime = true;
+    prevPlaybackStateRef.current = playbackState;
+    startedPlayingFirstTimeRef.current = true;
   }
 
   const [isCCSupported, setIsCCSupported] = useState(false);
@@ -56,7 +56,7 @@ export const _HLSClosedCaptionControl: React.FC<
     if (
       isHLSStreamingOn &&
       isStreamUrlPresent &&
-      startedPlayingFirstTime &&
+      startedPlayingFirstTimeRef.current &&
       playerRef.current
     ) {
       let mounted = true;
@@ -82,7 +82,11 @@ export const _HLSClosedCaptionControl: React.FC<
         mounted = false;
       };
     }
-  }, [isHLSStreamingOn, isStreamUrlPresent, startedPlayingFirstTime]);
+  }, [
+    isHLSStreamingOn,
+    isStreamUrlPresent,
+    startedPlayingFirstTimeRef.current,
+  ]);
 
   if (!isCCSupported) {
     return null;
