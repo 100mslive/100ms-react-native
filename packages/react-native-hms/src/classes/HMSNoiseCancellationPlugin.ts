@@ -4,6 +4,7 @@ import { logger } from './HMSLogger';
 
 /**
  * Class representing an HMS Noise Cancellation Plugin.
+ * Checkout {@link https://www.100ms.live/docs/react-native/v2/how-to-guides/extend-capabilities/noise-cancellation} for more info
  */
 export class HMSNoiseCancellationPlugin {
   modelName: HMSNoiseCancellationModels;

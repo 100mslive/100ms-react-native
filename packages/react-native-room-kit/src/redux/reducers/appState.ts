@@ -64,6 +64,7 @@ type IntialStateType = {
   chatPeerBlacklist: string[]; // list of userIds
   hlsDescriptionPaneVisible: boolean;
   hlsFullScreen: boolean;
+  hlsStreamPaused_android: boolean;
 };
 
 const INITIAL_STATE: IntialStateType = {
@@ -103,6 +104,7 @@ const INITIAL_STATE: IntialStateType = {
   chatPeerBlacklist: [],
   hlsDescriptionPaneVisible: false,
   hlsFullScreen: false,
+  hlsStreamPaused_android: false,
 };
 
 const appReducer = (
@@ -371,6 +373,12 @@ const appReducer = (
       return {
         ...state,
         hlsFullScreen: action.payload.fullScreen,
+      };
+    }
+    case ActionTypes.SET_ANDROID_HLS_STREAM_PAUSED: {
+      return {
+        ...state,
+        hlsStreamPaused_android: action.payload.hlsStreamPaused_android,
       };
     }
     case HmsStateActionTypes.CLEAR_STATES:

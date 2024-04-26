@@ -1,29 +1,96 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
+import type { HMSHLSPlayer } from '@100mslive/react-native-hms';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import {
+  Easing,
+  cancelAnimation,
+  useSharedValue,
+  withDelay,
+  withTiming,
+} from 'react-native-reanimated';
 
 import { useHLSViewsConstraints } from '../hooks-util';
 import { HLSPlayer } from './HLSPlayer';
 import { HLSPlayerControls } from './HLSPlayerControls';
 
 export const _HLSPlayerContainer: React.FC = () => {
-  // const hlsPlayerRef = useRef(null);
+  const hlsPlayerRef =
+    React.useRef<React.ElementRef<typeof HMSHLSPlayer>>(null);
   const { playerWrapperConstraints } = useHLSViewsConstraints();
 
-  return (
-    <View
-      style={[
-        styles.hlsPlayerContainer,
-        {
-          backgroundColor: 'black',
-          width: playerWrapperConstraints.width,
-          height: playerWrapperConstraints.height,
-        },
-      ]}
-    >
-      <HLSPlayer />
+  const animatedValue = useSharedValue(1);
 
-      <HLSPlayerControls />
-    </View>
+  const cancelCurrentControlAnimation = React.useCallback(() => {
+    'worklet';
+    cancelAnimation(animatedValue);
+  }, []);
+
+  const hideControlsAfterDelay = React.useCallback((duration = 500) => {
+    'worklet';
+    animatedValue.value = withDelay(
+      5000,
+      withTiming(0, { duration, easing: Easing.ease })
+    );
+  }, []);
+
+  const resetHideControlAnimation = React.useCallback(() => {
+    cancelCurrentControlAnimation();
+    hideControlsAfterDelay();
+  }, [cancelCurrentControlAnimation, hideControlsAfterDelay]);
+
+  const hideControls = React.useCallback((duration = 500) => {
+    'worklet';
+    animatedValue.value = withTiming(0, { duration, easing: Easing.ease });
+  }, []);
+
+  React.useEffect(() => {
+    resetHideControlAnimation();
+  }, [resetHideControlAnimation]);
+
+  const tapGesture = React.useMemo(() => {
+    return Gesture.Tap().onStart(() => {
+      cancelCurrentControlAnimation();
+      if (animatedValue.value < 1) {
+        animatedValue.value = withTiming(
+          1,
+          { duration: 200, easing: Easing.ease },
+          (finished) => {
+            if (finished) {
+              hideControlsAfterDelay();
+            }
+          }
+        );
+      } else {
+        hideControls(200);
+      }
+    });
+  }, [cancelCurrentControlAnimation, hideControls, hideControlsAfterDelay]);
+
+  return (
+    <GestureDetector gesture={tapGesture}>
+      <View
+        collapsable={false}
+        style={[
+          styles.hlsPlayerContainer,
+          {
+            backgroundColor: 'black',
+            width: playerWrapperConstraints.width,
+            height: playerWrapperConstraints.height,
+          },
+        ]}
+      >
+        <HLSPlayer ref={hlsPlayerRef} />
+
+        <HLSPlayerControls
+          playerRef={hlsPlayerRef}
+          animatedValue={animatedValue}
+          cancelCurrentControlAnimation={cancelCurrentControlAnimation}
+          hideControlsAfterDelay={hideControlsAfterDelay}
+          resetHideControlAnimation={resetHideControlAnimation}
+        />
+      </View>
+    </GestureDetector>
   );
 };
 

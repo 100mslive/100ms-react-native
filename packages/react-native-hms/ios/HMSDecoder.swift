@@ -811,10 +811,22 @@ class HMSDecoder: NSObject {
                 if let startedAt = variant.startedAt?.timeIntervalSince1970 {
                     decodedVariant["startedAt"] = startedAt * 1000
                 }
+                if let type = variant.playlistType {
+                    decodedVariant["playlistType"] = getHLSVariantPlaylistType(from: type)
+                }
                 variants.append(decodedVariant)
             }
         }
         return variants
+    }
+
+    static func getHLSVariantPlaylistType(from type: HMSHLSPlaylistType) -> String {
+        switch type {
+        case .dvr:
+            return "DVR"
+        default:
+            return "NODVR"
+        }
     }
 
     static func getHMSRTCStats(_ data: HMSRTCStats) -> [Any] {

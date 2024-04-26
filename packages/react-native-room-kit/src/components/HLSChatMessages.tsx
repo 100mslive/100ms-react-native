@@ -1,7 +1,6 @@
 import * as React from 'react';
-import { Platform, StyleSheet, View } from 'react-native';
+import { FlatList, Platform, StyleSheet, View } from 'react-native';
 import { useSelector } from 'react-redux';
-import { FlashList } from '@shopify/flash-list';
 import type { HMSMessage } from '@100mslive/react-native-hms';
 
 import type { RootState } from '../redux';
@@ -32,11 +31,10 @@ export const HLSChatMessages = () => {
         <PinnedMessages />
 
         {messages.length > 0 ? (
-          <FlashList
-            data={messages}
+          <FlatList
             inverted={true}
-            estimatedItemSize={62}
-            contentContainerStyle={{ paddingBottom: 12 }}
+            data={messages}
+            contentContainerStyle={{ flexGrow: 1, justifyContent: 'flex-end' }}
             showsVerticalScrollIndicator={Platform.OS !== 'android'}
             // contentContainerStyle={styles.listContentContainer} // Bug: Android inverted flashlist will apply padding on left when `paddingRight: 12` is applied
             keyboardShouldPersistTaps="always"

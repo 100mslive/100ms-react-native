@@ -1,85 +1,164 @@
 import React from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
+import { View, StyleSheet } from 'react-native';
+import type { ViewProps, ViewStyle } from 'react-native';
+import { useSelector } from 'react-redux';
+import Animated, {
+  useAnimatedProps,
+  useAnimatedStyle,
+} from 'react-native-reanimated';
+import type { SharedValue } from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import type { HMSHLSPlayer } from '@100mslive/react-native-hms';
 
-import {
-  // CCIcon,
-  CloseIcon,
-  MaximizeIcon,
-  MinimizeIcon,
-} from '../Icons';
-import { ModalTypes } from '../utils/types';
-import { useModalType } from '../hooks-util';
 import type { RootState } from '../redux';
-import { setHlsFullScreen } from '../redux/actions';
+import { HLSGoLiveControl } from './HLSGoLiveControl';
+import { HLSSeekbar } from './HLSSeekbar';
+import { useIsLandscapeOrientation } from '../utils/dimension';
+import { HLSCloseMeetingControl } from './HLSCloseMeetingControl';
+import { HLSClosedCaptionControl } from './HLSClosedCaptionControl';
+import { HLSFullScreenControl } from './HLSFullScreenControl';
+import { HLSDistanceFromLive } from './HLSDistanceFromLive';
+import { HLSPlayPauseControl } from './HLSPlayPauseControl';
+import { HLSSeekbackwardControl } from './HLSSeekbackwardControl';
+import { HLSSeekforwardControl } from './HLSSeekforwardControl';
 
-export const _HLSPlayerControls: React.FC = () => {
-  // const isHLSStreaming = useIsHLSStreamingOn();
-  // const isStreamUrlPresent = useSelector(
-  //   (state: RootState) =>
-  //     !!state.hmsStates.room?.hlsStreamingState.variants?.[0]?.hlsStreamUrl
-  // );
-  const dispatch = useDispatch();
+interface HLSPlayerControlsProps {
+  playerRef: React.RefObject<React.ElementRef<typeof HMSHLSPlayer>>;
+  cancelCurrentControlAnimation: () => void;
+  hideControlsAfterDelay: () => void;
+  resetHideControlAnimation: () => void;
+  animatedValue: SharedValue<number>;
+}
+
+export const _HLSPlayerControls: React.FC<HLSPlayerControlsProps> = ({
+  playerRef,
+  cancelCurrentControlAnimation,
+  hideControlsAfterDelay,
+  animatedValue,
+  resetHideControlAnimation,
+}) => {
+  const { bottom: bottomSafeInset } = useSafeAreaInsets();
+  const isLandscapeOrientation = useIsLandscapeOrientation();
   const hlsFullScreen = useSelector(
     (state: RootState) => state.app.hlsFullScreen
   );
-  const { handleModalVisibleType } = useModalType();
 
-  const handleCloseBtnPress = () => {
-    handleModalVisibleType(ModalTypes.LEAVE_ROOM);
-  };
+  const hideControlsStyles: ViewStyle = useAnimatedStyle(
+    () => ({
+      opacity: animatedValue.value,
+    }),
+    []
+  );
 
-  // const handleCCBtnPress = () => {
-  //   //
-  // };
-
-  const toggleFullScreen = () => {
-    dispatch(setHlsFullScreen(!hlsFullScreen));
-  };
+  const hideControlsProps: ViewProps = useAnimatedProps(
+    () => ({
+      pointerEvents: animatedValue.value < 0.8 ? 'none' : 'auto',
+    }),
+    []
+  );
 
   return (
-    <View style={styles.container}>
-      <View style={styles.controlsRow}>
-        <TouchableOpacity onPress={handleCloseBtnPress} style={styles.icon}>
-          <CloseIcon size="medium" />
-        </TouchableOpacity>
+    <React.Fragment>
+      {/* Play/Pause Controls */}
+      <Animated.View
+        animatedProps={hideControlsProps}
+        style={[
+          { height: '100%' },
+          styles.floatingContainer,
+          hideControlsStyles,
+        ]}
+      >
+        <View
+          style={{
+            flex: 1,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <HLSSeekbackwardControl
+            playerRef={playerRef}
+            onPress={resetHideControlAnimation}
+          />
 
-        {/* <View style={[styles.normalRow, styles.gap]}>
-          <TouchableOpacity
-            onPress={handleCCBtnPress}
-            style={[styles.icon, styles.gap]}
-          >
-            <CCIcon size="medium" enabled={true} />
-          </TouchableOpacity>
-        </View> */}
-      </View>
+          <HLSPlayPauseControl
+            playerRef={playerRef}
+            onPress={resetHideControlAnimation}
+          />
 
-      <View style={styles.controlsRow}>
-        <View />
-
-        <View style={[styles.normalRow, styles.gap]}>
-          <TouchableOpacity onPress={toggleFullScreen} style={styles.icon}>
-            {hlsFullScreen ? (
-              <MinimizeIcon size="medium" />
-            ) : (
-              <MaximizeIcon size="medium" />
-            )}
-          </TouchableOpacity>
+          <HLSSeekforwardControl
+            playerRef={playerRef}
+            onPress={resetHideControlAnimation}
+          />
         </View>
-      </View>
-    </View>
+      </Animated.View>
+
+      {/* Header Controls */}
+      <Animated.View
+        animatedProps={hideControlsProps}
+        style={[{ top: 0 }, styles.floatingContainer, hideControlsStyles]}
+      >
+        <View style={styles.controlsRow}>
+          <HLSCloseMeetingControl onPress={resetHideControlAnimation} />
+
+          <View style={[styles.normalRow, styles.gap]}>
+            <HLSClosedCaptionControl
+              playerRef={playerRef}
+              onPress={resetHideControlAnimation}
+            />
+          </View>
+        </View>
+      </Animated.View>
+
+      {/* Footer Controls */}
+      <Animated.View
+        animatedProps={hideControlsProps}
+        style={[
+          { bottom: isLandscapeOrientation ? bottomSafeInset : 0 },
+          styles.floatingContainer,
+          hideControlsStyles,
+        ]}
+      >
+        <View
+          style={{
+            flexDirection:
+              isLandscapeOrientation || hlsFullScreen
+                ? 'column-reverse'
+                : 'column',
+          }}
+        >
+          <View style={styles.controlsRow}>
+            <View style={styles.normalRow}>
+              <HLSGoLiveControl
+                playerRef={playerRef}
+                onPress={resetHideControlAnimation}
+              />
+              <HLSDistanceFromLive />
+            </View>
+
+            <View style={[styles.normalRow, styles.gap]}>
+              <HLSFullScreenControl onPress={resetHideControlAnimation} />
+            </View>
+          </View>
+
+          <HLSSeekbar
+            playerRef={playerRef}
+            onStart={cancelCurrentControlAnimation}
+            onEnd={hideControlsAfterDelay}
+          />
+        </View>
+      </Animated.View>
+    </React.Fragment>
   );
 };
 
 export const HLSPlayerControls = React.memo(_HLSPlayerControls);
 
 const styles = StyleSheet.create({
-  container: {
+  floatingContainer: {
     position: 'absolute',
     width: '100%',
-    height: '100%',
     zIndex: 5,
-    justifyContent: 'space-between',
   },
   controlsRow: {
     flexDirection: 'row',

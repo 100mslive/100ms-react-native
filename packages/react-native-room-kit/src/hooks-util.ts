@@ -24,10 +24,13 @@ import {
   WindowController,
   useHMSHLSPlayerCue,
   HMSPollUpdateType,
+  useHMSHLSPlayerPlaybackState,
+  HMSHLSPlayerPlaybackState,
 } from '@100mslive/react-native-hms';
 import type { Chat as ChatConfig } from '@100mslive/types-prebuilt/elements/chat';
 import { SoftInputModes } from '@100mslive/react-native-hms';
 import type {
+  HMSHLSPlayer,
   HMSPIPConfig,
   HMSRole,
   HMSSessionStore,
@@ -93,6 +96,7 @@ import {
   saveUserData,
   setActiveChatBottomSheetTab,
   setActiveSpeakers,
+  setAndroidHLSStreamPaused,
   setAutoEnterPipMode,
   setChatPeerBlacklist,
   setChatState,
@@ -3187,7 +3191,7 @@ export const useHLSPlayerConstraints = () => {
    * Handling Landscape Orientation for both Full and Normal screen
    */
   if (isLandscapeOrientation) {
-    return sr > 1 || sr > wr
+    return sr > wr
       ? {
           width: wrapperWidth,
           height: wrapperWidth / sr,
@@ -3211,5 +3215,39 @@ export const useHLSPlayerConstraints = () => {
   return {
     width: wrapperHeight * sr,
     height: wrapperHeight,
+  };
+};
+
+export const useHLSStreamResumePause = (
+  playerRef: React.RefObject<React.ComponentRef<typeof HMSHLSPlayer>>
+) => {
+  const dispatch = useDispatch();
+
+  const isPaused = Platform.select({
+    android: useSelector(
+      (state: RootState) => state.app.hlsStreamPaused_android
+    ),
+    ios: useHMSHLSPlayerPlaybackState() === HMSHLSPlayerPlaybackState.PAUSED,
+    default: false,
+  });
+
+  const resumeStream = useCallback(() => {
+    playerRef.current?.resume();
+    if (Platform.OS === 'android') {
+      dispatch(setAndroidHLSStreamPaused(false));
+    }
+  }, []);
+
+  const pauseStream = useCallback(() => {
+    playerRef.current?.pause();
+    if (Platform.OS === 'android') {
+      dispatch(setAndroidHLSStreamPaused(true));
+    }
+  }, []);
+
+  return {
+    isPaused,
+    resumeStream,
+    pauseStream,
   };
 };
