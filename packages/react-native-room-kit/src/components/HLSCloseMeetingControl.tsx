@@ -1,23 +1,31 @@
 import React from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
+import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 
 import { CloseIcon } from '../Icons';
 import { ModalTypes } from '../utils/types';
 import { useModalType } from '../hooks-util';
 
-interface HLSPlayerControlsProps {}
+interface HLSPlayerControlsProps {
+  onPress?: () => void;
+}
 
-export const _HLSCloseMeetingControl: React.FC<HLSPlayerControlsProps> = () => {
+export const _HLSCloseMeetingControl: React.FC<HLSPlayerControlsProps> = ({
+  onPress,
+}) => {
   const { handleModalVisibleType } = useModalType();
 
   const handleCloseBtnPress = () => {
+    onPress?.();
     handleModalVisibleType(ModalTypes.LEAVE_ROOM);
   };
 
   return (
-    <TouchableOpacity onPress={handleCloseBtnPress} style={styles.icon}>
-      <CloseIcon size="medium" />
-    </TouchableOpacity>
+    <GestureDetector gesture={Gesture.Tap()}>
+      <TouchableOpacity onPress={handleCloseBtnPress} style={styles.icon}>
+        <CloseIcon size="medium" />
+      </TouchableOpacity>
+    </GestureDetector>
   );
 };
 

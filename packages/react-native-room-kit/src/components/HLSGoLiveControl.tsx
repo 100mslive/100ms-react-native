@@ -6,6 +6,7 @@ import {
   useIsHLSStreamLive,
 } from '@100mslive/react-native-hms';
 import type { HMSHLSPlayer } from '@100mslive/react-native-hms';
+import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 
 import { useHMSRoomStyleSheet } from '../hooks-util';
 import { useIsHLSStreamingOn } from '../hooks-sdk';
@@ -13,10 +14,12 @@ import type { RootState } from '../redux';
 
 interface HLSGoLiveControlProps {
   playerRef: React.RefObject<React.ElementRef<typeof HMSHLSPlayer>>;
+  onPress?: () => void;
 }
 
 export const _HLSGoLiveControl: React.FC<HLSGoLiveControlProps> = ({
   playerRef,
+  onPress,
 }) => {
   const isHLSStreamingOn = useIsHLSStreamingOn();
   const isDVRStream = useSelector(
@@ -27,6 +30,7 @@ export const _HLSGoLiveControl: React.FC<HLSGoLiveControlProps> = ({
   const isStreamLive = useIsHLSStreamLive();
 
   const handleGoLivePress = () => {
+    onPress?.();
     playerRef.current?.seekToLivePosition();
   };
 
@@ -53,26 +57,28 @@ export const _HLSGoLiveControl: React.FC<HLSGoLiveControlProps> = ({
   if (!isHLSStreamingOn || !isDVRStream) return null;
 
   return (
-    <TouchableOpacity onPress={handleGoLivePress} style={styles.liveButton}>
-      <View
-        style={[
-          styles.liveIndicatorDot,
-          isStreamLive
-            ? hmsRoomStyles.liveIndicatorDot
-            : hmsRoomStyles.notLiveIndicatorDot,
-        ]}
-      />
-      <Text
-        style={[
-          styles.liveText,
-          isStreamLive
-            ? hmsRoomStyles.semiBoldSurfaceHigh
-            : hmsRoomStyles.semiBoldSurfaceMedium,
-        ]}
-      >
-        {isStreamLive ? 'LIVE' : 'GO LIVE'}
-      </Text>
-    </TouchableOpacity>
+    <GestureDetector gesture={Gesture.Tap()}>
+      <TouchableOpacity onPress={handleGoLivePress} style={styles.liveButton}>
+        <View
+          style={[
+            styles.liveIndicatorDot,
+            isStreamLive
+              ? hmsRoomStyles.liveIndicatorDot
+              : hmsRoomStyles.notLiveIndicatorDot,
+          ]}
+        />
+        <Text
+          style={[
+            styles.liveText,
+            isStreamLive
+              ? hmsRoomStyles.semiBoldSurfaceHigh
+              : hmsRoomStyles.semiBoldSurfaceMedium,
+          ]}
+        >
+          {isStreamLive ? 'LIVE' : 'GO LIVE'}
+        </Text>
+      </TouchableOpacity>
+    </GestureDetector>
   );
 };
 

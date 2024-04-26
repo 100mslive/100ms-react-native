@@ -19,11 +19,14 @@ import { HLSClosedCaptionControl } from './HLSClosedCaptionControl';
 import { HLSFullScreenControl } from './HLSFullScreenControl';
 import { HLSDistanceFromLive } from './HLSDistanceFromLive';
 import { HLSPlayPauseControl } from './HLSPlayPauseControl';
+import { HLSSeekbackwardControl } from './HLSSeekbackwardControl';
+import { HLSSeekforwardControl } from './HLSSeekforwardControl';
 
 interface HLSPlayerControlsProps {
   playerRef: React.RefObject<React.ElementRef<typeof HMSHLSPlayer>>;
   cancelCurrentControlAnimation: () => void;
   hideControlsAfterDelay: () => void;
+  resetHideControlAnimation: () => void;
   animatedValue: SharedValue<number>;
 }
 
@@ -32,6 +35,7 @@ export const _HLSPlayerControls: React.FC<HLSPlayerControlsProps> = ({
   cancelCurrentControlAnimation,
   hideControlsAfterDelay,
   animatedValue,
+  resetHideControlAnimation,
 }) => {
   const { bottom: bottomSafeInset } = useSafeAreaInsets();
   const isLandscapeOrientation = useIsLandscapeOrientation();
@@ -64,10 +68,28 @@ export const _HLSPlayerControls: React.FC<HLSPlayerControlsProps> = ({
           hideControlsStyles,
         ]}
       >
-        <View style={{ flex: 1, flexDirection: 'row' }}>
-          <View style={{ flex: 1 }} />
-          <HLSPlayPauseControl playerRef={playerRef} />
-          <View style={{ flex: 1 }} />
+        <View
+          style={{
+            flex: 1,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <HLSSeekbackwardControl
+            playerRef={playerRef}
+            onPress={resetHideControlAnimation}
+          />
+
+          <HLSPlayPauseControl
+            playerRef={playerRef}
+            onPress={resetHideControlAnimation}
+          />
+
+          <HLSSeekforwardControl
+            playerRef={playerRef}
+            onPress={resetHideControlAnimation}
+          />
         </View>
       </Animated.View>
 
@@ -77,10 +99,13 @@ export const _HLSPlayerControls: React.FC<HLSPlayerControlsProps> = ({
         style={[{ top: 0 }, styles.floatingContainer, hideControlsStyles]}
       >
         <View style={styles.controlsRow}>
-          <HLSCloseMeetingControl />
+          <HLSCloseMeetingControl onPress={resetHideControlAnimation} />
 
           <View style={[styles.normalRow, styles.gap]}>
-            <HLSClosedCaptionControl playerRef={playerRef} />
+            <HLSClosedCaptionControl
+              playerRef={playerRef}
+              onPress={resetHideControlAnimation}
+            />
           </View>
         </View>
       </Animated.View>
@@ -104,12 +129,15 @@ export const _HLSPlayerControls: React.FC<HLSPlayerControlsProps> = ({
         >
           <View style={styles.controlsRow}>
             <View style={styles.normalRow}>
-              <HLSGoLiveControl playerRef={playerRef} />
+              <HLSGoLiveControl
+                playerRef={playerRef}
+                onPress={resetHideControlAnimation}
+              />
               <HLSDistanceFromLive />
             </View>
 
             <View style={[styles.normalRow, styles.gap]}>
-              <HLSFullScreenControl />
+              <HLSFullScreenControl onPress={resetHideControlAnimation} />
             </View>
           </View>
 

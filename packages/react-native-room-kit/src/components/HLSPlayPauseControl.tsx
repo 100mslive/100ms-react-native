@@ -3,6 +3,7 @@ import type { HMSHLSPlayer } from '@100mslive/react-native-hms';
 import * as React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
+import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 
 import { useIsHLSStreamingOn } from '../hooks-sdk';
 import type { RootState } from '../redux';
@@ -11,10 +12,12 @@ import { useHLSStreamResumePause } from '../hooks-util';
 
 export interface HLSPlayPauseControlProps {
   playerRef: React.RefObject<React.ElementRef<typeof HMSHLSPlayer>>;
+  onPress?: () => void;
 }
 
 const _HLSPlayPauseControl: React.FC<HLSPlayPauseControlProps> = ({
   playerRef,
+  onPress,
 }) => {
   const isHLSStreamingOn = useIsHLSStreamingOn();
   const isDVRStream = useSelector((state: RootState) => {
@@ -28,6 +31,7 @@ const _HLSPlayPauseControl: React.FC<HLSPlayPauseControlProps> = ({
     useHLSStreamResumePause(playerRef);
 
   const togglePlayPause = () => {
+    onPress?.();
     if (isPaused) {
       resumeStream();
     } else {
@@ -38,11 +42,16 @@ const _HLSPlayPauseControl: React.FC<HLSPlayPauseControlProps> = ({
   if (!isHLSStreamingOn || !isDVRStream) return null;
 
   return (
-    <TouchableOpacity onPress={togglePlayPause} style={{ alignSelf: 'center' }}>
-      <View style={styles.container}>
-        {isPaused ? <PlayIcon /> : <PauseIcon />}
-      </View>
-    </TouchableOpacity>
+    <GestureDetector gesture={Gesture.Tap()}>
+      <TouchableOpacity
+        onPress={togglePlayPause}
+        style={{ alignSelf: 'center' }}
+      >
+        <View style={styles.container}>
+          {isPaused ? <PlayIcon /> : <PauseIcon />}
+        </View>
+      </TouchableOpacity>
+    </GestureDetector>
   );
 };
 

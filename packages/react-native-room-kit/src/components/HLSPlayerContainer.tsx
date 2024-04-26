@@ -34,19 +34,22 @@ export const _HLSPlayerContainer: React.FC = () => {
     );
   }, []);
 
+  const resetHideControlAnimation = React.useCallback(() => {
+    cancelCurrentControlAnimation();
+    hideControlsAfterDelay();
+  }, [cancelCurrentControlAnimation, hideControlsAfterDelay]);
+
   const hideControls = React.useCallback((duration = 500) => {
     'worklet';
     animatedValue.value = withTiming(0, { duration, easing: Easing.ease });
   }, []);
 
   React.useEffect(() => {
-    cancelCurrentControlAnimation();
-    hideControlsAfterDelay();
-  }, [cancelCurrentControlAnimation, hideControlsAfterDelay]);
+    resetHideControlAnimation();
+  }, [resetHideControlAnimation]);
 
   const tapGesture = React.useMemo(() => {
     return Gesture.Tap().onStart(() => {
-      console.log('Tap detected');
       cancelCurrentControlAnimation();
       if (animatedValue.value < 1) {
         animatedValue.value = withTiming(
@@ -84,6 +87,7 @@ export const _HLSPlayerContainer: React.FC = () => {
           animatedValue={animatedValue}
           cancelCurrentControlAnimation={cancelCurrentControlAnimation}
           hideControlsAfterDelay={hideControlsAfterDelay}
+          resetHideControlAnimation={resetHideControlAnimation}
         />
       </View>
     </GestureDetector>

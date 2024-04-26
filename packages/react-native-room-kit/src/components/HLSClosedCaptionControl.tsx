@@ -6,6 +6,7 @@ import {
   HMSHLSPlayerPlaybackState,
 } from '@100mslive/react-native-hms';
 import type { HMSHLSPlayer } from '@100mslive/react-native-hms';
+import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 
 import { CCIcon } from '../Icons';
 import type { RootState } from '../redux';
@@ -13,11 +14,12 @@ import { useIsHLSStreamingOn } from '../hooks-sdk';
 
 interface HLSClosedCaptionControlProps {
   playerRef: React.RefObject<React.ElementRef<typeof HMSHLSPlayer>>;
+  onPress?: () => void;
 }
 
 export const _HLSClosedCaptionControl: React.FC<
   HLSClosedCaptionControlProps
-> = ({ playerRef }) => {
+> = ({ playerRef, onPress }) => {
   const isHLSStreamingOn = useIsHLSStreamingOn();
   const isStreamUrlPresent = useSelector(
     (state: RootState) =>
@@ -43,6 +45,7 @@ export const _HLSClosedCaptionControl: React.FC<
     if (!isCCSupported || !playerRef.current) {
       return;
     }
+    onPress?.();
     if (isCCEnabled) {
       playerRef.current.disableClosedCaption();
       setIsCCEnabled(false);
@@ -93,12 +96,14 @@ export const _HLSClosedCaptionControl: React.FC<
   }
 
   return (
-    <TouchableOpacity
-      onPress={handleCCBtnPress}
-      style={[styles.icon, styles.gap]}
-    >
-      <CCIcon size="medium" enabled={isCCEnabled} />
-    </TouchableOpacity>
+    <GestureDetector gesture={Gesture.Tap()}>
+      <TouchableOpacity
+        onPress={handleCCBtnPress}
+        style={[styles.icon, styles.gap]}
+      >
+        <CCIcon size="medium" enabled={isCCEnabled} />
+      </TouchableOpacity>
+    </GestureDetector>
   );
 };
 
