@@ -1,5 +1,11 @@
-import React, { useImperativeHandle, useRef } from 'react';
-import { View, StyleSheet, UIManager, findNodeHandle } from 'react-native';
+import React, { useImperativeHandle, useMemo, useRef } from 'react';
+import {
+  View,
+  StyleSheet,
+  UIManager,
+  findNodeHandle,
+  Platform,
+} from 'react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
 
 import {
@@ -9,15 +15,18 @@ import {
   setHMSHLSPlayerResolution,
   setHMSHLSPlayerStats,
   setHMSHLSPlayerStatsError,
+  setHMSHLSPlayerSubtitles,
 } from './hooks';
 import {
   RCTHMSHLSPlayer,
   RCTHMSHLSPlayerViewManagerConfig,
 } from './RCTHMSHLSPlayer';
 import type {
+  HlsSPlayerCuesEventHandler,
   HmsHlsPlaybackEventHandler,
   HmsHlsStatsEventHandler,
   RCTHMSHLSPlayerRef,
+  RequestedDataEventHandler,
 } from './RCTHMSHLSPlayer';
 import {
   HMSHLSPlayerPlaybackEventTypes,
@@ -45,6 +54,10 @@ export interface HMSHLSPlayerRefProperties {
   seekBackward: (seconds: number) => void;
   seekToLivePosition: () => void;
   setVolume: (level: number) => void;
+  isClosedCaptionSupported: () => Promise<boolean>;
+  isClosedCaptionEnabled: () => Promise<boolean>;
+  enableClosedCaption: () => void;
+  disableClosedCaption: () => void;
 }
 
 const _HMSHLSPlayer: React.ForwardRefRenderFunction<
@@ -55,6 +68,15 @@ const _HMSHLSPlayer: React.ForwardRefRenderFunction<
   ref
 ) => {
   const hmsHlsPlayerRef = useRef<RCTHMSHLSPlayerRef | null>(null);
+  const promiseAndIdsMap = useMemo(
+    () =>
+      new Map<
+        number,
+        { resolve(value: unknown): void; reject(reason?: any): void }
+      >(),
+    []
+  );
+  const currentRequestId = useRef(1);
 
   useImperativeHandle(
     ref,
@@ -177,8 +199,70 @@ const _HMSHLSPlayer: React.ForwardRefRenderFunction<
           );
         }
       },
+      isClosedCaptionSupported: () => {
+        if (
+          hmsHlsPlayerRef.current &&
+          RCTHMSHLSPlayerViewManagerConfig.Commands.areClosedCaptionSupported
+        ) {
+          const requestId = currentRequestId.current++;
+          const promise = new Promise<boolean>((resolve, reject) => {
+            promiseAndIdsMap.set(requestId, { resolve, reject });
+          });
+
+          UIManager.dispatchViewManagerCommand(
+            findNodeHandle(hmsHlsPlayerRef.current),
+            RCTHMSHLSPlayerViewManagerConfig.Commands.areClosedCaptionSupported,
+            [requestId]
+          );
+          return promise;
+        }
+        return Promise.resolve(false);
+      },
+      isClosedCaptionEnabled: () => {
+        if (
+          hmsHlsPlayerRef.current &&
+          RCTHMSHLSPlayerViewManagerConfig.Commands.isClosedCaptionEnabled
+        ) {
+          const requestId = currentRequestId.current++;
+          const promise = new Promise<boolean>((resolve, reject) => {
+            promiseAndIdsMap.set(requestId, { resolve, reject });
+          });
+
+          UIManager.dispatchViewManagerCommand(
+            findNodeHandle(hmsHlsPlayerRef.current),
+            RCTHMSHLSPlayerViewManagerConfig.Commands.isClosedCaptionEnabled,
+            [requestId]
+          );
+          return promise;
+        }
+        return Promise.resolve(false);
+      },
+      enableClosedCaption: () => {
+        if (
+          hmsHlsPlayerRef.current &&
+          RCTHMSHLSPlayerViewManagerConfig.Commands.enableClosedCaption
+        ) {
+          UIManager.dispatchViewManagerCommand(
+            findNodeHandle(hmsHlsPlayerRef.current),
+            RCTHMSHLSPlayerViewManagerConfig.Commands.enableClosedCaption,
+            undefined
+          );
+        }
+      },
+      disableClosedCaption: () => {
+        if (
+          hmsHlsPlayerRef.current &&
+          RCTHMSHLSPlayerViewManagerConfig.Commands.disableClosedCaption
+        ) {
+          UIManager.dispatchViewManagerCommand(
+            findNodeHandle(hmsHlsPlayerRef.current),
+            RCTHMSHLSPlayerViewManagerConfig.Commands.disableClosedCaption,
+            undefined
+          );
+        }
+      },
     }),
-    []
+    [currentRequestId, promiseAndIdsMap]
   );
 
   // Handle HLS Playback events
@@ -218,6 +302,35 @@ const _HMSHLSPlayer: React.ForwardRefRenderFunction<
     }
   };
 
+  // Handle HLS Player Cues events (e.g. usage - Closed Captions)
+  const handleHLSPlayerCuesEvent: HlsSPlayerCuesEventHandler = ({
+    nativeEvent,
+  }) => {
+    const { event, data } = nativeEvent;
+
+    if (event === 'ON_CLOSED_CAPTION_UPDATE') {
+      setHMSHLSPlayerSubtitles(data);
+    }
+  };
+
+  // Handle Requested data
+  const handleRequestedDataReturned: RequestedDataEventHandler = ({
+    nativeEvent,
+  }) => {
+    const { requestId, data } = nativeEvent;
+    const promiseMethods = promiseAndIdsMap.get(requestId);
+
+    if (!promiseMethods) {
+      console.warn(
+        '#function handleRequestedDataReturned',
+        "Didn't found promise methods by requestId: ",
+        requestId
+      );
+      return;
+    }
+    promiseMethods.resolve(data);
+  };
+
   return (
     <View style={[styles.container, containerStyle]}>
       <View style={[styles.playerWrapper, style]}>
@@ -229,6 +342,10 @@ const _HMSHLSPlayer: React.ForwardRefRenderFunction<
           enableControls={enableControls}
           onHmsHlsPlaybackEvent={handleHLSPlaybackEvent}
           onHmsHlsStatsEvent={handleHLSStatsEvent}
+          onHlsPlayerCuesEvent={
+            Platform.OS === 'android' ? handleHLSPlayerCuesEvent : undefined
+          }
+          onDataReturned={handleRequestedDataReturned}
         />
       </View>
     </View>

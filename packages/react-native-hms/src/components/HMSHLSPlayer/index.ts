@@ -7,4 +7,5 @@ export {
   useHMSHLSPlayerStat,
   useHMSHLSPlayerStatsError,
   useHMSHLSPlayerResolution,
+  useHMSHLSPlayerSubtitles,
 } from './hooks';

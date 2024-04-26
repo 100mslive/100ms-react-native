@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import type { ViewProps, ViewStyle } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
@@ -14,39 +14,103 @@ import Animated, {
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
 import {
-  // CCIcon,
-  CloseIcon,
-  MaximizeIcon,
-  MinimizeIcon,
-} from '../Icons';
+  useHMSHLSPlayerPlaybackState,
+  HMSHLSPlayerPlaybackState,
+} from '@100mslive/react-native-hms';
+import type { HMSHLSPlayer } from '@100mslive/react-native-hms';
+
+import { CCIcon, CloseIcon, MaximizeIcon, MinimizeIcon } from '../Icons';
 import { ModalTypes } from '../utils/types';
 import { useModalType } from '../hooks-util';
 import type { RootState } from '../redux';
 import { setHlsFullScreen } from '../redux/actions';
+import { useIsHLSStreamingOn } from '../hooks-sdk';
 
-export const _HLSPlayerControls: React.FC = () => {
-  // const isHLSStreaming = useIsHLSStreamingOn();
-  // const isStreamUrlPresent = useSelector(
-  //   (state: RootState) =>
-  //     !!state.hmsStates.room?.hlsStreamingState.variants?.[0]?.hlsStreamUrl
-  // );
+interface HLSPlayerControlsProps {
+  playerRef: React.RefObject<React.ElementRef<typeof HMSHLSPlayer>>;
+}
+
+export const _HLSPlayerControls: React.FC<HLSPlayerControlsProps> = ({
+  playerRef,
+}) => {
+  const isHLSStreamingOn = useIsHLSStreamingOn();
+  const isStreamUrlPresent = useSelector(
+    (state: RootState) =>
+      !!state.hmsStates.room?.hlsStreamingState.variants?.[0]?.hlsStreamUrl
+  );
+
+  let startedPlayingFirstTime = false;
+  let prevPlaybackState = HMSHLSPlayerPlaybackState.UNKNOWN;
+  const playbackState = useHMSHLSPlayerPlaybackState();
+
+  if (
+    prevPlaybackState === HMSHLSPlayerPlaybackState.UNKNOWN &&
+    playbackState === HMSHLSPlayerPlaybackState.PLAYING
+  ) {
+    prevPlaybackState = playbackState;
+    startedPlayingFirstTime = true;
+  }
+
   const dispatch = useDispatch();
   const hlsFullScreen = useSelector(
     (state: RootState) => state.app.hlsFullScreen
   );
+  const [isCCSupported, setIsCCSupported] = useState(false);
+  const [isCCEnabled, setIsCCEnabled] = useState(true);
   const { handleModalVisibleType } = useModalType();
 
   const handleCloseBtnPress = () => {
     handleModalVisibleType(ModalTypes.LEAVE_ROOM);
   };
 
-  // const handleCCBtnPress = () => {
-  //   //
-  // };
+  const handleCCBtnPress = () => {
+    if (!isCCSupported || !playerRef.current) {
+      return;
+    }
+    if (isCCEnabled) {
+      playerRef.current.disableClosedCaption();
+      setIsCCEnabled(false);
+    } else {
+      playerRef.current.enableClosedCaption();
+      setIsCCEnabled(true);
+    }
+  };
 
   const toggleFullScreen = () => {
     dispatch(setHlsFullScreen(!hlsFullScreen));
   };
+
+  React.useEffect(() => {
+    if (
+      isHLSStreamingOn &&
+      isStreamUrlPresent &&
+      startedPlayingFirstTime &&
+      playerRef.current
+    ) {
+      let mounted = true;
+
+      playerRef.current
+        .isClosedCaptionSupported()
+        .then((supported) => {
+          if (mounted) {
+            setIsCCSupported(supported);
+          }
+        })
+        .catch(() => {});
+      playerRef.current
+        .isClosedCaptionEnabled()
+        .then((enabled) => {
+          if (mounted) {
+            setIsCCEnabled(enabled);
+          }
+        })
+        .catch(() => {});
+
+      return () => {
+        mounted = false;
+      };
+    }
+  }, [isHLSStreamingOn, isStreamUrlPresent, startedPlayingFirstTime]);
 
   return (
     <AutoHideView>
@@ -55,14 +119,16 @@ export const _HLSPlayerControls: React.FC = () => {
           <CloseIcon size="medium" />
         </TouchableOpacity>
 
-        {/* <View style={[styles.normalRow, styles.gap]}>
-          <TouchableOpacity
-            onPress={handleCCBtnPress}
-            style={[styles.icon, styles.gap]}
-          >
-            <CCIcon size="medium" enabled={true} />
-          </TouchableOpacity>
-        </View> */}
+        <View style={[styles.normalRow, styles.gap]}>
+          {isCCSupported ? (
+            <TouchableOpacity
+              onPress={handleCCBtnPress}
+              style={[styles.icon, styles.gap]}
+            >
+              <CCIcon size="medium" enabled={isCCEnabled} />
+            </TouchableOpacity>
+          ) : null}
+        </View>
       </View>
 
       <View style={styles.controlsRow}>

@@ -819,7 +819,7 @@ class HMSDecoder: NSObject {
         }
         return variants
     }
-    
+
     static func getHLSVariantPlaylistType(from type: HMSHLSPlaylistType) -> String {
         switch type {
         case .dvr:

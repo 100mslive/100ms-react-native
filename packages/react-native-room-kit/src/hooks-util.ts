@@ -3187,7 +3187,7 @@ export const useHLSPlayerConstraints = () => {
    * Handling Landscape Orientation for both Full and Normal screen
    */
   if (isLandscapeOrientation) {
-    return sr > 1 || sr > wr
+    return sr > wr
       ? {
           width: wrapperWidth,
           height: wrapperWidth / sr,

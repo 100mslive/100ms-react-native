@@ -39,6 +39,10 @@ export const useHMSHLSPlayerStat = <
   return useHMSHLSPlayerStatsStore((state) => state.stats[stat]);
 };
 
+export const useHMSHLSPlayerSubtitles = () => {
+  return useHMSHLSPlayerStatsStore((state) => state.subtitles);
+};
+
 // // The distance of current playback position from the live edge of HLS stream
 // export const useIsHLSStreamLive = (liveOffsetMillis: number = 1000) => {
 //   return useHMSHLSPlayerStatsStore((state) => state.stats.distanceFromLive < liveOffsetMillis);
@@ -105,3 +109,6 @@ export const setHMSHLSPlayerStats =
 
 export const setHMSHLSPlayerStatsError =
   useHMSHLSPlayerStatsStore.getState().setError;
+
+export const setHMSHLSPlayerSubtitles =
+  useHMSHLSPlayerStatsStore.getState().setSubtitles;

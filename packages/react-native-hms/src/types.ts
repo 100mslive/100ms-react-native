@@ -125,6 +125,16 @@ export type HMSHLSPlayerStatsEvent =
   | HMSHLSPlayerStatsErrorEvent
   | HMSHLSPlayerStatsUpdateEvent;
 
+export type HMSHLSPlayerCuesEvent = HMSHLSPlayerEvent<
+  'ON_CLOSED_CAPTION_UPDATE',
+  string | null
+>;
+
+export type RequestedDataEvent = {
+  requestId: number;
+  data: any;
+};
+
 // #endregion HMS HLSPlayer Stats Events
 
 // #region Utility types

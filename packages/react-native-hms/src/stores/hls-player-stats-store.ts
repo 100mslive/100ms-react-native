@@ -33,5 +33,9 @@ export const useHMSHLSPlayerStatsStore = create<HMSHLSPlayerStatsStore>()(
     // Handle Stats Error
     error: undefined,
     setError: (error: HMSHLSPlayerStatsError) => set({ error }),
+
+    // Handle Closed Caption
+    subtitles: null,
+    setSubtitles: (subtitles: string | null) => set({ subtitles }),
   }))
 );

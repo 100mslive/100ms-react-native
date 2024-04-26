@@ -1,12 +1,14 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
+import type { HMSHLSPlayer } from '@100mslive/react-native-hms';
 
 import { useHLSViewsConstraints } from '../hooks-util';
 import { HLSPlayer } from './HLSPlayer';
 import { HLSPlayerControls } from './HLSPlayerControls';
 
 export const _HLSPlayerContainer: React.FC = () => {
-  // const hlsPlayerRef = useRef(null);
+  const hlsPlayerRef =
+    React.useRef<React.ElementRef<typeof HMSHLSPlayer>>(null);
   const { playerWrapperConstraints } = useHLSViewsConstraints();
 
   return (
@@ -20,9 +22,9 @@ export const _HLSPlayerContainer: React.FC = () => {
         },
       ]}
     >
-      <HLSPlayer />
+      <HLSPlayer ref={hlsPlayerRef} />
 
-      <HLSPlayerControls />
+      <HLSPlayerControls playerRef={hlsPlayerRef} />
     </View>
   );
 };

@@ -31,6 +31,10 @@ class HMSHLSPlayerManager : SimpleViewManager<HMSHLSPlayer>() {
       MapBuilder.of("registrationName", "onHmsHlsPlaybackEvent"),
       HMSHLSPlayerConstants.HMS_HLS_STATS_EVENT,
       MapBuilder.of("registrationName", "onHmsHlsStatsEvent"),
+      HMSHLSPlayerConstants.HLS_DATA_REQUEST_EVENT,
+      MapBuilder.of("registrationName", "onDataReturned"),
+      HMSHLSPlayerConstants.HLS_PLAYER_CUES_EVENT,
+      MapBuilder.of("registrationName", "onHlsPlayerCuesEvent"),
     )
   }
 
@@ -68,6 +72,22 @@ class HMSHLSPlayerManager : SimpleViewManager<HMSHLSPlayer>() {
           }
         }
       }
+      90 -> {
+        args.let {
+          if (it != null) {
+            root.areClosedCaptionSupported(it.getInt(0))
+          }
+        }
+      }
+      100 -> {
+        args.let {
+          if (it != null) {
+            root.isClosedCaptionEnabled(it.getInt(0))
+          }
+        }
+      }
+      110 -> root.enableClosedCaption()
+      120 -> root.disableClosedCaption()
     }
   }
 
@@ -81,6 +101,10 @@ class HMSHLSPlayerManager : SimpleViewManager<HMSHLSPlayer>() {
       .put("seekForward", 60)
       .put("seekBackward", 70)
       .put("setVolume", 80)
+      .put("areClosedCaptionSupported", 90)
+      .put("isClosedCaptionEnabled", 100)
+      .put("enableClosedCaption", 110)
+      .put("disableClosedCaption", 120)
       .build()
   }
 
