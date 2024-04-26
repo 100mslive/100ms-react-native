@@ -3,6 +3,7 @@ package com.reactnativehmssdk
 import android.annotation.SuppressLint
 import android.content.Context
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.FrameLayout
 import androidx.media3.common.Player
 import androidx.media3.common.VideoSize
@@ -28,7 +29,7 @@ class HMSHLSPlayer(context: ReactContext) : FrameLayout(context) {
   private var hmsHlsPlayer: HmsHlsPlayer? = null // 100ms HLS Player
   private var hmssdkInstance: HMSSDK? = null
   private var statsMonitorAttached = false
-  private var shouldSendCaptionsToJS = true
+  private var shouldSendCaptionsToJS = false
   private val hmsHlsPlaybackEventsObject =
     object : HmsHlsPlaybackEvents {
       override fun onCue(cue: HmsHlsCue) {
@@ -119,6 +120,7 @@ class HMSHLSPlayer(context: ReactContext) : FrameLayout(context) {
     val localPlayerView = view.findViewById<PlayerView>(R.id.hls_view)
     playerView = localPlayerView
     localPlayerView.useController = false
+    localPlayerView.subtitleView?.visibility = View.GONE
 
     val hmssdkCollection = context.getNativeModule(HMSManager::class.java)?.getHmsInstance()
     hmssdkInstance = hmssdkCollection?.get("12345")?.hmsSDK
@@ -238,6 +240,15 @@ class HMSHLSPlayer(context: ReactContext) : FrameLayout(context) {
     sendHLSPlayerCuesEventToJS(null)
   }
 
+  fun getPlayerDurationDetails(requestId: Int) {
+    val data: WritableMap = Arguments.createMap()
+    hmsHlsPlayer?.getNativePlayer()?.let { exoPlayer ->
+      data.putInt("rollingWindowTime", exoPlayer.seekParameters.toleranceAfterUs.div(1000).toInt())
+      data.putInt("streamDuration", exoPlayer.duration.toInt())
+    }
+    sendHLSDataRequestEventToJS(requestId, data)
+  }
+
   fun enableStats(enable: Boolean) {
     if (enable) {
       attachStatsMonitor()
@@ -249,11 +260,13 @@ class HMSHLSPlayer(context: ReactContext) : FrameLayout(context) {
   fun enableControls(show: Boolean) {
     playerView?.let {
       if (show) {
+        it.subtitleView?.visibility = View.VISIBLE
         it.useController = true
         it.showController()
       } else {
         it.hideController()
         it.useController = false
+        it.subtitleView?.visibility = View.GONE
       }
     }
   }

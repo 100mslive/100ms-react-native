@@ -48,3 +48,6 @@ export * from './Add';
 export * from './PollVote';
 export * from './CheckBox';
 export * from './CC';
+export * from './Pause';
+export * from './Play';
+export * from './SeekArrow';

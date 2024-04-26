@@ -1,157 +1,47 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import React from 'react';
+import { View, StyleSheet } from 'react-native';
 import type { ViewProps, ViewStyle } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import Animated, {
-  Easing,
-  cancelAnimation,
   useAnimatedProps,
   useAnimatedStyle,
-  useSharedValue,
-  withDelay,
-  withTiming,
 } from 'react-native-reanimated';
-import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-
-import {
-  useHMSHLSPlayerPlaybackState,
-  HMSHLSPlayerPlaybackState,
-} from '@100mslive/react-native-hms';
+import type { SharedValue } from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { HMSHLSPlayer } from '@100mslive/react-native-hms';
 
-import { CCIcon, CloseIcon, MaximizeIcon, MinimizeIcon } from '../Icons';
-import { ModalTypes } from '../utils/types';
-import { useModalType } from '../hooks-util';
 import type { RootState } from '../redux';
-import { setHlsFullScreen } from '../redux/actions';
-import { useIsHLSStreamingOn } from '../hooks-sdk';
+import { HLSGoLiveControl } from './HLSGoLiveControl';
+import { HLSSeekbar } from './HLSSeekbar';
+import { useIsLandscapeOrientation } from '../utils/dimension';
+import { HLSCloseMeetingControl } from './HLSCloseMeetingControl';
+import { HLSClosedCaptionControl } from './HLSClosedCaptionControl';
+import { HLSFullScreenControl } from './HLSFullScreenControl';
+import { HLSDistanceFromLive } from './HLSDistanceFromLive';
+import { HLSPlayPauseControl } from './HLSPlayPauseControl';
+import { HLSSeekbackwardControl } from './HLSSeekbackwardControl';
+import { HLSSeekforwardControl } from './HLSSeekforwardControl';
 
 interface HLSPlayerControlsProps {
   playerRef: React.RefObject<React.ElementRef<typeof HMSHLSPlayer>>;
+  cancelCurrentControlAnimation: () => void;
+  hideControlsAfterDelay: () => void;
+  resetHideControlAnimation: () => void;
+  animatedValue: SharedValue<number>;
 }
 
 export const _HLSPlayerControls: React.FC<HLSPlayerControlsProps> = ({
   playerRef,
+  cancelCurrentControlAnimation,
+  hideControlsAfterDelay,
+  animatedValue,
+  resetHideControlAnimation,
 }) => {
-  const isHLSStreamingOn = useIsHLSStreamingOn();
-  const isStreamUrlPresent = useSelector(
-    (state: RootState) =>
-      !!state.hmsStates.room?.hlsStreamingState.variants?.[0]?.hlsStreamUrl
-  );
-
-  let startedPlayingFirstTime = false;
-  let prevPlaybackState = HMSHLSPlayerPlaybackState.UNKNOWN;
-  const playbackState = useHMSHLSPlayerPlaybackState();
-
-  if (
-    prevPlaybackState === HMSHLSPlayerPlaybackState.UNKNOWN &&
-    playbackState === HMSHLSPlayerPlaybackState.PLAYING
-  ) {
-    prevPlaybackState = playbackState;
-    startedPlayingFirstTime = true;
-  }
-
-  const dispatch = useDispatch();
+  const { bottom: bottomSafeInset } = useSafeAreaInsets();
+  const isLandscapeOrientation = useIsLandscapeOrientation();
   const hlsFullScreen = useSelector(
     (state: RootState) => state.app.hlsFullScreen
   );
-  const [isCCSupported, setIsCCSupported] = useState(false);
-  const [isCCEnabled, setIsCCEnabled] = useState(true);
-  const { handleModalVisibleType } = useModalType();
-
-  const handleCloseBtnPress = () => {
-    handleModalVisibleType(ModalTypes.LEAVE_ROOM);
-  };
-
-  const handleCCBtnPress = () => {
-    if (!isCCSupported || !playerRef.current) {
-      return;
-    }
-    if (isCCEnabled) {
-      playerRef.current.disableClosedCaption();
-      setIsCCEnabled(false);
-    } else {
-      playerRef.current.enableClosedCaption();
-      setIsCCEnabled(true);
-    }
-  };
-
-  const toggleFullScreen = () => {
-    dispatch(setHlsFullScreen(!hlsFullScreen));
-  };
-
-  React.useEffect(() => {
-    if (
-      isHLSStreamingOn &&
-      isStreamUrlPresent &&
-      startedPlayingFirstTime &&
-      playerRef.current
-    ) {
-      let mounted = true;
-
-      playerRef.current
-        .isClosedCaptionSupported()
-        .then((supported) => {
-          if (mounted) {
-            setIsCCSupported(supported);
-          }
-        })
-        .catch(() => {});
-      playerRef.current
-        .isClosedCaptionEnabled()
-        .then((enabled) => {
-          if (mounted) {
-            setIsCCEnabled(enabled);
-          }
-        })
-        .catch(() => {});
-
-      return () => {
-        mounted = false;
-      };
-    }
-  }, [isHLSStreamingOn, isStreamUrlPresent, startedPlayingFirstTime]);
-
-  return (
-    <AutoHideView>
-      <View style={styles.controlsRow}>
-        <TouchableOpacity onPress={handleCloseBtnPress} style={styles.icon}>
-          <CloseIcon size="medium" />
-        </TouchableOpacity>
-
-        <View style={[styles.normalRow, styles.gap]}>
-          {isCCSupported ? (
-            <TouchableOpacity
-              onPress={handleCCBtnPress}
-              style={[styles.icon, styles.gap]}
-            >
-              <CCIcon size="medium" enabled={isCCEnabled} />
-            </TouchableOpacity>
-          ) : null}
-        </View>
-      </View>
-
-      <View style={styles.controlsRow}>
-        <View />
-
-        <View style={[styles.normalRow, styles.gap]}>
-          <TouchableOpacity onPress={toggleFullScreen} style={styles.icon}>
-            {hlsFullScreen ? (
-              <MinimizeIcon size="medium" />
-            ) : (
-              <MaximizeIcon size="medium" />
-            )}
-          </TouchableOpacity>
-        </View>
-      </View>
-    </AutoHideView>
-  );
-};
-
-interface AutoHideViewProps {}
-
-const _AutoHideView: React.FC<AutoHideViewProps> = ({ children }) => {
-  const animatedValue = useSharedValue(1);
 
   const hideControlsStyles: ViewStyle = useAnimatedStyle(
     () => ({
@@ -167,58 +57,108 @@ const _AutoHideView: React.FC<AutoHideViewProps> = ({ children }) => {
     []
   );
 
-  React.useEffect(() => {
-    cancelAnimation(animatedValue);
-    animatedValue.value = withDelay(
-      5000,
-      withTiming(0, { duration: 500, easing: Easing.ease })
-    );
-  }, []);
-
-  const tapGesture = Gesture.Tap().onStart(() => {
-    cancelAnimation(animatedValue);
-    animatedValue.value = withTiming(
-      1,
-      { duration: 200, easing: Easing.ease },
-      (finished) => {
-        if (finished) {
-          animatedValue.value = withDelay(
-            5000,
-            withTiming(0, { duration: 500, easing: Easing.ease })
-          );
-        }
-      }
-    );
-  });
-
   return (
-    <GestureDetector gesture={tapGesture}>
-      <View collapsable={false} style={styles.detectorContainer}>
-        <Animated.View
-          animatedProps={hideControlsProps}
-          style={[styles.container, hideControlsStyles]}
+    <React.Fragment>
+      {/* Play/Pause Controls */}
+      <Animated.View
+        animatedProps={hideControlsProps}
+        style={[
+          { height: '100%' },
+          styles.floatingContainer,
+          hideControlsStyles,
+        ]}
+      >
+        <View
+          style={{
+            flex: 1,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
         >
-          {children}
-        </Animated.View>
-      </View>
-    </GestureDetector>
+          <HLSSeekbackwardControl
+            playerRef={playerRef}
+            onPress={resetHideControlAnimation}
+          />
+
+          <HLSPlayPauseControl
+            playerRef={playerRef}
+            onPress={resetHideControlAnimation}
+          />
+
+          <HLSSeekforwardControl
+            playerRef={playerRef}
+            onPress={resetHideControlAnimation}
+          />
+        </View>
+      </Animated.View>
+
+      {/* Header Controls */}
+      <Animated.View
+        animatedProps={hideControlsProps}
+        style={[{ top: 0 }, styles.floatingContainer, hideControlsStyles]}
+      >
+        <View style={styles.controlsRow}>
+          <HLSCloseMeetingControl onPress={resetHideControlAnimation} />
+
+          <View style={[styles.normalRow, styles.gap]}>
+            <HLSClosedCaptionControl
+              playerRef={playerRef}
+              onPress={resetHideControlAnimation}
+            />
+          </View>
+        </View>
+      </Animated.View>
+
+      {/* Footer Controls */}
+      <Animated.View
+        animatedProps={hideControlsProps}
+        style={[
+          { bottom: isLandscapeOrientation ? bottomSafeInset : 0 },
+          styles.floatingContainer,
+          hideControlsStyles,
+        ]}
+      >
+        <View
+          style={{
+            flexDirection:
+              isLandscapeOrientation || hlsFullScreen
+                ? 'column-reverse'
+                : 'column',
+          }}
+        >
+          <View style={styles.controlsRow}>
+            <View style={styles.normalRow}>
+              <HLSGoLiveControl
+                playerRef={playerRef}
+                onPress={resetHideControlAnimation}
+              />
+              <HLSDistanceFromLive />
+            </View>
+
+            <View style={[styles.normalRow, styles.gap]}>
+              <HLSFullScreenControl onPress={resetHideControlAnimation} />
+            </View>
+          </View>
+
+          <HLSSeekbar
+            playerRef={playerRef}
+            onStart={cancelCurrentControlAnimation}
+            onEnd={hideControlsAfterDelay}
+          />
+        </View>
+      </Animated.View>
+    </React.Fragment>
   );
 };
-
-const AutoHideView = React.memo(_AutoHideView);
 
 export const HLSPlayerControls = React.memo(_HLSPlayerControls);
 
 const styles = StyleSheet.create({
-  detectorContainer: {
+  floatingContainer: {
     position: 'absolute',
     width: '100%',
-    height: '100%',
     zIndex: 5,
-  },
-  container: {
-    flex: 1,
-    justifyContent: 'space-between',
   },
   controlsRow: {
     flexDirection: 'row',

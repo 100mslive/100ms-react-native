@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { Platform } from 'react-native';
 import type { DependencyList } from 'react';
 import { shallow } from 'zustand/shallow';
 
@@ -43,10 +44,14 @@ export const useHMSHLSPlayerSubtitles = () => {
   return useHMSHLSPlayerStatsStore((state) => state.subtitles);
 };
 
-// // The distance of current playback position from the live edge of HLS stream
-// export const useIsHLSStreamLive = (liveOffsetMillis: number = 1000) => {
-//   return useHMSHLSPlayerStatsStore((state) => state.stats.distanceFromLive < liveOffsetMillis);
-// }
+// The distance of current playback position from the live edge of HLS stream
+export const useIsHLSStreamLive = (
+  liveOffsetMillis: number = Platform.select({ default: 10000, ios: 5000 })
+) => {
+  return useHMSHLSPlayerStatsStore(
+    (state) => state.stats.distanceFromLive < liveOffsetMillis
+  );
+};
 
 // get latest state (without component rerender)
 

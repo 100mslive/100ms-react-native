@@ -25,4 +25,12 @@ export const createHMSHLSPlayerPlaybackSlice: StateCreator<
 
   resolution: undefined,
   setResolution: (resolution) => set({ resolution }),
+
+  resetPlaybackSlice: () =>
+    set({
+      cue: undefined,
+      playbackState: HMSHLSPlayerPlaybackState.UNKNOWN,
+      error: undefined,
+      resolution: undefined,
+    }),
 });

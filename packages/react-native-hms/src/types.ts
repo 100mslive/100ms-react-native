@@ -135,6 +135,11 @@ export type RequestedDataEvent = {
   data: any;
 };
 
+export type HLSPlayerDurationDetails = {
+  streamDuration?: number;
+  rollingWindowTime?: number;
+};
+
 // #endregion HMS HLSPlayer Stats Events
 
 // #region Utility types
