@@ -3117,9 +3117,11 @@ export const useCanShowRoomOptionsButton = () => {
 };
 
 export const useHLSViewsConstraints = () => {
-  const hlsFullScreen = useSelector(
-    (state: RootState) => state.app.hlsFullScreen
-  );
+  const fullScreenMode = useSelector((state: RootState) => {
+    const hlsFullScreen = state.app.hlsFullScreen;
+    const isPipModeActive = state.app.pipModeStatus === PipModes.ACTIVE;
+    return hlsFullScreen || isPipModeActive;
+  });
   const isLandscapeOrientation = useIsLandscapeOrientation();
   const { width: safeAreaWidthFrame, height: safeAreaHeightFrame } =
     useSafeAreaFrame();
@@ -3130,7 +3132,7 @@ export const useHLSViewsConstraints = () => {
     right: rightInset,
   } = useSafeAreaInsets();
 
-  const playerWrapperConstraints = hlsFullScreen
+  const playerWrapperConstraints = fullScreenMode
     ? {
         width: safeAreaWidthFrame - leftInset - rightInset,
         height: isLandscapeOrientation
@@ -3165,9 +3167,11 @@ export const useHLSViewsConstraints = () => {
 };
 
 export const useHLSPlayerConstraints = () => {
-  const hlsFullScreen = useSelector(
-    (state: RootState) => state.app.hlsFullScreen
-  );
+  const fullScreenMode = useSelector((state: RootState) => {
+    const hlsFullScreen = state.app.hlsFullScreen;
+    const isPipModeActive = state.app.pipModeStatus === PipModes.ACTIVE;
+    return hlsFullScreen || isPipModeActive;
+  });
   const isLandscapeOrientation = useIsLandscapeOrientation();
 
   const resolution = useHMSHLSPlayerResolution();
@@ -3205,7 +3209,7 @@ export const useHLSPlayerConstraints = () => {
   /**
    * Handling Portrait Orientation
    */
-  if (hlsFullScreen) {
+  if (fullScreenMode) {
     return {
       width: sr > wr ? wrapperWidth : wrapperHeight * sr,
       height: sr > wr ? wrapperWidth / sr : wrapperHeight,
