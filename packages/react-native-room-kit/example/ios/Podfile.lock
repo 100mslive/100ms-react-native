@@ -319,7 +319,7 @@ PODS:
     - React-Core
   - react-native-camera/RN (4.2.1):
     - React-Core
-  - react-native-hms (1.10.4):
+  - react-native-hms (1.10.5):
     - HMSBroadcastExtensionSDK (= 0.0.9)
     - HMSHLSPlayerSDK (= 0.0.2)
     - HMSNoiseCancellationModels (= 1.0.0)
@@ -694,7 +694,7 @@ SPEC CHECKSUMS:
   React-logger: a1f028f6d8639a3f364ef80419e5e862e1115250
   react-native-blur: 172abeaa2de2d3ba4dc586fa23488d01c533818f
   react-native-camera: 3eae183c1d111103963f3dd913b65d01aef8110f
-  react-native-hms: 1acd9c4961304f0508551898aee37dd6d5f877b8
+  react-native-hms: c874b5220b21f950ca692c03815bbcf8c1522fac
   react-native-lottie-splash-screen: 015423265bac5f46016dff2e31c97b9590808856
   react-native-safe-area-context: 61c8c484a3a9e7d1fda19f7b1794b35bbfd2262a
   react-native-simple-toast: bf002828cf816775a6809f7a9ec3907509bce11f
