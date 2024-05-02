@@ -461,13 +461,13 @@ class HMSDecoder: NSObject {
             "unmute": permissions.unmute ?? false,
             "changeRole": permissions.changeRole ?? false,
             "pollRead": permissions.pollRead ?? false,
-            "pollWrite": permissions.pollWrite ?? false,
+            "pollWrite": permissions.pollWrite ?? false
         ]
         if let whiteboardPermissions = permissions.whiteboard {
             permissionsDict["whiteboard"] = [
                 "admin": whiteboardPermissions.admin,
                 "read": whiteboardPermissions.read,
-                "write": whiteboardPermissions.write,
+                "write": whiteboardPermissions.write
             ]
         }
         return permissionsDict
