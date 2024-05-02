@@ -10,13 +10,16 @@ import { HLSDescriptionPane } from './HLSDescriptionPane';
 import { useIsLandscapeOrientation } from '../utils/dimension';
 import type { RootState } from '../redux';
 import { HLSNotifications } from './HLSNotifications';
+import { PipModes } from '../utils/types';
 
 export const HLSChatView = () => {
   const isLandscapeOrientation = useIsLandscapeOrientation();
   const { chatWrapperConstraints } = useHLSViewsConstraints();
-  const hlsFullScreen = useSelector(
-    (state: RootState) => state.app.hlsFullScreen
-  );
+  const fullScreenMode = useSelector((state: RootState) => {
+    const hlsFullScreen = state.app.hlsFullScreen;
+    const isPipModeActive = state.app.pipModeStatus === PipModes.ACTIVE;
+    return hlsFullScreen || isPipModeActive;
+  });
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme) => ({
     wrapper: {
@@ -24,7 +27,7 @@ export const HLSChatView = () => {
     },
   }));
 
-  if (hlsFullScreen) {
+  if (fullScreenMode) {
     return null;
   }
 

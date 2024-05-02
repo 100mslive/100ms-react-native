@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
+import { useSelector } from 'react-redux';
 import type { HMSHLSPlayer } from '@100mslive/react-native-hms';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import {
@@ -13,11 +14,16 @@ import {
 import { useHLSViewsConstraints } from '../hooks-util';
 import { HLSPlayer } from './HLSPlayer';
 import { HLSPlayerControls } from './HLSPlayerControls';
+import { PipModes } from '../utils/types';
+import type { RootState } from '../redux';
 
 export const _HLSPlayerContainer: React.FC = () => {
   const hlsPlayerRef =
     React.useRef<React.ElementRef<typeof HMSHLSPlayer>>(null);
   const { playerWrapperConstraints } = useHLSViewsConstraints();
+  const isPipModeActive = useSelector(
+    (state: RootState) => state.app.pipModeStatus === PipModes.ACTIVE
+  );
 
   const animatedValue = useSharedValue(1);
 
@@ -82,13 +88,15 @@ export const _HLSPlayerContainer: React.FC = () => {
       >
         <HLSPlayer ref={hlsPlayerRef} />
 
-        <HLSPlayerControls
-          playerRef={hlsPlayerRef}
-          animatedValue={animatedValue}
-          cancelCurrentControlAnimation={cancelCurrentControlAnimation}
-          hideControlsAfterDelay={hideControlsAfterDelay}
-          resetHideControlAnimation={resetHideControlAnimation}
-        />
+        {isPipModeActive ? null : (
+          <HLSPlayerControls
+            playerRef={hlsPlayerRef}
+            animatedValue={animatedValue}
+            cancelCurrentControlAnimation={cancelCurrentControlAnimation}
+            hideControlsAfterDelay={hideControlsAfterDelay}
+            resetHideControlAnimation={resetHideControlAnimation}
+          />
+        )}
       </View>
     </GestureDetector>
   );
