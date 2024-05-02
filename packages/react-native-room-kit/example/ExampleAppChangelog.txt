@@ -1,18 +1,9 @@
 Board: https://100ms.atlassian.net/jira/software/projects/RN/boards/33
 
-- Captions in HLS Player
-https://100ms.atlassian.net/browse/RN-267
+- Handle PIP for HLS viewer
+https://100ms.atlassian.net/browse/RN-296
 
-- Header + Description from Layout API in Description Pane
-https://100ms.atlassian.net/browse/RN-273
-
-- Chat Messages starting from the Top
-https://100ms.atlassian.net/browse/RN-275
-
-- New Chat Messages design for HLS Player
-https://100ms.atlassian.net/browse/RN-276
-
-Room Kit: 1.1.7
-React Native SDK: 1.10.4
-Android SDK: 2.9.53
-iOS SDK: 1.8.0
+Room Kit: 1.1.8
+React Native SDK: 1.10.5
+Android SDK: 2.9.55
+iOS SDK: 1.9.0

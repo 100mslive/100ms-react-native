@@ -339,7 +339,10 @@ class HMSHLSPlayer: UIView {
         attachPlayerPlaybackListeners()
 
         hmsHLSPlayerViewController?.showsPlaybackControls = false
-        hmsHLSPlayerViewController?.allowsPictureInPicturePlayback = false
+        hmsHLSPlayerViewController?.allowsPictureInPicturePlayback = true
+        if #available(iOS 14.2, *) {
+            hmsHLSPlayerViewController?.canStartPictureInPictureAutomaticallyFromInline = true
+        }
     }
 
     required init?(coder: NSCoder) {
