@@ -617,6 +617,25 @@ const useHMSTrackUpdate = (
           if (!peer.isLocal && track.type === HMSTrackType.VIDEO) {
             dispatch(addScreenshareTile(newPeerTrackNode));
           }
+          if (track.type === HMSTrackType.VIDEO) {
+            const whiteboard = reduxState.hmsStates.whiteboard;
+            // If white board is open and local peer is owner, close whiteboard
+            if (
+              whiteboard &&
+              whiteboard.isOpen &&
+              whiteboard.isAdmin &&
+              whiteboard.isOwner
+            ) {
+              hmsInstance.interactivityCenter
+                .stopWhiteboard()
+                .then((success) => {
+                  console.log('StopWhiteboard on Screenshare: ', success);
+                })
+                .catch((error) => {
+                  console.log('StopWhiteboard error: ', error);
+                });
+            }
+          }
         } else {
           setPeerTrackNodes((prevPeerTrackNodes) => {
             if (
@@ -3100,6 +3119,11 @@ export const useCanShowRoomOptionsButton = () => {
     return permissions?.pollRead || permissions?.pollWrite;
   });
 
+  const canStartStopWhiteboard = useSelector((state: RootState) => {
+    const permissions = state.hmsStates.localPeer?.role?.permissions;
+    return permissions?.whiteboard?.admin;
+  });
+
   const { canShowParticipants } = useShowChatAndParticipants();
 
   const canEditUsernameFromRoomModal = isViewer && !editUsernameDisabled;
@@ -3111,6 +3135,7 @@ export const useCanShowRoomOptionsButton = () => {
     canStartRecording ||
     canEditUsernameFromRoomModal ||
     canReadOrWritePoll ||
+    canStartStopWhiteboard ||
     isNoiseCancellationAvailable;
 
   return canShowOptions;

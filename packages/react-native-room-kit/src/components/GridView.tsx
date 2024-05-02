@@ -16,6 +16,7 @@ import { PaginationDots } from './PaginationDots';
 import { setGridViewActivePage } from '../redux/actions';
 import { Tile } from './Tile';
 import { useIsLandscapeOrientation } from '../utils/dimension';
+import { WhiteboardContainer } from './WhiteboardContainer';
 
 export type GridViewProps = {
   onPeerTileMorePress(peerTrackNode: PeerTrackNode): void;
@@ -51,6 +52,9 @@ export const GridView = React.forwardRef<GridViewRefAttrs, GridViewProps>(
 
     const screenshareTilesAvailable = useSelector(
       (state: RootState) => state.app.screensharePeerTrackNodes.length > 0
+    );
+    const whiteboardActive = useSelector(
+      (state: RootState) => state.hmsStates.whiteboard?.isOpen
     );
     const regularTilesAvailable = pairedPeers.length > 0;
 
@@ -147,9 +151,12 @@ export const GridView = React.forwardRef<GridViewRefAttrs, GridViewProps>(
             setHmsViewRefs={setHmsViewRefs}
             onPeerTileMorePress={onPeerTileMorePress}
           />
+        ) : whiteboardActive ? (
+          <WhiteboardContainer />
         ) : null}
 
-        {screenshareTilesAvailable && isLandscapeOrientation ? null : (
+        {(whiteboardActive || screenshareTilesAvailable) &&
+        isLandscapeOrientation ? null : (
           <RegularTiles
             ref={regularTilesFlatlistRef}
             pairedPeers={pairedPeers}
@@ -209,8 +216,10 @@ const RegularTiles = React.forwardRef<
   const dispatch = useDispatch();
   const { height: safeHeight } = useSafeAreaFrame();
 
-  const screenshareTilesAvailable = useSelector(
-    (state: RootState) => state.app.screensharePeerTrackNodes.length > 0
+  const screenshareTilesOrWhiteboardActive = useSelector(
+    (state: RootState) =>
+      state.app.screensharePeerTrackNodes.length > 0 ||
+      state.hmsStates.whiteboard?.isOpen
   );
   const activeIndex = useSelector(
     (state: RootState) => state.app.gridViewActivePage
@@ -248,7 +257,7 @@ const RegularTiles = React.forwardRef<
   );
 
   return (
-    <View style={{ flex: screenshareTilesAvailable ? undefined : 1 }}>
+    <View style={{ flex: screenshareTilesOrWhiteboardActive ? undefined : 1 }}>
       <FlatList
         ref={flatlistRef}
         horizontal={true}
@@ -275,7 +284,7 @@ const RegularTiles = React.forwardRef<
           list={pairedPeers}
           activeIndex={activeIndex}
           style={
-            screenshareTilesAvailable || isLandscapeOrientation
+            screenshareTilesOrWhiteboardActive || isLandscapeOrientation
               ? { marginVertical: isLandscapeOrientation ? 4 : 8 }
               : null
           }

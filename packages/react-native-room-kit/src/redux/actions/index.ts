@@ -14,6 +14,7 @@ import type {
   HMSSDK,
   HMSSessionStore,
   HMSSpeaker,
+  HMSWhiteboard,
 } from '@100mslive/react-native-hms';
 import type { Layout } from '@100mslive/types-prebuilt';
 
@@ -285,6 +286,11 @@ export const setFullScreenPeerTrackNode = (
   payload: { fullScreenPeerTrackNode },
 });
 
+export const setFullScreenWhiteboard = (fullScreenWhiteboard: boolean) => ({
+  type: actionTypes.SET_FULLSCREEN_WHITEBOARD,
+  payload: { fullScreenWhiteboard },
+});
+
 export const updateFullScreenPeerTrackNode = (
   data: Partial<Omit<PeerTrackNode, 'id'>>
 ) => ({
@@ -437,6 +443,11 @@ export const setNoiseCancellationPlugin = (
 ) => ({
   type: HmsStateActionTypes.SET_NOISE_CANCELLATION_PLUGIN,
   noiseCancellationPlugin,
+});
+
+export const setWhiteboard = (whiteboard: HMSWhiteboard) => ({
+  type: HmsStateActionTypes.SET_WHITEBOARD,
+  whiteboard,
 });
 
 export const setHandleBackButton = (handleBackButton?: boolean) => ({
