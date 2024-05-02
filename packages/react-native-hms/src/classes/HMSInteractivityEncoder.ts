@@ -2,6 +2,7 @@ import { HMSEncoder } from './HMSEncoder';
 import type { DecodedPollLeaderboardResponse } from './polls/DecodedPollLeaderboardResponse';
 import type { HMSPoll } from './polls/HMSPoll';
 import type { PollLeaderboardResponse } from './polls/PollLeaderboardResponse';
+import type { HMSWhiteboard } from './whiteboard/HMSWhiteboard';
 
 export class HMSInteractivityEncoder {
   static transformPoll(poll: HMSPoll): HMSPoll {
@@ -80,5 +81,12 @@ export class HMSInteractivityEncoder {
     }
 
     return decodedPollLeaderboardResponse as PollLeaderboardResponse;
+  }
+
+  static transformHMSWhiteboard(hmsWhiteboard: HMSWhiteboard): HMSWhiteboard {
+    if (hmsWhiteboard.owner) {
+      hmsWhiteboard.owner = HMSEncoder.encodeHmsPeer(hmsWhiteboard.owner);
+    }
+    return hmsWhiteboard;
   }
 }

@@ -451,7 +451,7 @@ class HMSDecoder: NSObject {
     }
 
     static private func getPermissions (_ permissions: HMSPermissions) -> [String: Any] {
-        [
+        var permissionsDict: [String: Any] = [
             "endRoom": permissions.endRoom ?? false,
             "removeOthers": permissions.removeOthers ?? false,
             "browserRecording": permissions.browserRecording ?? false,
@@ -461,8 +461,16 @@ class HMSDecoder: NSObject {
             "unmute": permissions.unmute ?? false,
             "changeRole": permissions.changeRole ?? false,
             "pollRead": permissions.pollRead ?? false,
-            "pollWrite": permissions.pollWrite ?? false
+            "pollWrite": permissions.pollWrite ?? false,
         ]
+        if let whiteboardPermissions = permissions.whiteboard {
+            permissionsDict["whiteboard"] = [
+                "admin": whiteboardPermissions.admin,
+                "read": whiteboardPermissions.read,
+                "write": whiteboardPermissions.write,
+            ]
+        }
+        return permissionsDict
     }
 
     // MARK: - HMSRole Publish Settings and Utility functions

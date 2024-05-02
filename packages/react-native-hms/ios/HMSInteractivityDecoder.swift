@@ -270,4 +270,45 @@ class HMSInteractivityDecoder {
 
         return result
     }
+
+    static func getHMSWhiteboard(_ hmsWhiteboard: HMSWhiteboard) -> [String: Any] {
+        var result: [String: Any] = [
+            "id": hmsWhiteboard.id,
+            "state": getWhiteboardState(hmsWhiteboard.state)
+        ]
+        if let owner = hmsWhiteboard.owner {
+            result["owner"] = HMSDecoder.getHmsPeerSubset(owner)
+        }
+        if let title = hmsWhiteboard.title {
+            result["title"] = title
+        }
+        if let urlString = hmsWhiteboard.url?.absoluteString {
+            result["url"] = urlString
+        }
+        return result
+    }
+
+    static func getWhiteboardState(_ state: HMSWhiteboard.WhiteboardState) -> String {
+        switch state {
+        case .started:
+            return "STARTED"
+        case .stopped:
+            return "STOPPED"
+        @unknown default:
+            print("@unknown default case: Invalid HMSWhiteboardUpdateType")
+            return "STOPPED"
+        }
+    }
+
+    static func getWhiteboardUpdateType(_ type: HMSWhiteboardUpdateType) -> String {
+        switch type {
+        case .started:
+            return "STARTED"
+        case .stopped:
+            return "STOPPED"
+        @unknown default:
+            print("@unknown default case: Invalid HMSWhiteboardUpdateType")
+            return "STOPPED"
+        }
+    }
 }
