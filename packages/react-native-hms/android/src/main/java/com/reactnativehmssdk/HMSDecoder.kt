@@ -344,6 +344,14 @@ object HMSDecoder {
       permissions.putBoolean("changeRole", hmsPermissions.changeRole)
       permissions.putBoolean("pollRead", hmsPermissions.pollRead)
       permissions.putBoolean("pollWrite", hmsPermissions.pollWrite)
+
+      val whiteboardPermissionMap: WritableMap = Arguments.createMap()
+      hmsPermissions.whiteboard.let { whiteBoardPermission ->
+        whiteboardPermissionMap.putBoolean("admin", whiteBoardPermission.admin)
+        whiteboardPermissionMap.putBoolean("read", whiteBoardPermission.read)
+        whiteboardPermissionMap.putBoolean("write", whiteBoardPermission.write)
+      }
+      permissions.putMap("whiteboard", whiteboardPermissionMap)
     }
     return permissions
   }

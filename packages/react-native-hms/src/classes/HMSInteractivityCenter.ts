@@ -234,9 +234,10 @@ export class HMSInteractivityCenter {
   /**
    * Starts Whiteboard
    */
-  async startWhiteboard() {
+  async startWhiteboard(title: string) {
     const data = {
       id: HMSConstants.DEFAULT_SDK_ID,
+      title,
     };
     logger?.verbose('#Function startWhiteboard', data);
     return HMSManager.startWhiteboard(data);
