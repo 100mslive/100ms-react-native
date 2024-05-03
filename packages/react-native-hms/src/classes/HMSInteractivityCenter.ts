@@ -221,17 +221,6 @@ export class HMSInteractivityCenter {
   }
 
   /**
-   * Checks if Whiteboard is enabled or not
-   */
-  async isWhiteboardEnabled() {
-    const data = {
-      id: HMSConstants.DEFAULT_SDK_ID,
-    };
-    logger?.verbose('#Function isWhiteboardEnabled', data);
-    return HMSManager.isWhiteboardEnabled(data);
-  }
-
-  /**
    * Starts Whiteboard
    */
   async startWhiteboard(title: string) {

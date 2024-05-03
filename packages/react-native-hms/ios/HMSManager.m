@@ -355,11 +355,6 @@ RCT_EXTERN_METHOD(isNoiseCancellationPluginAvailable
 
 #pragma mark - Interactivity Center - Whiteboard
 
-RCT_EXTERN_METHOD(isWhiteboardEnabled
-                  : (NSDictionary)data
-                  : (RCTPromiseResolveBlock)resolve
-                  : (RCTPromiseRejectBlock)reject)
-
 RCT_EXTERN_METHOD(startWhiteboard
                   : (NSDictionary)data
                   : (RCTPromiseResolveBlock)resolve
