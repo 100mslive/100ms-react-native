@@ -1,5 +1,5 @@
-import React, { useRef, useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { useRef, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { InteractionManager, View } from 'react-native';
 import { HMSTrack, HMSCameraControl } from '@100mslive/react-native-hms';
 import type { SharedValue } from 'react-native-reanimated';
@@ -31,7 +31,6 @@ import { PreviewForRoleChangeModal } from './PreviewForRoleChangeModal';
 import { ChatAndParticipantsBottomSheet } from './ChatAndParticipants';
 import { LeaveRoomBottomSheet } from './LeaveRoomBottomSheet';
 import { EndRoomModal } from './EndRoomModal';
-import { setWhiteboard } from '../redux/actions';
 import { FullScreenWhiteboard } from './FullScreenWhiteboard';
 
 type CapturedImagePath = { uri: string } | null;
@@ -47,7 +46,6 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
 }) => {
   // --- 100ms SDK Instance ---
   const hmsInstance = useHMSInstance();
-  const dispatch = useDispatch();
 
   const {
     modalVisibleType: modalVisible,
@@ -77,19 +75,6 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
   });
 
   useHMSRoleChangeRequest();
-
-  useEffect(() => {
-    const subscription =
-      hmsInstance.interactivityCenter.addWhiteboardUpdateListener(
-        async (hmsWhiteboard, _updateType) => {
-          dispatch(setWhiteboard(hmsWhiteboard));
-        }
-      );
-
-    return () => {
-      subscription.remove();
-    };
-  }, []);
 
   // functions
 

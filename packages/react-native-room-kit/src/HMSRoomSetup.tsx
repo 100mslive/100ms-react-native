@@ -22,6 +22,7 @@ import {
   setInitialRole,
   setLocalPeerTrackNode,
   setMiniViewPeerTrackNode,
+  setWhiteboard,
   updateLocalPeerTrackNode,
 } from './redux/actions';
 import { createPeerTrackNode, getRandomUserId } from './utils/functions';
@@ -481,6 +482,19 @@ export const HMSRoomSetup = () => {
       subscription.remove();
     };
   }, [isHLSViewer]);
+
+  useEffect(() => {
+    const subscription =
+      hmsInstance.interactivityCenter.addWhiteboardUpdateListener(
+        async (hmsWhiteboard, _updateType) => {
+          dispatch(setWhiteboard(hmsWhiteboard));
+        }
+      );
+
+    return () => {
+      subscription.remove();
+    };
+  }, []);
 
   // Syncs showing Polls with HLS Player onCue event
   useHLSCuedPolls();

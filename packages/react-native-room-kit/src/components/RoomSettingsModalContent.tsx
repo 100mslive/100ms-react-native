@@ -322,7 +322,7 @@ export const RoomSettingsModalContent: React.FC<
       );
     } else {
       hmsInstance.interactivityCenter
-        .startWhiteboard()
+        .startWhiteboard('Interactive Session')
         .then((success) => {
           console.log('#startWhiteboard started whiteboard ', success);
         })
