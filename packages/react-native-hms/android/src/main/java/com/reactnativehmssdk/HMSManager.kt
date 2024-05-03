@@ -1458,6 +1458,44 @@ class HMSManager(reactContext: ReactApplicationContext) :
   }
   // endregion
 
+  //region Whiteboard
+  @ReactMethod
+  fun startWhiteboard(
+    data: ReadableMap,
+    promise: Promise?,
+  ) {
+    val rnSDK = HMSHelper.getHms(data, hmsCollection)
+    rnSDK?.let { sdk ->
+      sdk.interactivityCenter?.let { center ->
+        center.startWhiteboard(data, promise)
+        return
+      }
+    }
+    promise?.reject(
+      "6004",
+      "HMS SDK not initialized",
+    )
+  }
+
+  @ReactMethod
+  fun stopWhiteboard(
+    data: ReadableMap,
+    promise: Promise?,
+  ) {
+    val rnSDK = HMSHelper.getHms(data, hmsCollection)
+    rnSDK?.let { sdk ->
+      sdk.interactivityCenter?.let { center ->
+        center.stopWhiteboard(promise)
+        return
+      }
+    }
+    promise?.reject(
+      "6004",
+      "HMS SDK not initialized",
+    )
+  }
+  //endregion
+
   // region Noise Cancellation Plugin
   @ReactMethod
   fun enableNoiseCancellationPlugin(
