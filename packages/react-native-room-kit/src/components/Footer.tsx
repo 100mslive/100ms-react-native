@@ -118,8 +118,11 @@ export const useFooterHeight = (excludeSafeArea: boolean = false) => {
   const { bottom } = useSafeAreaInsets();
 
   return (
-    (excludeSafeArea ? 0 : bottom) + (Platform.OS === 'android' ? 16 : 0) + 40
-  ); // bottomSafeArea + marginBottom + content
+    (excludeSafeArea ? 0 : bottom) +
+    (Platform.OS === 'android' ? 16 : 0) +
+    42 +
+    16
+  ); // bottomSafeArea + marginBottom + content + contentTopPadding
 };
 
 const styles = StyleSheet.create({
