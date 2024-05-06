@@ -256,9 +256,11 @@ class HMSRNSDK(
             delegate.emitEvent("ON_PREVIEW", data)
           }
 
-          /*
-          override fun peerListUpdated(addedPeers: ArrayList<HMSPeer>?, removedPeers: ArrayList<HMSPeer>?) {
-
+          override fun peerListUpdated(
+            addedPeers: ArrayList<HMSPeer>?,
+            removedPeers: ArrayList<HMSPeer>?,
+          ) {
+            super.peerListUpdated(addedPeers, removedPeers)
             if (eventsEnableStatus["ON_PEER_LIST_UPDATED"] != true) {
               return
             }
@@ -278,11 +280,11 @@ class HMSRNSDK(
               }
             }
 
+            data.putString("id", id)
             data.putArray("addedPeers", addedPeersArray)
             data.putArray("removedPeers", removedPeersArray)
             delegate.emitEvent("ON_PEER_LIST_UPDATED", data)
           }
-           */
         },
       )
     } else {
