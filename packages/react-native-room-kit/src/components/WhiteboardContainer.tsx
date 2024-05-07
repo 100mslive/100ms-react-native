@@ -1,7 +1,8 @@
 import * as React from 'react';
-import { View } from 'react-native';
+import { Platform, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import { WebView } from 'react-native-webview';
+import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 
 import type { RootState } from '../redux';
 import { Whiteboard } from './Whiteboard';
@@ -18,7 +19,15 @@ export const _WhiteboardContainer = React.forwardRef<
 
   return (
     <View style={{ flex: 1, marginBottom: 4 }}>
-      {fullScreenWhiteboard ? null : <Whiteboard ref={webviewRef} />}
+      {fullScreenWhiteboard ? null : Platform.OS === 'ios' ? (
+        <GestureDetector gesture={Gesture.Tap()}>
+          <View collapsable={false} style={{ flex: 1 }}>
+            <Whiteboard ref={webviewRef} />
+          </View>
+        </GestureDetector>
+      ) : (
+        <Whiteboard ref={webviewRef} />
+      )}
     </View>
   );
 });
