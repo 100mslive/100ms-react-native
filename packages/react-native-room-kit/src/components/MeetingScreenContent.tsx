@@ -1,5 +1,5 @@
 import React, { useCallback, useRef, useState, useEffect } from 'react';
-import { StyleSheet, View, Keyboard } from 'react-native';
+import { StyleSheet, View, Keyboard, Platform } from 'react-native';
 import { useSelector } from 'react-redux';
 import {
   Easing,
@@ -36,6 +36,10 @@ export const MeetingScreenContent: React.FC<MeetingScreenContentProps> = ({
   const isPipModeActive = useSelector(
     (state: RootState) => state.app.pipModeStatus === PipModes.ACTIVE
   );
+  const whiteboardActive =
+    Platform.OS === 'android'
+      ? useSelector((state: RootState) => state.hmsStates.whiteboard?.isOpen)
+      : null;
   const { keyboardState } = useKeyboardState();
 
   const dismissKeyboard = useCallback(() => {
@@ -75,9 +79,25 @@ export const MeetingScreenContent: React.FC<MeetingScreenContentProps> = ({
     [dismissKeyboard, clearTimer]
   );
 
+  if (!!whiteboardActive && offset.value < 1) {
+    cancelAnimation(offset);
+    offset.value = withTiming(
+      1,
+      { duration: 200, easing: Easing.ease },
+      (finished) => {
+        if (finished) {
+          runOnJS(setControlsHidden)(offset.value === 0);
+        }
+      }
+    );
+  }
+
   // Handles Auto hiding the controls for the first time
   // to make this feature discoverable
   useEffect(() => {
+    if (!!whiteboardActive) {
+      return;
+    }
     clearTimer();
     timerIdRef.current = setTimeout(() => {
       timerIdRef.current = null;
@@ -85,9 +105,10 @@ export const MeetingScreenContent: React.FC<MeetingScreenContentProps> = ({
     }, HeaderFooterHideDelayMs);
 
     return clearTimer;
-  }, [clearTimer, toggleControls]);
+  }, [clearTimer, toggleControls, !!whiteboardActive]);
 
   const tapGesture = Gesture.Tap()
+    .enabled(Platform.select({ android: !whiteboardActive, default: true }))
     .onEnd(() => toggleControls())
     .requireExternalGestureToFail();
 
