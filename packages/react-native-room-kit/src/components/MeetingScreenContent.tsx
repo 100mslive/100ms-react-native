@@ -21,6 +21,7 @@ import { useKeyboardState } from '../hooks-util';
 import { HMSStatusBar } from './StatusBar';
 import { AnimatedFooter } from './AnimatedFooter';
 import { AnimatedHeader } from './AnimatedHeader';
+import { useIsLandscapeOrientation } from '../utils/dimension';
 // import { ReconnectionView } from './ReconnectionView';
 
 interface MeetingScreenContentProps {
@@ -33,6 +34,7 @@ export const MeetingScreenContent: React.FC<MeetingScreenContentProps> = ({
   const offset = useSharedValue(1);
   const timerIdRef = useRef<NodeJS.Timeout | null>(null);
   const [controlsHidden, setControlsHidden] = useState(false);
+  const isLandscapeOrientation = useIsLandscapeOrientation();
   const isPipModeActive = useSelector(
     (state: RootState) => state.app.pipModeStatus === PipModes.ACTIVE
   );
@@ -79,10 +81,13 @@ export const MeetingScreenContent: React.FC<MeetingScreenContentProps> = ({
     [dismissKeyboard, clearTimer]
   );
 
-  if (!!whiteboardActive && offset.value < 1) {
+  if (
+    !!whiteboardActive &&
+    (isLandscapeOrientation ? offset.value === 1 : offset.value < 1)
+  ) {
     cancelAnimation(offset);
     offset.value = withTiming(
-      1,
+      isLandscapeOrientation ? 0 : 1,
       { duration: 200, easing: Easing.ease },
       (finished) => {
         if (finished) {
