@@ -402,10 +402,6 @@ object HMSInteractivityDecoder {
       data.putMap("owner", HMSDecoder.getHmsPeerSubset(owner))
     }
     data.putString("url", hmsWhiteboard.url)
-    data.putBoolean("isAdmin", hmsWhiteboard.isAdmin)
-    data.putBoolean("isOpen", hmsWhiteboard.isOpen)
-    data.putBoolean("isOwner", hmsWhiteboard.isOwner)
-//    hmsWhiteboard.isPresenceTrackingEnabled
     return data
   }
 

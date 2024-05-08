@@ -54,7 +54,7 @@ export const GridView = React.forwardRef<GridViewRefAttrs, GridViewProps>(
       (state: RootState) => state.app.screensharePeerTrackNodes.length > 0
     );
     const whiteboardActive = useSelector(
-      (state: RootState) => state.hmsStates.whiteboard?.isOpen
+      (state: RootState) => !!state.hmsStates.whiteboard
     );
     const regularTilesAvailable = pairedPeers.length > 0;
 
@@ -219,7 +219,7 @@ const RegularTiles = React.forwardRef<
   const screenshareTilesOrWhiteboardActive = useSelector(
     (state: RootState) =>
       state.app.screensharePeerTrackNodes.length > 0 ||
-      state.hmsStates.whiteboard?.isOpen
+      !!state.hmsStates.whiteboard
   );
   const activeIndex = useSelector(
     (state: RootState) => state.app.gridViewActivePage

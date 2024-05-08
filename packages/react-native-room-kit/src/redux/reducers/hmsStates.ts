@@ -142,7 +142,7 @@ type SetNoiseCancellationPlugin = {
 
 type SetWhiteboard = {
   type: HmsStateActionTypes.SET_WHITEBOARD;
-  whiteboard: HMSWhiteboard;
+  whiteboard: HMSWhiteboard | null;
 };
 
 type IntialStateType = {
