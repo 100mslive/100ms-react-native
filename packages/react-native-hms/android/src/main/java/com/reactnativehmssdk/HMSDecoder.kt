@@ -258,6 +258,8 @@ object HMSDecoder {
       hmsPeer.auxiliaryTracks.let {
         peer.putArray("auxiliaryTracks", this.getAllTracks(it))
       }
+
+      peer.putString("type", hmsPeer.type.name)
     }
     return peer
   }
@@ -342,6 +344,14 @@ object HMSDecoder {
       permissions.putBoolean("changeRole", hmsPermissions.changeRole)
       permissions.putBoolean("pollRead", hmsPermissions.pollRead)
       permissions.putBoolean("pollWrite", hmsPermissions.pollWrite)
+
+      val whiteboardPermissionMap: WritableMap = Arguments.createMap()
+      hmsPermissions.whiteboard.let { whiteBoardPermission ->
+        whiteboardPermissionMap.putBoolean("admin", whiteBoardPermission.admin)
+        whiteboardPermissionMap.putBoolean("read", whiteBoardPermission.read)
+        whiteboardPermissionMap.putBoolean("write", whiteBoardPermission.write)
+      }
+      permissions.putMap("whiteboard", whiteboardPermissionMap)
     }
     return permissions
   }
@@ -744,6 +754,9 @@ object HMSDecoder {
         input.putString("metadata", variant.metadata)
         variant.startedAt?.let {
           input.putString("startedAt", it.toString())
+        }
+        variant.playlistType?.let {
+          input.putString("playlistType", it.name.uppercase())
         }
         variants.pushMap(input)
       }

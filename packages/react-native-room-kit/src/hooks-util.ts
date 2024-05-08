@@ -24,10 +24,13 @@ import {
   WindowController,
   useHMSHLSPlayerCue,
   HMSPollUpdateType,
+  useHMSHLSPlayerPlaybackState,
+  HMSHLSPlayerPlaybackState,
 } from '@100mslive/react-native-hms';
 import type { Chat as ChatConfig } from '@100mslive/types-prebuilt/elements/chat';
 import { SoftInputModes } from '@100mslive/react-native-hms';
 import type {
+  HMSHLSPlayer,
   HMSPIPConfig,
   HMSRole,
   HMSSessionStore,
@@ -93,6 +96,7 @@ import {
   saveUserData,
   setActiveChatBottomSheetTab,
   setActiveSpeakers,
+  setAndroidHLSStreamPaused,
   setAutoEnterPipMode,
   setChatPeerBlacklist,
   setChatState,
@@ -155,7 +159,16 @@ import { getRoomLayout } from './modules/HMSManager';
 import { DEFAULT_THEME, DEFAULT_TYPOGRAPHY } from './utils/theme';
 import { NotificationTypes } from './types';
 import { KeyboardState, useSharedValue } from 'react-native-reanimated';
-import { useHMSActions } from './hooks-sdk';
+import {
+  useCanPublishAudio,
+  useCanPublishScreen,
+  useCanPublishVideo,
+  useHMSActions,
+} from './hooks-sdk';
+import {
+  useSafeAreaFrame,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
 
 export const useHMSListeners = (
   setPeerTrackNodes: React.Dispatch<React.SetStateAction<PeerTrackNode[]>>
@@ -604,6 +617,25 @@ const useHMSTrackUpdate = (
           if (!peer.isLocal && track.type === HMSTrackType.VIDEO) {
             dispatch(addScreenshareTile(newPeerTrackNode));
           }
+          if (track.type === HMSTrackType.VIDEO) {
+            const whiteboard = reduxState.hmsStates.whiteboard;
+            // If white board is open and local peer is owner, close whiteboard
+            if (
+              whiteboard &&
+              whiteboard.isOpen &&
+              whiteboard.isAdmin &&
+              whiteboard.isOwner
+            ) {
+              hmsInstance.interactivityCenter
+                .stopWhiteboard()
+                .then((success) => {
+                  console.log('StopWhiteboard on Screenshare: ', success);
+                })
+                .catch((error) => {
+                  console.log('StopWhiteboard error: ', error);
+                });
+            }
+          }
         } else {
           setPeerTrackNodes((prevPeerTrackNodes) => {
             if (
@@ -1033,7 +1065,7 @@ export const useHMSRoleChangeRequest = (
 type SessionStoreListeners = Array<{ remove: () => void }>;
 
 export const useHMSSessionStoreListeners = (
-  gridViewRef: React.MutableRefObject<GridViewRefAttrs | null>
+  gridViewRef?: React.MutableRefObject<GridViewRefAttrs | null>
 ) => {
   const store = useStore<RootState>();
   const dispatch = useDispatch();
@@ -1054,7 +1086,7 @@ export const useHMSSessionStoreListeners = (
             // set value to the state to rerender the component to reflect changes
             dispatch(saveUserData({ spotlightTrackId: id }));
             // Scroll to start of the list
-            gridViewRef.current
+            gridViewRef?.current
               ?.getRegularTilesFlatlistRef()
               .current?.scrollToOffset({ animated: true, offset: 0 });
           }
@@ -1831,6 +1863,7 @@ export const useHMSConfig = () => {
 };
 
 export const useShowChatAndParticipants = () => {
+  const isHLSViewer = useIsHLSViewer();
   const dispatch = useDispatch();
   const { modalVisibleType, handleModalVisibleType: setModalVisible } =
     useModalType();
@@ -1839,7 +1872,8 @@ export const useShowChatAndParticipants = () => {
     (chatConfig) => chatConfig?.is_overlay
   );
   const canShowChat = useHMSConferencingScreenConfig(
-    (conferencingScreenConfig) => !!conferencingScreenConfig?.elements?.chat
+    (conferencingScreenConfig) =>
+      !!conferencingScreenConfig?.elements?.chat && !isHLSViewer
   );
   const canShowParticipants = useHMSConferencingScreenConfig(
     (conferencingScreenConfig) =>
@@ -2551,15 +2585,16 @@ export const useBackButtonPress = () => {
 };
 
 export const useLandscapeImmersiveMode = () => {
+  const isHLSViewer = useIsHLSViewer();
   const isLandscapeOrientation = useIsLandscapeOrientation();
 
   useEffect(() => {
-    if (isLandscapeOrientation) {
+    if (!isHLSViewer && isLandscapeOrientation) {
       WindowController.hideSystemBars();
 
       return WindowController.showSystemBars;
     }
-  }, [isLandscapeOrientation]);
+  }, [isHLSViewer, isLandscapeOrientation]);
 };
 
 export const useHLSCuedPolls = () => {
@@ -3033,4 +3068,215 @@ export const useAllowBlockingPeerFromChat = () => {
   return useHMSChatLayoutConfig(
     (config) => config?.real_time_controls?.can_block_user ?? false
   );
+};
+
+export const useCanShowRoomOptionsButton = () => {
+  const canPublishAudio = useCanPublishAudio();
+  const canPublishVideo = useCanPublishVideo();
+  const canPublishScreen = useCanPublishScreen();
+
+  const isViewer = !(canPublishAudio || canPublishVideo || canPublishScreen);
+
+  const editUsernameDisabled = useSelector(
+    (state: RootState) => state.app.editUsernameDisabled
+  );
+
+  const [isNoiseCancellationAvailable, setIsNoiseCancellationAvailable] =
+    useState(false);
+  const noiseCancellationPlugin = useSelector(
+    (state: RootState) => state.hmsStates.noiseCancellationPlugin
+  );
+  useEffect(() => {
+    if (noiseCancellationPlugin) {
+      let mounted = true;
+
+      noiseCancellationPlugin
+        .isNoiseCancellationAvailable()
+        .then((isAvailable) => {
+          if (mounted) {
+            setIsNoiseCancellationAvailable(isAvailable);
+          }
+        });
+
+      return () => {
+        mounted = false;
+      };
+    }
+  }, [noiseCancellationPlugin]);
+
+  const canShowBRB = useHMSLayoutConfig(
+    (layoutConfig) =>
+      !!layoutConfig?.screens?.conferencing?.default?.elements?.brb
+  );
+
+  const canStartRecording = useSelector(
+    (state: RootState) =>
+      !!state.hmsStates.localPeer?.role?.permissions?.browserRecording
+  );
+
+  const canReadOrWritePoll = useSelector((state: RootState) => {
+    const permissions = state.hmsStates.localPeer?.role?.permissions;
+    return permissions?.pollRead || permissions?.pollWrite;
+  });
+
+  const canStartStopWhiteboard = useSelector((state: RootState) => {
+    const permissions = state.hmsStates.localPeer?.role?.permissions;
+    return permissions?.whiteboard?.admin;
+  });
+
+  const { canShowParticipants } = useShowChatAndParticipants();
+
+  const canEditUsernameFromRoomModal = isViewer && !editUsernameDisabled;
+
+  const canShowOptions =
+    canShowParticipants ||
+    canPublishScreen ||
+    canShowBRB ||
+    canStartRecording ||
+    canEditUsernameFromRoomModal ||
+    canReadOrWritePoll ||
+    canStartStopWhiteboard ||
+    isNoiseCancellationAvailable;
+
+  return canShowOptions;
+};
+
+export const useHLSViewsConstraints = () => {
+  const fullScreenMode = useSelector((state: RootState) => {
+    const hlsFullScreen = state.app.hlsFullScreen;
+    const isPipModeActive = state.app.pipModeStatus === PipModes.ACTIVE;
+    return hlsFullScreen || isPipModeActive;
+  });
+  const isLandscapeOrientation = useIsLandscapeOrientation();
+  const { width: safeAreaWidthFrame, height: safeAreaHeightFrame } =
+    useSafeAreaFrame();
+  const {
+    top: topInset,
+    bottom: bottomInset,
+    left: leftInset,
+    right: rightInset,
+  } = useSafeAreaInsets();
+
+  const playerWrapperConstraints = fullScreenMode
+    ? {
+        width: safeAreaWidthFrame - leftInset - rightInset,
+        height: isLandscapeOrientation
+          ? safeAreaHeightFrame
+          : safeAreaHeightFrame - topInset - bottomInset,
+      }
+    : {
+        width: isLandscapeOrientation
+          ? (safeAreaWidthFrame - leftInset - rightInset) * 0.6
+          : safeAreaWidthFrame,
+        height: isLandscapeOrientation
+          ? safeAreaHeightFrame
+          : (safeAreaWidthFrame * 9) / 16,
+      };
+
+  const chatWrapperConstraints = {
+    width: isLandscapeOrientation
+      ? safeAreaWidthFrame - playerWrapperConstraints.width - leftInset
+      : playerWrapperConstraints.width,
+    height: isLandscapeOrientation
+      ? playerWrapperConstraints.height
+      : safeAreaHeightFrame - playerWrapperConstraints.height - topInset,
+  };
+
+  const descriptionPaneConstraints = chatWrapperConstraints;
+
+  return {
+    playerWrapperConstraints,
+    chatWrapperConstraints,
+    descriptionPaneConstraints,
+  };
+};
+
+export const useHLSPlayerConstraints = () => {
+  const fullScreenMode = useSelector((state: RootState) => {
+    const hlsFullScreen = state.app.hlsFullScreen;
+    const isPipModeActive = state.app.pipModeStatus === PipModes.ACTIVE;
+    return hlsFullScreen || isPipModeActive;
+  });
+  const isLandscapeOrientation = useIsLandscapeOrientation();
+
+  const resolution = useHMSHLSPlayerResolution();
+
+  const { playerWrapperConstraints } = useHLSViewsConstraints();
+
+  const wrapperWidth = playerWrapperConstraints.width;
+  const wrapperHeight = playerWrapperConstraints.height;
+
+  if (!resolution) {
+    return {
+      width: wrapperWidth,
+      height: wrapperHeight,
+    };
+  }
+
+  const sr = resolution.width / resolution.height; // stream width/height ratio
+  const wr = wrapperWidth / wrapperHeight; // Wrapper width/height ratio
+
+  /**
+   * Handling Landscape Orientation for both Full and Normal screen
+   */
+  if (isLandscapeOrientation) {
+    return sr > wr
+      ? {
+          width: wrapperWidth,
+          height: wrapperWidth / sr,
+        }
+      : {
+          width: sr * wrapperHeight,
+          height: wrapperHeight,
+        };
+  }
+
+  /**
+   * Handling Portrait Orientation
+   */
+  if (fullScreenMode) {
+    return {
+      width: sr > wr ? wrapperWidth : wrapperHeight * sr,
+      height: sr > wr ? wrapperWidth / sr : wrapperHeight,
+    };
+  }
+
+  return {
+    width: wrapperHeight * sr,
+    height: wrapperHeight,
+  };
+};
+
+export const useHLSStreamResumePause = (
+  playerRef: React.RefObject<React.ComponentRef<typeof HMSHLSPlayer>>
+) => {
+  const dispatch = useDispatch();
+
+  const isPaused = Platform.select({
+    android: useSelector(
+      (state: RootState) => state.app.hlsStreamPaused_android
+    ),
+    ios: useHMSHLSPlayerPlaybackState() === HMSHLSPlayerPlaybackState.PAUSED,
+    default: false,
+  });
+
+  const resumeStream = useCallback(() => {
+    playerRef.current?.resume();
+    if (Platform.OS === 'android') {
+      dispatch(setAndroidHLSStreamPaused(false));
+    }
+  }, []);
+
+  const pauseStream = useCallback(() => {
+    playerRef.current?.pause();
+    if (Platform.OS === 'android') {
+      dispatch(setAndroidHLSStreamPaused(true));
+    }
+  }, []);
+
+  return {
+    isPaused,
+    resumeStream,
+    pauseStream,
+  };
 };

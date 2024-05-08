@@ -3,12 +3,16 @@ package com.reactnativehmssdk
 import android.annotation.SuppressLint
 import android.content.Context
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.FrameLayout
 import androidx.media3.common.Player
 import androidx.media3.common.VideoSize
+import androidx.media3.common.text.CueGroup
 import androidx.media3.ui.PlayerView
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReactContext
+import com.facebook.react.bridge.ReadableArray
+import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.WritableMap
 import com.facebook.react.uimanager.events.RCTEventEmitter
 import live.hms.hls_player.*
@@ -25,6 +29,7 @@ class HMSHLSPlayer(context: ReactContext) : FrameLayout(context) {
   private var hmsHlsPlayer: HmsHlsPlayer? = null // 100ms HLS Player
   private var hmssdkInstance: HMSSDK? = null
   private var statsMonitorAttached = false
+  private var shouldSendCaptionsToJS = false
   private val hmsHlsPlaybackEventsObject =
     object : HmsHlsPlaybackEvents {
       override fun onCue(cue: HmsHlsCue) {
@@ -115,6 +120,7 @@ class HMSHLSPlayer(context: ReactContext) : FrameLayout(context) {
     val localPlayerView = view.findViewById<PlayerView>(R.id.hls_view)
     playerView = localPlayerView
     localPlayerView.useController = false
+    localPlayerView.subtitleView?.visibility = View.GONE
 
     val hmssdkCollection = context.getNativeModule(HMSManager::class.java)?.getHmsInstance()
     hmssdkInstance = hmssdkCollection?.get("12345")?.hmsSDK
@@ -143,6 +149,13 @@ class HMSHLSPlayer(context: ReactContext) : FrameLayout(context) {
             data.putDouble("height", height)
             sendHLSPlaybackEventToJS(HMSHLSPlayerConstants.ON_PLAYBACK_RESOLUTION_CHANGE_EVENT, data)
           }
+        }
+
+        override fun onCues(cueGroup: CueGroup) {
+          super.onCues(cueGroup)
+          if (!shouldSendCaptionsToJS) return
+          val ccText = cueGroup.cues.firstOrNull()?.text?.toString()
+          sendHLSPlayerCuesEventToJS(ccText)
         }
       },
     )
@@ -204,6 +217,38 @@ class HMSHLSPlayer(context: ReactContext) : FrameLayout(context) {
     hmsHlsPlayer?.volume = level
   }
 
+  fun areClosedCaptionSupported(requestId: Int) {
+    hmsHlsPlayer.let {
+      if (it == null) {
+        sendHLSDataRequestEventToJS(requestId, false)
+      } else {
+        sendHLSDataRequestEventToJS(requestId, it.areClosedCaptionsSupported())
+      }
+    }
+  }
+
+  fun isClosedCaptionEnabled(requestId: Int) {
+    sendHLSDataRequestEventToJS(requestId, shouldSendCaptionsToJS)
+  }
+
+  fun enableClosedCaption() {
+    shouldSendCaptionsToJS = true
+  }
+
+  fun disableClosedCaption() {
+    shouldSendCaptionsToJS = false
+    sendHLSPlayerCuesEventToJS(null)
+  }
+
+  fun getPlayerDurationDetails(requestId: Int) {
+    val data: WritableMap = Arguments.createMap()
+    hmsHlsPlayer?.getNativePlayer()?.let { exoPlayer ->
+      data.putInt("rollingWindowTime", exoPlayer.seekParameters.toleranceAfterUs.div(1000).toInt())
+      data.putInt("streamDuration", exoPlayer.duration.toInt())
+    }
+    sendHLSDataRequestEventToJS(requestId, data)
+  }
+
   fun enableStats(enable: Boolean) {
     if (enable) {
       attachStatsMonitor()
@@ -215,11 +260,13 @@ class HMSHLSPlayer(context: ReactContext) : FrameLayout(context) {
   fun enableControls(show: Boolean) {
     playerView?.let {
       if (show) {
+        it.subtitleView?.visibility = View.VISIBLE
         it.useController = true
         it.showController()
       } else {
         it.hideController()
         it.useController = false
+        it.subtitleView?.visibility = View.GONE
       }
     }
   }
@@ -263,6 +310,46 @@ class HMSHLSPlayer(context: ReactContext) : FrameLayout(context) {
     val reactContext = context as ReactContext
     reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, HMSHLSPlayerConstants.HMS_HLS_STATS_EVENT, event)
   }
+
+  private fun sendHLSDataRequestEventToJS(
+    requestId: Int,
+    data: Any,
+  ) {
+    val event: WritableMap = Arguments.createMap()
+    event.putInt("requestId", requestId)
+
+    if (data is Boolean) {
+      event.putBoolean("data", data)
+    } else if (data is String) {
+      event.putString("data", data)
+    } else if (data is Int) {
+      event.putInt("data", data)
+    } else if (data is Double) {
+      event.putDouble("data", data)
+    } else if (data is ReadableMap) {
+      event.putMap("data", data)
+    } else if (data is ReadableArray) {
+      event.putArray("data", data)
+    } else {
+      event.putNull("data")
+    }
+
+    val reactContext = context as ReactContext
+    reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, HMSHLSPlayerConstants.HLS_DATA_REQUEST_EVENT, event)
+  }
+
+  private fun sendHLSPlayerCuesEventToJS(ccText: String?) {
+    val event: WritableMap = Arguments.createMap()
+    event.putString("event", HMSHLSPlayerConstants.ON_CLOSED_CAPTION_UPDATE)
+
+    if (ccText is String) {
+      event.putString("data", ccText)
+    } else {
+      event.putNull("data")
+    }
+    val reactContext = context as ReactContext
+    reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, HMSHLSPlayerConstants.HLS_PLAYER_CUES_EVENT, event)
+  }
 }
 
 object HMSHLSPlayerConstants {
@@ -277,4 +364,11 @@ object HMSHLSPlayerConstants {
   const val HMS_HLS_STATS_EVENT = "hmsHlsStatsEvent"
   const val ON_STATS_EVENT_UPDATE = "ON_STATS_EVENT_UPDATE"
   const val ON_STATS_EVENT_ERROR = "ON_STATS_EVENT_ERROR"
+
+  // HLS Requested Data Returned
+  const val HLS_DATA_REQUEST_EVENT = "hlsDataRequestEvent"
+
+  // HLS Player Cues Events
+  const val HLS_PLAYER_CUES_EVENT = "hlsPlayerCuesEvent"
+  const val ON_CLOSED_CAPTION_UPDATE = "ON_CLOSED_CAPTION_UPDATE"
 }

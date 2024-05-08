@@ -14,6 +14,7 @@ import type {
   HMSSDK,
   HMSSessionStore,
   HMSSpeaker,
+  HMSWhiteboard,
 } from '@100mslive/react-native-hms';
 import type { Layout } from '@100mslive/types-prebuilt';
 
@@ -285,6 +286,11 @@ export const setFullScreenPeerTrackNode = (
   payload: { fullScreenPeerTrackNode },
 });
 
+export const setFullScreenWhiteboard = (fullScreenWhiteboard: boolean) => ({
+  type: actionTypes.SET_FULLSCREEN_WHITEBOARD,
+  payload: { fullScreenWhiteboard },
+});
+
 export const updateFullScreenPeerTrackNode = (
   data: Partial<Omit<PeerTrackNode, 'id'>>
 ) => ({
@@ -439,6 +445,11 @@ export const setNoiseCancellationPlugin = (
   noiseCancellationPlugin,
 });
 
+export const setWhiteboard = (whiteboard: HMSWhiteboard) => ({
+  type: HmsStateActionTypes.SET_WHITEBOARD,
+  whiteboard,
+});
+
 export const setHandleBackButton = (handleBackButton?: boolean) => ({
   type: actionTypes.SET_HANDLE_BACK_BUTTON,
   payload: { handleBackButton },
@@ -474,6 +485,21 @@ export const setChatPeerBlacklist = (chatPeerBlacklist: string[]) => ({
 export const filterOutMsgsFromBlockedPeers = (chatPeerBlacklist: string[]) => ({
   type: actionTypes.FILTER_OUT_BLOCKED_MSGS,
   payload: chatPeerBlacklist,
+});
+
+export const setHlsDescriptionPaneVisible = (visible: boolean) => ({
+  type: actionTypes.SET_HLS_DESC_PANE_VISIBLE,
+  payload: { visible },
+});
+
+export const setHlsFullScreen = (fullScreen: boolean) => ({
+  type: actionTypes.SET_HLS_FULL_SCREEN,
+  payload: { fullScreen },
+});
+
+export const setAndroidHLSStreamPaused = (paused: boolean) => ({
+  type: actionTypes.SET_ANDROID_HLS_STREAM_PAUSED,
+  payload: { hlsStreamPaused_android: paused },
 });
 
 /**

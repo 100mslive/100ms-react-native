@@ -32,7 +32,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     private var sessionStoreChangeObservers = [String: NSObjectProtocol]()
     private var peerListIterators = [String: HMSPeerListIterator]()
     private var roomMutedLocally = false
-    private var noiseCancellationPlugin: HMSNoiseCancellationPlugin? = nil
+    private var noiseCancellationPlugin: HMSNoiseCancellationPlugin?
 
     // MARK: - Setup
     init(data: NSDictionary?, delegate manager: HMSManager?, uid id: String) {
@@ -40,7 +40,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         self.delegate = manager
         self.id = id
         DispatchQueue.main.async { [weak self] in
-             var noiseCancellationPlugin: HMSNoiseCancellationPlugin? = nil
+            var noiseCancellationPlugin: HMSNoiseCancellationPlugin?
 
             self?.hms = HMSSDK.build { sdk in
                 sdk.appGroup = data?.value(forKey: "appGroup") as? String
@@ -48,7 +48,8 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                 let trackSettings = data?.value(forKey: "trackSettings") as? NSDictionary
                 let videoSettings = HMSHelper.getLocalVideoSettings(trackSettings?.value(forKey: "video") as? NSDictionary)
                 let audioSettingsDict = trackSettings?.value(forKey: "audio") as? NSDictionary
-                noiseCancellationPlugin = HMSHelper.getHMSNoiseCancellationPlugin(audioSettingsDict?.value(forKey: "noiseCancellationPlugin") as? NSDictionary)
+                let value = audioSettingsDict?.value(forKey: "noiseCancellationPlugin") as? NSDictionary
+                noiseCancellationPlugin = HMSHelper.getHMSNoiseCancellationPlugin(value)
                 let audioSettings = HMSHelper.getLocalAudioSettings(audioSettingsDict, noiseCancellationPlugin, sdk, self?.delegate, id)
                 sdk.trackSettings = HMSTrackSettings(videoSettings: videoSettings, audioSettings: audioSettings)
             }
@@ -754,15 +755,15 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             }
         }
     }
-    
+
     func switchAudioOutput(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        
+
         guard let audioDevice = data["audioDevice"] as? String else {
             let errorMessage = "\(#function)" + HMSHelper.getUnavailableRequiredKey(data, ["audioDevice"])
             reject?("6004", errorMessage, nil)
             return
         }
-        
+
         DispatchQueue.main.async { [weak self] in
             let outputDevice: HMSAudioOutputDevice
             switch audioDevice {
@@ -1280,6 +1281,8 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
                 return ["name": peer.name]
             case "isLocal":
                 return ["isLocal": peer.isLocal]
+            case "type":
+                return ["type": HMSDecoder.getPeerType(type: peer.type)]
             case "networkQuality":
                 if peer.networkQuality != nil {
                     return ["networkQuality": HMSDecoder.getHmsNetworkQuality(peer.networkQuality)]
@@ -2090,7 +2093,10 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
     // MARK: - Noise Cancellation Plugin Functions
 
-    func enableNoiseCancellationPlugin(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    func enableNoiseCancellationPlugin(_ data: NSDictionary,
+                                       _ resolve: RCTPromiseResolveBlock?,
+                                       _ reject: RCTPromiseRejectBlock?) {
+
         guard let noiseCancellationPlugin = self.noiseCancellationPlugin else {
             let errorMessage = "\(#function) noiseCancellationPlugin instance is not available!"
             reject?("6004", errorMessage, nil)
@@ -2104,7 +2110,10 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         }
     }
 
-    func disableNoiseCancellationPlugin(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    func disableNoiseCancellationPlugin(_ data: NSDictionary,
+                                        _ resolve: RCTPromiseResolveBlock?,
+                                        _ reject: RCTPromiseRejectBlock?) {
+
         guard let noiseCancellationPlugin = self.noiseCancellationPlugin else {
             let errorMessage = "\(#function) noiseCancellationPlugin instance is not available!"
             reject?("6004", errorMessage, nil)
@@ -2118,7 +2127,10 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         }
     }
 
-    func isNoiseCancellationPluginEnabled(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    func isNoiseCancellationPluginEnabled(_ data: NSDictionary,
+                                          _ resolve: RCTPromiseResolveBlock?,
+                                          _ reject: RCTPromiseRejectBlock?) {
+
         guard let noiseCancellationPlugin = self.noiseCancellationPlugin else {
             let errorMessage = "\(#function) noiseCancellationPlugin instance is not available!"
             reject?("6004", errorMessage, nil)
@@ -2128,7 +2140,10 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         resolve?(isEnabled)
     }
 
-    func isNoiseCancellationPluginAvailable(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    func isNoiseCancellationPluginAvailable(_ data: NSDictionary,
+                                            _ resolve: RCTPromiseResolveBlock?,
+                                            _ reject: RCTPromiseRejectBlock?) {
+
         guard let noiseCancellationPlugin = self.noiseCancellationPlugin else {
             let errorMessage = "\(#function) noiseCancellationPlugin instance is not available!"
             reject?("6004", errorMessage, nil)

@@ -22,6 +22,7 @@ export * from './classes/HMSRemoteAudioTrack';
 export * from './classes/HMSPublishSettings';
 export * from './classes/HMSPermissions';
 export * from './classes/HMSPeer';
+export * from './classes/HMSPeerType';
 export * from './classes/HMSLocalVideoTrack';
 export * from './classes/HMSLocalPeer';
 export * from './classes/HMSLocalAudioTrack';
@@ -82,6 +83,7 @@ export * from './classes/HMSCameraControl';
 export * from './classes/HMSIOSAudioMode';
 export * from './classes/HMSRecordingState';
 export * from './classes/HMSStreamingState';
+export * from './classes/HMSHLSPlaylistType';
 export type {
   HMSSessionStore,
   JsonArray,
@@ -97,6 +99,7 @@ export type { HMSPIPConfig } from './classes/HMSPIPConfig';
 export { HMSRecordingState } from './classes/HMSRecordingState';
 export type { HMSPoll } from './classes/polls/HMSPoll';
 export * from './classes/HMSNoiseCancellationPlugin';
+export * from './classes/whiteboard';
 
 export { HMSPollQuestionType } from './classes/polls/HMSPollQuestionType';
 export { HMSPollType } from './classes/polls/HMSPollType';

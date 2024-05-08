@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useMemo, useState } from 'react';
+import React, { memo, useMemo } from 'react';
 import { View, StyleSheet, Platform } from 'react-native';
 import {
   SafeAreaView,
@@ -6,9 +6,10 @@ import {
 } from 'react-native-safe-area-context';
 
 import {
+  useCanShowRoomOptionsButton,
+  useHMSConferencingScreenConfig,
   useHMSLayoutConfig,
   useHMSRoomStyle,
-  useIsHLSViewer,
   useShowChatAndParticipants,
 } from '../hooks-util';
 import { HMSManageLeave } from './HMSManageLeave';
@@ -22,80 +23,28 @@ import {
   useCanPublishScreen,
   useCanPublishVideo,
 } from '../hooks-sdk';
-import { useSelector } from 'react-redux';
-import type { RootState } from '../redux';
 
 interface FooterProps {}
 
 export const _Footer: React.FC<FooterProps> = () => {
-  const isHLSViewer = useIsHLSViewer();
   const canPublishAudio = useCanPublishAudio();
   const canPublishVideo = useCanPublishVideo();
   const canPublishScreen = useCanPublishScreen();
-  const editUsernameDisabled = useSelector(
-    (state: RootState) => state.app.editUsernameDisabled
-  );
-  const [isNoiseCancellationAvailable, setIsNoiseCancellationAvailable] =
-    useState(false);
-  const noiseCancellationPlugin = useSelector(
-    (state: RootState) => state.hmsStates.noiseCancellationPlugin
-  );
-  useEffect(() => {
-    if (noiseCancellationPlugin) {
-      let mounted = true;
-
-      noiseCancellationPlugin
-        .isNoiseCancellationAvailable()
-        .then((isAvailable) => {
-          if (mounted) {
-            setIsNoiseCancellationAvailable(isAvailable);
-          }
-        });
-
-      return () => {
-        mounted = false;
-      };
-    }
-  }, [noiseCancellationPlugin]);
+  const canShowOptions = useCanShowRoomOptionsButton();
+  const { canShowChat } = useShowChatAndParticipants();
 
   const isViewer = !(canPublishAudio || canPublishVideo || canPublishScreen);
-
-  const { canShowParticipants, canShowChat } = useShowChatAndParticipants();
-
-  const canShowBRB = useHMSLayoutConfig(
-    (layoutConfig) =>
-      !!layoutConfig?.screens?.conferencing?.default?.elements?.brb
-  );
 
   const isOnStage = useHMSLayoutConfig((layoutConfig) => {
     return !!layoutConfig?.screens?.conferencing?.default?.elements
       ?.on_stage_exp;
   });
 
-  const canStartRecording = useSelector(
-    (state: RootState) =>
-      !!state.hmsStates.localPeer?.role?.permissions?.browserRecording
+  const canRaiseHand = useHMSConferencingScreenConfig(
+    (confScreenConfig) => !!confScreenConfig?.elements?.hand_raise
   );
 
-  const canReadOrWritePoll = useSelector((state: RootState) => {
-    const permissions = state.hmsStates.localPeer?.role?.permissions;
-    return permissions?.pollRead || permissions?.pollWrite;
-  });
-
-  const canEditUsernameFromRoomModal = isViewer && !editUsernameDisabled;
-
-  const canShowHandRaiseInFooter = !isOnStage && isViewer; // on_stage_exp object undefined && viewer -> show in footer
-  const canShowHandRaiseInRoomModal = !isOnStage && !isViewer; // on_stage_exp object undefined && publisher -> show in room modal
-
-  const canShowOptions =
-    canShowParticipants ||
-    canPublishScreen ||
-    canShowBRB ||
-    canShowHandRaiseInRoomModal ||
-    canStartRecording ||
-    canEditUsernameFromRoomModal ||
-    canReadOrWritePoll ||
-    isNoiseCancellationAvailable;
+  const canShowHandRaiseInFooter = canRaiseHand && !isOnStage && isViewer;
 
   const footerActionButtons = useMemo(() => {
     const actions = [];
@@ -136,16 +85,8 @@ export const _Footer: React.FC<FooterProps> = () => {
   }));
 
   return (
-    <SafeAreaView
-      style={isHLSViewer ? null : containerStyles}
-      edges={['bottom', 'left', 'right']}
-    >
-      <View
-        style={[
-          styles.container,
-          isHLSViewer ? styles.hlsContainer : containerStyles,
-        ]}
-      >
+    <SafeAreaView style={containerStyles} edges={['bottom', 'left', 'right']}>
+      <View style={[styles.container, containerStyles]}>
         {footerActionButtons.map((actionType, index) => {
           return (
             <View
@@ -174,15 +115,14 @@ export const _Footer: React.FC<FooterProps> = () => {
 };
 
 export const useFooterHeight = (excludeSafeArea: boolean = false) => {
-  const isHLSViewer = useIsHLSViewer();
   const { bottom } = useSafeAreaInsets();
 
   return (
     (excludeSafeArea ? 0 : bottom) +
-    (isHLSViewer ? 8 : 16) +
     (Platform.OS === 'android' ? 16 : 0) +
-    40
-  ); // bottomSafeArea + paddingTop + marginBottom + content
+    42 +
+    16
+  ); // bottomSafeArea + marginBottom + content + contentTopPadding
 };
 
 const styles = StyleSheet.create({
@@ -193,9 +133,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: Platform.OS === 'android' ? 16 : 0, // TODO: need to correct hide animation offsets because of this change
-  },
-  hlsContainer: {
-    paddingTop: 8,
   },
   iconWrapper: {
     marginLeft: 24,

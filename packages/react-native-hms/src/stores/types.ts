@@ -11,7 +11,8 @@ import type {
 } from '../types';
 
 export type HMSStore = HMSHLSPlayerPlaybackSlice & HMSViewsSlice;
-export type HMSHLSPlayerStatsStore = HMSHLSPlayerStatsSlice;
+export type HMSHLSPlayerStatsStore = HMSHLSPlayerStatsSlice &
+  HLSPlayerClosedCaptionsSlice;
 export type HMSInteractivityStore = HMSPollsSlice;
 
 //#region HMSViews Slice
@@ -57,6 +58,7 @@ export interface HMSHLSPlayerPlaybackSlice {
   setPlaybackState(playbackState: HMSHLSPlayerPlaybackState): void;
   setResolution(resolution: HMSHLSPlayerResolution): void;
   setPlaybackError(error: HMSHLSPlayerPlaybackError): void;
+  resetPlaybackSlice(): void;
 }
 
 //#endregion HLS Player Playback Slice
@@ -73,6 +75,12 @@ export interface HMSHLSPlayerStatsSlice {
   error: HMSHLSPlayerStatsError | undefined;
   changeStats(stats: HMSHLSPlayerStats): void;
   setError(error: HMSHLSPlayerStatsError): void;
+  reset(): void;
+}
+
+export interface HLSPlayerClosedCaptionsSlice {
+  subtitles: string | null;
+  setSubtitles(subtitles: string | null): void;
 }
 
 //#endregion HLS Player Stats Slice

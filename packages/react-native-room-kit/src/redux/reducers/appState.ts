@@ -50,6 +50,7 @@ type IntialStateType = {
   gridViewActivePage: number;
   startingOrStoppingRecording: boolean;
   fullScreenPeerTrackNode: null | PeerTrackNode;
+  fullScreenWhiteboard: boolean;
   screensharePeerTrackNodes: PeerTrackNode[];
   notifications: Notification[];
   activeChatBottomSheetTab: (typeof ChatBottomSheetTabs)[number];
@@ -62,6 +63,9 @@ type IntialStateType = {
   selectedMessageForAction: null | HMSMessage;
   initialRole: HMSRole | null;
   chatPeerBlacklist: string[]; // list of userIds
+  hlsDescriptionPaneVisible: boolean;
+  hlsFullScreen: boolean;
+  hlsStreamPaused_android: boolean;
 };
 
 const INITIAL_STATE: IntialStateType = {
@@ -87,6 +91,7 @@ const INITIAL_STATE: IntialStateType = {
   gridViewActivePage: 0,
   startingOrStoppingRecording: false,
   fullScreenPeerTrackNode: null,
+  fullScreenWhiteboard: false,
   screensharePeerTrackNodes: [],
   notifications: [],
   activeChatBottomSheetTab: ChatBottomSheetTabs[0],
@@ -99,6 +104,9 @@ const INITIAL_STATE: IntialStateType = {
   selectedMessageForAction: null,
   initialRole: null,
   chatPeerBlacklist: [],
+  hlsDescriptionPaneVisible: false,
+  hlsFullScreen: false,
+  hlsStreamPaused_android: false,
 };
 
 const appReducer = (
@@ -236,6 +244,12 @@ const appReducer = (
         },
       };
     }
+    case ActionTypes.SET_FULLSCREEN_WHITEBOARD: {
+      return {
+        ...state,
+        fullScreenWhiteboard: action.payload.fullScreenWhiteboard,
+      };
+    }
     case ActionTypes.SET_STARTING_HLS_STREAM:
       return { ...state, startingHLSStream: action.payload.startingHLSStream };
     case ActionTypes.SET_GRID_VIEW_ACTIVE_PAGE:
@@ -355,6 +369,24 @@ const appReducer = (
         ...state,
         chatPeerBlacklist:
           action.payload.chatPeerBlacklist ?? INITIAL_STATE.chatPeerBlacklist,
+      };
+    }
+    case ActionTypes.SET_HLS_DESC_PANE_VISIBLE: {
+      return {
+        ...state,
+        hlsDescriptionPaneVisible: action.payload.visible,
+      };
+    }
+    case ActionTypes.SET_HLS_FULL_SCREEN: {
+      return {
+        ...state,
+        hlsFullScreen: action.payload.fullScreen,
+      };
+    }
+    case ActionTypes.SET_ANDROID_HLS_STREAM_PAUSED: {
+      return {
+        ...state,
+        hlsStreamPaused_android: action.payload.hlsStreamPaused_android,
       };
     }
     case HmsStateActionTypes.CLEAR_STATES:

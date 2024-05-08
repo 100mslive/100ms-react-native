@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import {
   useHMSRoomStyleSheet,
+  useIsHLSViewer,
   useShowChatAndParticipants,
 } from '../../hooks-util';
 import { ChatAndParticipantsHeader } from './ChatAndParticipantsHeader';
@@ -19,6 +20,7 @@ const _ChatAndParticipantsView: React.FC = () => {
   const activeChatBottomSheetTab = useSelector(
     (state: RootState) => state.app.activeChatBottomSheetTab
   );
+  const isHLSViewer = useIsHLSViewer();
 
   const { hide, canShowParticipants, canShowChat, overlayChatLayout } =
     useShowChatAndParticipants();
@@ -35,7 +37,10 @@ const _ChatAndParticipantsView: React.FC = () => {
     activeChatBottomSheetTab === 'Participants' && canShowParticipants;
 
   const showChat =
-    activeChatBottomSheetTab === 'Chat' && canShowChat && !overlayChatLayout;
+    !isHLSViewer &&
+    activeChatBottomSheetTab === 'Chat' &&
+    canShowChat &&
+    !overlayChatLayout;
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right']}>

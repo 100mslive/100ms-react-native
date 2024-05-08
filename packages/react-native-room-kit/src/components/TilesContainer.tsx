@@ -25,13 +25,15 @@ const _TilesContainer: React.FC<TilesContainerProps> = ({
   const { width: safeWidth } = useSafeAreaFrame();
   const isLandscapeOrientation = useIsLandscapeOrientation();
 
-  const screenshareTilesAvailable = useSelector(
-    (state: RootState) => state.app.screensharePeerTrackNodes.length > 0
+  const screenshareTilesOrWhiteboardAcive = useSelector(
+    (state: RootState) =>
+      state.app.screensharePeerTrackNodes.length > 0 ||
+      state.hmsStates.whiteboard?.isOpen
   );
 
   const stylesConfig = computeTileWidthAndHeight(peerTrackNodes.length, {
     isLandscapeOrientation,
-    type: screenshareTilesAvailable ? 'row' : 'default',
+    type: screenshareTilesOrWhiteboardAcive ? 'row' : 'default',
   });
 
   // In this layout, Tile will take as much height and width as possible
@@ -44,12 +46,12 @@ const _TilesContainer: React.FC<TilesContainerProps> = ({
         // If tile are growable, then we want whatever remaining space to be between them
         {
           justifyContent:
-            screenshareTilesAvailable && peerTrackNodes.length === 1
+            screenshareTilesOrWhiteboardAcive && peerTrackNodes.length === 1
               ? 'center'
               : growableTileLayout
                 ? 'space-between'
                 : 'center',
-          flexDirection: screenshareTilesAvailable
+          flexDirection: screenshareTilesOrWhiteboardAcive
             ? 'row'
             : isLandscapeOrientation
               ? 'row'

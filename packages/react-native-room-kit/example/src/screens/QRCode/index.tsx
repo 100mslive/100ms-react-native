@@ -10,10 +10,10 @@ import {
   Text,
   View,
 } from 'react-native';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {useDispatch, useSelector} from 'react-redux';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSelector } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-simple-toast';
 import HMSTrackStatsView from '../HMSTrackStatsView';
@@ -43,13 +43,9 @@ type QRCodeScreenProp = NativeStackNavigationProp<
   'QRCodeScreen'
 >;
 
-// @ts-ignore
-const isHermes = () => !!global.HermesInternal;
-
 const QRCode = () => {
   const navigate = useNavigation<QRCodeScreenProp>().navigate;
-  const {top, bottom, left, right} = useSafeAreaInsets();
-  const dispatch = useDispatch();
+  const { top, bottom, left, right } = useSafeAreaInsets();
   const debugMode = useSelector(
     (state: RootState) => state.app.joinConfig.debugMode,
   );
@@ -61,10 +57,10 @@ const QRCode = () => {
   const [username, setUsername] = useState('');
   const [moreModalVisible, setMoreModalVisible] = useState(false);
 
-  const onJoinPress = () => {
+  const onJoinPress = async () => {
     Keyboard.dismiss();
     if (joiningLink.includes('app.100ms.live/')) {
-      callService(
+      await callService(
         joiningLink,
         (
           roomCode: string,
@@ -78,7 +74,9 @@ const QRCode = () => {
             Constants.MEET_URL,
             joiningLink.replace('preview', 'meeting'),
           );
-          // @ts-ignore
+
+          AsyncStorage.setItem(Constants.NAME, username);
+
           navigate('HMSPrebuiltScreen', {
             roomCode,
             userId: staticUserId ? Constants.STATIC_USERID : userId,
@@ -139,7 +137,12 @@ const QRCode = () => {
           setJoiningLink(url);
         }
       });
-    }, []),
+      AsyncStorage.getItem(Constants.NAME, (_error, name) => {
+        if (name) {
+          setUsername(name);
+        }
+      });
+    }, [])
   );
 
   const joinDisabled = !validateUrl(joiningLink);

@@ -27,6 +27,8 @@
 		99ED4D8B2B3062BA007B4075 /* Dynamic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99ED4D8A2B3062BA007B4075 /* Dynamic.swift */; };
 		EC7543C02A7D039200F7BC6B /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = EC7543BF2A7D039200F7BC6B /* GoogleService-Info.plist */; };
 		EC8287DD2B3190AC000D6E7D /* Donuts-[remix].json in Resources */ = {isa = PBXBuildFile; fileRef = EC8287DC2B3190AC000D6E7D /* Donuts-[remix].json */; };
+		ECB4D7BB2BC3ED5A00E86C4F /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = ECB4D7BA2BC3ED5A00E86C4F /* PrivacyInfo.xcprivacy */; };
+		ECB4D7BC2BC3ED5A00E86C4F /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = ECB4D7BA2BC3ED5A00E86C4F /* PrivacyInfo.xcprivacy */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -90,6 +92,7 @@
 		E04ECB31213039FA54FAB55F /* Pods-RNExampleBroadcastUpload.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RNExampleBroadcastUpload.debug.xcconfig"; path = "Target Support Files/Pods-RNExampleBroadcastUpload/Pods-RNExampleBroadcastUpload.debug.xcconfig"; sourceTree = "<group>"; };
 		EC7543BF2A7D039200F7BC6B /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		EC8287DC2B3190AC000D6E7D /* Donuts-[remix].json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "Donuts-[remix].json"; sourceTree = "<group>"; };
+		ECB4D7BA2BC3ED5A00E86C4F /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -141,6 +144,7 @@
 				EC7543BF2A7D039200F7BC6B /* GoogleService-Info.plist */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
+				ECB4D7BA2BC3ED5A00E86C4F /* PrivacyInfo.xcprivacy */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB71A68108700A75B9A /* main.m */,
 				99ED4D892B3062B9007B4075 /* RNExample-Bridging-Header.h */,
@@ -321,6 +325,7 @@
 				994EB8782A65BA2E00BAF2F7 /* Inter-Medium.ttf in Resources */,
 				EC7543C02A7D039200F7BC6B /* GoogleService-Info.plist in Resources */,
 				EC8287DD2B3190AC000D6E7D /* Donuts-[remix].json in Resources */,
+				ECB4D7BB2BC3ED5A00E86C4F /* PrivacyInfo.xcprivacy in Resources */,
 				999B5EE72A8231910089F358 /* IBMPlexSans-SemiBold.ttf in Resources */,
 				994EB8792A65BA2E00BAF2F7 /* Inter-Regular.ttf in Resources */,
 				994EB8772A65BA2E00BAF2F7 /* Inter-Bold.ttf in Resources */,
@@ -337,6 +342,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ECB4D7BC2BC3ED5A00E86C4F /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -496,7 +502,7 @@
 				CODE_SIGN_ENTITLEMENTS = RNExample/RNExample.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 442;
+				CURRENT_PROJECT_VERSION = 476;
 				DEVELOPMENT_TEAM = 5N85PP82A9;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = RNExample/Info.plist;
@@ -534,7 +540,7 @@
 				CODE_SIGN_ENTITLEMENTS = RNExample/RNExample.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 442;
+				CURRENT_PROJECT_VERSION = 476;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 5N85PP82A9;
 				INFOPLIST_FILE = RNExample/Info.plist;
@@ -697,7 +703,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = RNExampleBroadcastUpload/RNExampleBroadcastUpload.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 442;
+				CURRENT_PROJECT_VERSION = 476;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 5N85PP82A9;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -739,7 +745,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 442;
+				CURRENT_PROJECT_VERSION = 476;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 5N85PP82A9;

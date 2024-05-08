@@ -178,6 +178,8 @@ class HMSDecoder: NSObject {
         }
         data["isHandRaised"] = peer.isHandRaised
 
+        data["type"] = getPeerType(type: peer.type)
+
         // joinedAt
 
         data["role"] = getHmsRole(peer.role)
@@ -248,6 +250,15 @@ class HMSDecoder: NSObject {
         let kind: String = HMSHelper.getHmsTrackType(hmsTrack.kind) ?? ""
 
         return ["trackId": trackId, "source": source, "trackDescription": trackDescription, "isMute": isMute, "isDegraded": isDegraded, "type": kind, "kind": kind]
+    }
+
+    static func getPeerType(type: HMSPeerType) -> String {
+        switch type {
+        case .sip:
+            return "SIP"
+        default:
+            return "REGULAR"
+        }
     }
 
     static func getHmsLocalPeer(_ hmsLocalPeer: HMSLocalPeer?) -> [String: Any] {
@@ -440,7 +451,7 @@ class HMSDecoder: NSObject {
     }
 
     static private func getPermissions (_ permissions: HMSPermissions) -> [String: Any] {
-        [
+        var permissionsDict: [String: Any] = [
             "endRoom": permissions.endRoom ?? false,
             "removeOthers": permissions.removeOthers ?? false,
             "browserRecording": permissions.browserRecording ?? false,
@@ -452,6 +463,14 @@ class HMSDecoder: NSObject {
             "pollRead": permissions.pollRead ?? false,
             "pollWrite": permissions.pollWrite ?? false
         ]
+        if let whiteboardPermissions = permissions.whiteboard {
+            permissionsDict["whiteboard"] = [
+                "admin": whiteboardPermissions.admin,
+                "read": whiteboardPermissions.read,
+                "write": whiteboardPermissions.write
+            ]
+        }
+        return permissionsDict
     }
 
     // MARK: - HMSRole Publish Settings and Utility functions
@@ -800,10 +819,22 @@ class HMSDecoder: NSObject {
                 if let startedAt = variant.startedAt?.timeIntervalSince1970 {
                     decodedVariant["startedAt"] = startedAt * 1000
                 }
+                if let type = variant.playlistType {
+                    decodedVariant["playlistType"] = getHLSVariantPlaylistType(from: type)
+                }
                 variants.append(decodedVariant)
             }
         }
         return variants
+    }
+
+    static func getHLSVariantPlaylistType(from type: HMSHLSPlaylistType) -> String {
+        switch type {
+        case .dvr:
+            return "DVR"
+        default:
+            return "NODVR"
+        }
     }
 
     static func getHMSRTCStats(_ data: HMSRTCStats) -> [Any] {

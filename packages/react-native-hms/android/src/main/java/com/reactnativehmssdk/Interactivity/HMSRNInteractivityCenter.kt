@@ -13,10 +13,12 @@ import live.hms.video.polls.network.PollLeaderboardResponse
 import live.hms.video.sdk.HMSActionResultListener
 import live.hms.video.sdk.HMSSDK
 import live.hms.video.sdk.HmsTypedActionResultListener
+import live.hms.video.whiteboard.HMSWhiteboardUpdate
+import live.hms.video.whiteboard.HMSWhiteboardUpdateListener
 
 class HMSRNInteractivityCenter(private val sdk: HMSSDK, private val rnSDK: HMSRNSDK) {
   init {
-    // Listen for poll updates
+    //region Listen for poll updates
     this.sdk.getHmsInteractivityCenter().pollUpdateListener =
       object : HmsPollUpdateListener {
         override fun onPollUpdate(
@@ -35,8 +37,34 @@ class HMSRNInteractivityCenter(private val sdk: HMSSDK, private val rnSDK: HMSRN
           rnSDK.delegate.emitEvent("ON_POLL_UPDATE", data)
         }
       }
+    //endregion
+
+    //region Listen for whiteboard updates
+    this.sdk.getHmsInteractivityCenter().setWhiteboardUpdateListener(
+      object : HMSWhiteboardUpdateListener {
+        override fun onUpdate(hmsWhiteboardUpdate: HMSWhiteboardUpdate) {
+          if (rnSDK.eventsEnableStatus["ON_WHITEBOARD_UPDATE"] != true) {
+            return
+          }
+          val data: WritableMap = Arguments.createMap()
+          when (hmsWhiteboardUpdate) {
+            is HMSWhiteboardUpdate.Start -> {
+              data.putMap("hmsWhiteboard", HMSInteractivityDecoder.getHMSWhiteboard(hmsWhiteboardUpdate.hmsWhiteboard))
+              data.putString("updateType", HMSInteractivityDecoder.getWhiteboardUpdateType(hmsWhiteboardUpdate))
+            }
+            is HMSWhiteboardUpdate.Stop -> {
+              data.putMap("hmsWhiteboard", HMSInteractivityDecoder.getHMSWhiteboard(hmsWhiteboardUpdate.hmsWhiteboard))
+              data.putString("updateType", HMSInteractivityDecoder.getWhiteboardUpdateType(hmsWhiteboardUpdate))
+            }
+          }
+          rnSDK.delegate.emitEvent("ON_WHITEBOARD_UPDATE", data)
+        }
+      },
+    )
+    //endregion
   }
 
+  //region poll methods
   fun quickStartPoll(
     data: ReadableMap,
     promise: Promise?,
@@ -159,4 +187,44 @@ class HMSRNInteractivityCenter(private val sdk: HMSSDK, private val rnSDK: HMSRN
       },
     )
   }
+  //endregion
+
+  //region whiteboard methods
+  fun startWhiteboard(
+    data: ReadableMap,
+    promise: Promise?,
+  ) {
+    val whiteboardTitle = data.getString("title")
+    if (whiteboardTitle == null) {
+      promise?.reject("6004", "whiteboard title is required")
+      return
+    }
+    sdk.getHmsInteractivityCenter().startWhiteboard(
+      whiteboardTitle,
+      object : HMSActionResultListener {
+        override fun onSuccess() {
+          promise?.resolve(true)
+        }
+
+        override fun onError(error: HMSException) {
+          promise?.reject(error.code.toString(), error.description)
+        }
+      },
+    )
+  }
+
+  fun stopWhiteboard(promise: Promise?) {
+    sdk.getHmsInteractivityCenter().stopWhiteboard(
+      object : HMSActionResultListener {
+        override fun onSuccess() {
+          promise?.resolve(true)
+        }
+
+        override fun onError(error: HMSException) {
+          promise?.reject(error.code.toString(), error.description)
+        }
+      },
+    )
+  }
+  //endregion
 }

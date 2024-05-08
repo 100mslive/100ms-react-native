@@ -4,7 +4,7 @@ import type { SharedValue } from 'react-native-reanimated';
 
 import { Footer } from './Footer';
 import { AnimatedHLSFooter } from './AnimatedHLSFooter';
-import { HLSChatView } from './HMSOverlayChatView';
+import { HMSOverlayChatView } from './HMSOverlayChatView';
 import { useShowChatAndParticipants } from '../hooks-util';
 import { HMSNotifications } from './HMSNotifications';
 
@@ -17,7 +17,7 @@ export const HLSFooter: React.FC<HLSFooterProps> = ({ offset }) => {
 
   return (
     <AnimatedHLSFooter offset={offset} style={styles.animatedContainer}>
-      {overlayChatVisible ? <HLSChatView offset={offset} /> : null}
+      {overlayChatVisible ? <HMSOverlayChatView offset={offset} /> : null}
 
       <HMSNotifications />
 

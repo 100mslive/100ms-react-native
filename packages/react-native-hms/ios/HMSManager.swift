@@ -37,7 +37,7 @@ class HMSManager: RCTEventEmitter {
     }
 
     override func supportedEvents() -> [String]! {
-        return [ON_JOIN, ON_PREVIEW, ON_ROOM_UPDATE, ON_PEER_UPDATE, ON_TRACK_UPDATE, ON_ERROR, ON_MESSAGE, ON_SPEAKER, RECONNECTING, RECONNECTED, ON_ROLE_CHANGE_REQUEST, ON_CHANGE_TRACK_STATE_REQUEST, ON_REMOVED_FROM_ROOM, ON_RTC_STATS, ON_LOCAL_AUDIO_STATS, ON_LOCAL_VIDEO_STATS, ON_REMOTE_AUDIO_STATS, ON_REMOTE_VIDEO_STATS, ON_AUDIO_DEVICE_CHANGED, HMSConstants.ON_SESSION_STORE_AVAILABLE, HMSConstants.ON_SESSION_STORE_CHANGED, HMSConstants.ON_PEER_LIST_UPDATED, HMSConstants.ON_POLL_UPDATE]
+        return [ON_JOIN, ON_PREVIEW, ON_ROOM_UPDATE, ON_PEER_UPDATE, ON_TRACK_UPDATE, ON_ERROR, ON_MESSAGE, ON_SPEAKER, RECONNECTING, RECONNECTED, ON_ROLE_CHANGE_REQUEST, ON_CHANGE_TRACK_STATE_REQUEST, ON_REMOVED_FROM_ROOM, ON_RTC_STATS, ON_LOCAL_AUDIO_STATS, ON_LOCAL_VIDEO_STATS, ON_REMOTE_AUDIO_STATS, ON_REMOTE_VIDEO_STATS, ON_AUDIO_DEVICE_CHANGED, HMSConstants.ON_SESSION_STORE_AVAILABLE, HMSConstants.ON_SESSION_STORE_CHANGED, HMSConstants.ON_PEER_LIST_UPDATED, HMSConstants.ON_POLL_UPDATE, HMSConstants.ON_WHITEBOARD_UPDATE]
     }
 
     // MARK: - HMS SDK Delegate Callbacks
@@ -190,7 +190,7 @@ class HMSManager: RCTEventEmitter {
 
         hms?.setVolume(data, resolve, reject)
     }
-    
+
     @objc
     func switchAudioOutput(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
@@ -218,16 +218,16 @@ class HMSManager: RCTEventEmitter {
             resolve?(true)
         }
     }
-    
+
     @objc
     func setAlwaysScreenOn(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
-        
+
         guard let enabled = data["enabled"] as? Bool else {
             let errorMessage = "\(#function)" + HMSHelper.getUnavailableRequiredKey(data, ["enabled"])
             reject?("6004", errorMessage, nil)
             return
         }
-        
+
         DispatchQueue.main.async {
             UIApplication.shared.isIdleTimerDisabled = enabled
             resolve?(nil)
@@ -716,7 +716,10 @@ class HMSManager: RCTEventEmitter {
     // MARK: - Noise Cancellation Plugin Functions
 
     @objc
-    func enableNoiseCancellationPlugin(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    func enableNoiseCancellationPlugin( _ data: NSDictionary,
+                                        _ resolve: RCTPromiseResolveBlock?,
+                                        _ reject: RCTPromiseRejectBlock?) {
+
         guard let rnsdk = HMSHelper.getHms(data, hmsCollection) else {
             reject?("6004", "HMSRNSDK instance not found!", nil)
             return
@@ -725,7 +728,10 @@ class HMSManager: RCTEventEmitter {
     }
 
     @objc
-    func disableNoiseCancellationPlugin(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    func disableNoiseCancellationPlugin(_ data: NSDictionary,
+                                        _ resolve: RCTPromiseResolveBlock?,
+                                        _ reject: RCTPromiseRejectBlock?) {
+
         guard let rnsdk = HMSHelper.getHms(data, hmsCollection) else {
             reject?("6004", "HMSRNSDK instance not found!", nil)
             return
@@ -734,7 +740,10 @@ class HMSManager: RCTEventEmitter {
     }
 
     @objc
-    func isNoiseCancellationPluginEnabled(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    func isNoiseCancellationPluginEnabled(_ data: NSDictionary,
+                                          _ resolve: RCTPromiseResolveBlock?,
+                                          _ reject: RCTPromiseRejectBlock?) {
+
         guard let rnsdk = HMSHelper.getHms(data, hmsCollection) else {
             reject?("6004", "HMSRNSDK instance not found!", nil)
             return
@@ -743,11 +752,33 @@ class HMSManager: RCTEventEmitter {
     }
 
     @objc
-    func isNoiseCancellationPluginAvailable(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    func isNoiseCancellationPluginAvailable(_ data: NSDictionary,
+                                            _ resolve: RCTPromiseResolveBlock?,
+                                            _ reject: RCTPromiseRejectBlock?) {
+
         guard let rnsdk = HMSHelper.getHms(data, hmsCollection) else {
             reject?("6004", "HMSRNSDK instance not found!", nil)
             return
         }
         rnsdk.isNoiseCancellationPluginAvailable(data, resolve, reject)
+    }
+
+    // MARK: - Interactivity Center - Whiteboard
+    @objc
+    func startWhiteboard(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        guard let rnsdk = HMSHelper.getHms(data, hmsCollection), let interactivity = rnsdk.interactivity else {
+            reject?("6004", "HMSRNSDK instance not found!", nil)
+            return
+        }
+        interactivity.startWhiteboard(resolve, reject)
+    }
+
+    @objc
+    func stopWhiteboard(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        guard let rnsdk = HMSHelper.getHms(data, hmsCollection), let interactivity = rnsdk.interactivity else {
+            reject?("6004", "HMSRNSDK instance not found!", nil)
+            return
+        }
+        interactivity.stopWhiteboard(resolve, reject)
     }
 }

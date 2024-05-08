@@ -8,7 +8,6 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import type { HMSMessage } from '@100mslive/react-native-hms';
-import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
 import {
   useAllowBlockingPeerFromChat,
@@ -49,16 +48,14 @@ const _HMSHLSMessage: React.FC<HMSHLSMessageProps> = ({ message }) => {
   const messageSender = message.sender;
 
   const hmsRoomStyles = useHMSRoomStyleSheet(
-    (_theme, typography) => ({
-      senderName: {
-        color: '#ffffff',
-        fontFamily: `${typography.font_family}-SemiBold`,
-        textShadowColor: 'rgba(0, 0, 0, 0.5)',
-      },
-      message: {
-        color: '#ffffff',
+    (theme, typography) => ({
+      regularSurfaceHigh: {
         fontFamily: `${typography.font_family}-Regular`,
-        textShadowColor: 'rgba(0, 0, 0, 0.5)',
+        color: theme.palette.on_surface_high,
+      },
+      semiBoldSurfaceLow: {
+        fontFamily: `${typography.font_family}-SemiBold`,
+        color: theme.palette.on_surface_low,
       },
       threeDots: {
         tintColor: '#ffffff',
@@ -98,36 +95,32 @@ const _HMSHLSMessage: React.FC<HMSHLSMessageProps> = ({ message }) => {
         </View>
       ) : null}
 
-      <View style={styles.nameWrapper}>
-        <Text
-          style={[styles.senderName, hmsRoomStyles.senderName]}
-          numberOfLines={1}
-        >
-          {messageSender
-            ? messageSender.isLocal
-              ? 'You'
-              : messageSender.name
-            : 'Anonymous'}
+      <View style={styles.messageWrapper}>
+        <Text style={[styles.message, hmsRoomStyles.regularSurfaceHigh]}>
+          <Text style={hmsRoomStyles.semiBoldSurfaceLow}>
+            {messageSender
+              ? messageSender.isLocal
+                ? 'You'
+                : messageSender.name
+              : 'Anonymous'}
+            {'   '}
+          </Text>
+
+          {message.message}
         </Text>
 
         {canTakeAction ? (
-          <GestureDetector gesture={Gesture.Tap()}>
-            <TouchableOpacity
-              hitSlop={styles.threeDotsHitSlop}
-              onPress={onThreeDotsPress}
-            >
-              <ThreeDotsIcon
-                stack="vertical"
-                style={[styles.threeDots, hmsRoomStyles.threeDots]}
-              />
-            </TouchableOpacity>
-          </GestureDetector>
+          <TouchableOpacity
+            hitSlop={styles.threeDotsHitSlop}
+            onPress={onThreeDotsPress}
+          >
+            <ThreeDotsIcon
+              stack="vertical"
+              style={[styles.threeDots, hmsRoomStyles.threeDots]}
+            />
+          </TouchableOpacity>
         ) : null}
       </View>
-
-      <Text style={[styles.message, hmsRoomStyles.message]}>
-        {message.message}
-      </Text>
     </View>
   );
 };
@@ -136,28 +129,18 @@ export const HMSHLSMessage = React.memo(_HMSHLSMessage);
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 8,
+    marginTop: 16,
     width: '100%',
   },
-  nameWrapper: {
+  messageWrapper: {
+    flex: 1,
     flexDirection: 'row',
-    alignItems: 'center',
-  },
-  senderName: {
-    flexGrow: 1,
-    fontSize: 14,
-    lineHeight: Platform.OS === 'android' ? 20 : undefined,
-    letterSpacing: 0.1,
-    textShadowOffset: { height: 1, width: 1 },
-    textShadowRadius: 2,
   },
   message: {
+    flexShrink: 1,
     fontSize: 14,
     lineHeight: Platform.OS === 'android' ? 20 : undefined,
     letterSpacing: 0.25,
-    marginTop: 2,
-    textShadowOffset: { height: 0.5, width: 0.5 },
-    textShadowRadius: 2,
   },
   threeDots: {
     width: 20,
