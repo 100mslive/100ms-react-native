@@ -34,15 +34,11 @@ class HMSRNInteractivityCenter {
                 print("HMSConstants.ON_WHITEBOARD_UPDATE event is not enabled")
                 return
             }
-            var hmsWhiteboardDict = HMSInteractivityDecoder.getHMSWhiteboard(hmsWhiteboard)
-            hmsWhiteboardDict["isOwner"] = self.hmsrnsdk?.hms?.localPeer?.peerID == hmsWhiteboard.owner?.peerID ?? nil
-            hmsWhiteboardDict["isAdmin"] = self.hmsrnsdk?.hms?.localPeer?.role?.permissions.whiteboard?.admin
-            hmsWhiteboardDict["isOpen"] = hmsWhiteboard.state == .started
-
+            
             self.hmsrnsdk?.delegate?.emitEvent(
                 HMSConstants.ON_WHITEBOARD_UPDATE,
                 [
-                    "hmsWhiteboard": hmsWhiteboardDict,
+                    "hmsWhiteboard": HMSInteractivityDecoder.getHMSWhiteboard(hmsWhiteboard),
                     "updateType": HMSInteractivityDecoder.getWhiteboardUpdateType(hmsWhiteboardUpdateType)
                 ]
             )
@@ -139,7 +135,8 @@ class HMSRNInteractivityCenter {
         }
     }
 
-    // MARK: Whiteboard Methods
+    // MARK: - Whiteboard Methods
+    
     func startWhiteboard(_ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         self.hmssdk?.interactivityCenter.startWhiteboard { success, error in
             if let error = error {

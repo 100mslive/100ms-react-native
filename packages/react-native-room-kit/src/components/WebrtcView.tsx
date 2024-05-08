@@ -52,7 +52,7 @@ export const WebrtcView = React.forwardRef<GridViewRefAttrs, WebrtcViewProps>(
     const screenshareTilesOrWhiteboardAcive = useSelector(
       (state: RootState) =>
         state.app.screensharePeerTrackNodes.length > 0 ||
-        state.hmsStates.whiteboard?.isOpen
+        !!state.hmsStates.whiteboard
     );
 
     const pairedPeers = useMemo(

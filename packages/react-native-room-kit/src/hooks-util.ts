@@ -601,9 +601,13 @@ const useHMSTrackUpdate = (
       const miniviewPeerTrackNode = reduxState.app.miniviewPeerTrackNode;
       const localPeerTrackNode = reduxState.app.localPeerTrackNode;
 
+      const localPeerCustomerUserId =
+        reduxState.hmsStates.localPeer?.customerUserID;
+      const localPeerRole = reduxState.hmsStates.localPeer?.role ?? null;
+
       const currentLayoutConfig = selectLayoutConfigForRole(
         reduxState.hmsStates.layoutConfig,
-        reduxState.hmsStates.localPeer?.role ?? null
+        localPeerRole
       );
 
       const localTileInsetEnabled =
@@ -622,9 +626,12 @@ const useHMSTrackUpdate = (
             // If white board is open and local peer is owner, close whiteboard
             if (
               whiteboard &&
-              whiteboard.isOpen &&
-              whiteboard.isAdmin &&
-              whiteboard.isOwner
+              // Is local peer has whiteboard admin permission
+              !!localPeerRole?.permissions?.whiteboard?.admin &&
+              // Is local peer owner of whiteboard
+              (!!localPeerCustomerUserId && !!whiteboard.owner?.customerUserID
+                ? localPeerCustomerUserId === whiteboard.owner.customerUserID
+                : false)
             ) {
               hmsInstance.interactivityCenter
                 .stopWhiteboard()

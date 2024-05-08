@@ -80,6 +80,9 @@ export const RoomSettingsModalContent: React.FC<
     const permissions = state.hmsStates.localPeer?.role?.permissions;
     return permissions?.pollRead || permissions?.pollWrite;
   });
+  const localPeerCustomerUserID = useSelector(
+    (state: RootState) => state.hmsStates.localPeer?.customerUserID
+  );
 
   const whiteboardAdminPermission = useSelector((state: RootState) => {
     return !!state.hmsStates.localPeer?.role?.permissions?.whiteboard?.admin;
@@ -290,7 +293,12 @@ export const RoomSettingsModalContent: React.FC<
   const toggleWhiteboard = async () => {
     if (!whiteboardAdminPermission) return;
 
-    if (whiteboard && whiteboard.isOpen && whiteboard.isOwner) {
+    const isLocalPeerOwner =
+      !!localPeerCustomerUserID && !!whiteboard?.owner?.customerUserID
+        ? localPeerCustomerUserID === whiteboard.owner.customerUserID
+        : false;
+
+    if (whiteboard && isLocalPeerOwner) {
       hmsInstance.interactivityCenter
         .stopWhiteboard()
         .then((success) => {
@@ -299,7 +307,7 @@ export const RoomSettingsModalContent: React.FC<
         .catch((error) => {
           console.log('#stopWhiteboard error ', error);
         });
-    } else if (whiteboard && whiteboard.isOpen && !whiteboard.isOwner) {
+    } else if (whiteboard && !isLocalPeerOwner) {
       const uid = Math.random().toString(16).slice(2);
       dispatch(
         addNotification({
@@ -463,12 +471,9 @@ export const RoomSettingsModalContent: React.FC<
               icon: (
                 <PencilIcon type="board" style={{ width: 20, height: 20 }} />
               ),
-              label:
-                whiteboard && whiteboard.isOpen
-                  ? 'Close Whiteboard'
-                  : 'Open Whiteboard',
+              label: whiteboard ? 'Close Whiteboard' : 'Open Whiteboard',
               pressHandler: toggleWhiteboard,
-              isActive: whiteboard && whiteboard.isOpen,
+              isActive: !!whiteboard,
               hide: !whiteboardAdminPermission,
             },
             {

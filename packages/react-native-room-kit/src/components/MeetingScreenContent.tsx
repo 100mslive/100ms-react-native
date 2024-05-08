@@ -40,7 +40,7 @@ export const MeetingScreenContent: React.FC<MeetingScreenContentProps> = ({
   );
   const whiteboardActive =
     Platform.OS === 'android'
-      ? useSelector((state: RootState) => state.hmsStates.whiteboard?.isOpen)
+      ? useSelector((state: RootState) => !!state.hmsStates.whiteboard)
       : null;
   const { keyboardState } = useKeyboardState();
 

@@ -87,8 +87,13 @@ dependencies {
     implementation "androidx.appcompat:appcompat:1.3.1"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.7.0"
 
-    implementation "live.100ms:android-sdk:${sdkVersions["android"]}"
-    implementation "live.100ms:video-view:${sdkVersions["android"]}"
-    implementation "live.100ms:hls-player:${sdkVersions["android"]}"
-    implementation "live.100ms:hms-noise-cancellation-android:${sdkVersions["android"]}"
+//     implementation "live.100ms:android-sdk:${sdkVersions["android"]}"
+//     implementation "live.100ms:video-view:${sdkVersions["android"]}"
+//     implementation "live.100ms:hls-player:${sdkVersions["android"]}"
+//     implementation "live.100ms:hms-noise-cancellation-android:${sdkVersions["android"]}"
+
+    implementation "live.100ms:android-sdk:2.9.6"
+    implementation "live.100ms:video-view:2.9.6"
+    implementation "live.100ms:hls-player:2.9.6"
+    implementation "live.100ms:hms-noise-cancellation-android:2.9.6"
 }

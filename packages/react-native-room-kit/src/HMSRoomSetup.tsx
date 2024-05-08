@@ -4,6 +4,7 @@ import {
   HMSRoom,
   HMSTrack,
   HMSUpdateListenerActions,
+  HMSWhiteboardUpdateType,
 } from '@100mslive/react-native-hms';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, Keyboard, StatusBar, StyleSheet, View } from 'react-native';
@@ -486,8 +487,14 @@ export const HMSRoomSetup = () => {
   useEffect(() => {
     const subscription =
       hmsInstance.interactivityCenter.addWhiteboardUpdateListener(
-        async (hmsWhiteboard, _updateType) => {
-          dispatch(setWhiteboard(hmsWhiteboard));
+        async (hmsWhiteboard, updateType) => {
+          dispatch(
+            setWhiteboard(
+              updateType === HMSWhiteboardUpdateType.STARTED
+                ? hmsWhiteboard
+                : null
+            )
+          );
         }
       );
 
