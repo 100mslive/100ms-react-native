@@ -7,11 +7,5 @@ export interface HMSWhiteboard {
 
   owner?: HMSPeer;
 
-  isOwner?: boolean;
-
-  isAdmin?: boolean;
-
-  isOpen: boolean;
-
   url?: string;
 }
