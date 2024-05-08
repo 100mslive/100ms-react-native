@@ -445,7 +445,7 @@ export const setNoiseCancellationPlugin = (
   noiseCancellationPlugin,
 });
 
-export const setWhiteboard = (whiteboard: HMSWhiteboard) => ({
+export const setWhiteboard = (whiteboard: HMSWhiteboard | null) => ({
   type: HmsStateActionTypes.SET_WHITEBOARD,
   whiteboard,
 });

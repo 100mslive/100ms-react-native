@@ -28,7 +28,7 @@ const _TilesContainer: React.FC<TilesContainerProps> = ({
   const screenshareTilesOrWhiteboardAcive = useSelector(
     (state: RootState) =>
       state.app.screensharePeerTrackNodes.length > 0 ||
-      state.hmsStates.whiteboard?.isOpen
+      !!state.hmsStates.whiteboard
   );
 
   const stylesConfig = computeTileWidthAndHeight(peerTrackNodes.length, {
