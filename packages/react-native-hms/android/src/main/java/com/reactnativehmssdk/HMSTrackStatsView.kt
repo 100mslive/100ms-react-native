@@ -12,9 +12,4 @@ class HMSTrackStatsView(context: ReactContext) : FrameLayout(context) {
     val layoutInflater = getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
     layoutInflater.inflate(R.layout.track_stats_view, this)
   }
-
-  override fun onAttachedToWindow() {
-    super.onAttachedToWindow()
-    this.layoutParams.height = 60
-  }
 }

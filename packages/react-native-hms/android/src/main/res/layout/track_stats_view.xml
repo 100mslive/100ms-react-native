@@ -21,5 +21,5 @@
     android:text="World"
     android:textColor="#fff"
     app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/textView2" />
+    app:layout_constraintTop_toBottomOf="@+id/hello_text" />
 </androidx.constraintlayout.widget.ConstraintLayout>
