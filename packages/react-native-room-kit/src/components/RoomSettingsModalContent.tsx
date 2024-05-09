@@ -290,13 +290,13 @@ export const RoomSettingsModalContent: React.FC<
     (state: RootState) => state.app.screensharePeerTrackNodes.length > 0
   );
 
+  const isLocalPeerOwner =
+    !!localPeerCustomerUserID && !!whiteboard?.owner?.customerUserID
+      ? localPeerCustomerUserID === whiteboard.owner.customerUserID
+      : false;
+
   const toggleWhiteboard = async () => {
     if (!whiteboardAdminPermission) return;
-
-    const isLocalPeerOwner =
-      !!localPeerCustomerUserID && !!whiteboard?.owner?.customerUserID
-        ? localPeerCustomerUserID === whiteboard.owner.customerUserID
-        : false;
 
     if (whiteboard && isLocalPeerOwner) {
       hmsInstance.interactivityCenter
@@ -473,7 +473,8 @@ export const RoomSettingsModalContent: React.FC<
               ),
               label: whiteboard ? 'Close Whiteboard' : 'Open Whiteboard',
               pressHandler: toggleWhiteboard,
-              isActive: !!whiteboard,
+              isActive: !!whiteboard && isLocalPeerOwner,
+              disabled: !!whiteboard && !isLocalPeerOwner,
               hide: !whiteboardAdminPermission,
             },
             {
