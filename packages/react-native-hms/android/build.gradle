@@ -12,7 +12,14 @@ buildscript {
       if (ext.has("kotlinVersion")) {
         ext.kotlinVersion()
       } else {
-        ext.safeExtGet("kotlinVersion", "1.8.0")
+        ext.safeExtGet("kotlinVersion", "1.7.20")
+      }
+    }
+    ext.getKotlinGradlePluginVersion = {
+      if (ext.has("kotlinGradlePluginVersion")) {
+        ext.kotlinGradlePluginVersion()
+      } else {
+        ext.safeExtGet("kotlinGradlePluginVersion", "1.8.0")
       }
     }
     if (project == rootProject) {
@@ -30,7 +37,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${getKotlinVersion()}"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${getKotlinGradlePluginVersion()}"
     }
 }
 
