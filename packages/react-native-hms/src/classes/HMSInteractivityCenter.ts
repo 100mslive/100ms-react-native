@@ -12,6 +12,14 @@ import { HMSInteractivityEncoder } from './HMSInteractivityEncoder';
 import { HMSHelper } from './HMSHelper';
 import type { PollLeaderboardResponse } from './polls/PollLeaderboardResponse';
 import type { DecodedPollLeaderboardResponse } from './polls/DecodedPollLeaderboardResponse';
+import type { HMSWhiteboardUpdateType } from './whiteboard/HMSWhiteboardUpdateType';
+import type { HMSWhiteboard } from './whiteboard/HMSWhiteboard';
+import { HMSWhiteboardListenerActions } from './whiteboard/HMSWhiteboardListenerActions';
+import {
+  WhiteboardUpdateListener,
+  registerWhiteboardUpdateListener,
+  unregisterWhiteboardUpdateListener,
+} from './whiteboard/registerCallbacks';
 
 type PollUpdateListener = (data: {
   updatedPoll: HMSPoll;
@@ -56,6 +64,26 @@ function unregisterPollUpdateListener() {
 export class HMSInteractivityCenter {
   private _eventEmitter = new EventEmitter();
 
+  private onUpdateListenerRemoved(eventType: string) {
+    if (eventType === HMSPollsListenerActions.ON_POLL_UPDATE) {
+      unregisterPollUpdateListener();
+    } else if (
+      eventType === HMSWhiteboardListenerActions.ON_WHITEBOARD_UPDATE
+    ) {
+      unregisterWhiteboardUpdateListener();
+    } else {
+      console.warn('Unknown update listener removed: ', eventType);
+    }
+  }
+
+  constructor() {
+    this._eventEmitter.registerOnAllListenersRemoved(
+      this.onUpdateListenerRemoved
+    );
+  }
+
+  //#region Poll Methods & Listeners
+
   private _pollUpdateListener = (...args: Parameters<PollUpdateListener>) => {
     const { updatedPoll, update } = args[0];
     logger?.verbose('#Listener ON_POLL_UPDATE', {
@@ -68,16 +96,6 @@ export class HMSInteractivityCenter {
       update
     );
   };
-
-  private _onAllPollUpdateListenerRemoved = () => {
-    unregisterPollUpdateListener();
-  };
-
-  constructor() {
-    this._eventEmitter.registerOnAllListenersRemoved(
-      this._onAllPollUpdateListenerRemoved
-    );
-  }
 
   /**
    * Adds a listener for poll updates
@@ -164,4 +182,65 @@ export class HMSInteractivityCenter {
       await HMSManager.fetchLeaderboard(data);
     return HMSInteractivityEncoder.transformPollLeaderboardResponse(response);
   }
+  //#endregion Poll Methods & Listeners
+
+  //#region Whiteboard Methods & Listeners
+
+  private _whiteboardUpdateListener = (
+    ...args: Parameters<WhiteboardUpdateListener>
+  ) => {
+    const { hmsWhiteboard, updateType } = args[0];
+    logger?.verbose('#Listener ON_WHITEBOARD_UPDATE', {
+      updateType,
+      hmsWhiteboard,
+    });
+    this._eventEmitter.emit(
+      HMSWhiteboardListenerActions.ON_WHITEBOARD_UPDATE,
+      HMSInteractivityEncoder.transformHMSWhiteboard(hmsWhiteboard),
+      updateType
+    );
+  };
+
+  /**
+   * Adds a listener for Whiteboard updates
+   * @param listener - Callback to be called when whiteboard is updated
+   * @returns HMSEventSubscription
+   */
+  addWhiteboardUpdateListener(
+    listener: (
+      hmsWhiteboard: HMSWhiteboard,
+      updateType: HMSWhiteboardUpdateType
+    ) => void
+  ) {
+    registerWhiteboardUpdateListener(this._whiteboardUpdateListener);
+    return this._eventEmitter.addListener(
+      HMSWhiteboardListenerActions.ON_WHITEBOARD_UPDATE,
+      listener,
+      null
+    );
+  }
+
+  /**
+   * Starts Whiteboard
+   */
+  async startWhiteboard(title: string) {
+    const data = {
+      id: HMSConstants.DEFAULT_SDK_ID,
+      title,
+    };
+    logger?.verbose('#Function startWhiteboard', data);
+    return HMSManager.startWhiteboard(data);
+  }
+
+  /**
+   * Stops Whiteboard
+   */
+  async stopWhiteboard() {
+    const data = {
+      id: HMSConstants.DEFAULT_SDK_ID,
+    };
+    logger?.verbose('#Function stopWhiteboard', data);
+    return HMSManager.stopWhiteboard(data);
+  }
+  //#endregion Whiteboard Methods & Listeners
 }

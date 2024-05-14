@@ -27,8 +27,27 @@ class HMSRNInteractivityCenter {
                 ["update": update.rawValue, "updatedPoll": HMSInteractivityDecoder.getHMSPoll(updatedPoll)]
             )
       }
+
+        hmssdk.interactivityCenter.addWhiteboardUpdateListener { [weak self] hmsWhiteboard, hmsWhiteboardUpdateType in
+            guard let self = self else { return }
+            guard let enabledEvents = self.hmsrnsdk?.eventsEnableStatus, enabledEvents[HMSConstants.ON_WHITEBOARD_UPDATE] == true else {
+                print("HMSConstants.ON_WHITEBOARD_UPDATE event is not enabled")
+                return
+            }
+            var hmsWhiteboardDict = HMSInteractivityDecoder.getHMSWhiteboard(hmsWhiteboard)
+            hmsWhiteboardDict["isOwner"] = hmsWhiteboard.owner?.peerID == self.hmssdk?.localPeer?.peerID
+
+            self.hmsrnsdk?.delegate?.emitEvent(
+                HMSConstants.ON_WHITEBOARD_UPDATE,
+                [
+                    "hmsWhiteboard": hmsWhiteboardDict,
+                    "updateType": HMSInteractivityDecoder.getWhiteboardUpdateType(hmsWhiteboardUpdateType)
+                ]
+            )
+        }
     }
 
+    // MARK: Poll Methods
     func quickStartPoll(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let pollBuilder = HMSInteractivityHelper.getPollBuilderFromDict(data, sdkRoles: hmssdk?.roles)
 
@@ -115,6 +134,28 @@ class HMSRNInteractivityCenter {
             } else {
                 reject?("6004", "Could not fetch leaderboard response", nil)
             }
+        }
+    }
+
+    // MARK: - Whiteboard Methods
+    
+    func startWhiteboard(_ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        self.hmssdk?.interactivityCenter.startWhiteboard { success, error in
+            if let error = error {
+                reject?("6004", error.localizedDescription, nil)
+                return
+            }
+            resolve?(success)
+        }
+    }
+
+    func stopWhiteboard(_ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+        self.hmssdk?.interactivityCenter.stopWhiteboard { success, error in
+            if let error = error {
+                reject?("6004", error.localizedDescription, nil)
+                return
+            }
+            resolve?(success)
         }
     }
 }
