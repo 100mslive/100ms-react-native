@@ -80,9 +80,6 @@ export const RoomSettingsModalContent: React.FC<
     const permissions = state.hmsStates.localPeer?.role?.permissions;
     return permissions?.pollRead || permissions?.pollWrite;
   });
-  const localPeerCustomerUserID = useSelector(
-    (state: RootState) => state.hmsStates.localPeer?.customerUserID
-  );
 
   const whiteboardAdminPermission = useSelector((state: RootState) => {
     return !!state.hmsStates.localPeer?.role?.permissions?.whiteboard?.admin;
@@ -290,15 +287,10 @@ export const RoomSettingsModalContent: React.FC<
     (state: RootState) => state.app.screensharePeerTrackNodes.length > 0
   );
 
-  const isLocalPeerOwner =
-    !!localPeerCustomerUserID && !!whiteboard?.owner?.customerUserID
-      ? localPeerCustomerUserID === whiteboard.owner.customerUserID
-      : false;
-
   const toggleWhiteboard = async () => {
     if (!whiteboardAdminPermission) return;
 
-    if (whiteboard && isLocalPeerOwner) {
+    if (whiteboard && whiteboard.isOwner) {
       hmsInstance.interactivityCenter
         .stopWhiteboard()
         .then((success) => {
@@ -307,7 +299,7 @@ export const RoomSettingsModalContent: React.FC<
         .catch((error) => {
           console.log('#stopWhiteboard error ', error);
         });
-    } else if (whiteboard && !isLocalPeerOwner) {
+    } else if (whiteboard && !whiteboard.isOwner) {
       const uid = Math.random().toString(16).slice(2);
       dispatch(
         addNotification({
@@ -473,8 +465,8 @@ export const RoomSettingsModalContent: React.FC<
               ),
               label: whiteboard ? 'Close Whiteboard' : 'Open Whiteboard',
               pressHandler: toggleWhiteboard,
-              isActive: !!whiteboard && isLocalPeerOwner,
-              disabled: !!whiteboard && !isLocalPeerOwner,
+              isActive: !!whiteboard && whiteboard.isOwner,
+              disabled: !!whiteboard && !whiteboard.isOwner,
               hide: !whiteboardAdminPermission,
             },
             {

@@ -629,9 +629,7 @@ const useHMSTrackUpdate = (
               // Is local peer has whiteboard admin permission
               !!localPeerRole?.permissions?.whiteboard?.admin &&
               // Is local peer owner of whiteboard
-              (!!localPeerCustomerUserId && !!whiteboard.owner?.customerUserID
-                ? localPeerCustomerUserId === whiteboard.owner.customerUserID
-                : false)
+              whiteboard.isOwner
             ) {
               hmsInstance.interactivityCenter
                 .stopWhiteboard()

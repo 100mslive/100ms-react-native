@@ -274,6 +274,7 @@ class HMSInteractivityDecoder {
     static func getHMSWhiteboard(_ hmsWhiteboard: HMSWhiteboard) -> [String: Any] {
         var result: [String: Any] = [
             "id": hmsWhiteboard.id,
+            "state": getWhiteboardState(hmsWhiteboard.state)
         ]
         if let owner = hmsWhiteboard.owner {
             result["owner"] = HMSDecoder.getHmsPeerSubset(owner)

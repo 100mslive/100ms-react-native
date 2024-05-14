@@ -34,11 +34,13 @@ class HMSRNInteractivityCenter {
                 print("HMSConstants.ON_WHITEBOARD_UPDATE event is not enabled")
                 return
             }
-            
+            var hmsWhiteboardDict = HMSInteractivityDecoder.getHMSWhiteboard(hmsWhiteboard)
+            hmsWhiteboardDict["isOwner"] = hmsWhiteboard.owner?.peerID == self.hmssdk?.localPeer?.peerID
+
             self.hmsrnsdk?.delegate?.emitEvent(
                 HMSConstants.ON_WHITEBOARD_UPDATE,
                 [
-                    "hmsWhiteboard": HMSInteractivityDecoder.getHMSWhiteboard(hmsWhiteboard),
+                    "hmsWhiteboard": hmsWhiteboardDict,
                     "updateType": HMSInteractivityDecoder.getWhiteboardUpdateType(hmsWhiteboardUpdateType)
                 ]
             )
