@@ -49,8 +49,10 @@ export const WebrtcView = React.forwardRef<GridViewRefAttrs, WebrtcViewProps>(
       (state: RootState) => state.user.spotlightTrackId
     );
 
-    const screenshareTilesAvailable = useSelector(
-      (state: RootState) => state.app.screensharePeerTrackNodes.length > 0
+    const screenshareTilesOrWhiteboardAcive = useSelector(
+      (state: RootState) =>
+        state.app.screensharePeerTrackNodes.length > 0 ||
+        !!state.hmsStates.whiteboard
     );
 
     const pairedPeers = useMemo(
@@ -58,13 +60,18 @@ export const WebrtcView = React.forwardRef<GridViewRefAttrs, WebrtcViewProps>(
         pairData(
           peerTrackNodes,
           isPortrait
-            ? screenshareTilesAvailable
+            ? screenshareTilesOrWhiteboardAcive
               ? MaxTilesInOnePage.IN_PORTRAIT_WITH_SCREENSHARES
               : MaxTilesInOnePage.IN_PORTRAIT
             : MaxTilesInOnePage.IN_LANDSCAPE,
           spotlightTrackId
         ),
-      [peerTrackNodes, screenshareTilesAvailable, spotlightTrackId, isPortrait]
+      [
+        peerTrackNodes,
+        screenshareTilesOrWhiteboardAcive,
+        spotlightTrackId,
+        isPortrait,
+      ]
     );
 
     const showWelcomeBanner = useSelector(

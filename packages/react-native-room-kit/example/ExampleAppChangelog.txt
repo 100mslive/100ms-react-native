@@ -3,6 +3,12 @@ Board: https://100ms.atlassian.net/jira/software/projects/RN/boards/33
 - Handle PIP for HLS viewer
 https://100ms.atlassian.net/browse/RN-296
 
+- Whiteboard Base SDK changes
+https://100ms.atlassian.net/browse/RN-306
+
+- Tile content cutting off from bottom in WebRTC layout
+https://100ms.atlassian.net/browse/RN-316
+
 Room Kit: 1.1.8
 React Native SDK: 1.10.5
 Android SDK: 2.9.55

@@ -467,7 +467,7 @@ class HMSDecoder: NSObject {
             permissionsDict["whiteboard"] = [
                 "admin": whiteboardPermissions.admin,
                 "read": whiteboardPermissions.read,
-                "write": whiteboardPermissions.write,
+                "write": whiteboardPermissions.write
             ]
         }
         return permissionsDict

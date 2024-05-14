@@ -50,6 +50,7 @@ type IntialStateType = {
   gridViewActivePage: number;
   startingOrStoppingRecording: boolean;
   fullScreenPeerTrackNode: null | PeerTrackNode;
+  fullScreenWhiteboard: boolean;
   screensharePeerTrackNodes: PeerTrackNode[];
   notifications: Notification[];
   activeChatBottomSheetTab: (typeof ChatBottomSheetTabs)[number];
@@ -90,6 +91,7 @@ const INITIAL_STATE: IntialStateType = {
   gridViewActivePage: 0,
   startingOrStoppingRecording: false,
   fullScreenPeerTrackNode: null,
+  fullScreenWhiteboard: false,
   screensharePeerTrackNodes: [],
   notifications: [],
   activeChatBottomSheetTab: ChatBottomSheetTabs[0],
@@ -240,6 +242,12 @@ const appReducer = (
           ...state.fullScreenPeerTrackNode,
           ...action.payload,
         },
+      };
+    }
+    case ActionTypes.SET_FULLSCREEN_WHITEBOARD: {
+      return {
+        ...state,
+        fullScreenWhiteboard: action.payload.fullScreenWhiteboard,
       };
     }
     case ActionTypes.SET_STARTING_HLS_STREAM:

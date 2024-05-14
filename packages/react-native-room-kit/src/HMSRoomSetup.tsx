@@ -4,6 +4,7 @@ import {
   HMSRoom,
   HMSTrack,
   HMSUpdateListenerActions,
+  HMSWhiteboardUpdateType,
 } from '@100mslive/react-native-hms';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, Keyboard, StatusBar, StyleSheet, View } from 'react-native';
@@ -22,6 +23,7 @@ import {
   setInitialRole,
   setLocalPeerTrackNode,
   setMiniViewPeerTrackNode,
+  setWhiteboard,
   updateLocalPeerTrackNode,
 } from './redux/actions';
 import { createPeerTrackNode, getRandomUserId } from './utils/functions';
@@ -481,6 +483,25 @@ export const HMSRoomSetup = () => {
       subscription.remove();
     };
   }, [isHLSViewer]);
+
+  useEffect(() => {
+    const subscription =
+      hmsInstance.interactivityCenter.addWhiteboardUpdateListener(
+        async (hmsWhiteboard, updateType) => {
+          dispatch(
+            setWhiteboard(
+              updateType === HMSWhiteboardUpdateType.STARTED
+                ? hmsWhiteboard
+                : null
+            )
+          );
+        }
+      );
+
+    return () => {
+      subscription.remove();
+    };
+  }, []);
 
   // Syncs showing Polls with HLS Player onCue event
   useHLSCuedPolls();
