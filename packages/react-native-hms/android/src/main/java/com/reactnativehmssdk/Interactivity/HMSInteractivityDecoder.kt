@@ -19,6 +19,7 @@ import live.hms.video.polls.network.PollLeaderboardResponse
 import live.hms.video.polls.network.PollResultsDisplay
 import live.hms.video.whiteboard.HMSWhiteboard
 import live.hms.video.whiteboard.HMSWhiteboardUpdate
+import live.hms.video.whiteboard.State
 
 object HMSInteractivityDecoder {
   //region poll methods
@@ -395,6 +396,8 @@ object HMSInteractivityDecoder {
     val data: WritableMap = Arguments.createMap()
 
     data.putString("id", hmsWhiteboard.id)
+    data.putBoolean("isOwner", hmsWhiteboard.isOwner)
+    data.putString("state", getWhiteboardState(hmsWhiteboard.state))
     hmsWhiteboard.title?.let { title ->
       data.putString("title", title)
     }
@@ -405,13 +408,29 @@ object HMSInteractivityDecoder {
     return data
   }
 
+  enum class JSWhiteboardState(val label: String) {
+    Start("STARTED"),
+    Stop("STOPPED"),
+  }
+
+  private fun getWhiteboardState(hmsWhiteboardState: State): String {
+    return when (hmsWhiteboardState) {
+      State.Started -> {
+        JSWhiteboardState.Start.label
+      }
+      State.Stopped -> {
+        JSWhiteboardState.Stop.label
+      }
+    }
+  }
+
   fun getWhiteboardUpdateType(hmsWhiteboardUpdate: HMSWhiteboardUpdate): String {
     return when (hmsWhiteboardUpdate) {
       is HMSWhiteboardUpdate.Start -> {
-        "STARTED"
+        JSWhiteboardState.Start.label
       }
       is HMSWhiteboardUpdate.Stop -> {
-        "STOPPED"
+        JSWhiteboardState.Stop.label
       }
     }
   }
