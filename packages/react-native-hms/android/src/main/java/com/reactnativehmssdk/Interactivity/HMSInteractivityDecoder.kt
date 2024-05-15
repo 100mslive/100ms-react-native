@@ -17,8 +17,12 @@ import live.hms.video.polls.network.HMSPollLeaderboardEntry
 import live.hms.video.polls.network.HMSPollLeaderboardSummary
 import live.hms.video.polls.network.PollLeaderboardResponse
 import live.hms.video.polls.network.PollResultsDisplay
+import live.hms.video.whiteboard.HMSWhiteboard
+import live.hms.video.whiteboard.HMSWhiteboardUpdate
+import live.hms.video.whiteboard.State
 
 object HMSInteractivityDecoder {
+  //region poll methods
   fun getPollUpdateType(hmsPollUpdateType: HMSPollUpdateType): Int {
     return when (hmsPollUpdateType) {
       HMSPollUpdateType.started -> 0
@@ -280,31 +284,6 @@ object HMSInteractivityDecoder {
     return readableArray
   }
 
-/*
-
-  static func getHMSPollQuestionResponseResults(_ hmsPollQuestionResponseResults: [HMSPollQuestionResponseResult]) -> [[String: AnyHashable]] {
-    var results = [[String: AnyHashable]]()
-
-    hmsPollQuestionResponseResults.forEach { result in
-      results.append(getHMSPollQuestionResponseResult(result))
-    }
-    return results
-  }
-
-  static func getHMSPollQuestionResponseResult(_ hmsPollQuestionResponseResult: HMSPollQuestionResponseResult) -> [String: AnyHashable] {
-    var result: [String: AnyHashable] = [
-    "question": hmsPollQuestionResponseResult.question
-    ]
-    if let correct = hmsPollQuestionResponseResult.correct {
-      result["correct"] = correct
-    }
-    if let error = hmsPollQuestionResponseResult.error {
-      result["error"] = error.localizedDescription
-    }
-    return result
-  }
-
- */
   fun getHMSPollQuestionResponseResults(hmsPollQuestionResponseResults: PollAnswerResponse): WritableArray {
     val results = Arguments.createArray()
 
@@ -410,4 +389,50 @@ object HMSInteractivityDecoder {
 
     return result
   }
+  //endregion
+
+  //region whiteboard methods
+  fun getHMSWhiteboard(hmsWhiteboard: HMSWhiteboard): WritableMap {
+    val data: WritableMap = Arguments.createMap()
+
+    data.putString("id", hmsWhiteboard.id)
+    data.putBoolean("isOwner", hmsWhiteboard.isOwner)
+    data.putString("state", getWhiteboardState(hmsWhiteboard.state))
+    hmsWhiteboard.title?.let { title ->
+      data.putString("title", title)
+    }
+    hmsWhiteboard.owner?.let { owner ->
+      data.putMap("owner", HMSDecoder.getHmsPeerSubset(owner))
+    }
+    data.putString("url", hmsWhiteboard.url)
+    return data
+  }
+
+  enum class JSWhiteboardState(val label: String) {
+    Start("STARTED"),
+    Stop("STOPPED"),
+  }
+
+  private fun getWhiteboardState(hmsWhiteboardState: State): String {
+    return when (hmsWhiteboardState) {
+      State.Started -> {
+        JSWhiteboardState.Start.label
+      }
+      State.Stopped -> {
+        JSWhiteboardState.Stop.label
+      }
+    }
+  }
+
+  fun getWhiteboardUpdateType(hmsWhiteboardUpdate: HMSWhiteboardUpdate): String {
+    return when (hmsWhiteboardUpdate) {
+      is HMSWhiteboardUpdate.Start -> {
+        JSWhiteboardState.Start.label
+      }
+      is HMSWhiteboardUpdate.Stop -> {
+        JSWhiteboardState.Stop.label
+      }
+    }
+  }
+  //endregion
 }

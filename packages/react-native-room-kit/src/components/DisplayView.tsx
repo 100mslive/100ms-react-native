@@ -31,6 +31,7 @@ import { PreviewForRoleChangeModal } from './PreviewForRoleChangeModal';
 import { ChatAndParticipantsBottomSheet } from './ChatAndParticipants';
 import { LeaveRoomBottomSheet } from './LeaveRoomBottomSheet';
 import { EndRoomModal } from './EndRoomModal';
+import { FullScreenWhiteboard } from './FullScreenWhiteboard';
 
 type CapturedImagePath = { uri: string } | null;
 
@@ -142,6 +143,8 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
           <PreviewForRoleChangeModal />
 
           <FullScreenVideoView />
+
+          <FullScreenWhiteboard />
 
           <ChatAndParticipantsBottomSheet />
 

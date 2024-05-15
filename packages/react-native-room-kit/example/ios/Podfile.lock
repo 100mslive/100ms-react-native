@@ -80,10 +80,10 @@ PODS:
   - HMSHLSPlayerSDK (0.0.2):
     - HMSAnalyticsSDK (= 0.0.2)
   - HMSNoiseCancellationModels (1.0.0)
-  - HMSSDK (1.9.0):
+  - HMSSDK (1.10.0):
     - HMSAnalyticsSDK (= 0.0.2)
-    - HMSWebRTC (= 1.0.6168)
-  - HMSWebRTC (1.0.6168)
+    - HMSWebRTC (= 1.0.6169)
+  - HMSWebRTC (1.0.6169)
   - libevent (2.1.12)
   - lottie-ios (3.4.4)
   - lottie-react-native (5.1.6):
@@ -319,11 +319,11 @@ PODS:
     - React-Core
   - react-native-camera/RN (4.2.1):
     - React-Core
-  - react-native-hms (1.10.4):
+  - react-native-hms (1.10.5):
     - HMSBroadcastExtensionSDK (= 0.0.9)
     - HMSHLSPlayerSDK (= 0.0.2)
     - HMSNoiseCancellationModels (= 1.0.0)
-    - HMSSDK (= 1.9.0)
+    - HMSSDK (= 1.10.0)
     - React-Core
   - react-native-lottie-splash-screen (1.1.1):
     - React
@@ -332,6 +332,8 @@ PODS:
   - react-native-simple-toast (1.1.3):
     - React-Core
     - Toast (~> 4.0.0)
+  - react-native-webview (13.8.7):
+    - React-Core
   - React-perflogger (0.67.4)
   - React-RCTActionSheet (0.67.4):
     - React-Core/RCTActionSheetHeaders (= 0.67.4)
@@ -500,6 +502,7 @@ DEPENDENCIES:
   - react-native-lottie-splash-screen (from `../node_modules/react-native-lottie-splash-screen`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-simple-toast (from `../node_modules/react-native-simple-toast`)
+  - react-native-webview (from `../node_modules/react-native-webview`)
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
   - React-RCTActionSheet (from `../node_modules/react-native/Libraries/ActionSheetIOS`)
   - React-RCTAnimation (from `../node_modules/react-native/Libraries/NativeAnimation`)
@@ -605,6 +608,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-safe-area-context"
   react-native-simple-toast:
     :path: "../node_modules/react-native-simple-toast"
+  react-native-webview:
+    :path: "../node_modules/react-native-webview"
   React-perflogger:
     :path: "../node_modules/react-native/ReactCommon/reactperflogger"
   React-RCTActionSheet:
@@ -671,8 +676,8 @@ SPEC CHECKSUMS:
   HMSBroadcastExtensionSDK: d80fe325f6c928bd8e5176290b5a4b7ae15d6fbb
   HMSHLSPlayerSDK: 6a54ad4d12f3dc2270d1ecd24019d71282a4f6a3
   HMSNoiseCancellationModels: a3bda1405a16015632f4bcabd46ce48f35103b02
-  HMSSDK: 96bdafc1c610aabfecd1155ad7e3c1bc45b3a6cb
-  HMSWebRTC: a302f0d6c94f7bee94f3265adb7bb1c6569e7ee5
+  HMSSDK: fbbdebf673baba7f98f3fa13241b4249929ad681
+  HMSWebRTC: 8f51ba33a0e505e17ebf3d7b37bcdca266751a13
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   lottie-ios: 8f97d3271e155c2d688875c29cd3c74908aef5f8
   lottie-react-native: 8f9d4be452e23f6e5ca0fdc11669dc99ab52be81
@@ -694,10 +699,11 @@ SPEC CHECKSUMS:
   React-logger: a1f028f6d8639a3f364ef80419e5e862e1115250
   react-native-blur: 172abeaa2de2d3ba4dc586fa23488d01c533818f
   react-native-camera: 3eae183c1d111103963f3dd913b65d01aef8110f
-  react-native-hms: 1acd9c4961304f0508551898aee37dd6d5f877b8
+  react-native-hms: 028c8232d459fe2cb25826d4313a8e3d918b503d
   react-native-lottie-splash-screen: 015423265bac5f46016dff2e31c97b9590808856
   react-native-safe-area-context: 61c8c484a3a9e7d1fda19f7b1794b35bbfd2262a
   react-native-simple-toast: bf002828cf816775a6809f7a9ec3907509bce11f
+  react-native-webview: abfd4e89ab3f5c2cc2acaeb54633795b0d9a4ab0
   React-perflogger: 0afaf2f01a47fd0fc368a93bfbb5bd3b26db6e7f
   React-RCTActionSheet: 59f35c4029e0b532fc42114241a06e170b7431a2
   React-RCTAnimation: aae4f4bed122e78bdab72f7118d291d70a932ce2

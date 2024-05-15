@@ -3,7 +3,7 @@ import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import type { TouchableOpacityProps } from 'react-native';
 import type { HMSAudioMixingMode } from '@100mslive/react-native-hms';
 import { HMSRecordingState } from '@100mslive/react-native-hms';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import type { RootState } from '../redux';
 import { ModalTypes } from '../utils/types';
@@ -22,6 +22,7 @@ import { BottomSheet, useBottomSheetActions } from './BottomSheet';
 import {
   isPublishingAllowed,
   useHMSConferencingScreenConfig,
+  useHMSInstance,
   useHMSLayoutConfig,
   useHMSRoomColorPalette,
   useHMSRoomStyleSheet,
@@ -38,6 +39,8 @@ import { RoomSettingsModalDebugModeContent } from './RoomSettingsModalDebugModeC
 import { ParticipantsCount } from './ParticipantsCount';
 import { selectAllowedTracksToPublish } from '../hooks-sdk-selectors';
 import { TestIds } from '../utils/constants';
+import { addNotification } from '../redux/actions';
+import { NotificationTypes } from '../types';
 
 interface RoomSettingsModalContentProps {
   newAudioMixingMode: HMSAudioMixingMode;
@@ -56,6 +59,8 @@ export const RoomSettingsModalContent: React.FC<
 > = (props) => {
   const { closeRoomSettingsModal, setModalVisible } = props;
 
+  const hmsInstance = useHMSInstance();
+  const dispatch = useDispatch();
   const debugMode = useSelector((state: RootState) => state.user.debugMode);
 
   const hmsActions = useHMSActions();
@@ -74,6 +79,10 @@ export const RoomSettingsModalContent: React.FC<
   const canReadOrWritePoll = useSelector((state: RootState) => {
     const permissions = state.hmsStates.localPeer?.role?.permissions;
     return permissions?.pollRead || permissions?.pollWrite;
+  });
+
+  const whiteboardAdminPermission = useSelector((state: RootState) => {
+    return !!state.hmsStates.localPeer?.role?.permissions?.whiteboard?.admin;
   });
 
   const { registerOnModalHideAction } = useBottomSheetActions();
@@ -271,6 +280,61 @@ export const RoomSettingsModalContent: React.FC<
     closeRoomSettingsModal();
   };
 
+  const whiteboard = useSelector(
+    (state: RootState) => state.hmsStates.whiteboard
+  );
+  const screenShareNodesAvailable = useSelector(
+    (state: RootState) => state.app.screensharePeerTrackNodes.length > 0
+  );
+
+  const toggleWhiteboard = async () => {
+    if (!whiteboardAdminPermission) return;
+
+    if (whiteboard && whiteboard.isOwner) {
+      hmsInstance.interactivityCenter
+        .stopWhiteboard()
+        .then((success) => {
+          console.log('#stopWhiteboard stopped whiteboard ', success);
+        })
+        .catch((error) => {
+          console.log('#stopWhiteboard error ', error);
+        });
+    } else if (whiteboard && !whiteboard.isOwner) {
+      const uid = Math.random().toString(16).slice(2);
+      dispatch(
+        addNotification({
+          id: uid,
+          type: NotificationTypes.ERROR,
+          title:
+            'Only the peer who started the whiteboard has the ability to close it!',
+        })
+      );
+    } else if (isLocalScreenShared || screenShareNodesAvailable) {
+      const uid = Math.random().toString(16).slice(2);
+      dispatch(
+        addNotification({
+          id: uid,
+          type: NotificationTypes.ERROR,
+          title: isLocalScreenShared
+            ? 'Discontinue screenshare to open the whiteboard!'
+            : "Can't open whiteboard while screenshare is happening!",
+        })
+      );
+    } else {
+      hmsInstance.interactivityCenter
+        .startWhiteboard('Interactive Session')
+        .then((success) => {
+          console.log('#startWhiteboard started whiteboard ', success);
+        })
+        .catch((error) => {
+          console.log('#startWhiteboard error ', error);
+        });
+    }
+
+    // Close the current bottom sheet
+    closeRoomSettingsModal();
+  };
+
   const canShowBRB = useHMSLayoutConfig(
     (layoutConfig) =>
       !!layoutConfig?.screens?.conferencing?.default?.elements?.brb
@@ -395,6 +459,17 @@ export const RoomSettingsModalContent: React.FC<
               hide: !canReadOrWritePoll,
             },
             {
+              id: 'whiteboard',
+              icon: (
+                <PencilIcon type="board" style={{ width: 20, height: 20 }} />
+              ),
+              label: whiteboard ? 'Close Whiteboard' : 'Open Whiteboard',
+              pressHandler: toggleWhiteboard,
+              isActive: !!whiteboard && whiteboard.isOwner,
+              disabled: !!whiteboard && !whiteboard.isOwner,
+              hide: !whiteboardAdminPermission,
+            },
+            {
               id: 'noise-cancellation',
               icon: <WaveIcon style={{ width: 20, height: 20 }} />,
               label: isNoiseCancellationEnabled
@@ -458,7 +533,7 @@ type SettingItemProps = {
   onPress(): void;
   disabled?: TouchableOpacityProps['disabled'];
   testID?: TouchableOpacityProps['testID'];
-  isActive?: boolean;
+  isActive?: boolean | null;
 };
 
 const SettingItem: React.FC<SettingItemProps> = ({

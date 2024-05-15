@@ -601,9 +601,11 @@ const useHMSTrackUpdate = (
       const miniviewPeerTrackNode = reduxState.app.miniviewPeerTrackNode;
       const localPeerTrackNode = reduxState.app.localPeerTrackNode;
 
+      const localPeerRole = reduxState.hmsStates.localPeer?.role ?? null;
+
       const currentLayoutConfig = selectLayoutConfigForRole(
         reduxState.hmsStates.layoutConfig,
-        reduxState.hmsStates.localPeer?.role ?? null
+        localPeerRole
       );
 
       const localTileInsetEnabled =
@@ -616,6 +618,26 @@ const useHMSTrackUpdate = (
         if (track.source === HMSTrackSource.SCREEN) {
           if (!peer.isLocal && track.type === HMSTrackType.VIDEO) {
             dispatch(addScreenshareTile(newPeerTrackNode));
+          }
+          if (track.type === HMSTrackType.VIDEO) {
+            const whiteboard = reduxState.hmsStates.whiteboard;
+            // If white board is open and local peer is owner, close whiteboard
+            if (
+              whiteboard &&
+              // Is local peer has whiteboard admin permission
+              !!localPeerRole?.permissions?.whiteboard?.admin &&
+              // Is local peer owner of whiteboard
+              whiteboard.isOwner
+            ) {
+              hmsInstance.interactivityCenter
+                .stopWhiteboard()
+                .then((success) => {
+                  console.log('StopWhiteboard on Screenshare: ', success);
+                })
+                .catch((error) => {
+                  console.log('StopWhiteboard error: ', error);
+                });
+            }
           }
         } else {
           setPeerTrackNodes((prevPeerTrackNodes) => {
@@ -3100,6 +3122,11 @@ export const useCanShowRoomOptionsButton = () => {
     return permissions?.pollRead || permissions?.pollWrite;
   });
 
+  const canStartStopWhiteboard = useSelector((state: RootState) => {
+    const permissions = state.hmsStates.localPeer?.role?.permissions;
+    return permissions?.whiteboard?.admin;
+  });
+
   const { canShowParticipants } = useShowChatAndParticipants();
 
   const canEditUsernameFromRoomModal = isViewer && !editUsernameDisabled;
@@ -3111,15 +3138,18 @@ export const useCanShowRoomOptionsButton = () => {
     canStartRecording ||
     canEditUsernameFromRoomModal ||
     canReadOrWritePoll ||
+    canStartStopWhiteboard ||
     isNoiseCancellationAvailable;
 
   return canShowOptions;
 };
 
 export const useHLSViewsConstraints = () => {
-  const hlsFullScreen = useSelector(
-    (state: RootState) => state.app.hlsFullScreen
-  );
+  const fullScreenMode = useSelector((state: RootState) => {
+    const hlsFullScreen = state.app.hlsFullScreen;
+    const isPipModeActive = state.app.pipModeStatus === PipModes.ACTIVE;
+    return hlsFullScreen || isPipModeActive;
+  });
   const isLandscapeOrientation = useIsLandscapeOrientation();
   const { width: safeAreaWidthFrame, height: safeAreaHeightFrame } =
     useSafeAreaFrame();
@@ -3130,7 +3160,7 @@ export const useHLSViewsConstraints = () => {
     right: rightInset,
   } = useSafeAreaInsets();
 
-  const playerWrapperConstraints = hlsFullScreen
+  const playerWrapperConstraints = fullScreenMode
     ? {
         width: safeAreaWidthFrame - leftInset - rightInset,
         height: isLandscapeOrientation
@@ -3165,9 +3195,11 @@ export const useHLSViewsConstraints = () => {
 };
 
 export const useHLSPlayerConstraints = () => {
-  const hlsFullScreen = useSelector(
-    (state: RootState) => state.app.hlsFullScreen
-  );
+  const fullScreenMode = useSelector((state: RootState) => {
+    const hlsFullScreen = state.app.hlsFullScreen;
+    const isPipModeActive = state.app.pipModeStatus === PipModes.ACTIVE;
+    return hlsFullScreen || isPipModeActive;
+  });
   const isLandscapeOrientation = useIsLandscapeOrientation();
 
   const resolution = useHMSHLSPlayerResolution();
@@ -3205,7 +3237,7 @@ export const useHLSPlayerConstraints = () => {
   /**
    * Handling Portrait Orientation
    */
-  if (hlsFullScreen) {
+  if (fullScreenMode) {
     return {
       width: sr > wr ? wrapperWidth : wrapperHeight * sr,
       height: sr > wr ? wrapperWidth / sr : wrapperHeight,
