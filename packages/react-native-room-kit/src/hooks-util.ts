@@ -601,8 +601,6 @@ const useHMSTrackUpdate = (
       const miniviewPeerTrackNode = reduxState.app.miniviewPeerTrackNode;
       const localPeerTrackNode = reduxState.app.localPeerTrackNode;
 
-      const localPeerCustomerUserId =
-        reduxState.hmsStates.localPeer?.customerUserID;
       const localPeerRole = reduxState.hmsStates.localPeer?.role ?? null;
 
       const currentLayoutConfig = selectLayoutConfigForRole(

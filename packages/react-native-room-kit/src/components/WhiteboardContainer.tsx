@@ -10,7 +10,7 @@ import { Whiteboard } from './Whiteboard';
 export type WhiteboardContainerProps = {};
 
 export const _WhiteboardContainer = React.forwardRef<
-  React.ElementRef<typeof WebView>,
+  React.RefObject<React.ElementRef<typeof WebView> | null>,
   WhiteboardContainerProps
 >((_props, webviewRef) => {
   const fullScreenWhiteboard = useSelector(
