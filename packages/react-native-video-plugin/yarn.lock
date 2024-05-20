@@ -59,6 +59,7 @@ __metadata:
     turbo: ^1.10.7
     typescript: ^5.2.2
   peerDependencies:
+    "@100mslive/react-native-hms": ^1.10.5
     react: "*"
     react-native: "*"
   languageName: unknown

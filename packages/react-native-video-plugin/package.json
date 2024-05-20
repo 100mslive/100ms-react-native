@@ -77,6 +77,7 @@
     "@types/react": "^18.2.44"
   },
   "peerDependencies": {
+    "@100mslive/react-native-hms": "^1.10.5",
     "react": "*",
     "react-native": "*"
   },
