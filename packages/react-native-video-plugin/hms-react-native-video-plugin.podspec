@@ -3,6 +3,8 @@ require "json"
 package = JSON.parse(File.read(File.join(__dir__, "package.json")))
 folly_compiler_flags = '-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32'
 
+# min_ios_version_supported = min_ios_version_supported or "12.0"
+
 Pod::Spec.new do |s|
   s.name         = "hms-react-native-video-plugin"
   s.version      = package["version"]
@@ -11,7 +13,7 @@ Pod::Spec.new do |s|
   s.license      = package["license"]
   s.authors      = package["author"]
 
-  s.platforms    = { :ios => min_ios_version_supported }
+  s.platforms    = { :ios => "12.0" }
   s.source       = { :git => "https://github.com/100mslive/react-native-hms.git", :tag => "#{s.version}" }
 
   s.source_files = "ios/**/*.{h,m,mm,swift}"

@@ -4,9 +4,11 @@ const escape = require('escape-string-regexp');
 
 const rnrkLibRoot = path.resolve(__dirname, '..');
 const rnhmsLibRoot = path.resolve(__dirname, '../../react-native-hms');
+const rnvpLibRoot = path.resolve(__dirname, '../../react-native-video-plugin');
 
 const rnrkLibPackageJson = require('../package.json');
 const rnhmsLibPackageJson = require('../../react-native-hms/package.json');
+const rnvpLibPackageJson = require('../../react-native-video-plugin/package.json');
 
 const rnrkModules = Object.keys({
   ...rnrkLibPackageJson.peerDependencies,
@@ -16,29 +18,44 @@ const rnhmsModules = Object.keys({
   ...rnhmsLibPackageJson.peerDependencies,
 });
 
+const rnvpModules = Object.keys({
+  ...rnvpLibPackageJson.peerDependencies,
+});
+
 module.exports = {
   projectRoot: __dirname,
-  watchFolders: [rnrkLibRoot, rnhmsLibRoot],
+  watchFolders: [rnrkLibRoot, rnhmsLibRoot, rnvpLibRoot],
 
   resolver: {
     blockList: blacklist([
       ...rnrkModules.map(
-        (m) =>
+        m =>
           new RegExp(
-            `^${escape(path.join(rnrkLibRoot, 'node_modules', m))}\\/.*$`
-          )
+            `^${escape(path.join(rnrkLibRoot, 'node_modules', m))}\\/.*$`,
+          ),
       ),
       ...rnhmsModules.map(
-        (m) =>
+        m =>
           new RegExp(
-            `^${escape(path.join(rnhmsLibRoot, 'node_modules', m))}\\/.*$`
-          )
+            `^${escape(path.join(rnhmsLibRoot, 'node_modules', m))}\\/.*$`,
+          ),
+      ),
+      ...rnvpModules.map(
+        m =>
+          new RegExp(
+            `^${escape(path.join(rnvpLibRoot, 'node_modules', m))}\\/.*$`,
+          ),
       ),
     ]),
 
     extraNodeModules: [
       ...new Set([
-        ...rnrkModules.filter((module) => module !== rnhmsLibPackageJson.name),
+        ...rnrkModules.filter(
+          module =>
+            module !== rnhmsLibPackageJson.name ||
+            module !== rnvpLibPackageJson.name,
+        ),
+        ...rnvpModules.filter(module => module !== rnhmsLibPackageJson.name),
         ...rnhmsModules,
       ]),
     ].reduce((acc, name) => {

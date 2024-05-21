@@ -21,6 +21,7 @@ target 'RNExample' do
   )
 
   pod 'react-native-hms', :path => '../../../react-native-hms'
+  pod 'hms-react-native-video-plugin', :path => '../../../react-native-video-plugin'
   pod 'Permission-Camera', :path => "#{permissions_path}/Camera"
   pod 'Permission-Microphone', :path => "#{permissions_path}/Microphone"
 

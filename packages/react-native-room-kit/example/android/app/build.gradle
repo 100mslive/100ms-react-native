@@ -251,6 +251,8 @@ dependencies {
     implementation project(':reactnativehmssdk')
 
     implementation project(':react-native-lottie-splash-screen')
+
+    implementation project(':reactnativevideoplugin')
 }
 
 // Run this once to be able to run the application with BUCK
