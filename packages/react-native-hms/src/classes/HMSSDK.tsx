@@ -132,6 +132,23 @@ export class HMSSDK {
       },
       logSettings: params?.logSettings,
     });
+    const videoPlugin = params?.trackSettings?.video?.videoPlugin;
+    if (Platform.OS === 'android' && videoPlugin) {
+      try {
+        // @ts-ignore:next-line
+        const { ReactNativeVideoPluginModule } = await import(
+          '@100mslive/react-native-video-plugin'
+        );
+        const result =
+          await ReactNativeVideoPluginModule.instantiateVideoPlugin({
+            id,
+            videoPlugin,
+          });
+        console.log('# Instantiated Video Plugin on Android: ', result);
+      } catch (error) {
+        console.warn(error);
+      }
+    }
     HmsSdk = new HMSSDK(id);
     return HmsSdk;
   }

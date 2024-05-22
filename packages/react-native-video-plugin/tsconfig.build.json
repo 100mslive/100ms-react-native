@@ -1,4 +1,9 @@
 {
   "extends": "./tsconfig",
+  "compilerOptions": {
+    "paths": {
+      "@100mslive/react-native-video-plugin": ["./src/index"]
+    }
+  },
   "exclude": ["example"]
 }

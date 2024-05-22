@@ -6,7 +6,7 @@ const LINKING_ERROR =
   '- You rebuilt the app after installing the package\n' +
   '- You are not using Expo Go\n';
 
-const ReactNativeVideoPlugin = NativeModules.ReactNativeVideoPlugin
+export const ReactNativeVideoPluginModule = NativeModules.ReactNativeVideoPlugin
   ? NativeModules.ReactNativeVideoPlugin
   : new Proxy(
       {},
@@ -16,7 +16,3 @@ const ReactNativeVideoPlugin = NativeModules.ReactNativeVideoPlugin
         },
       }
     );
-
-export function multiply(a: number, b: number): Promise<number> {
-  return ReactNativeVideoPlugin.multiply(a, b);
-}

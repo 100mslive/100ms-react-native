@@ -238,6 +238,15 @@ export const HMSRoomSetup = () => {
   // HMS Preview Listener
   useEffect(() => {
     const onPreviewHandler = (data: PreviewData) => {
+      const reduxState = reduxStore.getState();
+
+      const videoPlugin = reduxState.hmsStates.videoPlugin;
+      if (videoPlugin) {
+        setTimeout(() => {
+          videoPlugin.enable();
+        }, 10000);
+      }
+
       setLoading(false);
       batch(() => {
         dispatch(setHMSRoomState(data.room));

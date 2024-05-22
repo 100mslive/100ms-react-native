@@ -16,6 +16,7 @@ import type {
   HMSSpeaker,
   HMSWhiteboard,
 } from '@100mslive/react-native-hms';
+import type { HMSVirtualBackgroundPlugin } from '@100mslive/react-native-video-plugin';
 import type { Layout } from '@100mslive/types-prebuilt';
 
 import type {
@@ -443,6 +444,11 @@ export const setNoiseCancellationPlugin = (
 ) => ({
   type: HmsStateActionTypes.SET_NOISE_CANCELLATION_PLUGIN,
   noiseCancellationPlugin,
+});
+
+export const setVideoPlugin = (videoPlugin: HMSVirtualBackgroundPlugin) => ({
+  type: HmsStateActionTypes.SET_VIDEO_PLUGIN,
+  videoPlugin,
 });
 
 export const setWhiteboard = (whiteboard: HMSWhiteboard | null) => ({

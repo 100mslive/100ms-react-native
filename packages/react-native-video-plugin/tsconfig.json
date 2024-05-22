@@ -1,8 +1,9 @@
 {
   "compilerOptions": {
-    "rootDir": ".",
+    "baseUrl": "./",
     "paths": {
-      "@100mslive/react-native-video-plugin": ["./src/index"]
+      "@100mslive/react-native-video-plugin": ["./src/index"],
+      "@100mslive/react-native-hms": ["../react-native-hms/src"]
     },
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,

@@ -763,6 +763,30 @@ class HMSManager: RCTEventEmitter {
         rnsdk.isNoiseCancellationPluginAvailable(data, resolve, reject)
     }
 
+    // MARK: - Video Plugin Functions
+
+    @objc
+    func enableVideoPlugin( _ data: NSDictionary,
+                            _ resolve: RCTPromiseResolveBlock?,
+                            _ reject: RCTPromiseRejectBlock?) {
+        guard let rnsdk = HMSHelper.getHms(data, hmsCollection) else {
+            reject?("6004", "HMSRNSDK instance not found!", nil)
+            return
+        }
+        rnsdk.enableVideoPlugin(data, resolve, reject)
+    }
+
+    @objc
+    func disableVideoPlugin(_ data: NSDictionary,
+                            _ resolve: RCTPromiseResolveBlock?,
+                            _ reject: RCTPromiseRejectBlock?) {
+        guard let rnsdk = HMSHelper.getHms(data, hmsCollection) else {
+            reject?("6004", "HMSRNSDK instance not found!", nil)
+            return
+        }
+        rnsdk.disableVideoPlugin(data, resolve, reject)
+    }
+
     // MARK: - Interactivity Center - Whiteboard
     @objc
     func startWhiteboard(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {

@@ -92,5 +92,7 @@ dependencies {
   implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
   implementation project(":reactnativehmssdk")
+  implementation "live.100ms:virtual-background:2.9.56"
+  implementation "live.100ms:android-sdk:2.9.56"
 }
 

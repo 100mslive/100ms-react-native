@@ -33,6 +33,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     private var peerListIterators = [String: HMSPeerListIterator]()
     private var roomMutedLocally = false
     private var noiseCancellationPlugin: HMSNoiseCancellationPlugin?
+    private var videoPlugin: HMSVideoPlugin?
 
     // MARK: - Setup
     init(data: NSDictionary?, delegate manager: HMSManager?, uid id: String) {
@@ -41,19 +42,33 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         self.id = id
         DispatchQueue.main.async { [weak self] in
             var noiseCancellationPlugin: HMSNoiseCancellationPlugin?
+            var videoPlugin: HMSVideoPlugin?
 
             self?.hms = HMSSDK.build { sdk in
                 sdk.appGroup = data?.value(forKey: "appGroup") as? String
                 sdk.frameworkInfo = HMSHelper.getFrameworkInfo(data?.value(forKey: "frameworkInfo") as? NSDictionary)
-                let trackSettings = data?.value(forKey: "trackSettings") as? NSDictionary
-                let videoSettings = HMSHelper.getLocalVideoSettings(trackSettings?.value(forKey: "video") as? NSDictionary)
-                let audioSettingsDict = trackSettings?.value(forKey: "audio") as? NSDictionary
+                let trackSettingsDict = data?.value(forKey: "trackSettings") as? NSDictionary
+
+                // Video track settings
+                let videoSettingsDict = trackSettingsDict?.value(forKey: "video") as? NSDictionary
+                let videoPluginDict = videoSettingsDict?.value(forKey: "videoPlugin") as? NSDictionary
+                videoPlugin = HMSHelper.getHMSVideoPlugin(videoPluginDict)
+
+                let videoSettings = HMSHelper.getLocalVideoSettings(videoSettingsDict, videoPlugin)
+
+                // Audio track settings
+                let audioSettingsDict = trackSettingsDict?.value(forKey: "audio") as? NSDictionary
+
                 let value = audioSettingsDict?.value(forKey: "noiseCancellationPlugin") as? NSDictionary
                 noiseCancellationPlugin = HMSHelper.getHMSNoiseCancellationPlugin(value)
+
                 let audioSettings = HMSHelper.getLocalAudioSettings(audioSettingsDict, noiseCancellationPlugin, sdk, self?.delegate, id)
+
+                // Track Settings
                 sdk.trackSettings = HMSTrackSettings(videoSettings: videoSettings, audioSettings: audioSettings)
             }
             self?.noiseCancellationPlugin = noiseCancellationPlugin
+            self?.videoPlugin = videoPlugin
             if let hms = self?.hms {
                 self?.interactivity = HMSRNInteractivityCenter(
                     hmssdk: hms,
@@ -2151,6 +2166,32 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         }
         let isAvailable = noiseCancellationPlugin.isNoiseCancellationAvailable
         resolve?(isAvailable)
+    }
+
+    // MARK: - Video Plugins Functions
+
+    func enableVideoPlugin(_ data: NSDictionary,
+                           _ resolve: RCTPromiseResolveBlock?,
+                           _ reject: RCTPromiseRejectBlock?) {
+        guard let videoPlugin = self.videoPlugin else {
+            let errorMessage = "\(#function) videoPlugin instance is not available!"
+            reject?("6004", errorMessage, nil)
+            return
+        }
+        videoPlugin.activate()
+        resolve?(true)
+    }
+
+    func disableVideoPlugin(_ data: NSDictionary,
+                            _ resolve: RCTPromiseResolveBlock?,
+                            _ reject: RCTPromiseRejectBlock?) {
+        guard let videoPlugin = self.videoPlugin else {
+            let errorMessage = "\(#function) videoPlugin instance is not available!"
+            reject?("6004", errorMessage, nil)
+            return
+        }
+        videoPlugin.deactivate()
+        resolve?(true)
     }
 
     // MARK: - Helper Functions
