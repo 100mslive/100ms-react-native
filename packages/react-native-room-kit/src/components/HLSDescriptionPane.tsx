@@ -16,6 +16,7 @@ import {
 import { HLSAnimatedDescriptionPane } from './HLSAnimatedDescriptionPane';
 import { setHlsDescriptionPaneVisible } from '../redux/actions';
 import type { RootState } from '../redux';
+import { splitLinksAndContent } from '../utils/functions';
 
 interface HLSDescriptionPaneProps {}
 
@@ -74,7 +75,7 @@ export const HLSDescriptionPane: React.FC<HLSDescriptionPaneProps> = () => {
   const handleLinkPress = async (url: string) => {
     const canOpen = await Linking.canOpenURL(url);
     if (canOpen) {
-      Linking.openURL(url);
+      await Linking.openURL(url);
     }
   };
 
@@ -134,35 +135,3 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
   },
 });
-
-function splitLinksAndContent(
-  text: string,
-  { pressHandler, style }: any
-): string | (string | React.ReactElement)[] {
-  // Regular expression to find links in a string
-  const pattern = /http[s]?:\/\/\S+/g;
-
-  // Find all links in the text
-  const links = text.match(pattern) || [];
-
-  if (links.length <= 0) {
-    return text;
-  }
-
-  // Split the text into an array of links and content
-  const parts = text.replace(pattern, '^<link>^').split('^');
-
-  return parts.map((p, i) => {
-    if (p !== '<link>') {
-      return p;
-    }
-    const link = links.pop();
-    return link ? (
-      <Text key={link + i} onPress={() => pressHandler(link)} style={style}>
-        {link}
-      </Text>
-    ) : (
-      p
-    );
-  });
-}
