@@ -508,6 +508,11 @@ export const setAndroidHLSStreamPaused = (paused: boolean) => ({
   payload: { hlsStreamPaused_android: paused },
 });
 
+export const setSelectedVirtualBackground = (vb: string | null) => ({
+  type: actionTypes.SET_SELECTED_VIRTUAL_BG,
+  payload: { selectedVirtualBackground: vb },
+});
+
 /**
  * POLLS
  */

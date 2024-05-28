@@ -23,6 +23,7 @@ import {
   setInitialRole,
   setLocalPeerTrackNode,
   setMiniViewPeerTrackNode,
+  setSelectedVirtualBackground,
   setWhiteboard,
   updateLocalPeerTrackNode,
 } from './redux/actions';
@@ -237,22 +238,29 @@ export const HMSRoomSetup = () => {
 
   // HMS Preview Listener
   useEffect(() => {
-    const onPreviewHandler = (data: PreviewData) => {
+    const setupVideoPlugin = async () => {
       const reduxState = reduxStore.getState();
-
       const videoPlugin = reduxState.hmsStates.videoPlugin;
-      if (videoPlugin) {
-        setTimeout(() => {
-          videoPlugin.enable();
-        }, 10000);
-      }
+      const selectedVirtualBG = reduxState.app.selectedVirtualBackground;
 
+      if (!videoPlugin) return;
+
+      if (selectedVirtualBG === null) {
+        await videoPlugin.enable();
+      }
+      await videoPlugin.setBlur(100);
+      dispatch(setSelectedVirtualBackground('blur'));
+    };
+
+    const onPreviewHandler = (data: PreviewData) => {
       setLoading(false);
       batch(() => {
         dispatch(setHMSRoomState(data.room));
         dispatch(setHMSLocalPeerState(data.room.localPeer));
         dispatch(changeMeetingState(MeetingState.IN_PREVIEW));
       });
+
+      setupVideoPlugin();
     };
 
     hmsInstance.addEventListener(

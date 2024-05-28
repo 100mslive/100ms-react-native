@@ -161,7 +161,7 @@ export const HMSInstanceSetup = () => {
       clearConfig();
 
       const noiseCancellationPlugin = new HMSNoiseCancellationPlugin();
-      const videoPlugin = new HMSVirtualBackgroundPlugin('blur');
+      const videoPlugin = new HMSVirtualBackgroundPlugin();
 
       getHmsInstance(noiseCancellationPlugin, videoPlugin)
         .then((hmssdkInstance) => {

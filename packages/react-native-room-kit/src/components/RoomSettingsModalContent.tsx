@@ -16,6 +16,7 @@ import {
   PollVoteIcon,
   RecordingIcon,
   ScreenShareIcon,
+  VirtualBackgroundIcon,
   WaveIcon,
 } from '../Icons';
 import { BottomSheet, useBottomSheetActions } from './BottomSheet';
@@ -261,6 +262,27 @@ export const RoomSettingsModalContent: React.FC<
   };
   // #endregion
 
+  // #region Virtual Background
+  const videoPlugin = useSelector(
+    (state: RootState) => state.hmsStates.videoPlugin
+  );
+  const isLocalVideoMuted = useSelector(
+    (state: RootState) => state.hmsStates.isLocalVideoMuted
+  );
+  const virtualBackgroundApplied = useSelector(
+    (state: RootState) => state.app.selectedVirtualBackground !== null
+  );
+  const handleVirtualBackground = () => {
+    // Register callback to be called when bottom sheet is hiddden
+    registerOnModalHideAction(() => {
+      if (!videoPlugin || isLocalVideoMuted) return;
+      setModalVisible(ModalTypes.VIRTUAL_BACKGROUND);
+    });
+    // Close the current bottom sheet
+    closeRoomSettingsModal();
+  };
+  // #endregion
+
   const changeName = () => {
     // Register callback to be called when bottom sheet is hiddden
     registerOnModalHideAction(() => {
@@ -479,6 +501,15 @@ export const RoomSettingsModalContent: React.FC<
               isActive: isNoiseCancellationEnabled,
               hide: !showNoiseCancellationButton,
               disabled: isLocalAudioMuted,
+            },
+            {
+              id: 'virtual-background',
+              icon: <VirtualBackgroundIcon style={{ width: 20, height: 20 }} />,
+              label: 'Virtual Background',
+              pressHandler: handleVirtualBackground,
+              isActive: virtualBackgroundApplied,
+              hide: !videoPlugin,
+              disabled: isLocalVideoMuted,
             },
           ].filter((itm) => !itm.hide),
           true

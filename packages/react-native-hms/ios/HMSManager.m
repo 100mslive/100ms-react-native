@@ -365,6 +365,16 @@ RCT_EXTERN_METHOD(disableVideoPlugin
                   : (RCTPromiseResolveBlock)resolve
                   : (RCTPromiseRejectBlock)reject)
 
+RCT_EXTERN_METHOD(changeVirtualBackground
+                  : (NSDictionary)data
+                  : (RCTPromiseResolveBlock)resolve
+                  : (RCTPromiseRejectBlock)reject)
+
+RCT_EXTERN_METHOD(setVideoFilterParameter
+                  : (NSDictionary)data
+                  : (RCTPromiseResolveBlock)resolve
+                  : (RCTPromiseRejectBlock)reject)
+
 #pragma mark - Interactivity Center - Whiteboard
 
 RCT_EXTERN_METHOD(startWhiteboard

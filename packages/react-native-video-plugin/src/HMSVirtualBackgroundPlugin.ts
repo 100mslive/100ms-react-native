@@ -1,75 +1,63 @@
-// import { HMSConstants } from '../HMSConstants';
-// import { logger } from '../HMSLogger';
-import { Platform } from 'react-native';
-import { HMSManagerModule } from '@100mslive/react-native-hms';
-import { ReactNativeVideoPluginModule } from './modules/ReactNativeVideoPluginModule';
+import { Image } from 'react-native';
+import type {
+  ImageRequireSource,
+  ImageResolvedAssetSource,
+} from 'react-native';
 
-type HMSVirtualBackgroundPluginBackground = 'blur';
+import { HMSVideoPlugin } from './HMSVideoPlugin';
 
-export class HMSVirtualBackgroundPlugin {
-  background: HMSVirtualBackgroundPluginBackground;
+export class HMSVirtualBackgroundPlugin extends HMSVideoPlugin {
+  static NAME = 'HMSVirtualBackgroundPlugin';
 
-  constructor(background: HMSVirtualBackgroundPluginBackground | any) {
-    if (background === 'blur') {
-      this.background = background;
-    } else {
-      const resolveAssetSource = require('react-native/Libraries/Image/resolveAssetSource');
-      this.background = resolveAssetSource(background);
-    }
+  constructor() {
+    super(HMSVirtualBackgroundPlugin.NAME);
   }
 
   /**
-   * Enables video plugin.
-   * @returns {Promise<boolean>} A promise that resolves to true when video plugin is enabled, otherwise, rejected promise is returned
+   * Sets Blur as background
+   * @returns {Promise<boolean>} A promise that resolves to true when blur effect has been applied as background, otherwise, rejected promise is returned
    */
-  async enable(): Promise<boolean> {
-    // const data = { id: HMSConstants.DEFAULT_SDK_ID };
-    const data = { id: '12345' };
-    // logger?.verbose('#Function HMSVirtualBackgroundPlugin#enable', data);
-    console.log('#Function HMSVirtualBackgroundPlugin#enable', data);
-
-    try {
-      let nativeModule =
-        Platform.OS === 'android'
-          ? ReactNativeVideoPluginModule
-          : HMSManagerModule;
-      return nativeModule.enableVideoPlugin(data);
-    } catch (e) {
-      // logger?.error(
-      //   '#Error in #Function HMSVirtualBackgroundPlugin#enable ',
-      //   e
-      // );
-      console.warn('#Error in #Function HMSVirtualBackgroundPlugin#enable ', e);
-      return Promise.reject(e);
-    }
+  setBlur(blurRadius: number): Promise<boolean> {
+    const data = {
+      id: '12345',
+      background: { type: 'blur', blurRadius },
+    };
+    return this.nativeModule.changeVirtualBackground(data);
   }
 
   /**
-   * Disable video plugin.
-   * @returns {Promise<boolean>} A promise that resolves to true when video plugin is disabled, otherwise, rejected promise is returned
+   * Sets provided image as background
+   * @param background An image to apply as background on
+   * @returns {Promise<boolean>} A promise that resolves to true when provided background image has been applied as background, otherwise, rejected promise is returned
+   *
+   * Example Usage:
+   * ```
+   * // Create instance of `HMSVirtualBackgroundPlugin` class
+   * const hmsVirtualBackgroundPlugin = HMSVirtualBackgroundPlugin();
+   * ...
+   * // In ON_PREVIEW or ON_JOIN event callback method
+   * const image = require('path to image file');
+   * hmsVirtualBackgroundPlugin.setBackground(image);
+   *
+   *
+   * ```
    */
-  async disable(): Promise<boolean> {
-    // const data = { id: HMSConstants.DEFAULT_SDK_ID };
-    const data = { id: '12345' };
-    // logger?.verbose('#Function HMSVirtualBackgroundPlugin#disable', data);
-    console.log('#Function HMSVirtualBackgroundPlugin#disable', data);
-
-    try {
-      let nativeModule =
-        Platform.OS === 'android'
-          ? ReactNativeVideoPluginModule
-          : HMSManagerModule;
-      return nativeModule.disableVideoPlugin(data);
-    } catch (e) {
-      // logger?.error(
-      //   '#Error in #Function HMSVirtualBackgroundPlugin#disable ',
-      //   e
-      // );
-      console.warn(
-        '#Error in #Function HMSVirtualBackgroundPlugin#disable ',
-        e
-      );
-      return Promise.reject(e);
-    }
+  setBackground(backgroundImage: ImageRequireSource): Promise<boolean> {
+    const background = resolveBackground(backgroundImage);
+    const data = {
+      id: '12345',
+      background,
+    };
+    return this.nativeModule.changeVirtualBackground(data);
   }
+}
+
+function resolveBackground(background: ImageRequireSource): {
+  type: 'image';
+  source: ImageResolvedAssetSource;
+} {
+  return {
+    type: 'image',
+    source: Image.resolveAssetSource(background),
+  };
 }

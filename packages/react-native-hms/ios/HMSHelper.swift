@@ -293,25 +293,27 @@ class HMSHelper: NSObject {
     }
 
     static func getHMSVideoPlugin(_ videoPluginData: NSDictionary?) -> HMSVideoPlugin? {
-        guard let videoPluginData = videoPluginData
-        else {
+        guard let videoPluginDict = videoPluginData else {
             print(#function, "No Video Plugin data passed!")
             return nil
         }
-        guard let backgroundType = videoPluginData.value(forKey: "background") as? String else {
-            print(#function, "Noise Cancellation Model Name not passed!")
+        guard let videoPluginType = videoPluginDict.value(forKey: "type") as? String else {
+            print(#function, "No HMSVideoPlugin `type` passed!")
             return nil
         }
-        return if #available(iOS 15.0, *) {
-            if backgroundType == "blur" {
-                HMSVirtualBackgroundPlugin(backgroundImage: nil)
+        switch videoPluginType {
+        case "HMSVirtualBackgroundPlugin":
+            if #available(iOS 15.0, *) {
+                return HMSVirtualBackgroundPlugin(backgroundImage: nil)
             } else {
-                if let image = RCTConvert.uiImage(backgroundType) {
-                    HMSVirtualBackgroundPlugin(backgroundImage: image)
-                } else {nil}
+                print(#function, "HMSVirtualBackgroundPlugin is not available below iOS 15.0")
+                return nil
             }
-        } else {
-            nil
+        case "HMSVideoFilterPlugin":
+            return HMSVideoFilterPlugin()
+        default:
+            print(#function, "Unknown HMSVideoPlugin `type` passed!")
+            return nil
         }
     }
 
