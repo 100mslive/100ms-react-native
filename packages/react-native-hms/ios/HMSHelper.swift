@@ -304,7 +304,7 @@ class HMSHelper: NSObject {
         switch videoPluginType {
         case "HMSVirtualBackgroundPlugin":
             if #available(iOS 15.0, *) {
-                return HMSVirtualBackgroundPlugin(backgroundImage: nil)
+                return HMSVirtualBackgroundPlugin(backgroundImage: nil, blurRadius: 100)
             } else {
                 print(#function, "HMSVirtualBackgroundPlugin is not available below iOS 15.0")
                 return nil

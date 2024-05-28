@@ -143,51 +143,32 @@ class ReactNativeVideoPluginModule(reactContext: ReactApplicationContext) :
     data: ReadableMap,
     promise: Promise?,
   ) {
-    val hmsRnSDK = getHmsRNSdk(data)
-    if (hmsRnSDK == null) {
-      promise?.reject("6004", "HMSRNSDK not initialized")
-      return
-    }
-    val hmsSDK = hmsRnSDK.hmsSDK
-    if (hmsSDK == null) {
-      promise?.reject("6004", "HMSSDK not initialized")
-      return
-    }
-    val pluginType = data.getString("type")
-    if (pluginType == null) {
-      promise?.reject("6004", "`type` not passed")
-      return
-    }
-    when (pluginType) {
-      "HMSVirtualBackgroundPlugin" -> {
-        val addPluginListener =
-          object : HMSActionResultListener {
-            override fun onError(error: HMSException) {
-              promise?.reject(error.code.toString(), error.message)
-            }
+    val hmsSDK = getHmsRNSdk(data)?.hmsSDK ?: return promise?.reject("6004", "SDK not initialized").let { }
+    val pluginType = data.getString("type") ?: return promise?.reject("6004", "`type` not passed").let { }
 
-            override fun onSuccess() {
-              promise?.resolve(true)
-            }
+    if (pluginType == "HMSVirtualBackgroundPlugin") {
+      val addPluginListener =
+        object : HMSActionResultListener {
+          override fun onError(error: HMSException) {
+            promise?.reject(error.code.toString(), error.message)
           }
-        var virtualBackgroundPlugin = this.virtualBackgroundPlugin
-        if (virtualBackgroundPlugin != null) {
-          hmsSDK.addPlugin(
-            virtualBackgroundPlugin,
-            addPluginListener,
-          )
-        } else {
-          virtualBackgroundPlugin = HMSVirtualBackground(hmsSDK)
-          this.virtualBackgroundPlugin = virtualBackgroundPlugin
-          hmsSDK.addPlugin(
-            virtualBackgroundPlugin,
-            addPluginListener,
-          )
+
+          override fun onSuccess() {
+            promise?.resolve(true)
+          }
+        }
+
+      virtualBackgroundPlugin?.let {
+        hmsSDK.addPlugin(it, addPluginListener)
+      } ?: run {
+        HMSVirtualBackground(hmsSDK).apply {
+          enableBlur(75)
+          virtualBackgroundPlugin = this
+          hmsSDK.addPlugin(this, addPluginListener)
         }
       }
-      else -> {
-        promise?.reject("6004", "Unknown `type` passed")
-      }
+    } else {
+      promise?.reject("6004", "Unknown `type` passed")
     }
   }
 

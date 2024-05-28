@@ -15,17 +15,17 @@ module.exports = {
           [rnrkLibPackageJson.name]: path.join(
             __dirname,
             '..',
-            rnrkLibPackageJson.source,
+            rnrkLibPackageJson.source
           ),
           [rnhmsLibPackageJson.name]: path.join(
             __dirname,
             '../../react-native-hms',
-            rnhmsLibPackageJson.source,
+            rnhmsLibPackageJson.source
           ),
           [rnvpLibPackageJson.name]: path.join(
             __dirname,
             '../../react-native-video-plugin',
-            rnvpLibPackageJson.source,
+            rnvpLibPackageJson.source
           ),
         },
       },
