@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Platform,
   TouchableOpacity,
+  Linking,
 } from 'react-native';
 import type { HMSMessage } from '@100mslive/react-native-hms';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
@@ -20,6 +21,7 @@ import { PinIcon, ThreeDotsIcon } from '../Icons';
 import { setSelectedMessageForAction } from '../redux/actions';
 import { ModalTypes } from '../utils/types';
 import type { RootState } from '../redux';
+import { splitLinksAndContent } from '../utils/functions';
 
 interface HMSMessageProps {
   message: HMSMessage;
@@ -66,6 +68,9 @@ const _HMSOverlayMessageView: React.FC<HMSMessageProps> = ({ message }) => {
       pinnedLabel: {
         color: '#ffffff',
       },
+      link: {
+        color: _theme.palette.primary_bright,
+      },
     }),
     []
   );
@@ -83,6 +88,13 @@ const _HMSOverlayMessageView: React.FC<HMSMessageProps> = ({ message }) => {
     (canRemoveOthers &&
       message.sender &&
       message.sender.peerID !== localPeerId); // can remove participants
+
+  const handleLinkPress = async (url: string) => {
+    const canOpen = await Linking.canOpenURL(url);
+    if (canOpen) {
+      await Linking.openURL(url);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -126,7 +138,10 @@ const _HMSOverlayMessageView: React.FC<HMSMessageProps> = ({ message }) => {
       </View>
 
       <Text style={[styles.message, hmsRoomStyles.message]}>
-        {message.message}
+        {splitLinksAndContent(message.message, {
+          pressHandler: handleLinkPress,
+          style: hmsRoomStyles.link,
+        })}
       </Text>
     </View>
   );

@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Platform,
   TouchableOpacity,
+  Linking,
 } from 'react-native';
 import type { HMSMessage } from '@100mslive/react-native-hms';
 
@@ -19,6 +20,7 @@ import { PinIcon, ThreeDotsIcon } from '../Icons';
 import { setSelectedMessageForAction } from '../redux/actions';
 import { ModalTypes } from '../utils/types';
 import type { RootState } from '../redux';
+import { splitLinksAndContent } from '../utils/functions';
 
 interface HMSHLSMessageProps {
   message: HMSMessage;
@@ -63,6 +65,9 @@ const _HMSHLSMessage: React.FC<HMSHLSMessageProps> = ({ message }) => {
       pinnedLabel: {
         color: '#ffffff',
       },
+      link: {
+        color: theme.palette.primary_bright,
+      },
     }),
     []
   );
@@ -80,6 +85,13 @@ const _HMSHLSMessage: React.FC<HMSHLSMessageProps> = ({ message }) => {
     (canRemoveOthers &&
       message.sender &&
       message.sender.peerID !== localPeerId); // can remove participants
+
+  const handleLinkPress = async (url: string) => {
+    const canOpen = await Linking.canOpenURL(url);
+    if (canOpen) {
+      await Linking.openURL(url);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -106,7 +118,10 @@ const _HMSHLSMessage: React.FC<HMSHLSMessageProps> = ({ message }) => {
             {'   '}
           </Text>
 
-          {message.message}
+          {splitLinksAndContent(message.message, {
+            pressHandler: handleLinkPress,
+            style: hmsRoomStyles.link,
+          })}
         </Text>
 
         {canTakeAction ? (

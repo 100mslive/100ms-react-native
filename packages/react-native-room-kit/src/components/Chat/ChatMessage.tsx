@@ -5,6 +5,7 @@ import {
   StyleSheet,
   Platform,
   TouchableOpacity,
+  Linking,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { HMSMessage } from '@100mslive/react-native-hms';
@@ -14,7 +15,10 @@ import {
   useAllowPinningMessage,
   useHMSRoomStyleSheet,
 } from '../../hooks-util';
-import { getTimeStringin12HourFormat } from '../../utils/functions';
+import {
+  getTimeStringin12HourFormat,
+  splitLinksAndContent,
+} from '../../utils/functions';
 import { PinIcon, ThreeDotsIcon } from '../../Icons';
 import type { RootState } from '../../redux';
 import { setSelectedMessageForAction } from '../../redux/actions';
@@ -63,6 +67,9 @@ const _ChatMessage: React.FC<HMSHLSMessageProps> = ({ message }) => {
         color: theme.palette.on_surface_low,
         fontFamily: `${typography.font_family}-SemiBold`,
       },
+      link: {
+        color: theme.palette.primary_bright,
+      },
     }),
     []
   );
@@ -81,6 +88,13 @@ const _ChatMessage: React.FC<HMSHLSMessageProps> = ({ message }) => {
     (canRemoveOthers &&
       message.sender &&
       message.sender.peerID !== localPeerId); // can remove participants
+
+  const handleLinkPress = async (url: string) => {
+    const canOpen = await Linking.canOpenURL(url);
+    if (canOpen) {
+      await Linking.openURL(url);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -126,7 +140,10 @@ const _ChatMessage: React.FC<HMSHLSMessageProps> = ({ message }) => {
       </View>
 
       <Text style={[styles.message, hmsRoomStyles.message]}>
-        {message.message}
+        {splitLinksAndContent(message.message, {
+          pressHandler: handleLinkPress,
+          style: hmsRoomStyles.link,
+        })}
       </Text>
     </View>
   );
