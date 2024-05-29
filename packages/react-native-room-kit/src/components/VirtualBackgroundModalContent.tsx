@@ -6,16 +6,19 @@ import {
   ScrollView,
   StyleSheet,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { HMSTrackType, HMSVideoViewMode } from '@100mslive/react-native-hms';
 
 import { BottomSheet } from './BottomSheet';
 import { CloseIcon } from '../Icons';
-import { useHMSRoomStyleSheet } from '../hooks-util';
+import { useHMSRoomColorPalette, useHMSRoomStyleSheet } from '../hooks-util';
 import { VideoView } from './PeerVideoTile/VideoView';
 import type { RootState } from '../redux';
 import { setSelectedVirtualBackground } from '../redux/actions';
+import { useState } from 'react';
+import { hexToRgbA } from '../utils/theme';
 
 export interface VirtualBackgroundModalContentProps {
   dismissModal(): void;
@@ -50,7 +53,14 @@ export const VirtualBackgroundModalContent: React.FC<
     inactive: {
       borderColor: theme.palette.surface_bright,
     },
+    loadingContainer: {
+      backgroundColor:
+        theme.palette.background_default &&
+        hexToRgbA(theme.palette.background_default, 0.5),
+    },
   }));
+
+  const { primary_bright: primaryBrightColor } = useHMSRoomColorPalette();
 
   const videoPlugin = useSelector(
     (state: RootState) => state.hmsStates.videoPlugin
@@ -68,23 +78,39 @@ export const VirtualBackgroundModalContent: React.FC<
     }
   };
 
+  const [showLoading, setShowLoading] = useState(false);
+
   const handleBlurEffectPress = async () => {
-    if (videoPlugin) {
-      await videoPlugin.setBlur(100);
-      if (selectedVirtualBG === null) {
-        await videoPlugin.enable();
+    try {
+      if (videoPlugin) {
+        setShowLoading(true);
+        if (selectedVirtualBG === null) {
+          await videoPlugin.enable();
+        }
+        await videoPlugin.setBlur(100);
+        setShowLoading(false);
+        dispatch(setSelectedVirtualBackground('blur'));
       }
-      dispatch(setSelectedVirtualBackground('blur'));
+    } catch (error) {
+      setShowLoading(false);
+      console.error('Error setting blur effect', error);
     }
   };
 
   const handleImagePress = async (asset: { label: string; src: any }) => {
-    if (videoPlugin) {
-      await videoPlugin.setBackground(asset.src);
-      if (selectedVirtualBG === null) {
-        await videoPlugin.enable();
+    try {
+      if (videoPlugin) {
+        setShowLoading(true);
+        if (selectedVirtualBG === null) {
+          await videoPlugin.enable();
+        }
+        await videoPlugin.setBackground(asset.src);
+        setShowLoading(false);
+        dispatch(setSelectedVirtualBackground(asset.label));
       }
-      dispatch(setSelectedVirtualBackground(asset.label));
+    } catch (error) {
+      setShowLoading(false);
+      console.error('Error setting virtual background', error);
     }
   };
 
@@ -234,6 +260,13 @@ export const VirtualBackgroundModalContent: React.FC<
             </View>
           </View>
         </ScrollView>
+        {showLoading && (
+          <View
+            style={[styles.loadingContainer, hmsRoomStyles.loadingContainer]}
+          >
+            <ActivityIndicator size="large" color={primaryBrightColor} />
+          </View>
+        )}
       </View>
     </View>
   );
@@ -270,6 +303,7 @@ const styles = StyleSheet.create({
   // Content
   flexView: {
     flex: 1,
+    position: 'relative',
   },
   scrollView: {
     marginTop: 16,
@@ -319,5 +353,12 @@ const styles = StyleSheet.create({
   backgroundImageContainer: {
     marginHorizontal: 8,
     marginVertical: 8,
+  },
+  loadingContainer: {
+    width: '100%',
+    height: '100%',
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
