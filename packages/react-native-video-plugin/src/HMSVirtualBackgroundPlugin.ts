@@ -27,7 +27,7 @@ export class HMSVirtualBackgroundPlugin extends HMSVideoPlugin {
 
   /**
    * Sets provided image as background
-   * @param background An image to apply as background on
+   * @param backgroundImage An image to apply as background on
    * @returns {Promise<boolean>} A promise that resolves to true when provided background image has been applied as background, otherwise, rejected promise is returned
    *
    * Example Usage:

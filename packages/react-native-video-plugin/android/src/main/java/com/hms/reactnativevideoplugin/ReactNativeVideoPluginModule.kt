@@ -68,21 +68,25 @@ class ReactNativeVideoPluginModule(reactContext: ReactApplicationContext) :
           promise?.reject("6004", "`source.uri` property in background object not passed")
           return
         }
-        val bitmap: Bitmap? =
-          if (backgroundType.startsWith("http")) {
-            val url = URL(backgroundType)
-            BitmapFactory.decodeStream(url.openConnection().getInputStream())
-          } else {
-            val context = reactApplicationContext.applicationContext
-            val resourceId = context.resources.getIdentifier(backgroundType, "drawable", context.packageName)
-            BitmapFactory.decodeResource(context.resources, resourceId)
+        try {
+          val bitmap: Bitmap? =
+            if (bgImageUri.startsWith("http")) {
+              val url = URL(bgImageUri)
+              BitmapFactory.decodeStream(url.openConnection().getInputStream())
+            } else {
+              val context = reactApplicationContext.applicationContext
+              val resourceId = context.resources.getIdentifier(bgImageUri, "drawable", context.packageName)
+              BitmapFactory.decodeResource(context.resources, resourceId)
+            }
+          if (bitmap == null) {
+            promise?.reject("6004", "Image Bitmap cannot be converted from passed `source.uri` in background data!")
+            return
           }
-        if (bitmap == null) {
-          promise?.reject("6004", "Image Bitmap cannot be converted from passed `source.uri` in background data!")
-          return
+          virtualBackgroundPlugin.enableBackground(bitmap)
+          promise?.resolve(true)
+        } catch (e: Exception) {
+          promise?.reject("6004", e.message)
         }
-        virtualBackgroundPlugin.enableBackground(bitmap)
-        promise?.resolve(true)
       }
       else -> {
         promise?.reject("6004", "Unknown `type` property passed in background object")
