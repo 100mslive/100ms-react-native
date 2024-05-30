@@ -12,6 +12,7 @@ const rnvpLibPackageJson = require('../../react-native-video-plugin/package.json
 
 const rnrkModules = Object.keys({
   ...rnrkLibPackageJson.peerDependencies,
+  ...rnrkLibPackageJson.optionalDependencies,
 });
 
 const rnhmsModules = Object.keys({
@@ -29,33 +30,33 @@ module.exports = {
   resolver: {
     blockList: blacklist([
       ...rnrkModules.map(
-        (m) =>
+        m =>
           new RegExp(
-            `^${escape(path.join(rnrkLibRoot, 'node_modules', m))}\\/.*$`
-          )
+            `^${escape(path.join(rnrkLibRoot, 'node_modules', m))}\\/.*$`,
+          ),
       ),
       ...rnhmsModules.map(
-        (m) =>
+        m =>
           new RegExp(
-            `^${escape(path.join(rnhmsLibRoot, 'node_modules', m))}\\/.*$`
-          )
+            `^${escape(path.join(rnhmsLibRoot, 'node_modules', m))}\\/.*$`,
+          ),
       ),
       ...rnvpModules.map(
-        (m) =>
+        m =>
           new RegExp(
-            `^${escape(path.join(rnvpLibRoot, 'node_modules', m))}\\/.*$`
-          )
+            `^${escape(path.join(rnvpLibRoot, 'node_modules', m))}\\/.*$`,
+          ),
       ),
     ]),
 
     extraNodeModules: [
       ...new Set([
         ...rnrkModules.filter(
-          (module) =>
+          module =>
             module !== rnhmsLibPackageJson.name ||
-            module !== rnvpLibPackageJson.name
+            module !== rnvpLibPackageJson.name,
         ),
-        ...rnvpModules.filter((module) => module !== rnhmsLibPackageJson.name),
+        ...rnvpModules.filter(module => module !== rnhmsLibPackageJson.name),
         ...rnhmsModules,
       ]),
     ].reduce((acc, name) => {

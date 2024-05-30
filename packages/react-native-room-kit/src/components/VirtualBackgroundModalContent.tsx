@@ -10,6 +10,8 @@ import {
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { HMSTrackType, HMSVideoViewMode } from '@100mslive/react-native-hms';
+import type { HMSVirtualBackgroundPlugin } from '@100mslive/react-native-video-plugin';
+import { ImagePicker } from '../modules/imagePickerWrapper';
 
 import { BottomSheet } from './BottomSheet';
 import { CloseIcon } from '../Icons';
@@ -80,6 +82,51 @@ export const VirtualBackgroundModalContent: React.FC<
 
   const [showLoading, setShowLoading] = useState(false);
 
+  const handlePhotoLibraryPress = async () => {
+    if (!ImagePicker) {
+      return;
+    }
+    try {
+      const imageLibraryResponse = await ImagePicker.launchImageLibrary({
+        mediaType: 'photo',
+        selectionLimit: 1,
+      });
+      handleImagePickerResponse(imageLibraryResponse);
+    } catch (error) {
+      console.warn(error);
+    }
+  };
+
+  const handleCameraPress = async () => {
+    if (!ImagePicker) {
+      return;
+    }
+    try {
+      const cameraResponse = await ImagePicker.launchCamera({
+        mediaType: 'photo',
+        cameraType: 'back',
+      });
+      handleImagePickerResponse(cameraResponse);
+    } catch (error) {
+      console.warn(error);
+    }
+  };
+
+  const handleImagePickerResponse = (response: any) => {
+    if (response.didCancel) {
+      throw new Error('User cancelled');
+    }
+    if (response.errorCode !== undefined) {
+      throw new Error(response.errorCode, {
+        cause: response.errorMessage,
+      });
+    }
+    const firstAsset = response.assets?.[0];
+    if (firstAsset && firstAsset.uri && firstAsset.fileName) {
+      handleImagePress({ label: firstAsset.fileName, src: firstAsset });
+    }
+  };
+
   const handleBlurEffectPress = async () => {
     try {
       if (videoPlugin) {
@@ -97,7 +144,10 @@ export const VirtualBackgroundModalContent: React.FC<
     }
   };
 
-  const handleImagePress = async (asset: { label: string; src: any }) => {
+  const handleImagePress = async (asset: {
+    label: string;
+    src: Parameters<HMSVirtualBackgroundPlugin['setBackground']>[0];
+  }) => {
     try {
       if (videoPlugin) {
         setShowLoading(true);
@@ -159,7 +209,7 @@ export const VirtualBackgroundModalContent: React.FC<
           style={styles.scrollView}
           contentContainerStyle={styles.scrollContent}
         >
-          <View>
+          <View style={{ marginHorizontal: 24 }}>
             <Text
               style={[hmsRoomStyles.semiBoldSurfaceHigh, styles.normalText]}
             >
@@ -222,13 +272,25 @@ export const VirtualBackgroundModalContent: React.FC<
 
           <View style={styles.backgroundContainer}>
             <Text
-              style={[hmsRoomStyles.semiBoldSurfaceHigh, styles.normalText]}
+              style={[
+                hmsRoomStyles.semiBoldSurfaceHigh,
+                styles.normalText,
+                { marginHorizontal: 24 },
+              ]}
             >
               Backgrounds
             </Text>
 
-            <View style={styles.backgroundImages}>
+            <View style={[styles.backgroundImages, { marginHorizontal: 18 }]}>
               {[
+                {
+                  label: 'Camera',
+                  onPress: handleCameraPress,
+                },
+                {
+                  label: 'Upload',
+                  onPress: handlePhotoLibraryPress,
+                },
                 {
                   label: 'VB-1',
                   src: require('../assets/VB-1.jpg'),
@@ -242,24 +304,52 @@ export const VirtualBackgroundModalContent: React.FC<
                   <TouchableOpacity
                     key={asset.label}
                     activeOpacity={0.8}
-                    onPress={() => handleImagePress(asset)}
-                    style={styles.backgroundImageContainer}
+                    onPress={() => {
+                      const src = asset.src;
+                      if (src) {
+                        handleImagePress({ label: asset.label, src });
+                      } else if (asset.onPress) {
+                        asset.onPress();
+                      }
+                    }}
+                    style={
+                      asset.src
+                        ? styles.backgroundImageContainer
+                        : [
+                            styles.effectButton,
+                            hmsRoomStyles.effectButton,
+                            hmsRoomStyles.inactive,
+                            styles.backgroundImageContainer,
+                          ]
+                    }
                   >
-                    <Image
-                      source={asset.src}
-                      style={[
-                        styles.backgroundImage,
-                        selectedVirtualBG === asset.label
-                          ? hmsRoomStyles.active
-                          : null,
-                      ]}
-                    />
+                    {asset.src ? (
+                      <Image
+                        source={asset.src}
+                        style={[
+                          styles.backgroundImage,
+                          selectedVirtualBG === asset.label
+                            ? hmsRoomStyles.active
+                            : null,
+                        ]}
+                      />
+                    ) : (
+                      <Text
+                        style={[
+                          styles.smallText,
+                          hmsRoomStyles.regularSurfaceMedium,
+                        ]}
+                      >
+                        {asset.label}
+                      </Text>
+                    )}
                   </TouchableOpacity>
                 );
               })}
             </View>
           </View>
         </ScrollView>
+
         {showLoading && (
           <View
             style={[styles.loadingContainer, hmsRoomStyles.loadingContainer]}
@@ -311,7 +401,6 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingTop: 8,
     paddingBottom: 24,
-    paddingHorizontal: 24,
   },
   normalText: {
     fontSize: 14,
@@ -332,7 +421,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
   },
   horizontalSpacing: {
-    marginHorizontal: 16,
+    marginHorizontal: 12,
   },
   backgroundContainer: {
     marginTop: 24,
@@ -351,7 +440,7 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
   },
   backgroundImageContainer: {
-    marginHorizontal: 8,
+    marginHorizontal: 6,
     marginVertical: 8,
   },
   loadingContainer: {
