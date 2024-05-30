@@ -283,14 +283,18 @@ export const VirtualBackgroundModalContent: React.FC<
 
             <View style={[styles.backgroundImages, { marginHorizontal: 18 }]}>
               {[
-                {
-                  label: 'Camera',
-                  onPress: handleCameraPress,
-                },
-                {
-                  label: 'Upload',
-                  onPress: handlePhotoLibraryPress,
-                },
+                ...(ImagePicker
+                  ? [
+                      // {
+                      //   label: 'Camera',
+                      //   onPress: handleCameraPress,
+                      // },
+                      {
+                        label: 'Upload',
+                        onPress: handlePhotoLibraryPress,
+                      },
+                    ]
+                  : []),
                 {
                   label: 'VB-1',
                   src: require('../assets/VB-1.jpg'),
