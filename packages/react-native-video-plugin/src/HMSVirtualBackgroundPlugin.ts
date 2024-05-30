@@ -2,6 +2,7 @@ import { Image } from 'react-native';
 import type {
   ImageRequireSource,
   ImageResolvedAssetSource,
+  ImageURISource,
 } from 'react-native';
 
 import { HMSVideoPlugin } from './HMSVideoPlugin';
@@ -42,7 +43,9 @@ export class HMSVirtualBackgroundPlugin extends HMSVideoPlugin {
    *
    * ```
    */
-  setBackground(backgroundImage: ImageRequireSource): Promise<boolean> {
+  setBackground(
+    backgroundImage: ImageURISource | ImageRequireSource
+  ): Promise<boolean> {
     const background = resolveBackground(backgroundImage);
     const data = {
       id: '12345',
@@ -52,7 +55,7 @@ export class HMSVirtualBackgroundPlugin extends HMSVideoPlugin {
   }
 }
 
-function resolveBackground(background: ImageRequireSource): {
+function resolveBackground(background: ImageURISource | ImageRequireSource): {
   type: 'image';
   source: ImageResolvedAssetSource;
 } {

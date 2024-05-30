@@ -2,6 +2,7 @@ package com.hms.reactnativevideoplugin
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.Uri
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
@@ -70,9 +71,15 @@ class ReactNativeVideoPluginModule(reactContext: ReactApplicationContext) :
         }
         try {
           val bitmap: Bitmap? =
-            if (bgImageUri.startsWith("http")) {
+            if (bgImageUri.startsWith("http://")) {
               val url = URL(bgImageUri)
               BitmapFactory.decodeStream(url.openConnection().getInputStream())
+            } else if (bgImageUri.startsWith("file://")) {
+              val fileUri = Uri.parse(bgImageUri) ?: return
+              if (fileUri.scheme != "file") {
+                return
+              }
+              BitmapFactory.decodeFile(fileUri.path)
             } else {
               val context = reactApplicationContext.applicationContext
               val resourceId = context.resources.getIdentifier(bgImageUri, "drawable", context.packageName)
