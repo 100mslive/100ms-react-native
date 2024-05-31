@@ -11,12 +11,12 @@ lint:
     - osv-scanner
   enabled:
     - dotenv-linter@3.3.0
-    - actionlint@1.7.0
+    - actionlint@1.7.1
     - prettier@3.2.5
     - swiftlint@0.54.0
-    - checkov@3.2.91
-    - trivy@0.51.1
-    - trufflehog@3.76.0
+    - checkov@3.2.114
+    - trivy@0.51.4
+    - trufflehog@3.77.0
     - oxipng@9.1.1
     - yamllint@1.35.1
     - ktlint@1.2.1
@@ -25,8 +25,8 @@ lint:
     - gitleaks@8.18.2
     - shellcheck@0.10.0
     - git-diff-check
-    - markdownlint@0.40.0
-    - buildifier@7.1.1
+    - markdownlint@0.41.0
+    - buildifier@7.1.2
 runtimes:
   enabled:
     - python@3.10.8
