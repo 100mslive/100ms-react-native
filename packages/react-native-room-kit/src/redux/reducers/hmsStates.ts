@@ -8,7 +8,7 @@ import type {
   HMSSpeaker,
   HMSWhiteboard,
 } from '@100mslive/react-native-hms';
-import type { HMSVirtualBackgroundPlugin } from '@100mslive/react-native-video-plugin';
+import type { HMSVirtualBackgroundPlugin } from '../../modules/videoPluginWrapper';
 import type { Layout } from '@100mslive/types-prebuilt';
 import { HmsStateActionTypes } from '../actionTypes';
 

@@ -12,9 +12,11 @@ import {
   HMSTrackSettingsInitState,
   HMSVideoTrackSettings,
 } from '@100mslive/react-native-hms';
-import { HMSVirtualBackgroundPlugin } from '@100mslive/react-native-video-plugin';
 import React, { useEffect } from 'react';
 import { batch, useDispatch } from 'react-redux';
+
+import { VideoPlugin } from './modules/videoPluginWrapper';
+import type { HMSVirtualBackgroundPlugin } from './modules/videoPluginWrapper';
 
 import { getJoinConfig } from './utils';
 import {
@@ -30,7 +32,7 @@ import type { HMSIOSScreenShareConfig } from './utils/types';
 
 const getTrackSettings = (
   noiseCancellationPlugin: HMSNoiseCancellationPlugin,
-  videoPlugin: HMSVirtualBackgroundPlugin
+  videoPlugin: HMSVirtualBackgroundPlugin | null
 ) => {
   const joinConfig = getJoinConfig();
 
@@ -75,7 +77,7 @@ const getTrackSettings = (
     cameraFacing: HMSCameraFacing.FRONT,
     disableAutoResize: !joinConfig.autoResize,
     forceSoftwareDecoder: joinConfig.softwareDecoder,
-    videoPlugin: videoPlugin,
+    videoPlugin: videoPlugin || undefined,
   });
 
   return new HMSTrackSettings({
@@ -102,7 +104,7 @@ const getIOSBuildConfig = (): Partial<HMSIOSScreenShareConfig> =>
  */
 const getHmsInstance = async (
   noiseCancellationPlugin: HMSNoiseCancellationPlugin,
-  videoPlugin: HMSVirtualBackgroundPlugin
+  videoPlugin: HMSVirtualBackgroundPlugin | null
 ): Promise<HMSSDK> => {
   /**
    * Only required for advanced use-case features like iOS Screen/Audio Share, Android Software Echo Cancellation, etc
@@ -161,7 +163,9 @@ export const HMSInstanceSetup = () => {
       clearConfig();
 
       const noiseCancellationPlugin = new HMSNoiseCancellationPlugin();
-      const videoPlugin = new HMSVirtualBackgroundPlugin();
+      const videoPlugin = VideoPlugin
+        ? new VideoPlugin.HMSVirtualBackgroundPlugin()
+        : null;
 
       getHmsInstance(noiseCancellationPlugin, videoPlugin)
         .then((hmssdkInstance) => {
@@ -171,7 +175,9 @@ export const HMSInstanceSetup = () => {
             batch(() => {
               dispatch(setHMSInstance(hmssdkInstance));
               dispatch(setNoiseCancellationPlugin(noiseCancellationPlugin));
-              dispatch(setVideoPlugin(videoPlugin));
+              if (videoPlugin) {
+                dispatch(setVideoPlugin(videoPlugin));
+              }
               // TODO: remove this from user reducer
               dispatch(saveUserData({ hmsInstance: hmssdkInstance }));
             });

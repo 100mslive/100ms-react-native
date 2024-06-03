@@ -18,8 +18,11 @@ export const HMSManageVirtualBackground: React.FC<
   HMSManageVirtualBackgroundProps
 > = ({ style }) => {
   const canPublishVideo = useCanPublishVideo();
+  const videoPluginExists = useSelector(
+    (state: RootState) => !!state.hmsStates.videoPlugin
+  );
 
-  if (!canPublishVideo) {
+  if (!canPublishVideo || !videoPluginExists) {
     return null;
   }
 
@@ -37,9 +40,12 @@ const VirtualBackgroundButton: React.FC<VirtualBackgroundButtonProps> = ({
   const isLocalVideoMuted = useSelector(
     (state: RootState) => state.hmsStates.isLocalVideoMuted
   );
+  const videoPluginExists = useSelector(
+    (state: RootState) => !!state.hmsStates.videoPlugin
+  );
 
   const handleVideoMuteTogglePress = async () => {
-    if (isLocalVideoMuted) {
+    if (isLocalVideoMuted || !videoPluginExists) {
       return;
     }
     handleModalVisibleType(ModalTypes.VIRTUAL_BACKGROUND);

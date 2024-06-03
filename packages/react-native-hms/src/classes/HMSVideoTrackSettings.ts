@@ -1,11 +1,17 @@
+import type { ImageURISource, ImageRequireSource } from 'react-native';
 import type { HMSSimulcastLayerSettings } from './HMSSimulcastLayerSettings';
 import type { HMSCameraFacing } from './HMSCameraFacing';
 import type { HMSTrackSettingsInitState } from './HMSTrackSettingsInitState';
 
-interface HMSVirtualBackgroundPlugin {
-  background: any;
-  enable(): Promise<any>;
-  disable(): Promise<any>;
+export declare class HMSVirtualBackgroundPlugin {
+  static NAME: string;
+  constructor();
+  enable(): Promise<boolean>;
+  disable(): Promise<boolean>;
+  setBlur(blurRadius: number): Promise<boolean>;
+  setBackground(
+    backgroundImage: ImageURISource | ImageRequireSource
+  ): Promise<boolean>;
 }
 
 /**

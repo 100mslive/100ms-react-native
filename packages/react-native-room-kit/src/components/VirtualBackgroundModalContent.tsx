@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { HMSTrackType, HMSVideoViewMode } from '@100mslive/react-native-hms';
-import type { HMSVirtualBackgroundPlugin } from '@100mslive/react-native-video-plugin';
+import type { HMSVirtualBackgroundPlugin } from '../modules/videoPluginWrapper';
 import { ImagePicker } from '../modules/imagePickerWrapper';
 
 import { BottomSheet } from './BottomSheet';
@@ -97,20 +97,20 @@ export const VirtualBackgroundModalContent: React.FC<
     }
   };
 
-  const handleCameraPress = async () => {
-    if (!ImagePicker) {
-      return;
-    }
-    try {
-      const cameraResponse = await ImagePicker.launchCamera({
-        mediaType: 'photo',
-        cameraType: 'back',
-      });
-      handleImagePickerResponse(cameraResponse);
-    } catch (error) {
-      console.warn(error);
-    }
-  };
+  // const handleCameraPress = async () => {
+  //   if (!ImagePicker) {
+  //     return;
+  //   }
+  //   try {
+  //     const cameraResponse = await ImagePicker.launchCamera({
+  //       mediaType: 'photo',
+  //       cameraType: 'back',
+  //     });
+  //     handleImagePickerResponse(cameraResponse);
+  //   } catch (error) {
+  //     console.warn(error);
+  //   }
+  // };
 
   const handleImagePickerResponse = (response: any) => {
     if (response.didCancel) {
