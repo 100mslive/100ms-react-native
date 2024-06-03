@@ -248,7 +248,7 @@ dependencies {
         implementation jscFlavor
     }
 
-    implementation project(':reactnativehmssdk')
+    implementation project(':100mslive_react-native-hms')
 
     implementation project(':react-native-lottie-splash-screen')
 }
