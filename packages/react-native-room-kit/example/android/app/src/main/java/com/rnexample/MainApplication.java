@@ -11,7 +11,6 @@ import com.facebook.soloader.SoLoader;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import com.reactnativehmssdk.HmssdkPackage;
-import com.hms.reactnativevideoplugin.ReactNativeVideoPluginPackage;
 import org.devio.rn.splashscreen.SplashScreenReactPackage;
 
 public class MainApplication extends Application implements ReactApplication {
@@ -27,7 +26,6 @@ public class MainApplication extends Application implements ReactApplication {
         protected List<ReactPackage> getPackages() {
           List<ReactPackage> packages = new PackageList(this).getPackages();
           packages.add(new HmssdkPackage());
-          packages.add(new ReactNativeVideoPluginPackage());
           return packages;
         }
 
