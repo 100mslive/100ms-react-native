@@ -8,13 +8,19 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from 'react-native';
+import type { ImageRequireSource } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { HMSTrackType, HMSVideoViewMode } from '@100mslive/react-native-hms';
 import type { HMSVirtualBackgroundPlugin } from '../modules/videoPluginWrapper';
 import { ImagePicker } from '../modules/imagePickerWrapper';
 
 import { BottomSheet } from './BottomSheet';
-import { CloseIcon } from '../Icons';
+import {
+  AddImageIcon,
+  BlurPeopleIcon,
+  CloseIcon,
+  CrossCircleIcon,
+} from '../Icons';
 import { useHMSRoomColorPalette, useHMSRoomStyleSheet } from '../hooks-util';
 import { VideoView } from './PeerVideoTile/VideoView';
 import type { RootState } from '../redux';
@@ -171,6 +177,33 @@ export const VirtualBackgroundModalContent: React.FC<
     localPeer.videoTrack.type === HMSTrackType.VIDEO &&
     !isLocalVideoMuted;
 
+  const backgrounds: Array<
+    | {
+        icon: React.JSX.Element;
+        onPress: () => Promise<void>;
+        label: string;
+        src?: undefined;
+      }
+    | {
+        icon?: undefined;
+        onPress?: undefined;
+        label: string;
+        src: ImageRequireSource;
+      }
+  > = [];
+
+  if (ImagePicker) {
+    // backgrounds.push({
+    //   label: 'Camera',
+    //   onPress: handleCameraPress,
+    // });
+    backgrounds.push({
+      icon: <AddImageIcon />,
+      label: 'Upload',
+      onPress: handlePhotoLibraryPress,
+    });
+  }
+
   return (
     <View style={styles.flexView}>
       {/* Header */}
@@ -230,6 +263,7 @@ export const VirtualBackgroundModalContent: React.FC<
                       : hmsRoomStyles.inactive,
                   ]}
                 >
+                  <CrossCircleIcon size="large" style={{ marginBottom: 8 }} />
                   <Text
                     style={[
                       styles.smallText,
@@ -255,6 +289,7 @@ export const VirtualBackgroundModalContent: React.FC<
                       : hmsRoomStyles.inactive,
                   ]}
                 >
+                  <BlurPeopleIcon style={{ marginBottom: 8 }} />
                   <Text
                     style={[
                       styles.smallText,
@@ -270,88 +305,72 @@ export const VirtualBackgroundModalContent: React.FC<
             {/* Blur radius slider here */}
           </View>
 
-          <View style={styles.backgroundContainer}>
-            <Text
-              style={[
-                hmsRoomStyles.semiBoldSurfaceHigh,
-                styles.normalText,
-                { marginHorizontal: 24 },
-              ]}
-            >
-              Backgrounds
-            </Text>
+          {backgrounds && backgrounds.length > 0 ? (
+            <View style={styles.backgroundContainer}>
+              <Text
+                style={[
+                  hmsRoomStyles.semiBoldSurfaceHigh,
+                  styles.normalText,
+                  { marginHorizontal: 24 },
+                ]}
+              >
+                Backgrounds
+              </Text>
 
-            <View style={[styles.backgroundImages, { marginHorizontal: 18 }]}>
-              {[
-                ...(ImagePicker
-                  ? [
-                      // {
-                      //   label: 'Camera',
-                      //   onPress: handleCameraPress,
-                      // },
-                      {
-                        label: 'Upload',
-                        onPress: handlePhotoLibraryPress,
-                      },
-                    ]
-                  : []),
-                {
-                  label: 'VB-1',
-                  src: require('../assets/VB-1.jpg'),
-                },
-                {
-                  label: 'VB-2',
-                  src: require('../assets/VB-2.jpg'),
-                },
-              ].map((asset) => {
-                return (
-                  <TouchableOpacity
-                    key={asset.label}
-                    activeOpacity={0.8}
-                    onPress={() => {
-                      const src = asset.src;
-                      if (src) {
-                        handleImagePress({ label: asset.label, src });
-                      } else if (asset.onPress) {
-                        asset.onPress();
+              <View style={[styles.backgroundImages, { marginHorizontal: 18 }]}>
+                {backgrounds.map((asset) => {
+                  return (
+                    <TouchableOpacity
+                      key={asset.label}
+                      activeOpacity={0.8}
+                      onPress={() => {
+                        const src = asset.src;
+                        if (src) {
+                          handleImagePress({ label: asset.label, src });
+                        } else if (asset.onPress) {
+                          asset.onPress();
+                        }
+                      }}
+                      style={
+                        asset.src
+                          ? styles.backgroundImageContainer
+                          : [
+                              styles.effectButton,
+                              hmsRoomStyles.effectButton,
+                              hmsRoomStyles.inactive,
+                              styles.backgroundImageContainer,
+                            ]
                       }
-                    }}
-                    style={
-                      asset.src
-                        ? styles.backgroundImageContainer
-                        : [
-                            styles.effectButton,
-                            hmsRoomStyles.effectButton,
-                            hmsRoomStyles.inactive,
-                            styles.backgroundImageContainer,
-                          ]
-                    }
-                  >
-                    {asset.src ? (
-                      <Image
-                        source={asset.src}
-                        style={[
-                          styles.backgroundImage,
-                          selectedVirtualBG === asset.label
-                            ? hmsRoomStyles.active
-                            : null,
-                        ]}
-                      />
-                    ) : (
-                      <Text
-                        style={[
-                          styles.smallText,
-                          hmsRoomStyles.regularSurfaceMedium,
-                        ]}
-                      >
-                        {asset.label}
-                      </Text>
-                    )}
-                  </TouchableOpacity>
-                );
-              })}
+                    >
+                      {asset.src ? (
+                        <Image
+                          source={asset.src}
+                          style={[
+                            styles.backgroundImage,
+                            selectedVirtualBG === asset.label
+                              ? hmsRoomStyles.active
+                              : null,
+                          ]}
+                        />
+                      ) : (
+                        <>
+                          {asset.icon || null}
+                          <Text
+                            style={[
+                              styles.smallText,
+                              hmsRoomStyles.regularSurfaceMedium,
+                            ]}
+                          >
+                            {asset.label}
+                          </Text>
+                        </>
+                      )}
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
             </View>
-          </View>
+          ) : null}
         </ScrollView>
 
         {showLoading && (
