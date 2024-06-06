@@ -21,10 +21,17 @@ import {
   CloseIcon,
   CrossCircleIcon,
 } from '../Icons';
-import { useHMSRoomColorPalette, useHMSRoomStyleSheet } from '../hooks-util';
+import {
+  useDisableAutoPip,
+  useHMSRoomColorPalette,
+  useHMSRoomStyleSheet,
+} from '../hooks-util';
 import { VideoView } from './PeerVideoTile/VideoView';
 import type { RootState } from '../redux';
-import { setSelectedVirtualBackground } from '../redux/actions';
+import {
+  setAutoEnterPipMode,
+  setSelectedVirtualBackground,
+} from '../redux/actions';
 import { useState } from 'react';
 import { hexToRgbA } from '../utils/theme';
 
@@ -42,6 +49,10 @@ export const VirtualBackgroundModalContent: React.FC<
   const isLocalVideoMuted = useSelector(
     (state: RootState) => state.hmsStates.isLocalVideoMuted
   );
+  const autoEnterPipMode = useSelector(
+    (state: RootState) => state.app.autoEnterPipMode
+  );
+  const disableAutoPip = useDisableAutoPip();
 
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
     semiBoldSurfaceHigh: {
@@ -92,11 +103,24 @@ export const VirtualBackgroundModalContent: React.FC<
     if (!ImagePicker) {
       return;
     }
+    // Current value of `autoEnterPipMode` state
+    let pipModeEnabled = autoEnterPipMode;
     try {
+      // If PIP is enabled, disable it
+      if (pipModeEnabled) {
+        dispatch(setAutoEnterPipMode(false));
+        disableAutoPip();
+      }
+
       const imageLibraryResponse = await ImagePicker.launchImageLibrary({
         mediaType: 'photo',
         selectionLimit: 1,
       });
+
+      // If PIP was enabled earlier, enable it again
+      if (pipModeEnabled) {
+        dispatch(setAutoEnterPipMode(true));
+      }
       handleImagePickerResponse(imageLibraryResponse);
     } catch (error) {
       console.warn(error);
