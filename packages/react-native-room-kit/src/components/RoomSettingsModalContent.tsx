@@ -33,6 +33,7 @@ import {
 import {
   useCanPublishAudio,
   useCanPublishScreen,
+  useCanPublishVideo,
   useHMSActions,
   useIsAnyStreamingOn,
 } from '../hooks-sdk';
@@ -263,6 +264,7 @@ export const RoomSettingsModalContent: React.FC<
   // #endregion
 
   // #region Virtual Background
+  const canPublishVideo = useCanPublishVideo();
   const videoPlugin = useSelector(
     (state: RootState) => state.hmsStates.videoPlugin
   );
@@ -508,7 +510,7 @@ export const RoomSettingsModalContent: React.FC<
               label: 'Virtual Background',
               pressHandler: handleVirtualBackground,
               isActive: virtualBackgroundApplied,
-              hide: !videoPlugin,
+              hide: !videoPlugin || !canPublishVideo,
               disabled: isLocalVideoMuted,
             },
           ].filter((itm) => !itm.hide),
