@@ -23,7 +23,6 @@ import {
   setInitialRole,
   setLocalPeerTrackNode,
   setMiniViewPeerTrackNode,
-  setSelectedVirtualBackground,
   setWhiteboard,
   updateLocalPeerTrackNode,
 } from './redux/actions';
