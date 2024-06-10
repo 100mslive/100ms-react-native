@@ -16,6 +16,7 @@ import type {
   HMSSpeaker,
   HMSWhiteboard,
 } from '@100mslive/react-native-hms';
+import type { HMSVirtualBackgroundPlugin } from '../../modules/videoPluginWrapper';
 import type { Layout } from '@100mslive/types-prebuilt';
 
 import type {
@@ -445,6 +446,11 @@ export const setNoiseCancellationPlugin = (
   noiseCancellationPlugin,
 });
 
+export const setVideoPlugin = (videoPlugin: HMSVirtualBackgroundPlugin) => ({
+  type: HmsStateActionTypes.SET_VIDEO_PLUGIN,
+  videoPlugin,
+});
+
 export const setWhiteboard = (whiteboard: HMSWhiteboard | null) => ({
   type: HmsStateActionTypes.SET_WHITEBOARD,
   whiteboard,
@@ -500,6 +506,11 @@ export const setHlsFullScreen = (fullScreen: boolean) => ({
 export const setAndroidHLSStreamPaused = (paused: boolean) => ({
   type: actionTypes.SET_ANDROID_HLS_STREAM_PAUSED,
   payload: { hlsStreamPaused_android: paused },
+});
+
+export const setSelectedVirtualBackground = (vb: string | null) => ({
+  type: actionTypes.SET_SELECTED_VIRTUAL_BG,
+  payload: { selectedVirtualBackground: vb },
 });
 
 /**

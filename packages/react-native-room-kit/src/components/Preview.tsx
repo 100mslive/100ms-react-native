@@ -37,6 +37,7 @@ import { hexToRgbA } from '../utils/theme';
 import { HMSManageNoiseCancellation } from './HMSManageNoiseCancellation';
 import { useSelector } from 'react-redux';
 import type { RootState } from '../redux';
+import { HMSManageVirtualBackground } from './HMSManageVirtualBackground';
 
 const backButtonEdges = ['top'] as const;
 const headerEdges = ['top', 'left', 'right'] as const;
@@ -174,11 +175,17 @@ export const Preview = ({
                 <View style={styles.micAndCameraControls}>
                   <HMSManageLocalAudio />
 
-                  <View style={styles.manageLocalButtonWrapper}>
-                    <HMSManageLocalVideo />
-                  </View>
+                  <HMSManageLocalVideo
+                    style={styles.manageLocalButtonWrapper}
+                  />
 
-                  <HMSManageCameraRotation />
+                  <HMSManageCameraRotation
+                    style={styles.manageLocalButtonWrapper}
+                  />
+
+                  <HMSManageVirtualBackground
+                    style={styles.manageLocalButtonWrapper}
+                  />
                 </View>
 
                 {showNoiseCancellationButton && <HMSManageNoiseCancellation />}
@@ -242,7 +249,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   manageLocalButtonWrapper: {
-    marginHorizontal: 16,
+    marginLeft: 16,
   },
   joinButtonRow: {
     marginVertical: 16,

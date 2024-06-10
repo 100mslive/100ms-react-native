@@ -138,7 +138,7 @@ class HMSRNInteractivityCenter {
     }
 
     // MARK: - Whiteboard Methods
-    
+
     func startWhiteboard(_ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         self.hmssdk?.interactivityCenter.startWhiteboard { success, error in
             if let error = error {

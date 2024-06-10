@@ -1607,6 +1607,20 @@ class HMSManager(reactContext: ReactApplicationContext) :
   }
   // endregion
 
+  // region Warning on JS side
+  @ReactMethod
+  fun addListener(eventName: String) {
+    // Keep: Required for RN built in Event Emitter Calls.
+    // Fixes Warning - `new NativeEventEmitter()` was called with a non-null argument without the required `addListener` method.
+  }
+
+  @ReactMethod
+  fun removeListeners(count: Int) {
+    // Keep: Required for RN built in Event Emitter Calls.
+    // Fixes Warning - `new NativeEventEmitter()` was called with a non-null argument without the required `removeListeners` method.
+  }
+  // endregion
+
   // region ActivityLifecycleCallbacks
 
   override fun onActivityCreated(

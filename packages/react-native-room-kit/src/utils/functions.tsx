@@ -3,6 +3,7 @@ import {
   Dimensions,
   PermissionsAndroid,
   StatusBar,
+  Text,
 } from 'react-native';
 import Toast from 'react-native-simple-toast';
 import {
@@ -23,6 +24,7 @@ import type {
 } from '@100mslive/react-native-hms';
 
 import type { PeerTrackNode } from './types';
+import * as React from 'react';
 
 export const getMeetingUrl = () =>
   'https://yogi.app.100ms.live/streaming/meeting/nih-bkn-vek';
@@ -569,4 +571,36 @@ export function getLabelFromPollQuestionType(
     case HMSPollQuestionType.shortAnswer:
       return 'Short Answer';
   }
+}
+
+export function splitLinksAndContent(
+  text: string,
+  { pressHandler, style }: any
+): string | (string | React.ReactElement)[] {
+  // Regular expression to find links in a string
+  const pattern = /(^|\s)http[s]?:\/\/\S+/g;
+
+  // Find all links in the text
+  const links = text.match(pattern) || [];
+
+  if (links.length <= 0) {
+    return text;
+  }
+
+  // Split the text into an array of links and content
+  const parts = text.replace(pattern, '^<link>^').split('^');
+
+  return parts.map((p, i) => {
+    if (p !== '<link>') {
+      return p;
+    }
+    const link = links.pop();
+    return link ? (
+      <Text key={link + i} onPress={() => pressHandler(link)} style={style}>
+        {link}
+      </Text>
+    ) : (
+      p
+    );
+  });
 }

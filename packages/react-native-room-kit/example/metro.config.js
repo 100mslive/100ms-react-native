@@ -10,6 +10,7 @@ const rnhmsLibPackageJson = require('../../react-native-hms/package.json');
 
 const rnrkModules = Object.keys({
   ...rnrkLibPackageJson.peerDependencies,
+  ...rnrkLibPackageJson.optionalDependencies,
 });
 
 const rnhmsModules = Object.keys({
@@ -23,22 +24,22 @@ module.exports = {
   resolver: {
     blockList: blacklist([
       ...rnrkModules.map(
-        (m) =>
+        m =>
           new RegExp(
-            `^${escape(path.join(rnrkLibRoot, 'node_modules', m))}\\/.*$`
-          )
+            `^${escape(path.join(rnrkLibRoot, 'node_modules', m))}\\/.*$`,
+          ),
       ),
       ...rnhmsModules.map(
-        (m) =>
+        m =>
           new RegExp(
-            `^${escape(path.join(rnhmsLibRoot, 'node_modules', m))}\\/.*$`
-          )
+            `^${escape(path.join(rnhmsLibRoot, 'node_modules', m))}\\/.*$`,
+          ),
       ),
     ]),
 
     extraNodeModules: [
       ...new Set([
-        ...rnrkModules.filter((module) => module !== rnhmsLibPackageJson.name),
+        ...rnrkModules.filter(module => module !== rnhmsLibPackageJson.name),
         ...rnhmsModules,
       ]),
     ].reduce((acc, name) => {

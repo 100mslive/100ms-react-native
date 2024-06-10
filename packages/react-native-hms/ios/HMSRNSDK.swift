@@ -33,6 +33,8 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     private var peerListIterators = [String: HMSPeerListIterator]()
     private var roomMutedLocally = false
     private var noiseCancellationPlugin: HMSNoiseCancellationPlugin?
+    private var videoFilterPlugin: HMSVideoFilterPlugin?
+    private var virtualBackgroundPlugin: HMSVideoPlugin?
 
     // MARK: - Setup
     init(data: NSDictionary?, delegate manager: HMSManager?, uid id: String) {
@@ -41,19 +43,42 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         self.id = id
         DispatchQueue.main.async { [weak self] in
             var noiseCancellationPlugin: HMSNoiseCancellationPlugin?
+            var videoFilterPlugin: HMSVideoFilterPlugin?
+            var virtualBackgroundPlugin: HMSVideoPlugin?
 
             self?.hms = HMSSDK.build { sdk in
                 sdk.appGroup = data?.value(forKey: "appGroup") as? String
                 sdk.frameworkInfo = HMSHelper.getFrameworkInfo(data?.value(forKey: "frameworkInfo") as? NSDictionary)
-                let trackSettings = data?.value(forKey: "trackSettings") as? NSDictionary
-                let videoSettings = HMSHelper.getLocalVideoSettings(trackSettings?.value(forKey: "video") as? NSDictionary)
-                let audioSettingsDict = trackSettings?.value(forKey: "audio") as? NSDictionary
+                let trackSettingsDict = data?.value(forKey: "trackSettings") as? NSDictionary
+
+                // Video track settings
+                let videoSettingsDict = trackSettingsDict?.value(forKey: "video") as? NSDictionary
+                let videoPluginDict = videoSettingsDict?.value(forKey: "videoPlugin") as? NSDictionary
+                let videoPlugin = HMSHelper.getHMSVideoPlugin(videoPluginDict)
+
+                if let asVideoFilterPlugin = videoPlugin as? HMSVideoFilterPlugin {
+                    videoFilterPlugin = asVideoFilterPlugin
+                } else if #available(iOS 15.0, *) {
+                    let asVirtualBGPlugin = videoPlugin as? HMSVirtualBackgroundPlugin
+                    virtualBackgroundPlugin = asVirtualBGPlugin
+                }
+
+                let videoSettings = HMSHelper.getLocalVideoSettings(videoSettingsDict, videoPlugin)
+
+                // Audio track settings
+                let audioSettingsDict = trackSettingsDict?.value(forKey: "audio") as? NSDictionary
+
                 let value = audioSettingsDict?.value(forKey: "noiseCancellationPlugin") as? NSDictionary
                 noiseCancellationPlugin = HMSHelper.getHMSNoiseCancellationPlugin(value)
+
                 let audioSettings = HMSHelper.getLocalAudioSettings(audioSettingsDict, noiseCancellationPlugin, sdk, self?.delegate, id)
+
+                // Track Settings
                 sdk.trackSettings = HMSTrackSettings(videoSettings: videoSettings, audioSettings: audioSettings)
             }
             self?.noiseCancellationPlugin = noiseCancellationPlugin
+            self?.virtualBackgroundPlugin = virtualBackgroundPlugin
+            self?.videoFilterPlugin = videoFilterPlugin
             if let hms = self?.hms {
                 self?.interactivity = HMSRNInteractivityCenter(
                     hmssdk: hms,
@@ -2151,6 +2176,179 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         }
         let isAvailable = noiseCancellationPlugin.isNoiseCancellationAvailable
         resolve?(isAvailable)
+    }
+
+    // MARK: - Video Plugins Functions
+
+    func enableVideoPlugin(_ data: NSDictionary,
+                           _ resolve: RCTPromiseResolveBlock?,
+                           _ reject: RCTPromiseRejectBlock?) {
+        guard let videoPluginType = data.value(forKey: "type") as? String else {
+            let errorMessage = "\(#function) HMSVideoPlugin type not passed!"
+            reject?("6004", errorMessage, nil)
+            return
+        }
+        switch videoPluginType {
+        case "HMSVirtualBackgroundPlugin":
+            if #available(iOS 15.0, *) {
+                guard let virtualBackgroundPlugin = self.virtualBackgroundPlugin as? HMSVirtualBackgroundPlugin else {
+                    let errorMessage = "\(#function) Unable to cast `var virtualBackgroundPlugin` to type `HMSVirtualBackgroundPlugin`, It is \(String(describing: virtualBackgroundPlugin))"
+                    reject?("6004", errorMessage, nil)
+                    return
+                }
+                virtualBackgroundPlugin.activate()
+                resolve?(true)
+            } else {
+                let errorMessage = "\(#function) HMSVirtualBackgroundPlugin not available below iOS 15.0"
+                reject?("6004", errorMessage, nil)
+                return
+            }
+        case "HMSVideoFilterPlugin":
+            guard let videoFilterPlugin = self.videoFilterPlugin else {
+                let errorMessage = "\(#function) `videoFilterPlugin` is `nil`, Make sure you are passing `HMSVideoFilterPlugin` instance to `videoTrackSettings` in `HMSSDK.build`"
+                reject?("6004", errorMessage, nil)
+                return
+            }
+            videoFilterPlugin.activate()
+            resolve?(true)
+        default:
+            let errorMessage = "\(#function) Unknown HMSVideoPlugin type passed!"
+            reject?("6004", errorMessage, nil)
+            return
+        }
+    }
+
+    func disableVideoPlugin(_ data: NSDictionary,
+                            _ resolve: RCTPromiseResolveBlock?,
+                            _ reject: RCTPromiseRejectBlock?) {
+        guard let videoPluginType = data.value(forKey: "type") as? String else {
+            let errorMessage = "\(#function) HMSVideoPlugin `type` not passed!"
+            reject?("6004", errorMessage, nil)
+            return
+        }
+        switch videoPluginType {
+        case "HMSVirtualBackgroundPlugin":
+            if #available(iOS 15.0, *) {
+                guard let virtualBackgroundPlugin = self.virtualBackgroundPlugin as? HMSVirtualBackgroundPlugin else {
+                    let errorMessage = "\(#function) Unable to cast `var virtualBackgroundPlugin` to type `HMSVirtualBackgroundPlugin`, It is \(String(describing: virtualBackgroundPlugin))"
+                    reject?("6004", errorMessage, nil)
+                    return
+                }
+                virtualBackgroundPlugin.deactivate()
+                resolve?(true)
+            } else {
+                let errorMessage = "\(#function) HMSVirtualBackgroundPlugin not available below iOS 15.0"
+                reject?("6004", errorMessage, nil)
+                return
+            }
+        case "HMSVideoFilterPlugin":
+            guard let videoFilterPlugin = self.videoFilterPlugin else {
+                let errorMessage = "\(#function) `videoFilterPlugin` is `nil`, Make sure you are passing `HMSVideoFilterPlugin` instance to `videoTrackSettings` in `HMSSDK.build`"
+                reject?("6004", errorMessage, nil)
+                return
+            }
+            videoFilterPlugin.deactivate()
+            resolve?(true)
+        default:
+            let errorMessage = "\(#function) Unknown HMSVideoPlugin `type` passed!"
+            reject?("6004", errorMessage, nil)
+            return
+        }
+    }
+
+    func changeVirtualBackground(_ data: NSDictionary,
+                            _ resolve: RCTPromiseResolveBlock?,
+                            _ reject: RCTPromiseRejectBlock?) {
+        if #available(iOS 15.0, *) {
+            guard let backgroundDict = data.value(forKey: "background") as? NSDictionary
+            else {
+                let errorMessage = "\(#function) No background object passed!"
+                reject?("6004", errorMessage, nil)
+                return
+            }
+            guard let backgroundType = backgroundDict.value(forKey: "type") as? String
+            else {
+                let errorMessage = "\(#function) No background `type` passed!"
+                reject?("6004", errorMessage, nil)
+                return
+            }
+            guard let virtualBackgroundPlugin = self.virtualBackgroundPlugin as? HMSVirtualBackgroundPlugin else {
+                let errorMessage = "\(#function) Unable to cast `var virtualBackgroundPlugin` to type `HMSVirtualBackgroundPlugin`, It is \(String(describing: virtualBackgroundPlugin))"
+                reject?("6004", errorMessage, nil)
+                return
+            }
+            switch backgroundType {
+            case "blur":
+                virtualBackgroundPlugin.backgroundImage = nil
+                resolve?(true)
+            case "image":
+                guard let imageSource = backgroundDict.value(forKey: "source") as? NSDictionary else {
+                    let errorMessage = "\(#function) No background `source` passed for image!"
+                    reject?("6004", errorMessage, nil)
+                    return
+                }
+                DispatchQueue.main.async {
+                    guard let image = RCTConvert.uiImage(imageSource) else {
+                        let errorMessage = "\(#function) Unable to create `UIImage` from given background `source` object!"
+                        reject?("6004", errorMessage, nil)
+                        return
+                    }
+                    virtualBackgroundPlugin.backgroundImage = image
+                    resolve?(true)
+                }
+            default:
+                let errorMessage = "\(#function) Unknown background `type` passed!"
+                reject?("6004", errorMessage, nil)
+                return
+            }
+        } else {
+            let errorMessage = "\(#function) HMSVirtualBackgroundPlugin not available below iOS 15.0"
+            reject?("6004", errorMessage, nil)
+            return
+        }
+    }
+
+    func setVideoFilterParameter(_ data: NSDictionary,
+                                 _ resolve: RCTPromiseResolveBlock?,
+                                 _ reject: RCTPromiseRejectBlock?) {
+        guard let videoFilterPlugin = self.videoFilterPlugin else {
+            let errorMessage = "\(#function) `videoFilterPlugin` is `nil`, Make sure you are passing `HMSVideoFilterPlugin` instance to `videoTrackSettings` in `HMSSDK.build`"
+            reject?("6004", errorMessage, nil)
+            return
+        }
+        guard let filterType = data.value(forKey: "filter") as? String else {
+            let errorMessage = "\(#function) `filter` property not passed!"
+            reject?("6004", errorMessage, nil)
+            return
+        }
+        guard let filterValue = data.value(forKey: "value") as? NSNumber else {
+            let errorMessage = "\(#function) `value` property not passed!"
+            reject?("6004", errorMessage, nil)
+            return
+        }
+        switch filterType {
+        case "brightness":
+            videoFilterPlugin.brightness = CGFloat(truncating: filterValue)
+        case "contrast":
+            videoFilterPlugin.contrast = CGFloat(truncating: filterValue)
+        case "exposure":
+            videoFilterPlugin.exposure = CGFloat(truncating: filterValue)
+        case "hue":
+            videoFilterPlugin.hue = CGFloat(truncating: filterValue)
+        case "redness":
+            videoFilterPlugin.redness = CGFloat(truncating: filterValue)
+        case "saturation":
+            videoFilterPlugin.saturation = CGFloat(truncating: filterValue)
+        case "sharpness":
+            videoFilterPlugin.sharpness = CGFloat(truncating: filterValue)
+        case "smoothness":
+            videoFilterPlugin.smoothness = CGFloat(truncating: filterValue)
+        default:
+            let errorMessage = "\(#function) Unknown `filter` type passed!"
+            reject?("6004", errorMessage, nil)
+            return
+        }
+        resolve?(true)
     }
 
     // MARK: - Helper Functions

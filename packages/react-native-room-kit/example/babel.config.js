@@ -14,12 +14,12 @@ module.exports = {
           [rnrkLibPackageJson.name]: path.join(
             __dirname,
             '..',
-            rnrkLibPackageJson.source
+            rnrkLibPackageJson.source,
           ),
           [rnhmsLibPackageJson.name]: path.join(
             __dirname,
             '../../react-native-hms',
-            rnhmsLibPackageJson.source
+            rnhmsLibPackageJson.source,
           ),
         },
       },

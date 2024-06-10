@@ -167,7 +167,7 @@ class HMSHelper: NSObject {
                                 isPrebuilt: isPrebuilt)
     }
 
-    static func getLocalVideoSettings(_ settings: NSDictionary?) -> HMSVideoTrackSettings? {
+    static func getLocalVideoSettings(_ settings: NSDictionary?, _ videoPlugin: HMSVideoPlugin?) -> HMSVideoTrackSettings? {
         if settings === nil {
             return nil
         }
@@ -180,6 +180,7 @@ class HMSHelper: NSObject {
         let cameraFacingEncoded = HMSHelper.getCameraFacing(cameraFacing)
         let initialState = settings?.value(forKey: "initialState") as? String
         let initialStateEncoded = HMSHelper.getHMSTrackSettingsInitState(initialState)
+        let videoPlugins: [HMSVideoPlugin]? = if let videoPlugin = videoPlugin { [videoPlugin] } else { nil }
         let hmsTrackSettings = HMSVideoTrackSettings(codec: codec,
                                                     resolution: resolution,
                                                     maxBitrate: maxBitrate,
@@ -188,7 +189,7 @@ class HMSHelper: NSObject {
                                                     simulcastSettings: nil,
                                                     trackDescription: trackDescription,
                                                     initialMuteState: initialStateEncoded,
-                                                    videoPlugins: nil)
+                                                    videoPlugins: videoPlugins)
         return hmsTrackSettings
     }
 
@@ -289,6 +290,31 @@ class HMSHelper: NSObject {
             assertionFailure("noise cancellation model was not found")
         }
         return nil
+    }
+
+    static func getHMSVideoPlugin(_ videoPluginData: NSDictionary?) -> HMSVideoPlugin? {
+        guard let videoPluginDict = videoPluginData else {
+            print(#function, "No Video Plugin data passed!")
+            return nil
+        }
+        guard let videoPluginType = videoPluginDict.value(forKey: "type") as? String else {
+            print(#function, "No HMSVideoPlugin `type` passed!")
+            return nil
+        }
+        switch videoPluginType {
+        case "HMSVirtualBackgroundPlugin":
+            if #available(iOS 15.0, *) {
+                return HMSVirtualBackgroundPlugin(backgroundImage: nil, blurRadius: 100)
+            } else {
+                print(#function, "HMSVirtualBackgroundPlugin is not available below iOS 15.0")
+                return nil
+            }
+        case "HMSVideoFilterPlugin":
+            return HMSVideoFilterPlugin()
+        default:
+            print(#function, "Unknown HMSVideoPlugin `type` passed!")
+            return nil
+        }
     }
 
     static func getAudioMixerSourceMap() -> [String: HMSAudioNode]? {
