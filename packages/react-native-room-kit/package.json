@@ -133,7 +133,7 @@
     "redux": "^4.1.0"
   },
   "devDependencies": {
-    "@100mslive/react-native-video-plugin": "git+https://github.com/100mslive/react-native-video-plugin.git",
+    "@100mslive/react-native-video-plugin": "0.1.2",
     "@commitlint/config-conventional": "^17.0.2",
     "@evilmartians/lefthook": "^1.2.2",
     "@react-native-community/eslint-config": "^3.0.2",
@@ -173,7 +173,7 @@
     "react-native-webview": "^13.8.7"
   },
   "additionalDependencies": {
-    "@100mslive/react-native-video-plugin": "git+https://github.com/100mslive/react-native-video-plugin.git",
+    "@100mslive/react-native-video-plugin": "0.1.2",
     "react-native-image-picker": "^7.1.2"
   },
   "resolutions": {
