@@ -11,8 +11,8 @@
   },
   "dependencies": {
     "@100mslive/react-native-hms": "^1.10.6",
-    "@100mslive/react-native-room-kit": "^1.1.9-beta.1",
-    "@100mslive/react-native-video-plugin": "github:100mslive/react-native-video-plugin",
+    "@100mslive/react-native-room-kit": "^1.1.9",
+    "@100mslive/react-native-video-plugin": "0.1.2",
     "@100mslive/types-prebuilt": "^0.12.9",
     "@react-native-community/blur": "^4.4.0",
     "@react-native-masked-view/masked-view": "^0.2.9",
