@@ -51,3 +51,6 @@ export * from './CC';
 export * from './Pause';
 export * from './Play';
 export * from './SeekArrow';
+export * from './VirtualBackground';
+export * from './BlurPeople';
+export * from './AddImage';

@@ -4,10 +4,13 @@ import type { ImageProps } from 'react-native';
 
 import { useHMSRoomStyle } from '../../hooks-util';
 
-interface CrossCircleIconProps extends Omit<ImageProps, 'source'> {}
+interface CrossCircleIconProps extends Omit<ImageProps, 'source'> {
+  size?: 'normal' | 'large';
+}
 
 export const CrossCircleIcon: React.FC<CrossCircleIconProps> = ({
   style,
+  size = 'normal',
   ...restProps
 }) => {
   const iconStyles = useHMSRoomStyle((theme) => ({
@@ -16,8 +19,17 @@ export const CrossCircleIcon: React.FC<CrossCircleIconProps> = ({
 
   return (
     <Image
-      source={require('./assets/cross-circle.png')}
-      style={[styles.icon, iconStyles, style]}
+      source={
+        size === 'large'
+          ? require('./assets/cross-circle-large.png')
+          : require('./assets/cross-circle.png')
+      }
+      style={[
+        styles.icon,
+        iconStyles,
+        size === 'large' ? styles.largeIcon : null,
+        style,
+      ]}
       {...restProps}
     />
   );
@@ -29,5 +41,9 @@ const styles = StyleSheet.create({
     height: 24,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  largeIcon: {
+    width: 40,
+    height: 40,
   },
 });

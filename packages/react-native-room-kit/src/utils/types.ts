@@ -59,6 +59,7 @@ export enum ModalTypes {
   CHAT_MORE_ACTIONS = 'chatMoreActions',
   MESSAGE_OPTIONS = 'messageOptions',
   POLLS_AND_QUIZZES = 'pollsAndQuizzes',
+  VIRTUAL_BACKGROUND = 'virtualBackground',
   DEFAULT = '',
 }
 

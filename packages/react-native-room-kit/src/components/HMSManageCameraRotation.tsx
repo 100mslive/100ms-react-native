@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { useSelector } from 'react-redux';
+import type { StyleProp, ViewStyle } from 'react-native';
 
 import { RotateCameraIcon } from '../Icons';
 import { useCanPublishVideo, useHMSActions } from '../hooks-sdk';
@@ -8,17 +9,25 @@ import { PressableIcon } from './PressableIcon';
 import { useHMSRoomStyle } from '../hooks-util';
 import { TestIds } from '../utils/constants';
 
-export const HMSManageCameraRotation = () => {
+interface HMSManageCameraRotationProps extends RotateCameraButtonProps {}
+
+export const HMSManageCameraRotation: React.FC<
+  HMSManageCameraRotationProps
+> = ({ style }) => {
   const canPublishVideo = useCanPublishVideo();
 
   if (!canPublishVideo) {
     return null;
   }
 
-  return <RotateCameraButton />;
+  return <RotateCameraButton style={style} />;
 };
 
-const RotateCameraButton = () => {
+interface RotateCameraButtonProps {
+  style?: StyleProp<ViewStyle>;
+}
+
+const RotateCameraButton: React.FC<RotateCameraButtonProps> = ({ style }) => {
   const hmsActions = useHMSActions();
   // TODO: set initial `isLocalVideoMuted` state value as per initial track setting
   const isLocalVideoMuted = useSelector(
@@ -43,9 +52,14 @@ const RotateCameraButton = () => {
 
   return (
     <PressableIcon
-      testID={isLocalVideoMuted ? TestIds.switch_camera_disabled : TestIds.switch_camera}
+      testID={
+        isLocalVideoMuted
+          ? TestIds.switch_camera_disabled
+          : TestIds.switch_camera
+      }
       onPress={handleVideoMuteTogglePress}
       disabled={isLocalVideoMuted}
+      style={style}
     >
       <RotateCameraIcon style={cameraIconStyles} />
     </PressableIcon>

@@ -66,6 +66,7 @@ type IntialStateType = {
   hlsDescriptionPaneVisible: boolean;
   hlsFullScreen: boolean;
   hlsStreamPaused_android: boolean;
+  selectedVirtualBackground: string | null;
 };
 
 const INITIAL_STATE: IntialStateType = {
@@ -107,6 +108,7 @@ const INITIAL_STATE: IntialStateType = {
   hlsDescriptionPaneVisible: false,
   hlsFullScreen: false,
   hlsStreamPaused_android: false,
+  selectedVirtualBackground: null,
 };
 
 const appReducer = (
@@ -387,6 +389,12 @@ const appReducer = (
       return {
         ...state,
         hlsStreamPaused_android: action.payload.hlsStreamPaused_android,
+      };
+    }
+    case ActionTypes.SET_SELECTED_VIRTUAL_BG: {
+      return {
+        ...state,
+        selectedVirtualBackground: action.payload.selectedVirtualBackground,
       };
     }
     case HmsStateActionTypes.CLEAR_STATES:

@@ -353,6 +353,28 @@ RCT_EXTERN_METHOD(isNoiseCancellationPluginAvailable
                   : (RCTPromiseResolveBlock)resolve
                   : (RCTPromiseRejectBlock)reject)
 
+#pragma mark - Noise Cancellation Plugin
+
+RCT_EXTERN_METHOD(enableVideoPlugin
+                  : (NSDictionary)data
+                  : (RCTPromiseResolveBlock)resolve
+                  : (RCTPromiseRejectBlock)reject)
+
+RCT_EXTERN_METHOD(disableVideoPlugin
+                  : (NSDictionary)data
+                  : (RCTPromiseResolveBlock)resolve
+                  : (RCTPromiseRejectBlock)reject)
+
+RCT_EXTERN_METHOD(changeVirtualBackground
+                  : (NSDictionary)data
+                  : (RCTPromiseResolveBlock)resolve
+                  : (RCTPromiseRejectBlock)reject)
+
+RCT_EXTERN_METHOD(setVideoFilterParameter
+                  : (NSDictionary)data
+                  : (RCTPromiseResolveBlock)resolve
+                  : (RCTPromiseRejectBlock)reject)
+
 #pragma mark - Interactivity Center - Whiteboard
 
 RCT_EXTERN_METHOD(startWhiteboard

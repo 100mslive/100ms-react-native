@@ -171,9 +171,6 @@ export class HMSSessionStore {
       this._addedKeyChangeListenerCount = 0;
       if (
         this._deviceEventEmitterSubscription &&
-        Object.getOwnPropertyNames(
-          this._deviceEventEmitterSubscription
-        ).includes('remove') &&
         typeof this._deviceEventEmitterSubscription.remove === 'function'
       ) {
         this._deviceEventEmitterSubscription.remove();
