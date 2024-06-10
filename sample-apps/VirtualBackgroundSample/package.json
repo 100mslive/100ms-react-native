@@ -10,7 +10,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "@100mslive/react-native-hms": "^1.10.6-beta.1",
+    "@100mslive/react-native-hms": "^1.10.6",
     "@100mslive/react-native-room-kit": "^1.1.9-beta.1",
     "@100mslive/react-native-video-plugin": "github:100mslive/react-native-video-plugin",
     "@100mslive/types-prebuilt": "^0.12.9",
