@@ -6,7 +6,7 @@ https://100ms.atlassian.net/browse/RN-331
 - Expose SDK APIs for Virtual Backgrounds
 https://100ms.atlassian.net/browse/RN-333
 
-Room Kit: 1.1.9
-React Native SDK: 1.10.6
-Android SDK: 2.9.59
-iOS SDK: 1.11.0
+Room Kit: 1.2.0
+React Native SDK: 1.10.7
+Android SDK: 2.9.60
+iOS SDK: 1.12.0
