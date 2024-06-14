@@ -1095,21 +1095,19 @@ object HMSDecoder {
     return data
   }
 
-  fun getTranscriptionsMode(mode: TranscriptionsMode): String {
-    return when (mode) {
+  fun getTranscriptionsMode(mode: TranscriptionsMode): String =
+    when (mode) {
       TranscriptionsMode.CAPTION -> "CAPTION"
       TranscriptionsMode.LIVE -> "LIVE"
     }
-  }
 
-  fun getTranscriptionsState(state: TranscriptionState): String {
-    return when (state) {
+  fun getTranscriptionsState(state: TranscriptionState): String =
+    when (state) {
       TranscriptionState.FAILED -> "FAILED"
       TranscriptionState.INITIALIZED -> "INITIALIZED"
       TranscriptionState.STARTED -> "STARTED"
       TranscriptionState.STOPPED -> "STOPPED"
     }
-  }
 
   fun getHmsTranscripts(transcripts: List<HmsTranscript>): WritableArray {
     val data: WritableArray = Arguments.createArray()
@@ -1125,7 +1123,7 @@ object HMSDecoder {
     data.putString("peerId", transcript.peerId)
     data.putInt("end", transcript.end)
     data.putInt("start", transcript.start)
-    data.putBoolean("start", transcript.isFinal)
+    data.putBoolean("isFinal", transcript.isFinal)
     return data
   }
 }
