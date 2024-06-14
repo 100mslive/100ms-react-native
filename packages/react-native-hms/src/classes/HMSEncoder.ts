@@ -41,6 +41,7 @@ import { HMSSimulcastLayerDefinition } from './HMSSimulcastLayerDefinition';
 import { HMSQualityLimitationReasons } from './HMSQualityLimitationReasons';
 import { HMSTrackType } from './HMSTrackType';
 import { HMSHLSPlaylistType } from './HMSHLSPlaylistType';
+import type { Transcriptions } from './transcriptions';
 
 interface InitialData {
   roles: Record<string, HMSRole>;
@@ -699,5 +700,29 @@ export class HMSEncoder {
     const transformed = data as unknown as T;
 
     return transformed;
+  }
+
+  static encodeTranscriptions(data: Array<any>): Array<Transcriptions> {
+    if (Array.isArray(data)) {
+      data.forEach((transcriptions: Transcriptions) => {
+        if ('initialisedAt' in transcriptions) {
+          transcriptions.initialisedAt = this.encodeDate(
+            transcriptions.initialisedAt
+          );
+        }
+        if ('startedAt' in transcriptions) {
+          transcriptions.startedAt = this.encodeDate(transcriptions.startedAt);
+        }
+        if ('stoppedAt' in transcriptions) {
+          transcriptions.stoppedAt = this.encodeDate(transcriptions.stoppedAt);
+        }
+        if ('updatedAt' in transcriptions) {
+          transcriptions.updatedAt = this.encodeDate(transcriptions.updatedAt);
+        }
+      });
+      return data as Array<Transcriptions>;
+    } else {
+      return [];
+    }
   }
 }
