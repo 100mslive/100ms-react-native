@@ -14,6 +14,7 @@ import live.hms.video.sdk.models.enums.HMSPeerUpdate
 import live.hms.video.sdk.models.enums.HMSRoomUpdate
 import live.hms.video.sdk.models.role.*
 import live.hms.video.sdk.models.trackchangerequest.HMSChangeTrackStateRequest
+import live.hms.video.sdk.transcripts.HmsTranscript
 
 object HMSDecoder {
   private var restrictRoleData = mutableMapOf<String, Boolean>()
@@ -83,6 +84,9 @@ object HMSDecoder {
         HMSRoomUpdate.ROOM_UNMUTED -> {
           print("ROOM_UNMUTED received")
         }
+        HMSRoomUpdate.TRANSCRIPTIONS_UPDATED -> {
+          room.putArray("transcriptions", getTranscriptionsList(hmsRoom.transcriptions))
+        }
         else -> {
           print("Unknown Room Update Type received")
         }
@@ -148,6 +152,8 @@ object HMSDecoder {
       }
 
       room.putBoolean("isLargeRoom", hmsRoom.isLargeRoom)
+
+      room.putArray("transcriptions", getTranscriptionsList(hmsRoom.transcriptions))
     }
     return room
   }
@@ -1046,5 +1052,80 @@ object HMSDecoder {
     }
 
     return writableMap
+  }
+
+  fun getTranscriptionsList(transcriptionsList: List<Transcriptions>): WritableArray {
+    val data: WritableArray = Arguments.createArray()
+    transcriptionsList.forEach {
+      data.pushMap(getTranscriptions(it))
+    }
+    return data
+  }
+
+  fun getTranscriptions(transcriptions: Transcriptions): WritableMap {
+    val data: WritableMap = Arguments.createMap()
+    transcriptions.error?.let { error ->
+      val errorData: WritableMap = Arguments.createMap()
+      error.code?.let {
+        errorData.putInt("code", it)
+      }
+      error.message?.let {
+        errorData.putString("message", it)
+      }
+      data.putMap("error", errorData)
+    }
+    transcriptions.state?.let {
+      data.putString("state", getTranscriptionsState(it))
+    }
+    transcriptions.mode?.let {
+      data.putString("mode", getTranscriptionsMode(it))
+    }
+    transcriptions.startedAt?.let {
+      data.putString("startedAt", it.toString())
+    }
+    transcriptions.initialisedAt?.let {
+      data.putString("initialisedAt", it.toString())
+    }
+    transcriptions.stoppedAt?.let {
+      data.putString("stoppedAt", it.toString())
+    }
+    transcriptions.updatedAt?.let {
+      data.putString("updatedAt", it.toString())
+    }
+    return data
+  }
+
+  fun getTranscriptionsMode(mode: TranscriptionsMode): String {
+    return when (mode) {
+      TranscriptionsMode.CAPTION -> "CAPTION"
+      TranscriptionsMode.LIVE -> "LIVE"
+    }
+  }
+
+  fun getTranscriptionsState(state: TranscriptionState): String {
+    return when (state) {
+      TranscriptionState.FAILED -> "FAILED"
+      TranscriptionState.INITIALIZED -> "INITIALIZED"
+      TranscriptionState.STARTED -> "STARTED"
+      TranscriptionState.STOPPED -> "STOPPED"
+    }
+  }
+
+  fun getHmsTranscripts(transcripts: List<HmsTranscript>): WritableArray {
+    val data: WritableArray = Arguments.createArray()
+    transcripts.forEach {
+      data.pushMap(getHmsTranscript(it))
+    }
+    return data
+  }
+
+  fun getHmsTranscript(transcript: HmsTranscript): WritableMap {
+    val data: WritableMap = Arguments.createMap()
+    data.putString("transcript", transcript.transcript)
+    data.putString("peerId", transcript.peerId)
+    data.putInt("end", transcript.end)
+    data.putInt("start", transcript.start)
+    data.putBoolean("start", transcript.isFinal)
+    return data
   }
 }
