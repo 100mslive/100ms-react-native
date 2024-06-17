@@ -2560,6 +2560,24 @@ export class HMSSDK {
     });
   }
 
+  async startRealTimeTranscription() {
+    const data = {
+      id: this.id,
+      action: 'start',
+    };
+    logger?.verbose('#Function startRealTimeTranscription', data);
+    return HMSManager.handleRealTimeTranscription(data);
+  }
+
+  async stopRealTimeTranscription() {
+    const data = {
+      id: this.id,
+      action: 'stop',
+    };
+    logger?.verbose('#Function stopRealTimeTranscription', data);
+    return HMSManager.handleRealTimeTranscription(data);
+  }
+
   get interactivityCenter() {
     if (!this._interactivityCenter) {
       this._interactivityCenter = new HMSInteractivityCenter();
