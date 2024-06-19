@@ -8,6 +8,8 @@
 import Foundation
 import HMSSDK
 import ReplayKit
+import AVKit
+import SwiftUI
 
 class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
@@ -1454,6 +1456,15 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         }
         let roomData = HMSDecoder.getHmsRoomSubset(room)
         self.delegate?.emitEvent(HMSConstants.ON_JOIN, ["event": HMSConstants.ON_JOIN, "id": self.id, "room": roomData])
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 10) {
+            print(#function, "########## onJoin room")
+            if #available(iOS 15.0, *) {
+                self.setupPIP(["":""], nil, nil)
+            } else {
+                // Fallback on earlier versions
+            }
+        }
     }
 
     func onPreview(room: HMSRoom, localTracks: [HMSTrack]) {
@@ -2350,6 +2361,200 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         }
         resolve?(true)
     }
+    
+    // MARK: - PIP Mode Support
+    
+    internal var _pipVideoCallViewController: Any?
+
+    @available(iOS 15.0, *)
+    internal var pipVideoCallViewController: AVPictureInPictureVideoCallViewController? {
+        if _pipVideoCallViewController == nil {
+            _pipVideoCallViewController = AVPictureInPictureVideoCallViewController()
+        }
+        return _pipVideoCallViewController as? AVPictureInPictureVideoCallViewController
+    }
+    
+    
+    internal var _pipModel: Any?
+
+    @available(iOS 15.0, *)
+    internal var pipModel: PiPModel? {
+        if _pipModel == nil {
+            _pipModel = PiPModel()
+        }
+        return _pipModel as? PiPModel
+    }
+    
+    
+    internal var pipController: AVPictureInPictureController?
+    
+    @available(iOS 15.0, *)
+    func setupPIP(_ data: NSDictionary,
+                  _ resolve: RCTPromiseResolveBlock?,
+                  _ reject: RCTPromiseRejectBlock?) {
+        
+        print(#function, "########## setupPIP")
+
+        guard AVPictureInPictureController.isPictureInPictureSupported() else {
+            let errorMessage = "\(#function) PIP is not supported on this device"
+            reject?("6004", errorMessage, nil)
+            return
+        }
+
+        guard let uiView = UIApplication.shared.keyWindow?.rootViewController?.view else {
+            let errorMessage = "\(#function) Failed to setup PIP"
+            reject?("6004", errorMessage, nil)
+            return
+        }
+
+//        let pipVideoCallViewController = AVPictureInPictureVideoCallViewController()
+
+//        self.pipVideoCallViewController = pipVideoCallViewController
+
+//        model = PiPModel()
+        pipModel?.pipViewEnabled = true
+
+        if let scaleType = data["scale_type"] as? Int {
+            pipModel?.scaleType = getViewContentMode(scaleType)
+        } else {
+            pipModel?.scaleType = .scaleAspectFill
+        }
+
+//        if let color = arguments["color"] as? [Int] {
+//            let colour = Color(red: CGFloat(color[0])/255, green: CGFloat(color[1])/255, blue: CGFloat(color[2])/255)
+//            pipModel?.color = colour
+//        } else {
+            pipModel?.color = .black
+//        }
+        
+//        pipModel?.track = hms?.localPeer?.localVideoTrack()
+//        pipModel?.track = hms?.remotePeers?.first?.videoTrack
+
+        let controller = UIHostingController(rootView: HMSPiPView(model: pipModel!))
+
+        pipVideoCallViewController?.view.addConstrained(subview: controller.view)
+
+        if let ratio = data["ratio"] as? [Int], ratio.count == 2 {
+            pipVideoCallViewController?.preferredContentSize = CGSize(width: ratio[1], height: ratio[0])
+        } else {
+            pipVideoCallViewController?.preferredContentSize = CGSize(width: uiView.frame.size.width, height: uiView.frame.size.height)
+        }
+        
+        guard let pipVideoCallViewController = pipVideoCallViewController else {
+            let errorMessage = "\(#function) Failed to setup PIP"
+            reject?("6004", errorMessage, nil)
+            return
+        }
+
+        let pipContentSource = AVPictureInPictureController.ContentSource(activeVideoCallSourceView: uiView, contentViewController: pipVideoCallViewController)
+
+        pipController = AVPictureInPictureController(contentSource: pipContentSource)
+
+//        pipController?.delegate = self
+
+        if let autoEnterPIP = data["auto_enter_pip"] as? Bool {
+            pipController?.canStartPictureInPictureAutomaticallyFromInline = autoEnterPIP
+        }
+        
+        // pipController?.startPictureInPicture()
+
+        NotificationCenter.default.addObserver(forName: UIApplication.didBecomeActiveNotification,
+                                               object: nil, queue: .main) { [weak self] _ in
+//            stopPIP()
+        }
+
+        resolve?(nil)
+    }
+    
+    func startPIP(_ resolve: RCTPromiseResolveBlock?,
+                  _ reject: RCTPromiseRejectBlock?) {
+        pipController?.startPictureInPicture()
+        resolve?(nil)
+    }
+
+    func stopPIP(_ resolve: RCTPromiseResolveBlock?,
+                 _ reject: RCTPromiseRejectBlock?) {
+        pipController?.stopPictureInPicture()
+        resolve?(nil)
+    }
+
+    func disposePIP(_ resolve: RCTPromiseResolveBlock?,
+                    _ reject: RCTPromiseRejectBlock?) {
+        pipController = nil
+        _pipModel = nil
+        _pipVideoCallViewController = nil
+        NotificationCenter.default.removeObserver(UIApplication.didBecomeActiveNotification)
+        resolve?(nil)
+    }
+
+    func isPIPAvailable(_ resolve: RCTPromiseResolveBlock?,
+                        _ reject: RCTPromiseRejectBlock?) {
+        if AVPictureInPictureController.isPictureInPictureSupported() {
+            resolve?(true)
+        } else {
+            resolve?(false)
+        }
+    }
+
+    func isPIPActive(_ resolve: RCTPromiseResolveBlock?,
+                     _ reject: RCTPromiseRejectBlock?) {
+        if pipController != nil && pipController!.isPictureInPictureActive {
+            resolve?(true)
+        } else {
+            resolve?(false)
+        }
+    }
+
+    @available(iOS 15.0, *)
+    func changeTrack(_ data: NSDictionary,
+                     _ resolve: RCTPromiseResolveBlock?,
+                     _ reject: RCTPromiseRejectBlock?) {
+        
+        guard let trackID = data["track_id"] as? String,
+              let room = hms?.room,
+              let track = HMSUtilities.getVideoTrack(for: trackID, in: room),
+              let alternativeText = data["alternative_text"] as? String,
+              let ratio = data["ratio"] as? [Int],
+                ratio.count == 2,
+              let scaleType = data["scale_type"] as? Int,
+              let color = data["color"] as? [Int]
+        else {
+            let errorMessage = "\(#function) Incorrect data passed for changing track in PIP Mode"
+            reject?("6004", errorMessage, nil)
+            return
+        }
+        
+        pipModel?.color = Color(red: CGFloat(color[0])/255,
+                                green: CGFloat(color[1])/255,
+                                blue: CGFloat(color[2])/255)
+        
+        pipModel?.scaleType = getViewContentMode(scaleType)
+        pipModel?.track = track
+        pipModel?.text = alternativeText
+        pipVideoCallViewController?.preferredContentSize = CGSize(width: ratio[1], height: ratio[0])
+    }
+
+    @available(iOS 15.0, *)
+    func changeText(_ data: NSDictionary,
+                    _ resolve: RCTPromiseResolveBlock?,
+                    _ reject: RCTPromiseRejectBlock?) {
+
+        guard let text = data["text"] as? String,
+              let ratio = data["ratio"] as? [Int],
+                ratio.count == 2,
+              let color = data["color"] as? [Int]
+        else {
+            let errorMessage = "\(#function) Incorrect data passed for changing text in PIP Mode"
+            reject?("6004", errorMessage, nil)
+            return
+        }
+        let colour = Color(red: CGFloat(color[0])/255, green: CGFloat(color[1])/255, blue: CGFloat(color[2])/255)
+        pipModel?.color = colour
+        pipModel?.track = nil
+        pipModel?.text = text
+
+        pipVideoCallViewController?.preferredContentSize = CGSize(width: ratio[1], height: ratio[0])
+    }
 
     // MARK: - Helper Functions
 
@@ -2449,6 +2654,19 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     static private func getTimeStamp() -> String {
         "\(Date().timeIntervalSince1970)"
     }
+    
+    private func getViewContentMode(_ type: Int?) -> UIView.ContentMode {
+        switch type {
+        case 0:
+            return .scaleAspectFit
+        case 1:
+            return .scaleAspectFill
+        case 2:
+            return .center
+        default:
+            return .scaleAspectFill
+        }
+    }
 }
 
 extension UIImage {
@@ -2462,5 +2680,46 @@ extension UIImage {
         let normalizedImage = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
         return normalizedImage
+    }
+}
+
+
+/*
+extension HMSRNSDK: AVPictureInPictureControllerDelegate {
+
+    public func pictureInPictureControllerWillStartPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
+        print(#function)
+    }
+
+    public func pictureInPictureControllerDidStartPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
+        print(#function)
+    }
+
+    public func pictureInPictureControllerDidStopPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
+        print(#function)
+    }
+
+    public func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, failedToStartPictureInPictureWithError error: Error) {
+        print(#function, error)
+    }
+
+    public func pictureInPictureControllerWillStopPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
+        print(#function)
+    }
+
+    public func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, restoreUserInterfaceForPictureInPictureStopWithCompletionHandler completionHandler: @escaping (Bool) -> Void) {
+        print(#function)
+    }
+}
+*/
+
+extension UIView {
+    func addConstrained(subview: UIView) {
+        addSubview(subview)
+        subview.translatesAutoresizingMaskIntoConstraints = false
+        subview.topAnchor.constraint(equalTo: topAnchor).isActive = true
+        subview.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
+        subview.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
+        subview.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
     }
 }
