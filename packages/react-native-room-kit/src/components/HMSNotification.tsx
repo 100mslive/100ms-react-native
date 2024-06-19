@@ -5,7 +5,7 @@ import type { StyleProp, ViewStyle, TextStyle, TextProps } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
 import { useHMSRoomStyleSheet, useIsHLSViewer } from '../hooks-util';
-import { ChatIcon, CloseIcon } from '../Icons';
+import { CCIcon, ChatIcon, CloseIcon } from '../Icons';
 import { UnmountAfterDelay } from './UnmountAfterDelay';
 import { removeNotification } from '../redux/actions';
 
@@ -172,7 +172,8 @@ function getIcon(icon: string) {
     case 'chat-off':
     case 'chat-on':
       return <ChatIcon type={icon === 'chat-on' ? 'on' : 'off'} />;
-
+    case 'cc':
+      return <CCIcon style={{ width: 20, height: 20 }} />;
     default:
       return null;
   }

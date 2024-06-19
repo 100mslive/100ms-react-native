@@ -60,6 +60,7 @@ export enum ModalTypes {
   MESSAGE_OPTIONS = 'messageOptions',
   POLLS_AND_QUIZZES = 'pollsAndQuizzes',
   VIRTUAL_BACKGROUND = 'virtualBackground',
+  CLOSED_CAPTIONS_CONTROL = 'closedCaptionsControl',
   DEFAULT = '',
 }
 

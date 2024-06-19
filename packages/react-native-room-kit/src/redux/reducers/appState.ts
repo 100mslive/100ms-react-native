@@ -67,6 +67,7 @@ type IntialStateType = {
   hlsFullScreen: boolean;
   hlsStreamPaused_android: boolean;
   selectedVirtualBackground: string | null;
+  showClosedCaptions: boolean;
 };
 
 const INITIAL_STATE: IntialStateType = {
@@ -109,6 +110,7 @@ const INITIAL_STATE: IntialStateType = {
   hlsFullScreen: false,
   hlsStreamPaused_android: false,
   selectedVirtualBackground: null,
+  showClosedCaptions: false,
 };
 
 const appReducer = (
@@ -395,6 +397,12 @@ const appReducer = (
       return {
         ...state,
         selectedVirtualBackground: action.payload.selectedVirtualBackground,
+      };
+    }
+    case ActionTypes.SET_SHOW_CLOSED_CAPTIONS: {
+      return {
+        ...state,
+        showClosedCaptions: action.payload.showClosedCaptions,
       };
     }
     case HmsStateActionTypes.CLEAR_STATES:
