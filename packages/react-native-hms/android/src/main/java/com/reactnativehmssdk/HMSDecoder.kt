@@ -358,6 +358,18 @@ object HMSDecoder {
         whiteboardPermissionMap.putBoolean("write", whiteBoardPermission.write)
       }
       permissions.putMap("whiteboard", whiteboardPermissionMap)
+
+      val transcriptionsPermissionArray: WritableArray = Arguments.createArray()
+      hmsPermissions.transcriptions.forEach { hmsTranscriptionPermissions ->
+        val transcriptionsPermissions: WritableMap = Arguments.createMap()
+        transcriptionsPermissions.putBoolean("admin", hmsTranscriptionPermissions.admin)
+        transcriptionsPermissions.putBoolean("read", hmsTranscriptionPermissions.read)
+        hmsTranscriptionPermissions.mode?.let {
+          transcriptionsPermissions.putString("mode", getTranscriptionsMode(it))
+        }
+        transcriptionsPermissionArray.pushMap(transcriptionsPermissions)
+      }
+      permissions.putArray("transcriptions", transcriptionsPermissionArray)
     }
     return permissions
   }
