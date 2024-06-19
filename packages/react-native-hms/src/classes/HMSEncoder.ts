@@ -725,4 +725,14 @@ export class HMSEncoder {
       return [];
     }
   }
+
+  static transformTranscripts(data: Array<any>) {
+    data.forEach((encodedTranscript) => {
+      if ('peerId' in encodedTranscript) {
+        encodedTranscript.peer = HMSEncoder.encodeHmsPeer({
+          peerID: encodedTranscript.peerId,
+        });
+      }
+    });
+  }
 }

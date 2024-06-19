@@ -2176,6 +2176,7 @@ export class HMSSDK {
     if (data.id !== this.id) {
       return;
     }
+    HMSEncoder.transformTranscripts(data.transcripts);
 
     if (this.onTranscriptsDelegate) {
       logger?.verbose('#Listener ON_TRANSCRIPTS_LISTENER_CALL', data);

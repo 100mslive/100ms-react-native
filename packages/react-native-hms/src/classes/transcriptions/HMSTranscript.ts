@@ -1,11 +1,13 @@
+import type { HMSPeer } from '../HMSPeer';
+
 export interface HMSTranscript {
   transcript: string;
 
-  peerId: string;
+  peer: HMSPeer;
 
-  end: Date;
+  end: number;
 
-  start: Date;
+  start: number;
 
   isFinal: boolean;
 }
