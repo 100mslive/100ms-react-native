@@ -44,6 +44,9 @@ class HMSDecoder: NSObject {
                 let serverRecordingState = HMSDecoder.getServerRecordingState(hmsRoom?.serverRecordingState)
                 data["serverRecordingState"] = serverRecordingState
                 return data
+            case .transcriptionStateUpdated:
+                data["transcriptions"] = HMSDecoder.getTranscriptionStates(hmsRoom?.transcriptionStates)
+                return data
             default:
                 return data
         }
@@ -83,6 +86,8 @@ class HMSDecoder: NSObject {
         data["peers"] = peers
 
         data["isLargeRoom"] = room.isLarge
+
+        data["transcriptions"] = HMSDecoder.getTranscriptionStates(room.transcriptionStates)
 
         return data
     }
@@ -470,6 +475,17 @@ class HMSDecoder: NSObject {
                 "write": whiteboardPermissions.write
             ]
         }
+        if let transcriptionPermissions = permissions.transcriptions {
+            var transcriptionPermissionsArray: [[String: AnyHashable]] = []
+            transcriptionPermissions.forEach({ hmsTranscriptionPermissions in
+                transcriptionPermissionsArray.append([
+                    "admin": hmsTranscriptionPermissions.admin ?? false,
+                    "mode": hmsTranscriptionPermissions.mode,
+                    "read": false
+                ])
+            })
+            permissionsDict["transcriptions"] = transcriptionPermissionsArray
+        }
         return permissionsDict
     }
 
@@ -641,6 +657,66 @@ class HMSDecoder: NSObject {
         return nil
     }
     // MARK: END: - HMSRole Subscribe Settings and Utility functions
+
+    // MARK: - WebRTC Transcriptions
+    static func getTranscriptionStates(_ transcriptionStates: [HMSTranscriptionState]?) -> [[String: AnyHashable]] {
+        var data: [[String: AnyHashable]] = []
+        transcriptionStates?.forEach { transcriptionState in
+            data.append(getTranscriptionState(transcriptionState))
+        }
+        return data
+    }
+
+    static func getTranscriptionState(_ transcriptionState: HMSTranscriptionState) -> [String: AnyHashable] {
+        var data: [String: AnyHashable] = [
+            "mode": transcriptionState.mode.uppercased(),
+            "state": getHMSTranscriptionStatus(transcriptionState.state),
+        ]
+        if let error = transcriptionState.error {
+            data["error"] = [
+                "message": error.localizedDescription
+            ]
+        }
+        if let startedAt = transcriptionState.startedAt?.timeIntervalSince1970 {
+            data["startedAt"] = startedAt * 1000
+        }
+        if let stoppedAt = transcriptionState.stoppedAt?.timeIntervalSince1970 {
+            data["stoppedAt"] = stoppedAt * 1000
+        }
+        if let updatedAt = transcriptionState.updatedAt?.timeIntervalSince1970 {
+            data["updatedAt"] = updatedAt * 1000
+        }
+        return data
+    }
+
+    static func getHMSTranscriptionStatus(_ hmsTranscriptionStatus: HMSTranscriptionStatus) -> String {
+        return switch hmsTranscriptionStatus {
+            case .failed: "FAILED"
+            case .started: "STARTED"
+            case .stopped: "STOPPED"
+            case .none: "NONE"
+            case .starting: "STARTING"
+            @unknown default: fatalError()
+        }
+    }
+
+    static func getHmsTranscripts(_ hmsTranscripts: [HMSTranscript]) -> [[String: AnyHashable]] {
+        var transcripts: [[String: AnyHashable]] = []
+        hmsTranscripts.forEach { hmsTranscript in
+            transcripts.append(getHmsTranscript(hmsTranscript))
+        }
+        return transcripts
+    }
+
+    static func getHmsTranscript(_ hmsTranscript: HMSTranscript) -> [String: AnyHashable] {
+        return [
+            "transcript": hmsTranscript.transcript,
+            "peerId": hmsTranscript.peer.peerID,
+            "end": hmsTranscript.end,
+            "start": hmsTranscript.start,
+            "isFinal": hmsTranscript.isFinal,
+        ]
+    }
 
     static func getHmsRoleChangeRequest(_ roleChangeRequest: HMSRoleChangeRequest, _ id: String?) -> [String: Any] {
 

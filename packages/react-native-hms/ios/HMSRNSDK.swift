@@ -1395,6 +1395,9 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             case "isLargeRoom":
                 return ["isLargeRoom": hmsRoom.isLarge]
 
+            case "transcriptions":
+                return ["transcriptions": HMSDecoder.getTranscriptionStates(hmsRoom.transcriptionStates)]
+
             default:
                 return nil
         }
@@ -1682,6 +1685,15 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         let remoteTrack = HMSDecoder.getHmsVideoTrack(track)
 
         self.delegate?.emitEvent(HMSConstants.ON_REMOTE_VIDEO_STATS, ["remoteVideoStats": remoteStats, "track": remoteTrack, "peer": decodedPeer, "id": self.id])
+    }
+    
+    func on(transcripts: HMSTranscripts) {
+        if eventsEnableStatus[HMSConstants.ON_TRANSCRIPTS] != true {
+            return
+        }
+        let transcriptsArray = HMSDecoder.getHmsTranscripts(transcripts.transcripts)
+        
+        self.delegate?.emitEvent(HMSConstants.ON_TRANSCRIPTS, ["id": self.id, "transcripts": transcriptsArray])
     }
 
     // MARK: - Simulcast
@@ -2349,6 +2361,57 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             return
         }
         resolve?(true)
+    }
+    
+    // MARK: - WebRTC Transcriptions
+
+    func handleRealTimeTranscription(_ data: NSDictionary,
+                                     _ resolve: RCTPromiseResolveBlock?,
+                                     _ reject: RCTPromiseRejectBlock?) {
+        guard let action = data.value(forKey: "action") as? String else {
+            reject?("\(#function): `action` key not passed", "\(#function): `action` key not passed", nil)
+            return
+        }
+        switch action {
+        case "start": startRealTimeTranscription(data, resolve, reject)
+            break
+        case "stop": stopRealTimeTranscription(data, resolve, reject)
+            break
+        default:
+            reject?("\(#function): Unknown `action` key passed", "\(#function): Unknown `action` key passed", nil)
+        }
+    }
+
+    private func startRealTimeTranscription(_ data: NSDictionary,
+                                    _ resolve: RCTPromiseResolveBlock?,
+                                    _ reject: RCTPromiseRejectBlock?) {
+        guard let hmssdk = hms else {
+            reject?("\(#function): HMSSDK not available", "\(#function): HMSSDK not available", nil)
+            return
+        }
+        hmssdk.startTranscription { success, error in
+            if let error = error {
+                reject?(error.localizedDescription, error.localizedDescription, nil)
+                return
+            }
+            resolve?(success)
+        }
+    }
+
+    private func stopRealTimeTranscription(_ data: NSDictionary,
+                                   _ resolve: RCTPromiseResolveBlock?,
+                                   _ reject: RCTPromiseRejectBlock?) {
+        guard let hmssdk = hms else {
+            reject?("\(#function): HMSSDK not available", "\(#function): HMSSDK not available", nil)
+            return
+        }
+        hmssdk.stopTranscription { success, error in
+            if let error = error {
+                reject?(error.localizedDescription, error.localizedDescription, nil)
+                return
+            }
+            resolve?(success)
+        }
     }
 
     // MARK: - Helper Functions
