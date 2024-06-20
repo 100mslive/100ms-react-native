@@ -387,7 +387,14 @@ RCT_EXTERN_METHOD(stopWhiteboard
                   : (RCTPromiseResolveBlock)resolve
                   : (RCTPromiseRejectBlock)reject)
 
-// MARK: - PIP Mode Support
+#pragma mark - WebRTC Transcriptions
+
+RCT_EXTERN_METHOD(handleRealTimeTranscription
+                  : (NSDictionary)data
+                  : (RCTPromiseResolveBlock)resolve
+                  : (RCTPromiseRejectBlock)reject)
+
+#pragma mark - PIP Mode Support
 
 RCT_EXTERN_METHOD(setupPIP
                   : (NSDictionary)data
@@ -428,6 +435,5 @@ RCT_EXTERN_METHOD(changeText
                   : (NSDictionary)data
                   : (RCTPromiseResolveBlock)resolve
                   : (RCTPromiseRejectBlock)reject)
-
 
 @end

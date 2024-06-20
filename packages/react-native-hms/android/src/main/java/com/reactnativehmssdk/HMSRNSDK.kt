@@ -20,6 +20,7 @@ import live.hms.video.sdk.models.enums.HMSPeerUpdate
 import live.hms.video.sdk.models.enums.HMSRoomUpdate
 import live.hms.video.sdk.models.enums.HMSTrackUpdate
 import live.hms.video.sdk.models.trackchangerequest.HMSChangeTrackStateRequest
+import live.hms.video.sdk.transcripts.HmsTranscripts
 import live.hms.video.sessionstore.HMSKeyChangeListener
 import live.hms.video.sessionstore.HmsSessionStore
 import live.hms.video.signal.init.*
@@ -544,6 +545,17 @@ class HMSRNSDK(
               data.putArray("addedPeers", addedPeersArray)
               data.putArray("removedPeers", removedPeersArray)
               delegate.emitEvent("ON_PEER_LIST_UPDATED", data)
+            }
+
+            override fun onTranscripts(transcripts: HmsTranscripts) {
+              if (eventsEnableStatus["ON_TRANSCRIPTS"] != true) {
+                return
+              }
+              val data: WritableMap = Arguments.createMap()
+              val transcriptsArray = HMSDecoder.getHmsTranscripts(transcripts.transcripts)
+              data.putArray("transcripts", transcriptsArray)
+              data.putString("id", id)
+              delegate.emitEvent("ON_TRANSCRIPTS", data)
             }
           },
         )
@@ -1953,6 +1965,9 @@ class HMSRNSDK(
         "isLargeRoom" -> {
           data.putBoolean("isLargeRoom", hmsRoom.isLargeRoom)
         }
+        "transcriptions" -> {
+          data.putArray("transcriptions", HMSDecoder.getTranscriptionsList(hmsRoom.transcriptions))
+        }
       }
 
       return data
@@ -2591,4 +2606,52 @@ class HMSRNSDK(
       },
     )
   }
+
+  // region Webrtc Transcription
+  fun handleRealTimeTranscription(
+    data: ReadableMap,
+    promise: Promise?,
+  ) {
+    when (data.getString("action")) {
+      "start" -> startRealTimeTranscription(data, promise)
+      "stop" -> stopRealTimeTranscription(data, promise)
+    }
+  }
+
+  private fun startRealTimeTranscription(
+    data: ReadableMap,
+    promise: Promise?,
+  ) {
+    hmsSDK?.startRealTimeTranscription(
+      TranscriptionsMode.CAPTION,
+      object : HMSActionResultListener {
+        override fun onError(error: HMSException) {
+          promise?.reject(error.code.toString(), error.message)
+        }
+
+        override fun onSuccess() {
+          promise?.resolve(true)
+        }
+      },
+    )
+  }
+
+  private fun stopRealTimeTranscription(
+    data: ReadableMap,
+    promise: Promise?,
+  ) {
+    hmsSDK?.stopRealTimeTranscription(
+      TranscriptionsMode.CAPTION,
+      object : HMSActionResultListener {
+        override fun onError(error: HMSException) {
+          promise?.reject(error.code.toString(), error.message)
+        }
+
+        override fun onSuccess() {
+          promise?.resolve(true)
+        }
+      },
+    )
+  }
+  // endregion Webrtc Transcription
 }

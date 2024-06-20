@@ -114,6 +114,8 @@ export { PollLeaderboardResponse } from './classes/polls/PollLeaderboardResponse
 export { HMSPollLeaderboardEntry } from './classes/polls/HMSPollLeaderboardEntry';
 export { HMSPollLeaderboardSummary } from './classes/polls/HMSPollLeaderboardSummary';
 
+export * from './classes/transcriptions';
+
 import { HMSSDK as HmsManager } from './classes/HMSSDK';
 
 // 100ms React Native Module

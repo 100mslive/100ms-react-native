@@ -63,6 +63,7 @@ export class HMSSDK {
   private onPreviewDelegate?: any;
   private onJoinDelegate?: any;
   private onRoomDelegate?: any;
+  private onTranscriptsDelegate?: any;
   private onPeerDelegate?: any;
   private onPeerListUpdatedDelegate?: any;
   private onTrackDelegate?: any;
@@ -1288,6 +1289,24 @@ export class HMSSDK {
         this.onRoomDelegate = callback;
         break;
       }
+      case HMSUpdateListenerActions.ON_TRANSCRIPTS: {
+        // Checking if we already have ON_TRANSCRIPTS subscription
+        if (
+          !this.emitterSubscriptions[HMSUpdateListenerActions.ON_TRANSCRIPTS]
+        ) {
+          // Adding ON_TRANSCRIPTS native listener
+          const transcriptsSubscription = HMSNativeEventListener.addListener(
+            this.id,
+            HMSUpdateListenerActions.ON_TRANSCRIPTS,
+            this.onTranscriptsListener
+          );
+          this.emitterSubscriptions[HMSUpdateListenerActions.ON_TRANSCRIPTS] =
+            transcriptsSubscription;
+        }
+        // Adding App Delegate listener
+        this.onTranscriptsDelegate = callback;
+        break;
+      }
       case HMSUpdateListenerActions.ON_PEER_UPDATE: {
         // Checking if we already have ON_PEER_UPDATE subscription
         if (
@@ -1734,6 +1753,20 @@ export class HMSSDK {
         this.onRoomDelegate = null;
         break;
       }
+      case HMSUpdateListenerActions.ON_TRANSCRIPTS: {
+        const subscription =
+          this.emitterSubscriptions[HMSUpdateListenerActions.ON_TRANSCRIPTS];
+        // Removing ON_TRANSCRIPTS native listener
+        if (subscription) {
+          subscription.remove();
+
+          this.emitterSubscriptions[HMSUpdateListenerActions.ON_TRANSCRIPTS] =
+            undefined;
+        }
+        // Removing App Delegate listener
+        this.onTranscriptsDelegate = null;
+        break;
+      }
       case HMSUpdateListenerActions.ON_PEER_UPDATE: {
         const subscription =
           this.emitterSubscriptions[HMSUpdateListenerActions.ON_PEER_UPDATE];
@@ -2139,6 +2172,18 @@ export class HMSSDK {
     }
   };
 
+  onTranscriptsListener = (data: any) => {
+    if (data.id !== this.id) {
+      return;
+    }
+    HMSEncoder.transformTranscripts(data.transcripts);
+
+    if (this.onTranscriptsDelegate) {
+      logger?.verbose('#Listener ON_TRANSCRIPTS_LISTENER_CALL', data);
+      this.onTranscriptsDelegate(data);
+    }
+  };
+
   onPeerListener = (peerData: any) => {
     const data: { peer: any; type: any } = {
       peer: peerData,
@@ -2514,6 +2559,24 @@ export class HMSSDK {
       ...data,
       id: this.id,
     });
+  }
+
+  async startRealTimeTranscription() {
+    const data = {
+      id: this.id,
+      action: 'start',
+    };
+    logger?.verbose('#Function startRealTimeTranscription', data);
+    return HMSManager.handleRealTimeTranscription(data);
+  }
+
+  async stopRealTimeTranscription() {
+    const data = {
+      id: this.id,
+      action: 'stop',
+    };
+    logger?.verbose('#Function stopRealTimeTranscription', data);
+    return HMSManager.handleRealTimeTranscription(data);
   }
 
   get interactivityCenter() {

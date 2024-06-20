@@ -513,6 +513,11 @@ export const setSelectedVirtualBackground = (vb: string | null) => ({
   payload: { selectedVirtualBackground: vb },
 });
 
+export const setShowClosedCaptions = (showClosedCaptions: boolean) => ({
+  type: actionTypes.SET_SHOW_CLOSED_CAPTIONS,
+  payload: { showClosedCaptions },
+});
+
 /**
  * POLLS
  */

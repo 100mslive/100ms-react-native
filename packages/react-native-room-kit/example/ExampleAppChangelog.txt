@@ -1,10 +1,13 @@
-Board: https://100ms.atlassian.net/jira/software/projects/RN/boards/33
+Board: https://app.devrev.ai/100ms/vistas/vista-254
 
-- Implement Background Blur effects
-https://100ms.atlassian.net/browse/RN-331
+- Live Transcription in WebRTC mode
+https://app.devrev.ai/100ms/works/ISS-22674
 
-- Expose SDK APIs for Virtual Backgrounds
-https://100ms.atlassian.net/browse/RN-333
+- Pick transcription status from room state
+https://app.devrev.ai/100ms/works/ISS-22675
+
+- Live transcriptions - Allow runtime toggle
+https://app.devrev.ai/100ms/works/ISS-22678
 
 Room Kit: 1.2.0
 React Native SDK: 1.10.7

@@ -7,6 +7,7 @@ import type { HMSHLSRecordingState } from './HMSHLSRecordingState';
 import type { HMSLocalPeer } from './HMSLocalPeer';
 import { getHmsRoomCache, getHMSRoomPropertyFromNative } from './HMSRoomCache';
 import { HMSConstants } from './HMSConstants';
+import type { Transcriptions } from './transcriptions/Transcriptions';
 
 export class HMSRoom {
   id: string;
@@ -164,6 +165,19 @@ export class HMSRoom {
     return getHMSRoomPropertyFromNative(
       HMSConstants.DEFAULT_SDK_ID,
       'isLargeRoom'
+    );
+  }
+
+  get transcriptions(): Array<Transcriptions> {
+    const hmsRoomCache = getHmsRoomCache();
+
+    if (hmsRoomCache) {
+      return hmsRoomCache.getProperty('transcriptions');
+    }
+
+    return getHMSRoomPropertyFromNative(
+      HMSConstants.DEFAULT_SDK_ID,
+      'transcriptions'
     );
   }
 }

@@ -1607,6 +1607,24 @@ class HMSManager(reactContext: ReactApplicationContext) :
   }
   // endregion
 
+  // region Webrtc Transcriptions
+  @ReactMethod
+  fun handleRealTimeTranscription(
+    data: ReadableMap,
+    promise: Promise?,
+  ) {
+    val rnSDK =
+      HMSHelper.getHms(data, hmsCollection) ?: run {
+        promise?.reject(
+          "6004",
+          "RN HMS SDK not initialized",
+        )
+        return
+      }
+    rnSDK.handleRealTimeTranscription(data, promise)
+  }
+  // endregion
+
   // region Warning on JS side
   @ReactMethod
   fun addListener(eventName: String) {
