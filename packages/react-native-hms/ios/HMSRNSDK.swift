@@ -2480,7 +2480,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         
         pipModel?.color = .black
 
-        let controller = UIHostingController(rootView: HMSPiPView(model: pipModel!))
+        let controller = UIHostingController(rootView: HMSPipView(model: pipModel!))
 
         pipVideoCallViewController?.view.addConstrained(subview: controller.view)
 
