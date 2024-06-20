@@ -827,4 +827,104 @@ class HMSManager: RCTEventEmitter {
         }
         interactivity.stopWhiteboard(resolve, reject)
     }
+    
+    
+    // MARK: - PIP Mode Support
+    
+    @available(iOS 15.0, *)
+    @objc
+    func setupPIP(_ data: NSDictionary,
+                  _ resolve: RCTPromiseResolveBlock?,
+                  _ reject: RCTPromiseRejectBlock?) {
+        
+        guard let rnsdk = HMSHelper.getHms(data, hmsCollection) else {
+            reject?("6004", "HMSRNSDK instance not found!", nil)
+            return
+        }
+        rnsdk.setupPIP(data, resolve, reject)
+    }
+    
+    @objc
+    func startPIP(_ data: NSDictionary,
+                  _ resolve: RCTPromiseResolveBlock?,
+                  _ reject: RCTPromiseRejectBlock?) {
+        
+        guard let rnsdk = HMSHelper.getHms(data, hmsCollection) else {
+            reject?("6004", "HMSRNSDK instance not found!", nil)
+            return
+        }
+        rnsdk.startPIP(resolve, reject)
+    }
+
+    @objc
+    func stopPIP(_ data: NSDictionary,
+                 _ resolve: RCTPromiseResolveBlock?,
+                 _ reject: RCTPromiseRejectBlock?) {
+        
+        guard let rnsdk = HMSHelper.getHms(data, hmsCollection) else {
+            reject?("6004", "HMSRNSDK instance not found!", nil)
+            return
+        }
+        rnsdk.stopPIP(resolve, reject)
+    }
+
+    @objc
+    func disposePIP(_ data: NSDictionary,
+                    _ resolve: RCTPromiseResolveBlock?,
+                    _ reject: RCTPromiseRejectBlock?) {
+        
+        guard let rnsdk = HMSHelper.getHms(data, hmsCollection) else {
+            reject?("6004", "HMSRNSDK instance not found!", nil)
+            return
+        }
+        rnsdk.disposePIP(resolve, reject)
+    }
+
+    @objc
+    func isPIPAvailable(_ resolve: RCTPromiseResolveBlock?,
+                        _ reject: RCTPromiseRejectBlock?) {
+        if AVPictureInPictureController.isPictureInPictureSupported() {
+            resolve?(true)
+        } else {
+            resolve?(false)
+        }
+    }
+
+    @objc
+    func isPIPActive(_ data: NSDictionary,
+                     _ resolve: RCTPromiseResolveBlock?,
+                     _ reject: RCTPromiseRejectBlock?) {
+        
+        guard let rnsdk = HMSHelper.getHms(data, hmsCollection) else {
+            reject?("6004", "HMSRNSDK instance not found!", nil)
+            return
+        }
+        rnsdk.isPIPActive(resolve, reject)
+    }
+
+    @available(iOS 15.0, *)
+    @objc
+    func changeTrack(_ data: NSDictionary,
+                     _ resolve: RCTPromiseResolveBlock?,
+                     _ reject: RCTPromiseRejectBlock?) {
+        
+        guard let rnsdk = HMSHelper.getHms(data, hmsCollection) else {
+            reject?("6004", "HMSRNSDK instance not found!", nil)
+            return
+        }
+        rnsdk.changeTrack(data, resolve, reject)
+    }
+
+    @available(iOS 15.0, *)
+    @objc
+    func changeText(_ data: NSDictionary,
+                    _ resolve: RCTPromiseResolveBlock?,
+                    _ reject: RCTPromiseRejectBlock?) {
+
+        guard let rnsdk = HMSHelper.getHms(data, hmsCollection) else {
+            reject?("6004", "HMSRNSDK instance not found!", nil)
+            return
+        }
+        rnsdk.changeText(data, resolve, reject)
+    }
 }

@@ -2378,11 +2378,11 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     internal var _pipModel: Any?
 
     @available(iOS 15.0, *)
-    internal var pipModel: PiPModel? {
+    internal var pipModel: HMSPipModel? {
         if _pipModel == nil {
-            _pipModel = PiPModel()
+            _pipModel = HMSPipModel()
         }
-        return _pipModel as? PiPModel
+        return _pipModel as? HMSPipModel
     }
     
     
@@ -2407,11 +2407,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             return
         }
 
-//        let pipVideoCallViewController = AVPictureInPictureVideoCallViewController()
-
-//        self.pipVideoCallViewController = pipVideoCallViewController
-
-//        model = PiPModel()
         pipModel?.pipViewEnabled = true
 
         if let scaleType = data["scale_type"] as? Int {
@@ -2419,16 +2414,8 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         } else {
             pipModel?.scaleType = .scaleAspectFill
         }
-
-//        if let color = arguments["color"] as? [Int] {
-//            let colour = Color(red: CGFloat(color[0])/255, green: CGFloat(color[1])/255, blue: CGFloat(color[2])/255)
-//            pipModel?.color = colour
-//        } else {
-            pipModel?.color = .black
-//        }
         
-//        pipModel?.track = hms?.localPeer?.localVideoTrack()
-//        pipModel?.track = hms?.remotePeers?.first?.videoTrack
+        pipModel?.color = .black
 
         let controller = UIHostingController(rootView: HMSPiPView(model: pipModel!))
 
@@ -2460,7 +2447,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
         NotificationCenter.default.addObserver(forName: UIApplication.didBecomeActiveNotification,
                                                object: nil, queue: .main) { [weak self] _ in
-//            stopPIP()
+            self?.stopPIP(nil, nil)
         }
 
         resolve?(nil)
@@ -2487,15 +2474,6 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         resolve?(nil)
     }
 
-    func isPIPAvailable(_ resolve: RCTPromiseResolveBlock?,
-                        _ reject: RCTPromiseRejectBlock?) {
-        if AVPictureInPictureController.isPictureInPictureSupported() {
-            resolve?(true)
-        } else {
-            resolve?(false)
-        }
-    }
-
     func isPIPActive(_ resolve: RCTPromiseResolveBlock?,
                      _ reject: RCTPromiseRejectBlock?) {
         if pipController != nil && pipController!.isPictureInPictureActive {
@@ -2516,17 +2494,12 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
               let alternativeText = data["alternative_text"] as? String,
               let ratio = data["ratio"] as? [Int],
                 ratio.count == 2,
-              let scaleType = data["scale_type"] as? Int,
-              let color = data["color"] as? [Int]
+              let scaleType = data["scale_type"] as? Int
         else {
             let errorMessage = "\(#function) Incorrect data passed for changing track in PIP Mode"
             reject?("6004", errorMessage, nil)
             return
         }
-        
-        pipModel?.color = Color(red: CGFloat(color[0])/255,
-                                green: CGFloat(color[1])/255,
-                                blue: CGFloat(color[2])/255)
         
         pipModel?.scaleType = getViewContentMode(scaleType)
         pipModel?.track = track
