@@ -28,6 +28,7 @@ import {
   HMSHLSPlayerPlaybackState,
   TranscriptionsMode,
   TranscriptionState,
+  HMSVideoViewMode,
 } from '@100mslive/react-native-hms';
 import type { Chat as ChatConfig } from '@100mslive/types-prebuilt/elements/chat';
 import { SoftInputModes } from '@100mslive/react-native-hms';
@@ -1619,9 +1620,16 @@ export const useAutoPip = (oneToOneCall: boolean) => {
     return room && room.peerCount !== null ? room.peerCount > 1 : false; // `peerCount` includes local peer
   });
 
+  console.warn('autoEnterPipMode', autoEnterPipMode);
+  console.warn('remotePeersPresent', remotePeersPresent);
+
   useEffect(() => {
     if (autoEnterPipMode && remotePeersPresent) {
-      enableAutoPip({ aspectRatio: [numerator, denominator] });
+      enableAutoPip({
+        scaleType: HMSVideoViewMode.ASPECT_FILL,
+        aspectRatio: [numerator, denominator],
+        trackId: 'd3957c7d-6fea-4263-b0f3-a452cccc01ac',
+      });
 
       return disableAutoPip;
     }
@@ -1646,7 +1654,7 @@ export const usePipAspectRatio = (oneToOneCall: boolean): [number, number] => {
 
   const ssResolution = useHmsViewsResolutionsState(firstSSNodeId);
 
-  const aspectRatio = useMemo((): [number, number] => {
+  const aspectRatio = useMemo((): number[] | undefined => {
     // When user is hlsviewer and we have stream resolution
     if (isHLSViewer && hlsPlayerResolution) {
       return [hlsPlayerResolution.width, hlsPlayerResolution.height];
@@ -1664,7 +1672,11 @@ export const usePipAspectRatio = (oneToOneCall: boolean): [number, number] => {
       return [9, 16];
     }
     // default aspect ratio
-    return [16, 9];
+    return Platform.select({
+      ios: [9, 16],
+      android: [16, 9],
+      default: [16, 9],
+    });
   }, [
     isHLSViewer,
     firstSSNodeId,
@@ -2719,9 +2731,7 @@ export const useSavePropsToStore = (
   }, [handleBackButton]);
 
   useEffect(() => {
-    if (Platform.OS === 'android') {
-      dispatch(setAutoEnterPipMode(autoEnterPipMode));
-    }
+    dispatch(setAutoEnterPipMode(autoEnterPipMode));
   }, [autoEnterPipMode]);
 };
 

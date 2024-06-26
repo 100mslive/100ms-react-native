@@ -670,7 +670,7 @@ class HMSDecoder: NSObject {
     static func getTranscriptionState(_ transcriptionState: HMSTranscriptionState) -> [String: AnyHashable] {
         var data: [String: AnyHashable] = [
             "mode": transcriptionState.mode.uppercased(),
-            "state": getHMSTranscriptionStatus(transcriptionState.state),
+            "state": getHMSTranscriptionStatus(transcriptionState.state)
         ]
         if let error = transcriptionState.error {
             data["error"] = [
@@ -714,7 +714,7 @@ class HMSDecoder: NSObject {
             "peerId": hmsTranscript.peer.peerID,
             "end": hmsTranscript.end,
             "start": hmsTranscript.start,
-            "isFinal": hmsTranscript.isFinal,
+            "isFinal": hmsTranscript.isFinal
         ]
     }
 

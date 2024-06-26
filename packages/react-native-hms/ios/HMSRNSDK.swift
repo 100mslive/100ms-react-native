@@ -11,7 +11,7 @@ import ReplayKit
 import AVKit
 import SwiftUI
 
-class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
+class HMSRNSDK: NSObject, HMSUpdateListener, HMSPreviewListener {
 
     var hms: HMSSDK?
     var interactivity: HMSRNInteractivityCenter?
@@ -40,6 +40,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
     // MARK: - Setup
     init(data: NSDictionary?, delegate manager: HMSManager?, uid id: String) {
+        super.init()
         preferredExtension = data?.value(forKey: "preferredExtension") as? String
         self.delegate = manager
         self.id = id
@@ -1459,11 +1460,11 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         }
         let roomData = HMSDecoder.getHmsRoomSubset(room)
         self.delegate?.emitEvent(HMSConstants.ON_JOIN, ["event": HMSConstants.ON_JOIN, "id": self.id, "room": roomData])
-        
+
         DispatchQueue.main.asyncAfter(deadline: .now() + 10) {
             print(#function, "########## onJoin room")
             if #available(iOS 15.0, *) {
-                self.setupPIP(["":""], nil, nil)
+//                self.setPictureInPictureParams(["aspectRatio": [9, 16]], nil, nil)
             } else {
                 // Fallback on earlier versions
             }
@@ -1573,6 +1574,17 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     }
 
     func on(updated speakers: [HMSSpeaker]) {
+        
+        if useActiveSpeakerInPIP {
+            if let controller = pipController, controller.isPictureInPictureActive {
+                if #available(iOS 15.0, *) {
+                    if let track = speakers.first?.peer.videoTrack, !track.isMute() {
+                        pipModel?.track = track
+                    }
+                }
+            }
+        }
+        
         if eventsEnableStatus[HMSConstants.ON_SPEAKER] != true {
             return
         }
@@ -1697,13 +1709,13 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
         self.delegate?.emitEvent(HMSConstants.ON_REMOTE_VIDEO_STATS, ["remoteVideoStats": remoteStats, "track": remoteTrack, "peer": decodedPeer, "id": self.id])
     }
-    
+
     func on(transcripts: HMSTranscripts) {
         if eventsEnableStatus[HMSConstants.ON_TRANSCRIPTS] != true {
             return
         }
         let transcriptsArray = HMSDecoder.getHmsTranscripts(transcripts.transcripts)
-        
+
         self.delegate?.emitEvent(HMSConstants.ON_TRANSCRIPTS, ["id": self.id, "transcripts": transcriptsArray])
     }
 
@@ -2373,7 +2385,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         }
         resolve?(true)
     }
-    
+
     // MARK: - WebRTC Transcriptions
 
     func handleRealTimeTranscription(_ data: NSDictionary,
@@ -2384,10 +2396,10 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             return
         }
         switch action {
-        case "start": startRealTimeTranscription(data, resolve, reject)
-            break
-        case "stop": stopRealTimeTranscription(data, resolve, reject)
-            break
+        case "start":
+    startRealTimeTranscription(data, resolve, reject)
+            case "stop":
+    stopRealTimeTranscription(data, resolve, reject)
         default:
             reject?("\(#function): Unknown `action` key passed", "\(#function): Unknown `action` key passed", nil)
         }
@@ -2424,9 +2436,9 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             resolve?(success)
         }
     }
-    
+
     // MARK: - PIP Mode Support
-    
+
     internal var _pipVideoCallViewController: Any?
 
     @available(iOS 15.0, *)
@@ -2436,8 +2448,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         }
         return _pipVideoCallViewController as? AVPictureInPictureVideoCallViewController
     }
-    
-    
+
     internal var _pipModel: Any?
 
     @available(iOS 15.0, *)
@@ -2447,16 +2458,19 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         }
         return _pipModel as? HMSPipModel
     }
-    
-    
+
     internal var pipController: AVPictureInPictureController?
     
+    var customView = UIView()
+    var customView2 = UIView()
+    
+    // TODO: should be set to false as default
+    internal var useActiveSpeakerInPIP: Bool = true
+
     @available(iOS 15.0, *)
-    func setupPIP(_ data: NSDictionary,
-                  _ resolve: RCTPromiseResolveBlock?,
-                  _ reject: RCTPromiseRejectBlock?) {
-        
-        print(#function, "########## setupPIP")
+    func setPictureInPictureParams(_ data: NSDictionary,
+                                   _ resolve: RCTPromiseResolveBlock?,
+                                   _ reject: RCTPromiseRejectBlock?) {
 
         guard AVPictureInPictureController.isPictureInPictureSupported() else {
             let errorMessage = "\(#function) PIP is not supported on this device"
@@ -2472,11 +2486,29 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
         pipModel?.pipViewEnabled = true
 
-        if let scaleType = data["scale_type"] as? Int {
+        if let scaleType = data["scaleType"] as? String {
             pipModel?.scaleType = getViewContentMode(scaleType)
         } else {
             pipModel?.scaleType = .scaleAspectFill
         }
+        
+        if let useActiveSpeaker = data["useActiveSpeakerInPIP"] as? Bool {
+            useActiveSpeakerInPIP = useActiveSpeaker
+        }
+        
+        
+//        if let remoteTrack1 = hms?.remotePeers?.first?.videoTrack {
+//            pipModel?.track = remoteTrack1
+//        }
+        
+        print(#function, "####################################### data: ", data)
+        
+//        if let trackID = data["trackId"] as? String,
+//            let room = hms?.room,
+//           let track = HMSUtilities.getVideoTrack(for: trackID, in: room) {
+//            pipModel?.track = track
+//        }
+        
         
         pipModel?.color = .black
 
@@ -2484,29 +2516,50 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
         pipVideoCallViewController?.view.addConstrained(subview: controller.view)
 
-        if let ratio = data["ratio"] as? [Int], ratio.count == 2 {
-            pipVideoCallViewController?.preferredContentSize = CGSize(width: ratio[1], height: ratio[0])
+        if let ratio = data["aspectRatio"] as? [Int], ratio.count == 2 {
+            pipVideoCallViewController?.preferredContentSize = CGSize(width: ratio[0], height: ratio[1])
         } else {
             pipVideoCallViewController?.preferredContentSize = CGSize(width: uiView.frame.size.width, height: uiView.frame.size.height)
         }
-        
+
         guard let pipVideoCallViewController = pipVideoCallViewController else {
             let errorMessage = "\(#function) Failed to setup PIP"
             reject?("6004", errorMessage, nil)
             return
         }
+        
+        
+//        customView.frame = CGRect(x: uiView.frame.size.width/2, y: uiView.frame.size.height/2, width: 10, height: 10)
+//        
+//        for view in uiView.subviews {
+//            view.removeFromSuperview()
+//            customView2.addSubview(view)
+//        }
+//        customView.addSubview(customView2)
+////        customView2.frame.offsetBy(dx: -uiView.frame.size.width/2, dy: -uiView.frame.size.height/2)
+//        customView2.frame = CGRect(origin: CGPoint(x: -uiView.frame.size.width/2, y: -uiView.frame.size.height/2),
+//                                   size: .init(width: 10, height: 10))
+//        
+//        uiView.addSubview(customView)
 
+
+//        customView.addSubview(uiView)
+        
         let pipContentSource = AVPictureInPictureController.ContentSource(activeVideoCallSourceView: uiView, contentViewController: pipVideoCallViewController)
 
         pipController = AVPictureInPictureController(contentSource: pipContentSource)
-
-//        pipController?.delegate = self
-
-        if let autoEnterPIP = data["auto_enter_pip"] as? Bool {
-            pipController?.canStartPictureInPictureAutomaticallyFromInline = autoEnterPIP
-        }
         
-        // pipController?.startPictureInPicture()
+        pipController?.delegate = self
+
+        pipController?.canStartPictureInPictureAutomaticallyFromInline = true
+
+//        if let autoEnterPIP = data["autoEnterPipMode"] as? Bool {
+//            pipController?.canStartPictureInPictureAutomaticallyFromInline = autoEnterPIP
+//        }
+
+//        DispatchQueue.main.async {
+//            self.pipController?.startPictureInPicture()
+//        }
 
         NotificationCenter.default.addObserver(forName: UIApplication.didBecomeActiveNotification,
                                                object: nil, queue: .main) { [weak self] _ in
@@ -2515,9 +2568,9 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
         resolve?(nil)
     }
-    
-    func startPIP(_ resolve: RCTPromiseResolveBlock?,
-                  _ reject: RCTPromiseRejectBlock?) {
+
+    func enterPipMode(_ resolve: RCTPromiseResolveBlock?,
+                      _ reject: RCTPromiseRejectBlock?) {
         pipController?.startPictureInPicture()
         resolve?(nil)
     }
@@ -2547,50 +2600,26 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     }
 
     @available(iOS 15.0, *)
-    func changeTrack(_ data: NSDictionary,
-                     _ resolve: RCTPromiseResolveBlock?,
-                     _ reject: RCTPromiseRejectBlock?) {
+    func changeIOSPIPVideoTrack(_ data: NSDictionary,
+                                _ resolve: RCTPromiseResolveBlock?,
+                                _ reject: RCTPromiseRejectBlock?) {
+
+        print(#function, "#######################################")
         
-        guard let trackID = data["track_id"] as? String,
+        useActiveSpeakerInPIP = false
+        
+        guard let trackID = data["trackId"] as? String,
               let room = hms?.room,
-              let track = HMSUtilities.getVideoTrack(for: trackID, in: room),
-              let alternativeText = data["alternative_text"] as? String,
-              let ratio = data["ratio"] as? [Int],
-                ratio.count == 2,
-              let scaleType = data["scale_type"] as? Int
+              let track = HMSUtilities.getVideoTrack(for: trackID, in: room)
         else {
             let errorMessage = "\(#function) Incorrect data passed for changing track in PIP Mode"
             reject?("6004", errorMessage, nil)
             return
         }
-        
-        pipModel?.scaleType = getViewContentMode(scaleType)
+
         pipModel?.track = track
-        pipModel?.text = alternativeText
-        pipVideoCallViewController?.preferredContentSize = CGSize(width: ratio[1], height: ratio[0])
     }
-
-    @available(iOS 15.0, *)
-    func changeText(_ data: NSDictionary,
-                    _ resolve: RCTPromiseResolveBlock?,
-                    _ reject: RCTPromiseRejectBlock?) {
-
-        guard let text = data["text"] as? String,
-              let ratio = data["ratio"] as? [Int],
-                ratio.count == 2,
-              let color = data["color"] as? [Int]
-        else {
-            let errorMessage = "\(#function) Incorrect data passed for changing text in PIP Mode"
-            reject?("6004", errorMessage, nil)
-            return
-        }
-        let colour = Color(red: CGFloat(color[0])/255, green: CGFloat(color[1])/255, blue: CGFloat(color[2])/255)
-        pipModel?.color = colour
-        pipModel?.track = nil
-        pipModel?.text = text
-
-        pipVideoCallViewController?.preferredContentSize = CGSize(width: ratio[1], height: ratio[0])
-    }
+    
 
     // MARK: - Helper Functions
 
@@ -2690,14 +2719,14 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
     static private func getTimeStamp() -> String {
         "\(Date().timeIntervalSince1970)"
     }
-    
-    private func getViewContentMode(_ type: Int?) -> UIView.ContentMode {
+
+    private func getViewContentMode(_ type: String?) -> UIView.ContentMode {
         switch type {
-        case 0:
-            return .scaleAspectFit
-        case 1:
+        case "ASPECT_FILL":
             return .scaleAspectFill
-        case 2:
+        case "ASPECT_FIT":
+            return .scaleAspectFit
+        case "ASPECT_BALANCED":
             return .center
         default:
             return .scaleAspectFill
@@ -2720,7 +2749,6 @@ extension UIImage {
 }
 
 
-/*
 extension HMSRNSDK: AVPictureInPictureControllerDelegate {
 
     public func pictureInPictureControllerWillStartPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
@@ -2728,26 +2756,54 @@ extension HMSRNSDK: AVPictureInPictureControllerDelegate {
     }
 
     public func pictureInPictureControllerDidStartPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
-        print(#function)
-    }
-
-    public func pictureInPictureControllerDidStopPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
-        print(#function)
-    }
-
-    public func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, failedToStartPictureInPictureWithError error: Error) {
-        print(#function, error)
+        
+        if eventsEnableStatus[HMSConstants.ON_PIP_MODE_CHANGED] != true {
+            return
+        }
+        
+        self.delegate?.emitEvent(HMSConstants.ON_PIP_MODE_CHANGED,
+                                 ["event": HMSConstants.ON_PIP_MODE_CHANGED,
+                                  "id": self.id,
+                                  "isInPictureInPictureMode": true])
     }
 
     public func pictureInPictureControllerWillStopPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
         print(#function)
     }
+    
+    public func pictureInPictureControllerDidStopPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
+        if eventsEnableStatus[HMSConstants.ON_PIP_MODE_CHANGED] != true {
+            return
+        }
+        
+        self.delegate?.emitEvent(HMSConstants.ON_PIP_MODE_CHANGED,
+                                 ["event": HMSConstants.ON_PIP_MODE_CHANGED,
+                                  "id": self.id,
+                                  "isInPictureInPictureMode": false])
+    }
+
+    public func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, failedToStartPictureInPictureWithError error: Error) {
+        if eventsEnableStatus[HMSConstants.ON_PIP_MODE_CHANGED] != true {
+            return
+        }
+        
+        self.delegate?.emitEvent(HMSConstants.ON_PIP_MODE_CHANGED,
+                                 ["event": HMSConstants.ON_PIP_MODE_CHANGED,
+                                  "id": self.id,
+                                  "isInPictureInPictureMode": false])
+    }
 
     public func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, restoreUserInterfaceForPictureInPictureStopWithCompletionHandler completionHandler: @escaping (Bool) -> Void) {
         print(#function)
+        
+//        UIView.animate(withDuration: 5) {
+//            UIApplication.shared.keyWindow?.rootViewController?.view.alpha = 1
+//        } completion: { success in
+//            completionHandler(true)
+//        }
     }
 }
-*/
+
 
 extension UIView {
     func addConstrained(subview: UIView) {
