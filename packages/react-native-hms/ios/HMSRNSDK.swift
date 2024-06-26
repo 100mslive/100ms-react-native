@@ -2492,6 +2492,8 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             return "SERVER_RECORDING_STATE_UPDATED"
         case .hlsRecordingStateUpdated:
             return "HLS_RECORDING_STATE_UPDATED"
+        case .transcriptionStateUpdated:
+            return "TRANSCRIPTIONS_UPDATED"
         default:
             return ""
         }
