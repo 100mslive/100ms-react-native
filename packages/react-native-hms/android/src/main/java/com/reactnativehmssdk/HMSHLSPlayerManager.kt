@@ -9,9 +9,7 @@ import com.facebook.react.uimanager.annotations.ReactProp
 class HMSHLSPlayerManager : SimpleViewManager<HMSHLSPlayer>() {
   private var reactContext: ThemedReactContext? = null
 
-  override fun getName(): String {
-    return REACT_CLASS
-  }
+  override fun getName(): String = REACT_CLASS
 
   override fun createViewInstance(reactContext: ThemedReactContext): HMSHLSPlayer {
     this.reactContext = reactContext
@@ -98,8 +96,9 @@ class HMSHLSPlayerManager : SimpleViewManager<HMSHLSPlayer>() {
     }
   }
 
-  override fun getCommandsMap(): MutableMap<String, Int>? {
-    return MapBuilder.builder<String, Int>()
+  override fun getCommandsMap(): MutableMap<String, Int>? =
+    MapBuilder
+      .builder<String, Int>()
       .put("play", 10)
       .put("stop", 20)
       .put("pause", 30)
@@ -114,7 +113,6 @@ class HMSHLSPlayerManager : SimpleViewManager<HMSHLSPlayer>() {
       .put("disableClosedCaption", 120)
       .put("getPlayerDurationDetails", 130)
       .build()
-  }
 
   @ReactProp(name = "url")
   fun setStreamURL(

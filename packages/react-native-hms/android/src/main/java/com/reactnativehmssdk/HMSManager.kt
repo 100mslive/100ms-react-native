@@ -24,8 +24,10 @@ import live.hms.video.factories.noisecancellation.AvailabilityStatus
 import java.util.UUID
 
 @ReactModule(name = REACT_CLASS)
-class HMSManager(reactContext: ReactApplicationContext) :
-  ReactContextBaseJavaModule(reactContext), Application.ActivityLifecycleCallbacks {
+class HMSManager(
+  reactContext: ReactApplicationContext,
+) : ReactContextBaseJavaModule(reactContext),
+  Application.ActivityLifecycleCallbacks {
   companion object {
     const val REACT_CLASS = "HMSManager"
     var hmsCollection = mutableMapOf<String, HMSRNSDK>()
@@ -78,13 +80,9 @@ class HMSManager(reactContext: ReactApplicationContext) :
     }
   }
 
-  override fun getName(): String {
-    return "HMSManager"
-  }
+  override fun getName(): String = "HMSManager"
 
-  fun getHmsInstance(): MutableMap<String, HMSRNSDK> {
-    return hmsCollection
-  }
+  fun getHmsInstance(): MutableMap<String, HMSRNSDK> = hmsCollection
 
   private fun setupPip() {
     if (emitter == null) {
@@ -957,7 +955,8 @@ class HMSManager(reactContext: ReactApplicationContext) :
         if (config.showEndButton) {
           pipRemoteActionsList.add(
             android.app.RemoteAction(
-              android.graphics.drawable.Icon.createWithResource(reactApplicationContext, R.drawable.ic_call_end_24),
+              android.graphics.drawable.Icon
+                .createWithResource(reactApplicationContext, R.drawable.ic_call_end_24),
               PipActionReceiver.PIPActions.endMeet.title,
               PipActionReceiver.PIPActions.endMeet.description,
               PendingIntent.getBroadcast(

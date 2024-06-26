@@ -827,7 +827,7 @@ class HMSManager: RCTEventEmitter {
         }
         interactivity.stopWhiteboard(resolve, reject)
     }
-    
+
     // MARK: - WebRTC Transcriptions
     @objc
     func handleRealTimeTranscription(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
