@@ -1620,9 +1620,6 @@ export const useAutoPip = (oneToOneCall: boolean) => {
     return room && room.peerCount !== null ? room.peerCount > 1 : false; // `peerCount` includes local peer
   });
 
-  console.warn('autoEnterPipMode', autoEnterPipMode);
-  console.warn('remotePeersPresent', remotePeersPresent);
-
   useEffect(() => {
     if (autoEnterPipMode && remotePeersPresent) {
       enableAutoPip({

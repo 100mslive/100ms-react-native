@@ -57,7 +57,7 @@ static void InitializeFlipper(UIApplication *application) {
 
   [RNSplashScreen showLottieSplash:animationUIView inRootView:rootView];
 
-  LottieAnimationView *animationView = (LottieAnimationView *) animationUIView;
+  AnimationView *animationView = (AnimationView *) animationUIView;
 
   [t playWithAnimationView:animationView];
 
