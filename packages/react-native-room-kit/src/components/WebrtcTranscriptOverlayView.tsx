@@ -1,11 +1,10 @@
 import * as React from 'react';
-import { interpolate, useAnimatedStyle } from 'react-native-reanimated';
+import { interpolate } from 'react-native-reanimated';
 import type { SharedValue } from 'react-native-reanimated';
 import { useSelector } from 'react-redux';
 import { View, Text, StyleSheet, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { OverlayContainer } from './OverlayContainer';
 import {
   useHMSInstance,
   useHMSRoomStyleSheet,
@@ -30,7 +29,8 @@ const _WebrtcTranscriptOverlayView: React.FC<
   const hmsInstance = useHMSInstance();
   const isPortrait = useIsPortraitOrientation();
   const { overlayChatVisible } = useShowChatAndParticipants();
-  const { top, bottom } = useSafeAreaInsets();
+  const { bottom } = useSafeAreaInsets();
+  let timerId = React.useRef<NodeJS.Timeout | null>(null);
 
   const [transcripts, setTranscripts] =
     React.useState<Array<HMSTranscript> | null>(null);
@@ -48,8 +48,20 @@ const _WebrtcTranscriptOverlayView: React.FC<
   React.useEffect(() => {
     if (!ccEnabledForSelf) return;
 
+    let mounted = true;
+
     const onTranscriptsListener = (data: any) => {
+      if (timerId.current != null) {
+        clearTimeout(timerId.current);
+      }
       setTranscripts(data.transcripts);
+
+      timerId.current = setTimeout(() => {
+        if (mounted) {
+          setTranscripts(null);
+        }
+        timerId.current = null;
+      }, 4000);
     };
 
     hmsInstance.addEventListener(
@@ -58,6 +70,11 @@ const _WebrtcTranscriptOverlayView: React.FC<
     );
 
     return () => {
+      mounted = false;
+      if (timerId.current !== null) {
+        clearTimeout(timerId.current);
+        timerId.current = null;
+      }
       hmsInstance.removeEventListener(HMSUpdateListenerActions.ON_TRANSCRIPTS);
     };
   }, [ccEnabledForSelf, hmsInstance]);
@@ -89,33 +106,32 @@ const _WebrtcTranscriptOverlayView: React.FC<
     []
   );
 
-  const overlayedAnimatedStyles = useAnimatedStyle(() => {
-    if (overlayChatVisible) {
-      return {
-        top,
-        bottom: undefined,
-      };
-    }
-    const extraBottomOffset =
-      notificationsCount > 0 ? 44 + notificationsCount * 16 : 32;
-    return {
-      top: undefined,
-      bottom: interpolate(
-        offset.value,
-        [0, 1],
-        [(!isPortrait ? bottom : 0) + extraBottomOffset, extraBottomOffset]
-      ),
-    };
-  }, [overlayChatVisible, notificationsCount, isPortrait, bottom, top]);
+  const extraBottomOffset =
+    notificationsCount > 0 ? 44 + notificationsCount * 16 : 32;
+
+  const dynamicStyles = {
+    top: overlayChatVisible ? 0 : undefined,
+    bottom: overlayChatVisible
+      ? undefined
+      : interpolate(
+          offset.value,
+          [0, 1],
+          [(!isPortrait ? bottom : 0) + extraBottomOffset, extraBottomOffset]
+        ),
+  };
 
   if (ccEnabledForEveryone && ccEnabledForSelf && transcripts !== null) {
     return (
-      <OverlayContainer.Overlay animatedStyle={overlayedAnimatedStyles}>
+      <View
+        pointerEvents="box-none"
+        style={[styles.absoluteContainer, dynamicStyles]}
+      >
         <View style={[styles.container, hmsRoomStyles.container]}>
           {transcripts.map((transcript, idx) => {
             const isFirst = idx === 0;
             return (
               <Text
+                key={transcript.transcript}
                 style={[
                   styles.transcriptText,
                   hmsRoomStyles.regularWhite,
@@ -130,7 +146,7 @@ const _WebrtcTranscriptOverlayView: React.FC<
             );
           })}
         </View>
-      </OverlayContainer.Overlay>
+      </View>
     );
   }
 
@@ -138,6 +154,12 @@ const _WebrtcTranscriptOverlayView: React.FC<
 };
 
 const styles = StyleSheet.create({
+  absoluteContainer: {
+    position: 'absolute',
+    width: '100%',
+    bottom: 0,
+    zIndex: 1,
+  },
   container: {
     margin: 8,
     padding: 12,

@@ -8,7 +8,6 @@ export interface HMSWhiteboardPermission {
 
 export interface HMSTranscriptionPermissions {
   admin: boolean;
-  read: boolean;
   mode?: TranscriptionsMode;
 }
 

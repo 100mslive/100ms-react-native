@@ -1574,7 +1574,7 @@ class HMSRNSDK: NSObject, HMSUpdateListener, HMSPreviewListener {
     }
 
     func on(updated speakers: [HMSSpeaker]) {
-        
+
         if useActiveSpeakerInPIP {
             if let controller = pipController, controller.isPictureInPictureActive {
                 if #available(iOS 15.0, *) {
@@ -1584,7 +1584,7 @@ class HMSRNSDK: NSObject, HMSUpdateListener, HMSPreviewListener {
                 }
             }
         }
-        
+
         if eventsEnableStatus[HMSConstants.ON_SPEAKER] != true {
             return
         }
@@ -2460,10 +2460,10 @@ class HMSRNSDK: NSObject, HMSUpdateListener, HMSPreviewListener {
     }
 
     internal var pipController: AVPictureInPictureController?
-    
+
     var customView = UIView()
     var customView2 = UIView()
-    
+
     // TODO: should be set to false as default
     internal var useActiveSpeakerInPIP: Bool = true
 
@@ -2491,25 +2491,23 @@ class HMSRNSDK: NSObject, HMSUpdateListener, HMSPreviewListener {
         } else {
             pipModel?.scaleType = .scaleAspectFill
         }
-        
+
         if let useActiveSpeaker = data["useActiveSpeakerInPIP"] as? Bool {
             useActiveSpeakerInPIP = useActiveSpeaker
         }
-        
-        
+
 //        if let remoteTrack1 = hms?.remotePeers?.first?.videoTrack {
 //            pipModel?.track = remoteTrack1
 //        }
-        
+
         print(#function, "####################################### data: ", data)
-        
+
 //        if let trackID = data["trackId"] as? String,
 //            let room = hms?.room,
 //           let track = HMSUtilities.getVideoTrack(for: trackID, in: room) {
 //            pipModel?.track = track
 //        }
-        
-        
+
         pipModel?.color = .black
 
         let controller = UIHostingController(rootView: HMSPipView(model: pipModel!))
@@ -2527,8 +2525,7 @@ class HMSRNSDK: NSObject, HMSUpdateListener, HMSPreviewListener {
             reject?("6004", errorMessage, nil)
             return
         }
-        
-        
+
 //        customView.frame = CGRect(x: uiView.frame.size.width/2, y: uiView.frame.size.height/2, width: 10, height: 10)
 //        
 //        for view in uiView.subviews {
@@ -2542,13 +2539,12 @@ class HMSRNSDK: NSObject, HMSUpdateListener, HMSPreviewListener {
 //        
 //        uiView.addSubview(customView)
 
-
 //        customView.addSubview(uiView)
-        
+
         let pipContentSource = AVPictureInPictureController.ContentSource(activeVideoCallSourceView: uiView, contentViewController: pipVideoCallViewController)
 
         pipController = AVPictureInPictureController(contentSource: pipContentSource)
-        
+
         pipController?.delegate = self
 
         pipController?.canStartPictureInPictureAutomaticallyFromInline = true
@@ -2605,9 +2601,9 @@ class HMSRNSDK: NSObject, HMSUpdateListener, HMSPreviewListener {
                                 _ reject: RCTPromiseRejectBlock?) {
 
         print(#function, "#######################################")
-        
+
         useActiveSpeakerInPIP = false
-        
+
         guard let trackID = data["trackId"] as? String,
               let room = hms?.room,
               let track = HMSUtilities.getVideoTrack(for: trackID, in: room)
@@ -2619,7 +2615,6 @@ class HMSRNSDK: NSObject, HMSUpdateListener, HMSPreviewListener {
 
         pipModel?.track = track
     }
-    
 
     // MARK: - Helper Functions
 
@@ -2699,6 +2694,8 @@ class HMSRNSDK: NSObject, HMSUpdateListener, HMSPreviewListener {
             return "SERVER_RECORDING_STATE_UPDATED"
         case .hlsRecordingStateUpdated:
             return "HLS_RECORDING_STATE_UPDATED"
+        case .transcriptionStateUpdated:
+            return "TRANSCRIPTIONS_UPDATED"
         default:
             return ""
         }
@@ -2748,7 +2745,6 @@ extension UIImage {
     }
 }
 
-
 extension HMSRNSDK: AVPictureInPictureControllerDelegate {
 
     public func pictureInPictureControllerWillStartPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
@@ -2756,11 +2752,11 @@ extension HMSRNSDK: AVPictureInPictureControllerDelegate {
     }
 
     public func pictureInPictureControllerDidStartPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
-        
+
         if eventsEnableStatus[HMSConstants.ON_PIP_MODE_CHANGED] != true {
             return
         }
-        
+
         self.delegate?.emitEvent(HMSConstants.ON_PIP_MODE_CHANGED,
                                  ["event": HMSConstants.ON_PIP_MODE_CHANGED,
                                   "id": self.id,
@@ -2770,12 +2766,12 @@ extension HMSRNSDK: AVPictureInPictureControllerDelegate {
     public func pictureInPictureControllerWillStopPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
         print(#function)
     }
-    
+
     public func pictureInPictureControllerDidStopPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
         if eventsEnableStatus[HMSConstants.ON_PIP_MODE_CHANGED] != true {
             return
         }
-        
+
         self.delegate?.emitEvent(HMSConstants.ON_PIP_MODE_CHANGED,
                                  ["event": HMSConstants.ON_PIP_MODE_CHANGED,
                                   "id": self.id,
@@ -2786,7 +2782,7 @@ extension HMSRNSDK: AVPictureInPictureControllerDelegate {
         if eventsEnableStatus[HMSConstants.ON_PIP_MODE_CHANGED] != true {
             return
         }
-        
+
         self.delegate?.emitEvent(HMSConstants.ON_PIP_MODE_CHANGED,
                                  ["event": HMSConstants.ON_PIP_MODE_CHANGED,
                                   "id": self.id,
@@ -2795,7 +2791,7 @@ extension HMSRNSDK: AVPictureInPictureControllerDelegate {
 
     public func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, restoreUserInterfaceForPictureInPictureStopWithCompletionHandler completionHandler: @escaping (Bool) -> Void) {
         print(#function)
-        
+
 //        UIView.animate(withDuration: 5) {
 //            UIApplication.shared.keyWindow?.rootViewController?.view.alpha = 1
 //        } completion: { success in
@@ -2803,7 +2799,6 @@ extension HMSRNSDK: AVPictureInPictureControllerDelegate {
 //        }
     }
 }
-
 
 extension UIView {
     func addConstrained(subview: UIView) {

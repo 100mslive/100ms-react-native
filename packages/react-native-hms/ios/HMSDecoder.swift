@@ -480,8 +480,7 @@ class HMSDecoder: NSObject {
             transcriptionPermissions.forEach({ hmsTranscriptionPermissions in
                 transcriptionPermissionsArray.append([
                     "admin": hmsTranscriptionPermissions.admin ?? false,
-                    "mode": hmsTranscriptionPermissions.mode,
-                    "read": false
+                    "mode": hmsTranscriptionPermissions.mode?.uppercased()
                 ])
             })
             permissionsDict["transcriptions"] = transcriptionPermissionsArray

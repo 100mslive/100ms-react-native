@@ -850,7 +850,7 @@ class HMSManager: RCTEventEmitter {
             reject?("6004", "HMSRNSDK instance not found!", nil)
             return
         }
-        
+
         DispatchQueue.main.async { [weak self] in
             switch action {
             case "isPipModeSupported":
@@ -878,7 +878,7 @@ class HMSManager: RCTEventEmitter {
             reject?("6004", "HMSRNSDK instance not found!", nil)
             return
         }
-        
+
         DispatchQueue.main.async {
             rnsdk.stopPIP(resolve, reject)
         }
@@ -893,7 +893,7 @@ class HMSManager: RCTEventEmitter {
             reject?("6004", "HMSRNSDK instance not found!", nil)
             return
         }
-        
+
         DispatchQueue.main.async {
             rnsdk.disposePIP(resolve, reject)
         }
@@ -902,7 +902,7 @@ class HMSManager: RCTEventEmitter {
     @objc
     func isPipModeSupported(_ resolve: RCTPromiseResolveBlock?,
                         _ reject: RCTPromiseRejectBlock?) {
-        
+
         resolve?(AVPictureInPictureController.isPictureInPictureSupported())
     }
 
@@ -915,7 +915,7 @@ class HMSManager: RCTEventEmitter {
             reject?("6004", "HMSRNSDK instance not found!", nil)
             return
         }
-        
+
         DispatchQueue.main.async {
             rnsdk.isPIPActive(resolve, reject)
         }
