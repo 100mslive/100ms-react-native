@@ -115,8 +115,8 @@ object HMSHelper {
   suspend fun getRemotePeerFromPeerId(
     peerId: String?,
     hmsSDK: HMSSDK?,
-  ): HMSRemotePeer? {
-    return suspendCoroutine {
+  ): HMSRemotePeer? =
+    suspendCoroutine {
       val room = hmsSDK?.getRoom()
 
       if (peerId != null && room != null) {
@@ -144,7 +144,6 @@ object HMSHelper {
         it.resume(null)
       }
     }
-  }
 
   fun getRolesFromRoleNames(
     targetedRoles: ArrayList<String>?,

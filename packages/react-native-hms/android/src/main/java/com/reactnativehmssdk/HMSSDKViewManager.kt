@@ -14,30 +14,26 @@ import com.facebook.react.uimanager.annotations.ReactProp
 class HMSSDKViewManager : SimpleViewManager<HMSView>() {
   private var reactContext: ThemedReactContext? = null
 
-  override fun getName(): String {
-    return REACT_CLASS
-  }
+  override fun getName(): String = REACT_CLASS
 
   public override fun createViewInstance(reactContext: ThemedReactContext): HMSView {
     this.reactContext = reactContext
     return HMSView(reactContext)
   }
 
-  override fun getExportedCustomBubblingEventTypeConstants(): MutableMap<String, Any>? {
-    return MapBuilder.builder<String, Any>()
+  override fun getExportedCustomBubblingEventTypeConstants(): MutableMap<String, Any>? =
+    MapBuilder
+      .builder<String, Any>()
       .put(
         "topChange",
         MapBuilder.of("phasedRegistrationNames", MapBuilder.of("bubbled", "onChange")),
-      )
-      .build()
-  }
+      ).build()
 
-  override fun getExportedCustomDirectEventTypeConstants(): MutableMap<String, Any>? {
-    return MapBuilder.of(
+  override fun getExportedCustomDirectEventTypeConstants(): MutableMap<String, Any>? =
+    MapBuilder.of(
       "captureFrame",
       MapBuilder.of("registrationName", "onDataReturned"),
     )
-  }
 
   @RequiresApi(Build.VERSION_CODES.N)
   override fun receiveCommand(
@@ -62,9 +58,7 @@ class HMSSDKViewManager : SimpleViewManager<HMSView>() {
   }
 
   @Nullable
-  override fun getCommandsMap(): Map<String, Int>? {
-    return MapBuilder.of("capture", 1)
-  }
+  override fun getCommandsMap(): Map<String, Int>? = MapBuilder.of("capture", 1)
 
   @ReactProp(name = "data")
   fun setData(
@@ -105,9 +99,7 @@ class HMSSDKViewManager : SimpleViewManager<HMSView>() {
     data?.let { view.updateAutoSimulcast(it) }
   }
 
-  private fun getHms(): MutableMap<String, HMSRNSDK>? {
-    return reactContext?.getNativeModule(HMSManager::class.java)?.getHmsInstance()
-  }
+  private fun getHms(): MutableMap<String, HMSRNSDK>? = reactContext?.getNativeModule(HMSManager::class.java)?.getHmsInstance()
 
   companion object {
     const val REACT_CLASS = "HMSView"

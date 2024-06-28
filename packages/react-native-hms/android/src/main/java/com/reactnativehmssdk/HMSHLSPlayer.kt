@@ -24,7 +24,9 @@ import live.hms.video.sdk.models.enums.HMSStreamingState
 import java.util.concurrent.TimeUnit
 
 @SuppressLint("ViewConstructor")
-class HMSHLSPlayer(context: ReactContext) : FrameLayout(context) {
+class HMSHLSPlayer(
+  context: ReactContext,
+) : FrameLayout(context) {
   private var playerView: PlayerView? = null // Exoplayer View
   private var hmsHlsPlayer: HmsHlsPlayer? = null // 100ms HLS Player
   private var hmssdkInstance: HMSSDK? = null
@@ -154,7 +156,11 @@ class HMSHLSPlayer(context: ReactContext) : FrameLayout(context) {
         override fun onCues(cueGroup: CueGroup) {
           super.onCues(cueGroup)
           if (!shouldSendCaptionsToJS) return
-          val ccText = cueGroup.cues.firstOrNull()?.text?.toString()
+          val ccText =
+            cueGroup.cues
+              .firstOrNull()
+              ?.text
+              ?.toString()
           sendHLSPlayerCuesEventToJS(ccText)
         }
       },
@@ -243,7 +249,12 @@ class HMSHLSPlayer(context: ReactContext) : FrameLayout(context) {
   fun getPlayerDurationDetails(requestId: Int) {
     val data: WritableMap = Arguments.createMap()
     hmsHlsPlayer?.getNativePlayer()?.let { exoPlayer ->
-      data.putInt("rollingWindowTime", exoPlayer.seekParameters.toleranceAfterUs.div(1000).toInt())
+      data.putInt(
+        "rollingWindowTime",
+        exoPlayer.seekParameters.toleranceAfterUs
+          .div(1000)
+          .toInt(),
+      )
       data.putInt("streamDuration", exoPlayer.duration.toInt())
     }
     sendHLSDataRequestEventToJS(requestId, data)

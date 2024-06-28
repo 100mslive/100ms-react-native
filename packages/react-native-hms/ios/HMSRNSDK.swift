@@ -1686,13 +1686,13 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
 
         self.delegate?.emitEvent(HMSConstants.ON_REMOTE_VIDEO_STATS, ["remoteVideoStats": remoteStats, "track": remoteTrack, "peer": decodedPeer, "id": self.id])
     }
-    
+
     func on(transcripts: HMSTranscripts) {
         if eventsEnableStatus[HMSConstants.ON_TRANSCRIPTS] != true {
             return
         }
         let transcriptsArray = HMSDecoder.getHmsTranscripts(transcripts.transcripts)
-        
+
         self.delegate?.emitEvent(HMSConstants.ON_TRANSCRIPTS, ["id": self.id, "transcripts": transcriptsArray])
     }
 
@@ -2362,7 +2362,7 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
         }
         resolve?(true)
     }
-    
+
     // MARK: - WebRTC Transcriptions
 
     func handleRealTimeTranscription(_ data: NSDictionary,
@@ -2373,10 +2373,10 @@ class HMSRNSDK: HMSUpdateListener, HMSPreviewListener {
             return
         }
         switch action {
-        case "start": startRealTimeTranscription(data, resolve, reject)
-            break
-        case "stop": stopRealTimeTranscription(data, resolve, reject)
-            break
+        case "start":
+    startRealTimeTranscription(data, resolve, reject)
+            case "stop":
+    stopRealTimeTranscription(data, resolve, reject)
         default:
             reject?("\(#function): Unknown `action` key passed", "\(#function): Unknown `action` key passed", nil)
         }

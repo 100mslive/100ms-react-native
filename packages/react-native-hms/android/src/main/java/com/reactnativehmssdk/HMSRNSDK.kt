@@ -1813,9 +1813,7 @@ class HMSRNSDK(
     )
   }
 
-  fun getAudioMixingMode(): AudioMixingMode {
-    return audioMixingMode
-  }
+  fun getAudioMixingMode(): AudioMixingMode = audioMixingMode
 
   fun setAudioMixingMode(
     data: ReadableMap,
