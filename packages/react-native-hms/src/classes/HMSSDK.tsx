@@ -2590,6 +2590,18 @@ export class HMSSDK {
     return await HMSManager.changeIOSPIPVideoTrack(data);
   }
 
+  /*
+   * - Use this function
+   */
+  async setActiveSpeakerInIOSPIP(enable: boolean) {
+    const data = {
+      id: this.id,
+      enable,
+    };
+    logger?.verbose('#Function setActiveSpeakerInIOSPIP', data);
+    return await HMSManager.setActiveSpeakerInIOSPIP(data);
+  }
+
   async startRealTimeTranscription() {
     const data = {
       id: this.id,

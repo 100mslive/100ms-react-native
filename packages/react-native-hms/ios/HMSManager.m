@@ -427,4 +427,9 @@ RCT_EXTERN_METHOD(changeIOSPIPVideoTrack
                   : (RCTPromiseResolveBlock)resolve
                   : (RCTPromiseRejectBlock)reject)
 
+RCT_EXTERN_METHOD(setActiveSpeakerInIOSPIP
+                  : (NSDictionary)data
+                  : (RCTPromiseResolveBlock)resolve
+                  : (RCTPromiseRejectBlock)reject)
+
 @end

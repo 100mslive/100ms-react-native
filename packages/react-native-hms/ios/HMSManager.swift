@@ -921,7 +921,6 @@ class HMSManager: RCTEventEmitter {
         }
     }
 
-    @available(iOS 15.0, *)
     @objc
     func changeIOSPIPVideoTrack(_ data: NSDictionary,
                                 _ resolve: RCTPromiseResolveBlock?,
@@ -932,7 +931,25 @@ class HMSManager: RCTEventEmitter {
             return
         }
         DispatchQueue.main.async {
-            rnsdk.changeIOSPIPVideoTrack(data, resolve, reject)
+            if #available(iOS 15.0, *) {
+                rnsdk.changeIOSPIPVideoTrack(data, resolve, reject)
+            } else {
+                reject?("6004", "changeIOSPIPVideoTrack is not supported on iOS version lower than 15.0", nil)
+            }
+        }
+    }
+    
+    @objc
+    func setActiveSpeakerInIOSPIP(_ data: NSDictionary,
+                                  _ resolve: RCTPromiseResolveBlock?,
+                                  _ reject: RCTPromiseRejectBlock?) {
+        
+        guard let rnsdk = HMSHelper.getHms(data, hmsCollection) else {
+            reject?("6004", "HMSRNSDK instance not found!", nil)
+            return
+        }
+        DispatchQueue.main.async {
+            rnsdk.setActiveSpeakerInIOSPIP(data, resolve, reject)
         }
     }
 }

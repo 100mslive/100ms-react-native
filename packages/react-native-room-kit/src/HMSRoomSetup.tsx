@@ -357,15 +357,6 @@ export const HMSRoomSetup = () => {
         startHLSStreaming();
       }
       dispatch(changeMeetingState(MeetingState.IN_MEETING));
-      // const pipConfig = {
-      //   autoEnterPipMode: true,
-      //   aspectRatio: [9, 16],
-      //   scaleType: HMSVideoViewMode.ASPECT_FILL,
-      //   endButton: true,
-      //   audioButton: true,
-      //   videoButton: true,
-      // }
-      // await hmsInstance.setPipParams(pipConfig)
     };
 
     // const onPipModeChanged = (data: { pipMode: boolean }) => {

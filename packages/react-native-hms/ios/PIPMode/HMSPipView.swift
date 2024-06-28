@@ -14,15 +14,19 @@ struct HMSPipView: View {
     @ObservedObject var model: HMSPipModel
 
     var body: some View {
-        if model.pipViewEnabled, let track = model.track {
-            GeometryReader { geo in
-                HMSSampleBufferSwiftUIView(
-                    track: track,
-                    contentMode: model.scaleType ?? .scaleAspectFill,
-                    preferredSize: geo.size,
-                    model: model
-                )
-                .frame(width: geo.size.width, height: geo.size.height)
+        if model.pipViewEnabled {
+            VStack {
+                if let track = model.track, !(track.isMute()) {
+                    GeometryReader { geo in
+                        HMSSampleBufferSwiftUIView(track: track,
+                                                   contentMode: .scaleAspectFill,
+                                                   preferredSize: geo.size,
+                                                   model: model)
+                            .frame(width: geo.size.width, height: geo.size.height)
+                    }
+                } else if let text = model.text {
+                    Text(text)
+                }
             }
             .foregroundColor(.white)
             .frame(maxWidth: .infinity, maxHeight: .infinity)

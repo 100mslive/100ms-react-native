@@ -14,7 +14,7 @@ export interface HMSPIPConfig {
   /*
    * The scale type of the PIP window. Default is ASPECT_FILL. Other values can be ASPECT_FIT, ASPECT_BALANCED. iOS Only.
    */
-  scaleType: HMSVideoViewMode;
+  scaleType?: HMSVideoViewMode;
 
   /*
    * Whether to show the end button in the PIP window. Default is true. Android only.

@@ -668,6 +668,14 @@ const useHMSTrackUpdate = (
         if (track.source === HMSTrackSource.SCREEN) {
           if (!peer.isLocal && track.type === HMSTrackType.VIDEO) {
             dispatch(addScreenshareTile(newPeerTrackNode));
+            hmsInstance
+              .changeIOSPIPVideoTrack(track)
+              .then((r) => {
+                console.log('PIP track changed successfully', r);
+              })
+              .catch((e) => {
+                console.log('PIP track change failed', e);
+              });
           }
           if (track.type === HMSTrackType.VIDEO) {
             const whiteboard = reduxState.hmsStates.whiteboard;
@@ -786,6 +794,7 @@ const useHMSTrackUpdate = (
       if (type === HMSTrackUpdate.TRACK_REMOVED) {
         if (track.source === HMSTrackSource.SCREEN) {
           if (!peer.isLocal && track.type === HMSTrackType.VIDEO) {
+            hmsInstance.setActiveSpeakerInIOSPIP(true);
             const screensharePeerTrackNodes =
               reduxState.app.screensharePeerTrackNodes;
             const nodeToRemove = screensharePeerTrackNodes.find(
@@ -1578,14 +1587,26 @@ export const useHMSNetworkQualityUpdate = () => {
   }, [hmsInstance]);
 };
 
-export type PIPConfig = Omit<HMSPIPConfig, 'autoEnterPipMode'>;
+const pipConfig: HMSPIPConfig = {
+  scaleType: HMSVideoViewMode.ASPECT_FILL,
+  aspectRatio: [9, 16],
+  autoEnterPipMode: true,
+  useActiveSpeakerInPIP: true,
+  endButton: false,
+  audioButton: false,
+  videoButton: false,
+};
 
 export const useEnableAutoPip = () => {
   const hmsInstance = useHMSInstance();
 
   const enableAutoPip = useCallback(
-    (data?: PIPConfig) => {
-      hmsInstance.setPipParams({ ...data, autoEnterPipMode: true });
+    (data: HMSPIPConfig) => {
+      hmsInstance.setPipParams({
+        ...pipConfig,
+        ...data,
+        autoEnterPipMode: true,
+      });
     },
     [hmsInstance]
   );
@@ -1597,8 +1618,12 @@ export const useDisableAutoPip = () => {
   const hmsInstance = useHMSInstance();
 
   const disableAutoPip = useCallback(
-    (data?: PIPConfig) => {
-      hmsInstance.setPipParams({ ...data, autoEnterPipMode: false });
+    (data: HMSPIPConfig) => {
+      hmsInstance.setPipParams({
+        ...pipConfig,
+        ...data,
+        autoEnterPipMode: false,
+      });
     },
     [hmsInstance]
   );
@@ -1625,7 +1650,6 @@ export const useAutoPip = (oneToOneCall: boolean) => {
       enableAutoPip({
         scaleType: HMSVideoViewMode.ASPECT_FILL,
         aspectRatio: [numerator, denominator],
-        trackId: 'd3957c7d-6fea-4263-b0f3-a452cccc01ac',
       });
 
       return disableAutoPip;

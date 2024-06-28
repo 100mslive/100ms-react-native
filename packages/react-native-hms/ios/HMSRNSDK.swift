@@ -1578,8 +1578,14 @@ class HMSRNSDK: NSObject, HMSUpdateListener, HMSPreviewListener {
         if useActiveSpeakerInPIP {
             if let controller = pipController, controller.isPictureInPictureActive {
                 if #available(iOS 15.0, *) {
-                    if let track = speakers.first?.peer.videoTrack, !track.isMute() {
-                        pipModel?.track = track
+                    if let track = speakers.first?.peer.videoTrack {
+                        if track.isMute() {
+                            pipModel?.text = speakers.first?.peer.name
+                            pipModel?.track = nil
+                        } else {
+                            pipModel?.text = nil
+                            pipModel?.track = track
+                        }
                     }
                 }
             }
@@ -2464,8 +2470,7 @@ class HMSRNSDK: NSObject, HMSUpdateListener, HMSPreviewListener {
     var customView = UIView()
     var customView2 = UIView()
 
-    // TODO: should be set to false as default
-    internal var useActiveSpeakerInPIP: Bool = true
+    private var useActiveSpeakerInPIP: Bool = true
 
     @available(iOS 15.0, *)
     func setPictureInPictureParams(_ data: NSDictionary,
@@ -2492,22 +2497,6 @@ class HMSRNSDK: NSObject, HMSUpdateListener, HMSPreviewListener {
             pipModel?.scaleType = .scaleAspectFill
         }
 
-        if let useActiveSpeaker = data["useActiveSpeakerInPIP"] as? Bool {
-            useActiveSpeakerInPIP = useActiveSpeaker
-        }
-
-//        if let remoteTrack1 = hms?.remotePeers?.first?.videoTrack {
-//            pipModel?.track = remoteTrack1
-//        }
-
-        print(#function, "####################################### data: ", data)
-
-//        if let trackID = data["trackId"] as? String,
-//            let room = hms?.room,
-//           let track = HMSUtilities.getVideoTrack(for: trackID, in: room) {
-//            pipModel?.track = track
-//        }
-
         pipModel?.color = .black
 
         let controller = UIHostingController(rootView: HMSPipView(model: pipModel!))
@@ -2526,21 +2515,6 @@ class HMSRNSDK: NSObject, HMSUpdateListener, HMSPreviewListener {
             return
         }
 
-//        customView.frame = CGRect(x: uiView.frame.size.width/2, y: uiView.frame.size.height/2, width: 10, height: 10)
-//        
-//        for view in uiView.subviews {
-//            view.removeFromSuperview()
-//            customView2.addSubview(view)
-//        }
-//        customView.addSubview(customView2)
-////        customView2.frame.offsetBy(dx: -uiView.frame.size.width/2, dy: -uiView.frame.size.height/2)
-//        customView2.frame = CGRect(origin: CGPoint(x: -uiView.frame.size.width/2, y: -uiView.frame.size.height/2),
-//                                   size: .init(width: 10, height: 10))
-//        
-//        uiView.addSubview(customView)
-
-//        customView.addSubview(uiView)
-
         let pipContentSource = AVPictureInPictureController.ContentSource(activeVideoCallSourceView: uiView, contentViewController: pipVideoCallViewController)
 
         pipController = AVPictureInPictureController(contentSource: pipContentSource)
@@ -2549,13 +2523,9 @@ class HMSRNSDK: NSObject, HMSUpdateListener, HMSPreviewListener {
 
         pipController?.canStartPictureInPictureAutomaticallyFromInline = true
 
-//        if let autoEnterPIP = data["autoEnterPipMode"] as? Bool {
-//            pipController?.canStartPictureInPictureAutomaticallyFromInline = autoEnterPIP
-//        }
-
-//        DispatchQueue.main.async {
-//            self.pipController?.startPictureInPicture()
-//        }
+        if let autoEnterPIP = data["autoEnterPipMode"] as? Bool {
+            pipController?.canStartPictureInPictureAutomaticallyFromInline = autoEnterPIP
+        }
 
         NotificationCenter.default.addObserver(forName: UIApplication.didBecomeActiveNotification,
                                                object: nil, queue: .main) { [weak self] _ in
@@ -2600,10 +2570,6 @@ class HMSRNSDK: NSObject, HMSUpdateListener, HMSPreviewListener {
                                 _ resolve: RCTPromiseResolveBlock?,
                                 _ reject: RCTPromiseRejectBlock?) {
 
-        print(#function, "#######################################")
-
-        useActiveSpeakerInPIP = false
-
         guard let trackID = data["trackId"] as? String,
               let room = hms?.room,
               let track = HMSUtilities.getVideoTrack(for: trackID, in: room)
@@ -2613,7 +2579,22 @@ class HMSRNSDK: NSObject, HMSUpdateListener, HMSPreviewListener {
             return
         }
 
+        useActiveSpeakerInPIP = false
         pipModel?.track = track
+        resolve?(nil)
+    }
+    
+    func setActiveSpeakerInIOSPIP(_ data: NSDictionary,
+                                  _ resolve: RCTPromiseResolveBlock?,
+                                  _ reject: RCTPromiseRejectBlock?) {
+        guard let enabled = data["enable"] as? Bool else {
+            let errorMessage = "\(#function) Incorrect data passed for setActiveSpeakerInIOSPIP in PIP Mode"
+            reject?("6004", errorMessage, nil)
+            return
+        }
+        
+        useActiveSpeakerInPIP = enabled
+        resolve?(nil)
     }
 
     // MARK: - Helper Functions
@@ -2791,12 +2772,6 @@ extension HMSRNSDK: AVPictureInPictureControllerDelegate {
 
     public func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, restoreUserInterfaceForPictureInPictureStopWithCompletionHandler completionHandler: @escaping (Bool) -> Void) {
         print(#function)
-
-//        UIView.animate(withDuration: 5) {
-//            UIApplication.shared.keyWindow?.rootViewController?.view.alpha = 1
-//        } completion: { success in
-//            completionHandler(true)
-//        }
     }
 }
 
