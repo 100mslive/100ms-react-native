@@ -35,6 +35,7 @@ export const MeetingScreenContent: React.FC<MeetingScreenContentProps> = ({
   const timerIdRef = useRef<NodeJS.Timeout | null>(null);
   const [controlsHidden, setControlsHidden] = useState(false);
   const isLandscapeOrientation = useIsLandscapeOrientation();
+  const prevIsLandscapeOrientation = useRef(isLandscapeOrientation);
   const isPipModeActive = useSelector(
     (state: RootState) => state.app.pipModeStatus === PipModes.ACTIVE
   );
@@ -96,6 +97,26 @@ export const MeetingScreenContent: React.FC<MeetingScreenContentProps> = ({
       }
     );
   }
+
+  //#region Hiding Header & Footer when user switches from Portrait to Landscape
+  if (
+    prevIsLandscapeOrientation.current === false &&
+    isLandscapeOrientation &&
+    offset.value === 1
+  ) {
+    cancelAnimation(offset);
+    offset.value = withTiming(
+      0,
+      { duration: 200, easing: Easing.ease },
+      (finished) => {
+        if (finished) {
+          runOnJS(setControlsHidden)(offset.value === 0);
+        }
+      }
+    );
+  }
+  prevIsLandscapeOrientation.current = isLandscapeOrientation;
+  //#endregion
 
   // Handles Auto hiding the controls for the first time
   // to make this feature discoverable

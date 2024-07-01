@@ -25,6 +25,7 @@ import { OverlayedViews } from './OverlayedViews';
 import { useFooterHeight } from './Footer';
 import { useHeaderHeight } from './Header';
 import { View } from 'react-native';
+import { WebrtcTranscriptOverlayView } from './WebrtcTranscriptOverlayView';
 
 interface WebrtcViewProps {
   offset: SharedValue<number>;
@@ -144,6 +145,8 @@ export const WebrtcView = React.forwardRef<GridViewRefAttrs, WebrtcViewProps>(
                 onMoreOptionsPress={handlePeerTileMorePress}
               />
             )}
+
+            <WebrtcTranscriptOverlayView offset={offset} />
 
             <OverlayedViews
               animatedStyle={overlayedAnimatedStyles}

@@ -91,16 +91,21 @@ export type Notification =
   | {
       id: string;
       type: NotificationTypes;
-      icon?: string;
+      icon?: string | React.ReactElement;
       message?: string;
       title: string;
       payload?: any;
     }
-  | { id: string; type: NotificationTypes; icon?: string; peer: HMSPeer }
   | {
       id: string;
       type: NotificationTypes;
-      icon?: string;
+      icon?: string | React.ReactElement;
+      peer: HMSPeer;
+    }
+  | {
+      id: string;
+      type: NotificationTypes;
+      icon?: string | React.ReactElement;
       exception: HMSException;
     };
 

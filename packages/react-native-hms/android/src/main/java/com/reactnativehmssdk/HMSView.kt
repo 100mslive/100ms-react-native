@@ -19,7 +19,9 @@ import live.hms.videoview.VideoViewStateChangeListener
 import org.webrtc.RendererCommon
 
 @SuppressLint("ViewConstructor")
-class HMSView(context: ReactContext) : FrameLayout(context) {
+class HMSView(
+  context: ReactContext,
+) : FrameLayout(context) {
   private var hmsVideoView: HMSVideoView? = null
   private var videoTrack: HMSVideoTrack? = null
   private var sdkId: String = "12345"
@@ -88,9 +90,11 @@ class HMSView(context: ReactContext) : FrameLayout(context) {
   override fun onAttachedToWindow() {
     super.onAttachedToWindow()
 
-    videoTrack?.let { // Safe Call Operator to check if videoTrack is not null
+    videoTrack?.let {
+      // Safe Call Operator to check if videoTrack is not null
       hmsVideoView?.addTrack(it) // add the videoTrack to the hmsVideoView
-    } ?: run { // Elvis Operator to handle the case when videoTrack is null
+    } ?: run {
+      // Elvis Operator to handle the case when videoTrack is null
       Log.e(
         "HMSView",
         "HMSView attached to window, but it's videoTrack is null",

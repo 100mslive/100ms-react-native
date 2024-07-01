@@ -24,6 +24,7 @@ import { StopRecordingModalContent } from './StopRecordingModalContent';
 import { TestIds } from '../utils/constants';
 import { PollsAndQuizBottomSheet } from './PollsAndQuizBottomSheet';
 import { VirtualBackgroundBottomSheet } from './VirtualBackgroundBottomSheet';
+import { CaptionsModalContent } from './CaptionsModalContent';
 
 interface HMSRoomOptionsProps {}
 
@@ -76,6 +77,13 @@ export const HMSRoomOptions: React.FC<HMSRoomOptionsProps> = () => {
       <PollsAndQuizBottomSheet />
 
       <VirtualBackgroundBottomSheet />
+
+      <BottomSheet
+        isVisible={modalVisible === ModalTypes.CLOSED_CAPTIONS_CONTROL}
+        dismissModal={dismissModal}
+      >
+        <CaptionsModalContent dismissModal={dismissModal} />
+      </BottomSheet>
 
       <BottomSheet
         isVisible={modalVisible === ModalTypes.CHANGE_NAME}

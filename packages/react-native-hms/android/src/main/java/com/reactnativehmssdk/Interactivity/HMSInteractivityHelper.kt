@@ -66,32 +66,29 @@ object HMSInteractivityHelper {
   // endregion
 
   // region Poll Builder Helpers
-  private fun getQuestionType(type: Int): HMSPollQuestionType {
-    return when (type) {
+  private fun getQuestionType(type: Int): HMSPollQuestionType =
+    when (type) {
       0 -> HMSPollQuestionType.singleChoice
       1 -> HMSPollQuestionType.multiChoice
       2 -> HMSPollQuestionType.shortAnswer
       3 -> HMSPollQuestionType.longAnswer
       else -> HMSPollQuestionType.singleChoice
     }
-  }
 
-  private fun getUserTrackingMode(data: ReadableMap): HmsPollUserTrackingMode {
-    return when (data.getInt("mode")) {
+  private fun getUserTrackingMode(data: ReadableMap): HmsPollUserTrackingMode =
+    when (data.getInt("mode")) {
       0 -> HmsPollUserTrackingMode.PEER_ID
       1 -> HmsPollUserTrackingMode.USER_ID
       2 -> HmsPollUserTrackingMode.USERNAME
       else -> HmsPollUserTrackingMode.PEER_ID
     }
-  }
 
-  fun getPollCategory(data: ReadableMap): HmsPollCategory {
-    return when (data.getInt("type")) {
+  fun getPollCategory(data: ReadableMap): HmsPollCategory =
+    when (data.getInt("type")) {
       0 -> HmsPollCategory.POLL
       1 -> HmsPollCategory.QUIZ
       else -> HmsPollCategory.POLL
     }
-  }
 
   private fun getRolesThatCanViewResponses(
     data: ReadableMap,
@@ -134,7 +131,8 @@ object HMSInteractivityHelper {
 
       if (title != null && options != null) {
         val questionBuilder =
-          HMSPollQuestionBuilder.Builder(HMSPollQuestionType.singleChoice)
+          HMSPollQuestionBuilder
+            .Builder(HMSPollQuestionType.singleChoice)
             .withTitle(title)
 
         for (i in 0 until options.size) {
@@ -155,7 +153,8 @@ object HMSInteractivityHelper {
 
       if (title != null && options != null) {
         val questionBuilder =
-          HMSPollQuestionBuilder.Builder(HMSPollQuestionType.multiChoice)
+          HMSPollQuestionBuilder
+            .Builder(HMSPollQuestionType.multiChoice)
             .withTitle(title)
 
         for (i in 0 until options.size) {
@@ -175,7 +174,8 @@ object HMSInteractivityHelper {
 
       if (title != null) {
         val questionBuilder =
-          HMSPollQuestionBuilder.Builder(HMSPollQuestionType.shortAnswer)
+          HMSPollQuestionBuilder
+            .Builder(HMSPollQuestionType.shortAnswer)
             .withTitle(title)
         pollBuilder.addQuestion(questionBuilder.build())
       }
@@ -191,7 +191,8 @@ object HMSInteractivityHelper {
 
       if (title != null) {
         val questionBuilder =
-          HMSPollQuestionBuilder.Builder(HMSPollQuestionType.longAnswer)
+          HMSPollQuestionBuilder
+            .Builder(HMSPollQuestionType.longAnswer)
             .withTitle(title)
         pollBuilder.addQuestion(questionBuilder.build())
       }

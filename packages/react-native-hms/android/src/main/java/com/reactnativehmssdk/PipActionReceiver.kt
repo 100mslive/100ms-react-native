@@ -8,9 +8,17 @@ import android.content.IntentFilter
 import android.os.Build
 import androidx.annotation.RequiresApi
 
-data class PIPAction(val title: String, val description: String, val requestCode: Int)
+data class PIPAction(
+  val title: String,
+  val description: String,
+  val requestCode: Int,
+)
 
-data class PIPActions(val endMeet: PIPAction, val localAudio: PIPAction, val localVideo: PIPAction)
+data class PIPActions(
+  val endMeet: PIPAction,
+  val localAudio: PIPAction,
+  val localVideo: PIPAction,
+)
 
 @RequiresApi(Build.VERSION_CODES.O)
 class PipActionReceiver(

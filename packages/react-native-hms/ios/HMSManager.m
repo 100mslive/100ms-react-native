@@ -387,4 +387,10 @@ RCT_EXTERN_METHOD(stopWhiteboard
                   : (RCTPromiseResolveBlock)resolve
                   : (RCTPromiseRejectBlock)reject)
 
+#pragma mark - WebRTC Transcriptions
+
+RCT_EXTERN_METHOD(handleRealTimeTranscription
+                  : (NSDictionary)data
+                  : (RCTPromiseResolveBlock)resolve
+                  : (RCTPromiseRejectBlock)reject)
 @end

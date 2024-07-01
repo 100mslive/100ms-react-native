@@ -26,6 +26,8 @@ import {
   HMSPollUpdateType,
   useHMSHLSPlayerPlaybackState,
   HMSHLSPlayerPlaybackState,
+  TranscriptionsMode,
+  TranscriptionState,
 } from '@100mslive/react-native-hms';
 import type { Chat as ChatConfig } from '@100mslive/types-prebuilt/elements/chat';
 import { SoftInputModes } from '@100mslive/react-native-hms';
@@ -207,6 +209,53 @@ const useHMSRoomUpdate = (hmsInstance: HMSSDK) => {
         }
       } else if (type === HMSRoomUpdate.HLS_STREAMING_STATE_UPDATED) {
         dispatch(changeStartingHLSStream(false));
+      } else if (type === HMSRoomUpdate.TRANSCRIPTIONS_UPDATED) {
+        const captionTranscription = room.transcriptions?.find(
+          (transcription) => transcription.mode === TranscriptionsMode.CAPTION
+        );
+
+        if (captionTranscription?.state === TranscriptionState.STARTED) {
+          batch(() => {
+            dispatch(removeNotification('enable-cc'));
+            dispatch(
+              addNotification({
+                id: Math.random().toString(16).slice(2),
+                type: NotificationTypes.INFO,
+                icon: 'cc',
+                title: 'Closed Captioning enabled for everyone',
+              })
+            );
+          });
+        } else if (captionTranscription?.state === TranscriptionState.STOPPED) {
+          batch(() => {
+            dispatch(removeNotification('disable-cc'));
+            dispatch(
+              addNotification({
+                id: Math.random().toString(16).slice(2),
+                type: NotificationTypes.INFO,
+                icon: 'cc',
+                title: 'Closed Captioning disabled for everyone',
+              })
+            );
+          });
+        } else if (captionTranscription?.state === TranscriptionState.FAILED) {
+          const transcriptionError = captionTranscription.error;
+          batch(() => {
+            dispatch(removeNotification('enable-cc'));
+            dispatch(removeNotification('disable-cc'));
+            if (transcriptionError !== undefined) {
+              dispatch(
+                addNotification({
+                  id: Math.random().toString(16).slice(2),
+                  title:
+                    transcriptionError.message ||
+                    'Failed to enable/disable Closed Captions',
+                  type: NotificationTypes.ERROR,
+                })
+              );
+            }
+          });
+        }
       }
     };
 
@@ -2096,7 +2145,7 @@ export const useFilteredParticipants = (filterText: string) => {
       const filteredList =
         Array.isArray(list) && formattedSearchText.length > 0
           ? list.filter((peer) =>
-              peer.name.toLowerCase().includes(formattedSearchText)
+              peer.name?.toLowerCase().includes(formattedSearchText)
             )
           : list;
 

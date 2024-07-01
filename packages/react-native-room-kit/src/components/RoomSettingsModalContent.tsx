@@ -2,7 +2,11 @@ import * as React from 'react';
 import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import type { TouchableOpacityProps } from 'react-native';
 import type { HMSAudioMixingMode } from '@100mslive/react-native-hms';
-import { HMSRecordingState } from '@100mslive/react-native-hms';
+import {
+  HMSRecordingState,
+  TranscriptionState,
+  TranscriptionsMode,
+} from '@100mslive/react-native-hms';
 import { useDispatch, useSelector } from 'react-redux';
 
 import type { RootState } from '../redux';
@@ -10,6 +14,7 @@ import { ModalTypes } from '../utils/types';
 import { groupIntoTriplets, parseMetadata } from '../utils/functions';
 import {
   BRBIcon,
+  CCIcon,
   HandIcon,
   ParticipantsIcon,
   PencilIcon,
@@ -41,7 +46,7 @@ import { RoomSettingsModalDebugModeContent } from './RoomSettingsModalDebugModeC
 import { ParticipantsCount } from './ParticipantsCount';
 import { selectAllowedTracksToPublish } from '../hooks-sdk-selectors';
 import { TestIds } from '../utils/constants';
-import { addNotification } from '../redux/actions';
+import { addNotification, setShowClosedCaptions } from '../redux/actions';
 import { NotificationTypes } from '../types';
 
 interface RoomSettingsModalContentProps {
@@ -285,6 +290,47 @@ export const RoomSettingsModalContent: React.FC<
   };
   // #endregion
 
+  // #region Closed Captions
+  const isCCAdmin = useSelector((state: RootState) => {
+    const captionPermission =
+      state.hmsStates.localPeer?.role?.permissions?.transcriptions?.find(
+        (element) => element.mode === TranscriptionsMode.CAPTION
+      );
+    return captionPermission?.admin || false;
+  });
+
+  const ccEnabledForEveryone = useSelector((state: RootState) => {
+    const captionTranscription = state.hmsStates.room?.transcriptions?.find(
+      (transcription) => transcription.mode === TranscriptionsMode.CAPTION
+    );
+
+    return captionTranscription
+      ? captionTranscription.state === TranscriptionState.STARTED
+      : false;
+  });
+
+  const ccEnabledForSelf = useSelector(
+    (state: RootState) => state.app.showClosedCaptions
+  );
+
+  const handleCCForSelf = () => {
+    dispatch(setShowClosedCaptions(!ccEnabledForSelf));
+
+    // Close the current bottom sheet
+    closeRoomSettingsModal();
+  };
+
+  const handleCCForEveryone = () => {
+    // Register callback to be called when bottom sheet is hiddden
+    registerOnModalHideAction(() => {
+      setModalVisible(ModalTypes.CLOSED_CAPTIONS_CONTROL);
+    });
+
+    // Close the current bottom sheet
+    closeRoomSettingsModal();
+  };
+  // #endregion
+
   const changeName = () => {
     // Register callback to be called when bottom sheet is hiddden
     registerOnModalHideAction(() => {
@@ -512,6 +558,19 @@ export const RoomSettingsModalContent: React.FC<
               isActive: virtualBackgroundApplied,
               hide: !videoPlugin || !canPublishVideo,
               disabled: isLocalVideoMuted,
+            },
+            {
+              id: 'closed-captions',
+              icon: <CCIcon style={{ width: 20, height: 20 }} />,
+              label: isCCAdmin
+                ? 'Closed Captions'
+                : ccEnabledForSelf
+                  ? 'Hide Captions'
+                  : 'Show Captions',
+              pressHandler: isCCAdmin ? handleCCForEveryone : handleCCForSelf,
+              isActive: !isCCAdmin && ccEnabledForSelf,
+              hide: !isCCAdmin && !ccEnabledForEveryone,
+              disabled: false,
             },
           ].filter((itm) => !itm.hide),
           true

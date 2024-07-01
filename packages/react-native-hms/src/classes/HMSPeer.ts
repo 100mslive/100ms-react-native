@@ -9,13 +9,20 @@ import { HMSPeerType } from './HMSPeerType';
 
 export class HMSPeer {
   peerID: string;
-  name: string;
+  private _name: string | undefined;
   private _isLocal: boolean | undefined;
   private _customerUserID: string | undefined;
   private _metadata: string | undefined;
   private _role: HMSRole | undefined;
   private _isHandRaised: boolean = false;
   private _type: HMSPeerType = HMSPeerType.REGULAR;
+
+  private _updateName(value: string) {
+    // If `_isLocal` is outdated, update it
+    if (this._name !== value) {
+      this._name = value;
+    }
+  }
 
   private _updateIsLocal(value: boolean) {
     // If `_isLocal` is outdated, update it
@@ -61,7 +68,27 @@ export class HMSPeer {
 
   constructor(params: { peerID: string; name: string }) {
     this.peerID = params.peerID;
-    this.name = params.name;
+    this._name = params.name;
+  }
+
+  get name(): string | undefined {
+    if (this._name) {
+      return this._name;
+    }
+    const hmsPeersCache = getHmsPeersCache();
+
+    const value = hmsPeersCache
+      ? hmsPeersCache.getProperty(this.peerID, 'name')
+      : getPeerPropertyFromNative(
+          HMSConstants.DEFAULT_SDK_ID,
+          this.peerID,
+          'name'
+        );
+
+    if (typeof value === 'string') {
+      this._updateName(value);
+    }
+    return value ?? this._name;
   }
 
   get isLocal(): boolean | undefined {
