@@ -17,6 +17,10 @@ export interface HMSPIPConfig {
   scaleType?: HMSVideoViewMode;
 
   /*
+   * Whether to show the Active Speaker in the PIP window. Default is true. iOS only.
+   */
+  useActiveSpeaker?: boolean;
+  /*
    * Whether to show the end button in the PIP window. Default is true. Android only.
    */
   endButton?: boolean;

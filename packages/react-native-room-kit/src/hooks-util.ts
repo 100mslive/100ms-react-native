@@ -1583,7 +1583,7 @@ const pipConfig: HMSPIPConfig = {
   scaleType: HMSVideoViewMode.ASPECT_FILL,
   aspectRatio: [9, 16],
   autoEnterPipMode: true,
-  useActiveSpeakerInPIP: true,
+  useActiveSpeaker: true,
   endButton: false,
   audioButton: false,
   videoButton: false,
