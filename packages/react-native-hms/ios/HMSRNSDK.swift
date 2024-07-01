@@ -2583,7 +2583,7 @@ class HMSRNSDK: NSObject, HMSUpdateListener, HMSPreviewListener {
         pipModel?.track = track
         resolve?(nil)
     }
-    
+
     func setActiveSpeakerInIOSPIP(_ data: NSDictionary,
                                   _ resolve: RCTPromiseResolveBlock?,
                                   _ reject: RCTPromiseRejectBlock?) {
@@ -2592,7 +2592,7 @@ class HMSRNSDK: NSObject, HMSUpdateListener, HMSPreviewListener {
             reject?("6004", errorMessage, nil)
             return
         }
-        
+
         useActiveSpeakerInPIP = enabled
         resolve?(nil)
     }

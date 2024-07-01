@@ -938,12 +938,12 @@ class HMSManager: RCTEventEmitter {
             }
         }
     }
-    
+
     @objc
     func setActiveSpeakerInIOSPIP(_ data: NSDictionary,
                                   _ resolve: RCTPromiseResolveBlock?,
                                   _ reject: RCTPromiseRejectBlock?) {
-        
+
         guard let rnsdk = HMSHelper.getHms(data, hmsCollection) else {
             reject?("6004", "HMSRNSDK instance not found!", nil)
             return

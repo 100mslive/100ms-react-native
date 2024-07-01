@@ -49,8 +49,6 @@ import type { HMSPIPConfig } from './HMSPIPConfig';
 import { HMSInteractivityCenter } from './HMSInteractivityCenter';
 import type { HMSHLSTimedMetadata } from './HMSHLSTimedMetadata';
 import type { HMSVideoTrack } from './HMSVideoTrack';
-import type { HMSIOSPIPController } from './HMSIOSPIPController';
-import { HMSConstants } from './HMSConstants';
 
 type HmsViewProps = Omit<HmsComponentProps, 'id'>;
 
@@ -61,7 +59,6 @@ let HmsSdk: HMSSDK | undefined;
 export class HMSSDK {
   id: string;
   private _interactivityCenter: HMSInteractivityCenter | null = null;
-  private _iOSPIPController: HMSIOSPIPController | null = null;
 
   private appStateSubscription?: any;
   private onPreviewDelegate?: any;
