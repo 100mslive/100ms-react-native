@@ -124,7 +124,9 @@ export const ParticipantsList: React.FC<ParticipantsListProps> = ({
   //#region FlashList props
   const data = React.useMemo(() => {
     return (isOffStageGroup ? offStageData : dataWithHeader).filter((item) =>
-      'id' in item ? true : item.name.toLowerCase().includes(filteredSearchText)
+      'id' in item
+        ? true
+        : item.name?.toLowerCase().includes(filteredSearchText)
     );
   }, [filteredSearchText, offStageData, dataWithHeader, isOffStageGroup]);
 

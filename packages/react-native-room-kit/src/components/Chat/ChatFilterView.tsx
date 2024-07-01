@@ -111,7 +111,7 @@ const _ChatFilterView: React.FC<ChatFilterViewProps> = ({ onDismiss }) => {
     }
 
     return remotePeers.filter((remotePeer) =>
-      remotePeer.name.toLowerCase().includes(formattedFilterText)
+      remotePeer.name?.toLowerCase().includes(formattedFilterText)
     );
   }, [formattedFilterText, remotePeers]);
 
