@@ -668,14 +668,6 @@ const useHMSTrackUpdate = (
         if (track.source === HMSTrackSource.SCREEN) {
           if (!peer.isLocal && track.type === HMSTrackType.VIDEO) {
             dispatch(addScreenshareTile(newPeerTrackNode));
-            hmsInstance
-              .changeIOSPIPVideoTrack(track)
-              .then((r) => {
-                console.log('PIP track changed successfully', r);
-              })
-              .catch((e) => {
-                console.log('PIP track change failed', e);
-              });
           }
           if (track.type === HMSTrackType.VIDEO) {
             const whiteboard = reduxState.hmsStates.whiteboard;
