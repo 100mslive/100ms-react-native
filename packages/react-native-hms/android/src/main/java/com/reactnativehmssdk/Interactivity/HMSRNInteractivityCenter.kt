@@ -16,7 +16,10 @@ import live.hms.video.sdk.HmsTypedActionResultListener
 import live.hms.video.whiteboard.HMSWhiteboardUpdate
 import live.hms.video.whiteboard.HMSWhiteboardUpdateListener
 
-class HMSRNInteractivityCenter(private val sdk: HMSSDK, private val rnSDK: HMSRNSDK) {
+class HMSRNInteractivityCenter(
+  private val sdk: HMSSDK,
+  private val rnSDK: HMSRNSDK,
+) {
   init {
     //region Listen for poll updates
     this.sdk.getHmsInteractivityCenter().pollUpdateListener =
@@ -94,7 +97,11 @@ class HMSRNInteractivityCenter(private val sdk: HMSSDK, private val rnSDK: HMSRN
       promise?.reject("6004", "pollId is required")
       return
     }
-    val poll = this.sdk.getHmsInteractivityCenter().polls.find { it.pollId == pollId }
+    val poll =
+      this.sdk
+        .getHmsInteractivityCenter()
+        .polls
+        .find { it.pollId == pollId }
     if (poll == null) {
       promise?.reject("6004", "No HMSPoll with pollId `$pollId`")
       return
@@ -134,7 +141,11 @@ class HMSRNInteractivityCenter(private val sdk: HMSSDK, private val rnSDK: HMSRN
       promise?.reject("6004", "pollId is required")
       return
     }
-    val poll = this.sdk.getHmsInteractivityCenter().polls.find { it.pollId == pollId }
+    val poll =
+      this.sdk
+        .getHmsInteractivityCenter()
+        .polls
+        .find { it.pollId == pollId }
     if (poll == null) {
       promise?.reject("6004", "No HMSPoll with pollId `$pollId`")
       return
@@ -162,7 +173,11 @@ class HMSRNInteractivityCenter(private val sdk: HMSSDK, private val rnSDK: HMSRN
       promise?.reject("6004", "pollId is required")
       return
     }
-    val poll = this.sdk.getHmsInteractivityCenter().polls.find { it.pollId == pollId }
+    val poll =
+      this.sdk
+        .getHmsInteractivityCenter()
+        .polls
+        .find { it.pollId == pollId }
     if (poll == null) {
       promise?.reject("6004", "No HMSPoll with pollId `$pollId`")
       return

@@ -99,6 +99,13 @@ export class HMSRoomCache {
         );
         break;
       }
+      case HMSRoomUpdate.TRANSCRIPTIONS_UPDATED: {
+        this._data.set(
+          'transcriptions',
+          encodeHMSRoomProperty(this.id, 'transcriptions', data)
+        );
+        break;
+      }
       default: {
         for (const key in data) {
           const property = key as keyof HMSRoomCacheProps;
@@ -153,6 +160,8 @@ function encodeHMSRoomProperty<T extends keyof HMSRoomCacheProps>(
     value = HMSEncoder.encodeHLSStreamingState(data.hlsStreamingState);
   } else if (property === 'hlsRecordingState') {
     value = HMSEncoder.encodeHLSRecordingState(data.hlsRecordingState);
+  } else if (property === 'transcriptions') {
+    value = HMSEncoder.encodeTranscriptions(data.transcriptions);
   } else if (property === 'localPeer') {
     value = HMSEncoder.encodeHmsLocalPeer(data.localPeer, id);
   } else if (property === 'peerCount') {

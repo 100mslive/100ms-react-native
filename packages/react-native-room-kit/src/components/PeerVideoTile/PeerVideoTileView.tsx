@@ -153,7 +153,7 @@ export const _PeerVideoTileView = React.forwardRef<
     return (
       <View style={styles.container}>
         <AvatarView
-          name={peer.name}
+          name={peer.name || ''}
           avatarContainerStyles={
             insetMode ? hmsRoomStyles.avatarContainer : null
           }
@@ -196,7 +196,7 @@ export const _PeerVideoTileView = React.forwardRef<
         {insetMode || isPipModeActive ? null : (
           <PeerNameAndNetwork
             isSIPPeerType={peer.type === HMSPeerType.SIP}
-            name={peer.name}
+            name={peer.name || ''}
             isLocal={peer.isLocal}
             trackSource={trackSource}
             networkQuality={peer.networkQuality?.downlinkQuality}

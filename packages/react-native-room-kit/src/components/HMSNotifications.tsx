@@ -122,7 +122,7 @@ export const HMSNotifications: React.FC<HMSNotificationsProps> = () => {
               'peer' in notification ? (
               <HMSRoleChangeDeclinedNotification
                 id={notification.id}
-                peerName={notification.peer.name}
+                peerName={notification.peer.name || ''}
                 autoDismiss={atTop}
                 dismissDelay={10000}
               />

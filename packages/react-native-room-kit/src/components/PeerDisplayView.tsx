@@ -55,7 +55,7 @@ const PeerDisplayViewUnmemoized = React.forwardRef<
     <View style={peerDisplayViewStyles.container}>
       {videoTrack?.isMute() || videoTrack?.trackId === undefined ? (
         <View style={styles.avatarContainer}>
-          <AvatarView userName={peer.name} />
+          <AvatarView userName={peer.name || ''} />
         </View>
       ) : (
         <View style={styles.flex}>

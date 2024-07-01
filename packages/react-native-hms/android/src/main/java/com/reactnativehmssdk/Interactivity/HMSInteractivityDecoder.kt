@@ -23,8 +23,8 @@ import live.hms.video.whiteboard.State
 
 object HMSInteractivityDecoder {
   //region poll methods
-  fun getPollUpdateType(hmsPollUpdateType: HMSPollUpdateType): Int {
-    return when (hmsPollUpdateType) {
+  fun getPollUpdateType(hmsPollUpdateType: HMSPollUpdateType): Int =
+    when (hmsPollUpdateType) {
       HMSPollUpdateType.started -> 0
       HMSPollUpdateType.resultsupdated -> 1
       HMSPollUpdateType.stopped -> 2
@@ -32,7 +32,6 @@ object HMSInteractivityDecoder {
         0
       }
     }
-  }
 
   fun getPoll(poll: HmsPoll): WritableMap {
     val data = Arguments.createMap()
@@ -79,17 +78,16 @@ object HMSInteractivityDecoder {
     return data
   }
 
-  private fun getPollStateOrdinal(pollState: HmsPollState): Int {
-    return when (pollState) {
+  private fun getPollStateOrdinal(pollState: HmsPollState): Int =
+    when (pollState) {
       HmsPollState.CREATED -> 0
       HmsPollState.STARTED -> 1
       HmsPollState.STOPPED -> 2
       else -> 0
     }
-  }
 
-  private fun getPollMode(poll: HmsPoll): Int {
-    return when (poll.mode) {
+  private fun getPollMode(poll: HmsPoll): Int =
+    when (poll.mode) {
       HmsPollUserTrackingMode.PEER_ID -> 0
       HmsPollUserTrackingMode.USER_ID -> 1
       HmsPollUserTrackingMode.USERNAME -> 2
@@ -97,7 +95,6 @@ object HMSInteractivityDecoder {
         0
       }
     }
-  }
 
   private fun getPollQuestions(questions: List<HMSPollQuestion>): WritableArray {
     val data = Arguments.createArray()
@@ -408,13 +405,15 @@ object HMSInteractivityDecoder {
     return data
   }
 
-  enum class JSWhiteboardState(val label: String) {
+  enum class JSWhiteboardState(
+    val label: String,
+  ) {
     Start("STARTED"),
     Stop("STOPPED"),
   }
 
-  private fun getWhiteboardState(hmsWhiteboardState: State): String {
-    return when (hmsWhiteboardState) {
+  private fun getWhiteboardState(hmsWhiteboardState: State): String =
+    when (hmsWhiteboardState) {
       State.Started -> {
         JSWhiteboardState.Start.label
       }
@@ -422,10 +421,9 @@ object HMSInteractivityDecoder {
         JSWhiteboardState.Stop.label
       }
     }
-  }
 
-  fun getWhiteboardUpdateType(hmsWhiteboardUpdate: HMSWhiteboardUpdate): String {
-    return when (hmsWhiteboardUpdate) {
+  fun getWhiteboardUpdateType(hmsWhiteboardUpdate: HMSWhiteboardUpdate): String =
+    when (hmsWhiteboardUpdate) {
       is HMSWhiteboardUpdate.Start -> {
         JSWhiteboardState.Start.label
       }
@@ -433,6 +431,5 @@ object HMSInteractivityDecoder {
         JSWhiteboardState.Stop.label
       }
     }
-  }
   //endregion
 }
