@@ -37,7 +37,7 @@ class HMSManager: RCTEventEmitter {
     }
 
     override func supportedEvents() -> [String]! {
-        return [ON_JOIN, ON_PREVIEW, ON_ROOM_UPDATE, ON_PEER_UPDATE, ON_TRACK_UPDATE, ON_ERROR, ON_MESSAGE, ON_SPEAKER, RECONNECTING, RECONNECTED, ON_ROLE_CHANGE_REQUEST, ON_CHANGE_TRACK_STATE_REQUEST, ON_REMOVED_FROM_ROOM, ON_RTC_STATS, ON_LOCAL_AUDIO_STATS, ON_LOCAL_VIDEO_STATS, ON_REMOTE_AUDIO_STATS, ON_REMOTE_VIDEO_STATS, ON_AUDIO_DEVICE_CHANGED, HMSConstants.ON_SESSION_STORE_AVAILABLE, HMSConstants.ON_SESSION_STORE_CHANGED, HMSConstants.ON_PEER_LIST_UPDATED, HMSConstants.ON_POLL_UPDATE, HMSConstants.ON_WHITEBOARD_UPDATE, HMSConstants.ON_TRANSCRIPTS]
+        return [ON_JOIN, ON_PREVIEW, ON_ROOM_UPDATE, ON_PEER_UPDATE, ON_TRACK_UPDATE, ON_ERROR, ON_MESSAGE, ON_SPEAKER, RECONNECTING, RECONNECTED, ON_ROLE_CHANGE_REQUEST, ON_CHANGE_TRACK_STATE_REQUEST, ON_REMOVED_FROM_ROOM, ON_RTC_STATS, ON_LOCAL_AUDIO_STATS, ON_LOCAL_VIDEO_STATS, ON_REMOTE_AUDIO_STATS, ON_REMOTE_VIDEO_STATS, ON_AUDIO_DEVICE_CHANGED, HMSConstants.ON_SESSION_STORE_AVAILABLE, HMSConstants.ON_SESSION_STORE_CHANGED, HMSConstants.ON_PEER_LIST_UPDATED, HMSConstants.ON_POLL_UPDATE, HMSConstants.ON_WHITEBOARD_UPDATE, HMSConstants.ON_TRANSCRIPTS, HMSConstants.ON_PIP_MODE_CHANGED]
     }
 
     // MARK: - HMS SDK Delegate Callbacks
@@ -836,5 +836,120 @@ class HMSManager: RCTEventEmitter {
             return
         }
         rnsdk.handleRealTimeTranscription(data, resolve, reject)
+    }
+
+    // MARK: - PIP Mode Support
+
+    @objc
+    func handlePipActions(_ action: String,
+                          _ data: NSDictionary,
+                          _ resolve: RCTPromiseResolveBlock?,
+                          _ reject: RCTPromiseRejectBlock?) {
+
+        guard let rnsdk = HMSHelper.getHms(data, hmsCollection) else {
+            reject?("6004", "HMSRNSDK instance not found!", nil)
+            return
+        }
+
+        DispatchQueue.main.async { [weak self] in
+            switch action {
+            case "isPipModeSupported":
+                self?.isPipModeSupported(resolve, reject)
+            case "enterPipMode":
+                rnsdk.enterPipMode(resolve, reject)
+            case "setPictureInPictureParams":
+                if #available(iOS 15.0, *) {
+                    rnsdk.setPictureInPictureParams(data, resolve, reject)
+                } else {
+                    reject?("6004", "setPictureInPictureParams should be invoked for iOS 15 & above versions", nil)
+                }
+            default:
+                reject?("6004", "Unknown action type received", nil)
+            }
+        }
+    }
+
+    @objc
+    func stopPIP(_ data: NSDictionary,
+                 _ resolve: RCTPromiseResolveBlock?,
+                 _ reject: RCTPromiseRejectBlock?) {
+
+        guard let rnsdk = HMSHelper.getHms(data, hmsCollection) else {
+            reject?("6004", "HMSRNSDK instance not found!", nil)
+            return
+        }
+
+        DispatchQueue.main.async {
+            rnsdk.stopPIP(resolve, reject)
+        }
+    }
+
+    @objc
+    func disposePIP(_ data: NSDictionary,
+                    _ resolve: RCTPromiseResolveBlock?,
+                    _ reject: RCTPromiseRejectBlock?) {
+
+        guard let rnsdk = HMSHelper.getHms(data, hmsCollection) else {
+            reject?("6004", "HMSRNSDK instance not found!", nil)
+            return
+        }
+
+        DispatchQueue.main.async {
+            rnsdk.disposePIP(resolve, reject)
+        }
+    }
+
+    @objc
+    func isPipModeSupported(_ resolve: RCTPromiseResolveBlock?,
+                        _ reject: RCTPromiseRejectBlock?) {
+
+        resolve?(AVPictureInPictureController.isPictureInPictureSupported())
+    }
+
+    @objc
+    func isPIPActive(_ data: NSDictionary,
+                     _ resolve: RCTPromiseResolveBlock?,
+                     _ reject: RCTPromiseRejectBlock?) {
+
+        guard let rnsdk = HMSHelper.getHms(data, hmsCollection) else {
+            reject?("6004", "HMSRNSDK instance not found!", nil)
+            return
+        }
+
+        DispatchQueue.main.async {
+            rnsdk.isPIPActive(resolve, reject)
+        }
+    }
+
+    @objc
+    func changeIOSPIPVideoTrack(_ data: NSDictionary,
+                                _ resolve: RCTPromiseResolveBlock?,
+                                _ reject: RCTPromiseRejectBlock?) {
+
+        guard let rnsdk = HMSHelper.getHms(data, hmsCollection) else {
+            reject?("6004", "HMSRNSDK instance not found!", nil)
+            return
+        }
+        DispatchQueue.main.async {
+            if #available(iOS 15.0, *) {
+                rnsdk.changeIOSPIPVideoTrack(data, resolve, reject)
+            } else {
+                reject?("6004", "changeIOSPIPVideoTrack is not supported on iOS version lower than 15.0", nil)
+            }
+        }
+    }
+
+    @objc
+    func setActiveSpeakerInIOSPIP(_ data: NSDictionary,
+                                  _ resolve: RCTPromiseResolveBlock?,
+                                  _ reject: RCTPromiseRejectBlock?) {
+
+        guard let rnsdk = HMSHelper.getHms(data, hmsCollection) else {
+            reject?("6004", "HMSRNSDK instance not found!", nil)
+            return
+        }
+        DispatchQueue.main.async {
+            rnsdk.setActiveSpeakerInIOSPIP(data, resolve, reject)
+        }
     }
 }

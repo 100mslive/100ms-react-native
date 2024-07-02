@@ -1,9 +1,12 @@
 import {
   HMSException,
+  HMSPIPListenerActions,
   HMSPollUpdateType,
   HMSRoom,
   HMSTrack,
   HMSUpdateListenerActions,
+  HMSVideoTrack,
+  HMSVideoViewMode,
   HMSWhiteboardUpdateType,
 } from '@100mslive/react-native-hms';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
@@ -258,7 +261,7 @@ export const HMSRoomSetup = () => {
 
   // HMS Join Listener
   useEffect(() => {
-    const onJoinHandler = (data: { room: HMSRoom }) => {
+    const onJoinHandler = async (data: { room: HMSRoom }) => {
       clearConfig();
 
       setLoading(false);
@@ -356,6 +359,12 @@ export const HMSRoomSetup = () => {
       dispatch(changeMeetingState(MeetingState.IN_MEETING));
     };
 
+    // const onPipModeChanged = (data: { pipMode: boolean }) => {
+    //   console.warn('####################################### PIP Mode Changed: ', data.pipMode);
+    // }
+    //
+    // hmsInstance.addEventListener(HMSPIPListenerActions.ON_PIP_MODE_CHANGED, onPipModeChanged);
+
     hmsInstance.addEventListener(
       HMSUpdateListenerActions.ON_JOIN,
       onJoinHandler
@@ -393,9 +402,9 @@ export const HMSRoomSetup = () => {
             if (!hmsConfig.username) {
               updateConfig({ username: getRandomUserId(16) });
             }
-            joinMeeting();
+            await joinMeeting();
           } else {
-            previewMeeting();
+            await previewMeeting();
           }
         } catch (error) {
           // TODO: handle token error gracefully

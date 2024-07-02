@@ -28,6 +28,7 @@ import {
   HMSHLSPlayerPlaybackState,
   TranscriptionsMode,
   TranscriptionState,
+  HMSVideoViewMode,
 } from '@100mslive/react-native-hms';
 import type { Chat as ChatConfig } from '@100mslive/types-prebuilt/elements/chat';
 import { SoftInputModes } from '@100mslive/react-native-hms';
@@ -785,6 +786,7 @@ const useHMSTrackUpdate = (
       if (type === HMSTrackUpdate.TRACK_REMOVED) {
         if (track.source === HMSTrackSource.SCREEN) {
           if (!peer.isLocal && track.type === HMSTrackType.VIDEO) {
+            hmsInstance.setActiveSpeakerInIOSPIP(true);
             const screensharePeerTrackNodes =
               reduxState.app.screensharePeerTrackNodes;
             const nodeToRemove = screensharePeerTrackNodes.find(
@@ -1577,14 +1579,26 @@ export const useHMSNetworkQualityUpdate = () => {
   }, [hmsInstance]);
 };
 
-export type PIPConfig = Omit<HMSPIPConfig, 'autoEnterPipMode'>;
+const pipConfig: HMSPIPConfig = {
+  scaleType: HMSVideoViewMode.ASPECT_FILL,
+  aspectRatio: [9, 16],
+  autoEnterPipMode: true,
+  useActiveSpeaker: true,
+  endButton: false,
+  audioButton: false,
+  videoButton: false,
+};
 
 export const useEnableAutoPip = () => {
   const hmsInstance = useHMSInstance();
 
   const enableAutoPip = useCallback(
-    (data?: PIPConfig) => {
-      hmsInstance.setPipParams({ ...data, autoEnterPipMode: true });
+    (data: HMSPIPConfig) => {
+      hmsInstance.setPipParams({
+        ...pipConfig,
+        ...data,
+        autoEnterPipMode: true,
+      });
     },
     [hmsInstance]
   );
@@ -1596,8 +1610,12 @@ export const useDisableAutoPip = () => {
   const hmsInstance = useHMSInstance();
 
   const disableAutoPip = useCallback(
-    (data?: PIPConfig) => {
-      hmsInstance.setPipParams({ ...data, autoEnterPipMode: false });
+    (data: HMSPIPConfig) => {
+      hmsInstance.setPipParams({
+        ...pipConfig,
+        ...data,
+        autoEnterPipMode: false,
+      });
     },
     [hmsInstance]
   );
@@ -1621,7 +1639,10 @@ export const useAutoPip = (oneToOneCall: boolean) => {
 
   useEffect(() => {
     if (autoEnterPipMode && remotePeersPresent) {
-      enableAutoPip({ aspectRatio: [numerator, denominator] });
+      enableAutoPip({
+        scaleType: HMSVideoViewMode.ASPECT_FILL,
+        aspectRatio: [numerator, denominator],
+      });
 
       return disableAutoPip;
     }
@@ -1651,7 +1672,7 @@ export const usePipAspectRatio = (oneToOneCall: boolean): [number, number] => {
     if (isHLSViewer && hlsPlayerResolution) {
       return [hlsPlayerResolution.width, hlsPlayerResolution.height];
     }
-    // When user is hlsviewer and we don't have stream resolution
+    // When user is hlsviewer, and we don't have stream resolution
     if (isHLSViewer) {
       return [9, 16];
     }
@@ -1664,7 +1685,11 @@ export const usePipAspectRatio = (oneToOneCall: boolean): [number, number] => {
       return [9, 16];
     }
     // default aspect ratio
-    return [16, 9];
+    return Platform.select({
+      ios: [9, 16],
+      android: [16, 9],
+      default: [16, 9],
+    });
   }, [
     isHLSViewer,
     firstSSNodeId,
@@ -2719,9 +2744,7 @@ export const useSavePropsToStore = (
   }, [handleBackButton]);
 
   useEffect(() => {
-    if (Platform.OS === 'android') {
-      dispatch(setAutoEnterPipMode(autoEnterPipMode));
-    }
+    dispatch(setAutoEnterPipMode(autoEnterPipMode));
   }, [autoEnterPipMode]);
 };
 

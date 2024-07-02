@@ -34,4 +34,5 @@ struct HMSConstants {
     static let ON_POLL_UPDATE = "ON_POLL_UPDATE"
     static let ON_WHITEBOARD_UPDATE = "ON_WHITEBOARD_UPDATE"
     static let ON_TRANSCRIPTS = "ON_TRANSCRIPTS"
+    static let ON_PIP_MODE_CHANGED = "ON_PIP_MODE_CHANGED"
 }

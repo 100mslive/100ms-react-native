@@ -24,7 +24,7 @@ import { OverlayContainer } from './OverlayContainer';
 import { OverlayedViews } from './OverlayedViews';
 import { useFooterHeight } from './Footer';
 import { useHeaderHeight } from './Header';
-import { View } from 'react-native';
+import { Platform, View } from 'react-native';
 import { WebrtcTranscriptOverlayView } from './WebrtcTranscriptOverlayView';
 
 interface WebrtcViewProps {
@@ -111,7 +111,7 @@ export const WebrtcView = React.forwardRef<GridViewRefAttrs, WebrtcViewProps>(
       };
     }, [isPortrait, bottom]);
 
-    if (isPipModeActive) {
+    if (isPipModeActive && Platform.OS === 'android') {
       return (
         <PIPView
           peerTrackNodes={peerTrackNodes}
