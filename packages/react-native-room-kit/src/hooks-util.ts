@@ -1667,12 +1667,12 @@ export const usePipAspectRatio = (oneToOneCall: boolean): [number, number] => {
 
   const ssResolution = useHmsViewsResolutionsState(firstSSNodeId);
 
-  const aspectRatio = useMemo((): number[] | undefined => {
+  const aspectRatio = useMemo((): [number, number] => {
     // When user is hlsviewer and we have stream resolution
     if (isHLSViewer && hlsPlayerResolution) {
       return [hlsPlayerResolution.width, hlsPlayerResolution.height];
     }
-    // When user is hlsviewer and we don't have stream resolution
+    // When user is hlsviewer, and we don't have stream resolution
     if (isHLSViewer) {
       return [9, 16];
     }
