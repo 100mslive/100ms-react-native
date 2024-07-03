@@ -4,6 +4,7 @@ import { PressableIcon } from './PressableIcon';
 import { styles } from './styles';
 import { useSelector } from 'react-redux';
 import type { RootState } from '../redux';
+import { useHMSLayoutConfig } from '../hooks-util';
 
 export const HMSManageNoiseCancellation = () => {
   const noiseCancellationPlugin = useSelector(
@@ -11,6 +12,20 @@ export const HMSManageNoiseCancellation = () => {
   );
   const [isNoiseCancellationEnabled, setIsNoiseCancellationEnabled] =
     React.useState(false);
+
+  const enabledByDefault = useHMSLayoutConfig((layoutConfig) => {
+    return (
+      layoutConfig?.screens?.preview?.default?.elements?.noise_cancellation
+        ?.enabled_by_default || false
+    );
+  });
+
+  React.useEffect(() => {
+    if (enabledByDefault) {
+      noiseCancellationPlugin?.enable();
+      setIsNoiseCancellationEnabled(true);
+    }
+  }, []);
 
   const handleButtonPress = async () => {
     const isAvailable =
