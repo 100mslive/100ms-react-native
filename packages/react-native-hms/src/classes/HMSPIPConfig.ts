@@ -9,7 +9,7 @@ export interface HMSPIPConfig {
   /*
    * The aspect ratio of the PIP window. Default is [9, 16]. Other values can be [3, 4], [1, 1], [4, 3], [16, 9].
    */
-  aspectRatio?: number[];
+  aspectRatio?: [number, number];
 
   /*
    * The scale type of the PIP window. Default is ASPECT_FILL. Other values can be ASPECT_FIT, ASPECT_BALANCED. iOS Only.
