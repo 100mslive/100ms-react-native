@@ -21,6 +21,7 @@ import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.reactnativehmssdk.HMSManager.Companion.REACT_CLASS
 import live.hms.video.error.HMSException
 import live.hms.video.factories.noisecancellation.AvailabilityStatus
+import live.hms.video.sdk.HMSActionResultListener
 import java.util.UUID
 
 @ReactModule(name = REACT_CLASS)
@@ -1517,8 +1518,19 @@ class HMSManager(
         )
         return
       }
-    hmsSdk.setNoiseCancellationEnabled(true)
-    promise?.resolve(true)
+
+    hmsSdk.enableNoiseCancellation(
+      true,
+      object : HMSActionResultListener {
+        override fun onError(error: HMSException) {
+          promise?.reject(error.code.toString(), error.message)
+        }
+
+        override fun onSuccess() {
+          promise?.resolve(true)
+        }
+      },
+    )
   }
 
   @ReactMethod
@@ -1542,8 +1554,18 @@ class HMSManager(
         )
         return
       }
-    hmsSdk.setNoiseCancellationEnabled(false)
-    promise?.resolve(true)
+    hmsSdk.enableNoiseCancellation(
+      false,
+      object : HMSActionResultListener {
+        override fun onError(error: HMSException) {
+          promise?.reject(error.code.toString(), error.message)
+        }
+
+        override fun onSuccess() {
+          promise?.resolve(true)
+        }
+      },
+    )
   }
 
   @ReactMethod
@@ -1567,7 +1589,7 @@ class HMSManager(
         )
         return
       }
-    val isEnabled = hmsSdk.getNoiseCancellationEnabled()
+    val isEnabled = hmsSdk.isNoiseCancellationEnabled()
     promise?.resolve(isEnabled)
   }
 
@@ -1593,7 +1615,7 @@ class HMSManager(
         return
       }
 
-    val availability: AvailabilityStatus = hmsSdk.isNoiseCancellationAvailable()
+    val availability: AvailabilityStatus = hmsSdk.isNoiseCancellationSupported()
     val isAvailable =
       if (availability == AvailabilityStatus.Available) {
         true
