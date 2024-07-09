@@ -1,12 +1,24 @@
+import type {
+  HMSHLSPlayer,
+  HMSPIPConfig,
+  HMSRole,
+  HMSSessionStore,
+  HMSSpeaker,
+  JsonValue,
+} from '@100mslive/react-native-hms';
 import {
+  getSoftInputMode,
   HMSChangeTrackStateRequest,
   HMSConfig,
+  HMSHLSPlayerPlaybackState,
   HMSLocalPeer,
   HMSMessage,
+  HMSMessageRecipient,
   HMSMessageRecipientType,
-  HMSPIPListenerActions,
   HMSPeer,
   HMSPeerUpdate,
+  HMSPIPListenerActions,
+  HMSPollUpdateType,
   HMSRoleChangeRequest,
   HMSRoom,
   HMSRoomUpdate,
@@ -16,30 +28,18 @@ import {
   HMSTrackType,
   HMSTrackUpdate,
   HMSUpdateListenerActions,
-  HMSMessageRecipient,
-  useHMSHLSPlayerResolution,
-  useHmsViewsResolutionsState,
+  HMSVideoViewMode,
   setSoftInputMode,
-  getSoftInputMode,
-  WindowController,
-  useHMSHLSPlayerCue,
-  HMSPollUpdateType,
-  useHMSHLSPlayerPlaybackState,
-  HMSHLSPlayerPlaybackState,
+  SoftInputModes,
   TranscriptionsMode,
   TranscriptionState,
-  HMSVideoViewMode,
+  useHMSHLSPlayerCue,
+  useHMSHLSPlayerPlaybackState,
+  useHMSHLSPlayerResolution,
+  useHmsViewsResolutionsState,
+  WindowController,
 } from '@100mslive/react-native-hms';
 import type { Chat as ChatConfig } from '@100mslive/types-prebuilt/elements/chat';
-import { SoftInputModes } from '@100mslive/react-native-hms';
-import type {
-  HMSHLSPlayer,
-  HMSPIPConfig,
-  HMSRole,
-  HMSSessionStore,
-  HMSSpeaker,
-  JsonValue,
-} from '@100mslive/react-native-hms';
 import type {
   ColorPalette,
   DefaultConferencingScreen,
@@ -49,25 +49,25 @@ import type {
   Typography,
 } from '@100mslive/types-prebuilt';
 import Toast from 'react-native-simple-toast';
-import {
-  useRef,
-  useCallback,
-  useEffect,
-  useState,
-  useMemo,
-  useContext,
-} from 'react';
 import type { DependencyList } from 'react';
-
 import {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+
+import type { OnLeaveHandler, PeerTrackNode } from './utils/types';
+import {
+  ChatBroadcastFilter,
   MaxTilesInOnePage,
   ModalTypes,
   OnLeaveReason,
   PeerListRefreshInterval,
   PipModes,
 } from './utils/types';
-import { ChatBroadcastFilter } from './utils/types';
-import type { OnLeaveHandler, PeerTrackNode } from './utils/types';
 import { createPeerTrackNode, parseMetadata } from './utils/functions';
 import {
   batch,
@@ -105,10 +105,10 @@ import {
   setChatState,
   setEditUsernameDisabled,
   setFullScreenPeerTrackNode,
+  setHandleBackButton,
   setHMSLocalPeerState,
   setHMSRoleState,
   setHMSRoomState,
-  setHandleBackButton,
   setIsLocalAudioMutedState,
   setIsLocalVideoMutedState,
   setLayoutConfig,
@@ -135,15 +135,15 @@ import {
   replacePeerTrackNodes,
   replacePeerTrackNodesWithTrack,
 } from './peerTrackNodeUtils';
-import { MeetingState } from './types';
 import type { ChatState, HMSPrebuiltProps, PinnedMessage } from './types';
+import { MeetingState, NotificationTypes } from './types';
+import type { ImageStyle, StyleProp, TextStyle, ViewStyle } from 'react-native';
 import {
   BackHandler,
   InteractionManager,
   Keyboard,
   Platform,
 } from 'react-native';
-import type { ImageStyle, StyleProp, ViewStyle, TextStyle } from 'react-native';
 import { NavigationContext } from '@react-navigation/native';
 import {
   useIsLandscapeOrientation,
@@ -160,7 +160,6 @@ import {
 import type { GridViewRefAttrs } from './components/GridView';
 import { getRoomLayout } from './modules/HMSManager';
 import { DEFAULT_THEME, DEFAULT_TYPOGRAPHY } from './utils/theme';
-import { NotificationTypes } from './types';
 import { KeyboardState, useSharedValue } from 'react-native-reanimated';
 import {
   useCanPublishAudio,
@@ -1644,7 +1643,9 @@ export const useAutoPip = (oneToOneCall: boolean) => {
         aspectRatio: [numerator, denominator],
       });
 
-      return disableAutoPip;
+      return () => {
+        disableAutoPip({});
+      };
     }
   }, [
     remotePeersPresent,
