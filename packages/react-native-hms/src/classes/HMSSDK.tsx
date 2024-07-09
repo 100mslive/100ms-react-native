@@ -18,7 +18,6 @@ import type { HMSRole } from './HMSRole';
 import type { HMSTrack } from './HMSTrack';
 import type { HMSLogger } from './HMSLogger';
 import type { HMSPeer } from './HMSPeer';
-import type { HMSVideoViewMode } from './HMSVideoViewMode';
 import type { HMSTrackSettings } from './HMSTrackSettings';
 import type { HMSRTMPConfig } from './HMSRTMPConfig';
 import type { HMSHLSConfig } from './HMSHLSConfig';
@@ -48,6 +47,7 @@ import { HMSPeerListIterator } from './HMSPeerListIterator';
 import type { HMSPIPConfig } from './HMSPIPConfig';
 import { HMSInteractivityCenter } from './HMSInteractivityCenter';
 import type { HMSHLSTimedMetadata } from './HMSHLSTimedMetadata';
+import type { HMSVideoTrack } from './HMSVideoTrack';
 
 type HmsViewProps = Omit<HmsComponentProps, 'id'>;
 
@@ -1673,26 +1673,21 @@ export class HMSSDK {
         break;
       }
       case HMSPIPListenerActions.ON_PIP_MODE_CHANGED: {
-        if (Platform.OS === 'android') {
-          // Checking if we already have ON_PIP_MODE_CHANGED subscription
-          if (
-            !this.emitterSubscriptions[
-              HMSPIPListenerActions.ON_PIP_MODE_CHANGED
-            ]
-          ) {
-            const pipModeChangedSubscription =
-              HMSNativeEventListener.addListener(
-                this.id,
-                HMSPIPListenerActions.ON_PIP_MODE_CHANGED,
-                this.onPIPModeChangedListener
-              );
-            this.emitterSubscriptions[
-              HMSPIPListenerActions.ON_PIP_MODE_CHANGED
-            ] = pipModeChangedSubscription;
-          }
-          // Adding PIP mode changed Delegate listener
-          this.onPIPModeChangedDelegate = callback;
+        // Checking if we already have ON_PIP_MODE_CHANGED subscription
+        if (
+          !this.emitterSubscriptions[HMSPIPListenerActions.ON_PIP_MODE_CHANGED]
+        ) {
+          const pipModeChangedSubscription = HMSNativeEventListener.addListener(
+            this.id,
+            HMSPIPListenerActions.ON_PIP_MODE_CHANGED,
+            this.onPIPModeChangedListener
+          );
+          this.emitterSubscriptions[HMSPIPListenerActions.ON_PIP_MODE_CHANGED] =
+            pipModeChangedSubscription;
         }
+        // Adding PIP mode changed Delegate listener
+        this.onPIPModeChangedDelegate = callback;
+
         break;
       }
       default:
@@ -2520,6 +2515,9 @@ export class HMSSDK {
     }
   };
 
+  /*
+   * - This listener is fired when Room is left from the Picture in Picture mode. Android only.
+   */
   onPIPRoomLeaveListener = (data: { id: string }) => {
     if (data.id !== this.id) {
       return;
@@ -2535,6 +2533,9 @@ export class HMSSDK {
     }
   };
 
+  /*
+   * - Attach this listener to get notified when Picture in Picture mode is changed
+   */
   onPIPModeChangedListener = (data: { isInPictureInPictureMode: boolean }) => {
     if (this.onPIPModeChangedDelegate) {
       logger?.verbose('#Listener onPIPModeChanged_CALL', data);
@@ -2543,22 +2544,58 @@ export class HMSSDK {
     }
   };
 
+  /*
+   * - This function is used to check if Picture in Picture mode is supported on the device
+   */
   async isPipModeSupported(): Promise<undefined | boolean> {
-    return HMSManager.handlePipActions('isPipModeSupported', { id: this.id });
+    const data = { id: this.id };
+    logger?.verbose('#Function isPipModeSupported', data);
+    return HMSManager.handlePipActions('isPipModeSupported', data);
   }
 
+  /*
+   * - This function can be used to manually enter Picture in Picture mode
+   */
   async enterPipMode(data?: HMSPIPConfig): Promise<undefined | boolean> {
+    logger?.verbose('#Function enterPipMode', data);
     return HMSManager.handlePipActions('enterPipMode', {
       ...data,
       id: this.id,
     });
   }
 
+  /*
+   * - This function is to be used to configure the Picture in Picture window
+   */
   async setPipParams(data?: HMSPIPConfig): Promise<undefined | boolean> {
     return HMSManager.handlePipActions('setPictureInPictureParams', {
       ...data,
       id: this.id,
     });
+  }
+
+  /*
+   * - Use this function to set Video Track for Picture in Picture mode. iOS Only.
+   */
+  async changeIOSPIPVideoTrack(track: HMSVideoTrack) {
+    const data = {
+      id: this.id,
+      trackId: track.trackId,
+    };
+    logger?.verbose('#Function changeIOSPIPVideoTrack', data);
+    return await HMSManager.changeIOSPIPVideoTrack(data);
+  }
+
+  /*
+   * - Use this function
+   */
+  async setActiveSpeakerInIOSPIP(enable: boolean) {
+    const data = {
+      id: this.id,
+      enable,
+    };
+    logger?.verbose('#Function setActiveSpeakerInIOSPIP', data);
+    return await HMSManager.setActiveSpeakerInIOSPIP(data);
   }
 
   async startRealTimeTranscription() {

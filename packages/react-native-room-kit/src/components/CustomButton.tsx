@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   StyleSheet,
   Text,
@@ -7,6 +6,7 @@ import {
 } from 'react-native';
 import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
 import { COLORS } from '../utils/theme';
+import React from 'react';
 
 const CustomButton = ({
   loading = false,
