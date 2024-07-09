@@ -1,6 +1,5 @@
-import * as React from 'react';
+import React from 'react';
 import { View, StyleSheet, Text, Image } from 'react-native';
-
 import { useHMSRoomStyleSheet } from '../../hooks-util';
 import { useIsLandscapeOrientation } from '../../utils/dimension';
 

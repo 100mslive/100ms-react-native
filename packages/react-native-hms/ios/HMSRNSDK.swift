@@ -1460,15 +1460,6 @@ class HMSRNSDK: NSObject, HMSUpdateListener, HMSPreviewListener {
         }
         let roomData = HMSDecoder.getHmsRoomSubset(room)
         self.delegate?.emitEvent(HMSConstants.ON_JOIN, ["event": HMSConstants.ON_JOIN, "id": self.id, "room": roomData])
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 10) {
-            print(#function, "########## onJoin room")
-            if #available(iOS 15.0, *) {
-//                self.setPictureInPictureParams(["aspectRatio": [9, 16]], nil, nil)
-            } else {
-                // Fallback on earlier versions
-            }
-        }
     }
 
     func onPreview(room: HMSRoom, localTracks: [HMSTrack]) {
