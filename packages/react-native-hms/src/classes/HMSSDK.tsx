@@ -18,7 +18,6 @@ import type { HMSRole } from './HMSRole';
 import type { HMSTrack } from './HMSTrack';
 import type { HMSLogger } from './HMSLogger';
 import type { HMSPeer } from './HMSPeer';
-import { HMSVideoViewMode } from './HMSVideoViewMode';
 import type { HMSTrackSettings } from './HMSTrackSettings';
 import type { HMSRTMPConfig } from './HMSRTMPConfig';
 import type { HMSHLSConfig } from './HMSHLSConfig';

@@ -109,7 +109,7 @@ export const VirtualBackgroundModalContent: React.FC<
       // If PIP is enabled, disable it
       if (pipModeEnabled) {
         dispatch(setAutoEnterPipMode(false));
-        disableAutoPip();
+        disableAutoPip({});
       }
 
       const imageLibraryResponse = await ImagePicker.launchImageLibrary({
