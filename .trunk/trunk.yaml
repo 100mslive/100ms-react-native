@@ -10,17 +10,17 @@ lint:
   disabled:
     - osv-scanner
   enabled:
-    - vale@3.6.0
+    - vale@3.6.1
     - dotenv-linter@3.3.0
     - actionlint@1.7.1
     - prettier@3.3.2
     - swiftlint@0.54.0
-    - checkov@3.2.145
+    - checkov@3.2.176
     - trivy@0.52.2
-    - trufflehog@3.78.2
+    - trufflehog@3.79.0
     - oxipng@9.1.1
     - yamllint@1.35.1
-    - ktlint@1.3.0
+    - ktlint@1.3.1
     - svgo@3.3.2
     - shfmt@3.6.0
     - gitleaks@8.18.4

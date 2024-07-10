@@ -80,10 +80,10 @@ PODS:
   - HMSHLSPlayerSDK (0.0.2):
     - HMSAnalyticsSDK (= 0.0.2)
   - HMSNoiseCancellationModels (1.0.0)
-  - HMSSDK (1.12.0):
+  - HMSSDK (1.13.0):
     - HMSAnalyticsSDK (= 0.0.2)
-    - HMSWebRTC (= 1.0.6169)
-  - HMSWebRTC (1.0.6169)
+    - HMSWebRTC (= 1.0.6170)
+  - HMSWebRTC (1.0.6170)
   - libevent (2.1.12)
   - lottie-ios (3.4.4)
   - lottie-react-native (5.1.6):
@@ -319,11 +319,11 @@ PODS:
     - React-Core
   - react-native-camera/RN (4.2.1):
     - React-Core
-  - react-native-hms (1.10.7):
+  - react-native-hms (1.10.8):
     - HMSBroadcastExtensionSDK (= 0.0.9)
     - HMSHLSPlayerSDK (= 0.0.2)
     - HMSNoiseCancellationModels (= 1.0.0)
-    - HMSSDK (= 1.12.0)
+    - HMSSDK (= 1.13.0)
     - React-Core
   - react-native-image-picker (7.1.2):
     - React-Core
@@ -334,7 +334,7 @@ PODS:
   - react-native-simple-toast (1.1.3):
     - React-Core
     - Toast (~> 4.0.0)
-  - react-native-webview (13.10.3):
+  - react-native-webview (13.10.4):
     - React-Core
   - React-perflogger (0.67.4)
   - React-RCTActionSheet (0.67.4):
@@ -681,8 +681,8 @@ SPEC CHECKSUMS:
   HMSBroadcastExtensionSDK: d80fe325f6c928bd8e5176290b5a4b7ae15d6fbb
   HMSHLSPlayerSDK: 6a54ad4d12f3dc2270d1ecd24019d71282a4f6a3
   HMSNoiseCancellationModels: a3bda1405a16015632f4bcabd46ce48f35103b02
-  HMSSDK: 137107663eedc276c22639b2ec941c1f14f75d23
-  HMSWebRTC: 8f51ba33a0e505e17ebf3d7b37bcdca266751a13
+  HMSSDK: 732458b0404d44a5852747a9e2577d5e5d13e15e
+  HMSWebRTC: b5ffaf5d6133ae2a4c841beaf1e5e4fe06d0fb07
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   lottie-ios: 8f97d3271e155c2d688875c29cd3c74908aef5f8
   lottie-react-native: 8f9d4be452e23f6e5ca0fdc11669dc99ab52be81
@@ -704,12 +704,12 @@ SPEC CHECKSUMS:
   React-logger: a1f028f6d8639a3f364ef80419e5e862e1115250
   react-native-blur: 172abeaa2de2d3ba4dc586fa23488d01c533818f
   react-native-camera: 3eae183c1d111103963f3dd913b65d01aef8110f
-  react-native-hms: 803e2f90bf2abfeca108e2703ee33543b730e434
+  react-native-hms: 00e73186a187266eb3cab2b92e21a6767091ae50
   react-native-image-picker: 6f8b3ea523b02c622b9e4f9c36f17348aff0909d
   react-native-lottie-splash-screen: 015423265bac5f46016dff2e31c97b9590808856
   react-native-safe-area-context: 61c8c484a3a9e7d1fda19f7b1794b35bbfd2262a
   react-native-simple-toast: bf002828cf816775a6809f7a9ec3907509bce11f
-  react-native-webview: bbe76e4df57707c717f3c417ec0441f2a1848bba
+  react-native-webview: 625925488f70034d18162509da93c320a8a56325
   React-perflogger: 0afaf2f01a47fd0fc368a93bfbb5bd3b26db6e7f
   React-RCTActionSheet: 59f35c4029e0b532fc42114241a06e170b7431a2
   React-RCTAnimation: aae4f4bed122e78bdab72f7118d291d70a932ce2
