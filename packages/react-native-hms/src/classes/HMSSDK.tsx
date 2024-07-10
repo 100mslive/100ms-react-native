@@ -2587,7 +2587,7 @@ export class HMSSDK {
   }
 
   /*
-   * - Use this function
+   * - Use this function to automatically show the current Active Speaker Peer video in the PIP Mode window. iOS Only.
    */
   async setActiveSpeakerInIOSPIP(enable: boolean) {
     const data = {
