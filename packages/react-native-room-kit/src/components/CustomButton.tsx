@@ -1,3 +1,5 @@
+// @ts-ignore - Ignoring React import as it is generating error while running prepack script
+import React from 'react';
 import {
   StyleSheet,
   Text,
@@ -6,7 +8,6 @@ import {
 } from 'react-native';
 import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
 import { COLORS } from '../utils/theme';
-import React from 'react';
 
 const CustomButton = ({
   loading = false,
