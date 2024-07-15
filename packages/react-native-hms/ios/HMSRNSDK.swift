@@ -1537,7 +1537,7 @@ class HMSRNSDK: NSObject, HMSUpdateListener, HMSPreviewListener {
                 }
             }
         }
-        
+
         if #available(iOS 15.0, *),
             useActiveSpeakerInPIP,
             let controller = pipController,
@@ -1545,7 +1545,7 @@ class HMSRNSDK: NSObject, HMSUpdateListener, HMSPreviewListener {
             track.kind == .video,
             update == .trackRemoved,
             pipModel?.track == track {
-            
+
             pipModel?.text = hms?.localPeer?.name
             pipModel?.track = nil
         }
@@ -1577,14 +1577,14 @@ class HMSRNSDK: NSObject, HMSUpdateListener, HMSPreviewListener {
     }
 
     func on(updated speakers: [HMSSpeaker]) {
-        
+
         if #available(iOS 15.0, *),
            useActiveSpeakerInPIP,
            let controller = pipController,
            controller.isPictureInPictureActive,
            let peer = speakers.first?.peer,
            let track = peer.videoTrack {
-            
+
             if track.isMute() {
                 pipModel?.text = peer.name
                 pipModel?.track = nil
@@ -1605,7 +1605,7 @@ class HMSRNSDK: NSObject, HMSUpdateListener, HMSPreviewListener {
                 }
             }
         }
-        
+
         if eventsEnableStatus[HMSConstants.ON_SPEAKER] != true {
             return
         }
@@ -2545,13 +2545,13 @@ class HMSRNSDK: NSObject, HMSUpdateListener, HMSPreviewListener {
             self?.stopPIP(nil, nil)
         }
 
-        resolve?(nil)
+        resolve?(true)
     }
 
     func enterPipMode(_ resolve: RCTPromiseResolveBlock?,
                       _ reject: RCTPromiseRejectBlock?) {
         pipController?.startPictureInPicture()
-        resolve?(nil)
+        resolve?(true)
     }
 
     func stopPIP(_ resolve: RCTPromiseResolveBlock?,
@@ -2578,6 +2578,11 @@ class HMSRNSDK: NSObject, HMSUpdateListener, HMSPreviewListener {
         }
     }
 
+    /// Change the video track in PIP Mode
+    /// - Parameters:
+    ///   - data: Data containing the trackId of the video track to be changed
+    ///   - resolve: Promise resolve block
+    ///   - reject: Promise reject block
     @available(iOS 15.0, *)
     func changeIOSPIPVideoTrack(_ data: NSDictionary,
                                 _ resolve: RCTPromiseResolveBlock?,

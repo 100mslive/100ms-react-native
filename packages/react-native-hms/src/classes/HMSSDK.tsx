@@ -2499,6 +2499,15 @@ export class HMSSDK {
     }
   };
 
+  /**
+   * Listener for the `SessionStoreAvailable` event.
+   *
+   * This listener is triggered when the session store becomes available in the SDK. It is an important event
+   * for developers who need to access or manipulate the session store after it has been initialized and made available.
+   *
+   * @param {Object} data - The event data.
+   * @param {HMSSessionStore} data.sessionStore - The session store object that has been made available.
+   */
   onSessionStoreAvailableListener = (data: { id: string }) => {
     if (data.id !== this.id) {
       return;
@@ -2515,8 +2524,19 @@ export class HMSSDK {
     }
   };
 
-  /*
-   * - This listener is fired when Room is left from the Picture in Picture mode. Android only.
+  /**
+   * Listener for the `PIPRoomLeave` event. Android only.
+   *
+   * This listener is triggered when a room is left from the Picture in Picture (PIP) mode, which is currently supported only on Android platforms.
+   * It is an essential event for handling cleanup or UI updates when the user exits the room while in PIP mode.
+   * @param {Object} data - The event data.
+   * @memberof HMSSDK
+   * @example
+   * // Example of handling the `PIPRoomLeave` event
+   * hms.onPIPRoomLeave((data) => {
+   * // Handle PIP room leave event
+   * });
+   *
    */
   onPIPRoomLeaveListener = (data: { id: string }) => {
     if (data.id !== this.id) {
@@ -2533,10 +2553,27 @@ export class HMSSDK {
     }
   };
 
-  /*
-   * - Attach this listener to get notified when Picture in Picture mode is changed
+  /**
+   * Listener for the `PIPModeChanged` event.
+   * This listener is triggered when the Picture in Picture (PIP) mode is toggled on or off.
+   * It is an important event for handling UI updates or other actions when the user enters or exits PIP mode.
+   * @param {Object} data - The event data.
+   * @param {boolean} data.isInPictureInPictureMode - A boolean value indicating whether the user is currently in PIP mode.
+   * @returns {void} - Returns nothing.
+   * @memberof HMSSDK
+   * @example
+   * // Example of handling the `PIPModeChanged` event
+   * hms.onPIPModeChanged((data) => {
+   *  if (data.isInPictureInPictureMode) {
+   *  // Handle PIP mode enabled
+   *  } else {
+   *  // Handle PIP mode disabled
+   *  }
+   *  });
    */
-  onPIPModeChangedListener = (data: { isInPictureInPictureMode: boolean }) => {
+  onPIPModeChangedListener = (data: {
+    isInPictureInPictureMode: boolean;
+  }): void => {
     if (this.onPIPModeChangedDelegate) {
       logger?.verbose('#Listener onPIPModeChanged_CALL', data);
 
@@ -2544,8 +2581,27 @@ export class HMSSDK {
     }
   };
 
-  /*
+  /**
    * - This function is used to check if Picture in Picture mode is supported on the device
+   * @returns {Promise<boolean>} - Returns a boolean value indicating whether Picture in Picture mode is supported on the device.
+   * @memberof HMSSDK
+   * @example
+   * // Example of checking if Picture in Picture mode is supported
+   * const isPipModeSupported = await hms.isPipModeSupported();
+   * if (isPipModeSupported) {
+   * // Picture in Picture mode is supported
+   * } else {
+   * // Picture in Picture mode is not supported
+   * }
+   * @example
+   * // Example of checking if Picture in Picture mode is supported
+   * hms.isPipModeSupported().then((isPipModeSupported) => {
+   * if (isPipModeSupported) {
+   * // Picture in Picture mode is supported
+   * } else {
+   * // Picture in Picture mode is not supported
+   * }
+   * });
    */
   async isPipModeSupported(): Promise<undefined | boolean> {
     const data = { id: this.id };
@@ -2553,10 +2609,37 @@ export class HMSSDK {
     return HMSManager.handlePipActions('isPipModeSupported', data);
   }
 
-  /*
-   * - This function can be used to manually enter Picture in Picture mode
+  /**
+   * Asynchronously enters Picture in Picture (PIP) mode with optional configuration.
+   *
+   * This method attempts to enter PIP mode based on the provided configuration.
+   * It returns a promise that resolves to a boolean indicating the success of the operation.
+   * If PIP mode is not supported or fails to activate, the promise may resolve to `undefined` or `false`.
+   *
+   * @param {HMSPIPConfig} [data] - Optional configuration for entering PIP mode. This can include settings such as `autoEnterPipMode` and `aspectRatio`.
+   * @returns {Promise<boolean>} - A promise that resolves to `true` if PIP mode was successfully entered, `false` if unsuccessful or PIP mode is not supported.
+   * @throws {Error} - Throws an error if the operation fails.
+   * @memberof HMSSDK
+   * @example
+   * // Example of entering Picture in Picture mode
+   * hms.enterPipMode().then((success) => {
+   * if (success) {
+   * // Picture in Picture mode entered successfully
+   * } else {
+   * // Picture in Picture mode could not be entered
+   * }
+   * });
+   * @example
+   * // Example of entering Picture in Picture mode with configuration
+   * const success = await hms.enterPipMode({ autoEnterPipMode: true, aspectRatio: [16,9] });
+   * if (success) {
+   * // Picture in Picture mode entered successfully
+   * } else {
+   * // Picture in Picture mode could not be entered
+   * }
+   *
    */
-  async enterPipMode(data?: HMSPIPConfig): Promise<undefined | boolean> {
+  async enterPipMode(data?: HMSPIPConfig): Promise<boolean> {
     logger?.verbose('#Function enterPipMode', data);
     return HMSManager.handlePipActions('enterPipMode', {
       ...data,
@@ -2564,20 +2647,52 @@ export class HMSSDK {
     });
   }
 
-  /*
-   * - This function is to be used to configure the Picture in Picture window
+  /**
+   * Asynchronously sets the parameters for Picture in Picture (PIP) mode.
+   *
+   * This method configures the PIP window according to the provided `HMSPIPConfig` settings. It can be used to adjust various aspects of the PIP mode, such as its size, aspect ratio, and more. The method returns a promise that resolves to a boolean indicating the success of the operation. If the PIP mode is not supported or the configuration fails, the promise may resolve to `undefined` or `false`.
+   *
+   * @param {HMSPIPConfig} [data] - Optional configuration for setting PIP mode parameters. This can include settings such as `aspectRatio`, `autoEnterPipMode`, etc.
+   * @returns {Promise<boolean | undefined>} - A promise that resolves to `true` if the PIP parameters were successfully set, `false` if unsuccessful. `undefined` may be returned if PIP mode is not supported.
+   * @throws {Error} - Throws an error if the operation fails.
+   * @memberof HMSSDK
+   * @example
+   * // Example of setting Picture in Picture mode parameters
+   * hms.setPipParams({ aspectRatio: [16, 9], autoEnterPipMode: true }).then((success) => {
+   * if (success) {
+   * // Picture in Picture mode parameters set successfully
+   * } else {
+   * // Picture in Picture mode parameters could not be set
+   * }
+   * });
    */
-  async setPipParams(data?: HMSPIPConfig): Promise<undefined | boolean> {
+  async setPipParams(data?: HMSPIPConfig): Promise<boolean | undefined> {
     return HMSManager.handlePipActions('setPictureInPictureParams', {
       ...data,
       id: this.id,
     });
   }
 
-  /*
-   * - Use this function to set Video Track for Picture in Picture mode. iOS Only.
+  /**
+   * Changes the video track used in Picture in Picture (PIP) mode on iOS devices.
+   *
+   * This function is specifically designed for iOS platforms to switch the video track displayed in PIP mode.
+   * It takes a `HMSVideoTrack` object as an argument, which contains the track ID of the video track to be displayed in PIP mode.
+   * This allows for dynamic changes to the video source in PIP mode, enhancing the flexibility of video presentation in applications that support PIP.
+   *
+   * @param {HMSVideoTrack} track - The video track to be used in PIP mode. Must contain a valid `trackId`.
+   * @returns {Promise} - A promise that resolves when the video track has been successfully changed for PIP mode, or rejects with an error if the operation fails.
+   * @throws {Error} - Throws an error if the operation fails.
+   * @memberof HMSSDK
+   * @example
+   * // Example of changing the video track for PIP mode on iOS
+   * hms.changeIOSPIPVideoTrack(videoTrack).then(() => {
+   *   console.log('Video track for PIP mode changed successfully');
+   * }).catch(error => {
+   *   console.error('Failed to change video track for PIP mode', error);
+   * });
    */
-  async changeIOSPIPVideoTrack(track: HMSVideoTrack) {
+  async changeIOSPIPVideoTrack(track: HMSVideoTrack): Promise<any> {
     const data = {
       id: this.id,
       trackId: track.trackId,
@@ -2586,10 +2701,23 @@ export class HMSSDK {
     return await HMSManager.changeIOSPIPVideoTrack(data);
   }
 
-  /*
+  /**
    * - Use this function to automatically show the current Active Speaker Peer video in the PIP Mode window. iOS Only.
+   * - This function is used to automatically switch the video track of the active speaker to the Picture in Picture (PIP) mode window on iOS devices.
+   * - When enabled, the video track of the active speaker will be displayed in the PIP mode window, providing a focused view of the current speaker during a meeting or conference.
+   * @param {boolean} enable - A boolean value indicating whether to enable or disable the automatic switching of the active speaker video track in PIP mode.
+   * @returns {Promise} - A promise that resolves when the operation is successful, or rejects with an error if the operation fails.
+   * @throws {Error} - Throws an error if the operation fails.
+   * @memberof HMSSDK
+   * @example
+   * // Example of enabling the automatic switching of the active speaker video track in PIP mode
+   * hms.setActiveSpeakerInIOSPIP(true).then(() => {
+   *  console.log('Active speaker video track enabled in PIP mode');
+   *  }).catch(error => {
+   *  console.error('Failed to enable active speaker video track in PIP mode', error);
+   *  });
    */
-  async setActiveSpeakerInIOSPIP(enable: boolean) {
+  async setActiveSpeakerInIOSPIP(enable: boolean): Promise<any> {
     const data = {
       id: this.id,
       enable,
