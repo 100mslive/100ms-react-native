@@ -1537,6 +1537,18 @@ class HMSRNSDK: NSObject, HMSUpdateListener, HMSPreviewListener {
                 }
             }
         }
+        
+        if #available(iOS 15.0, *),
+            useActiveSpeakerInPIP,
+            let controller = pipController,
+            controller.isPictureInPictureActive,
+            track.kind == .video,
+            update == .trackRemoved,
+            pipModel?.track == track {
+            
+            pipModel?.text = hms?.localPeer?.name
+            pipModel?.track = nil
+        }
 
         if eventsEnableStatus[HMSConstants.ON_TRACK_UPDATE] != true {
             return
@@ -1565,23 +1577,35 @@ class HMSRNSDK: NSObject, HMSUpdateListener, HMSPreviewListener {
     }
 
     func on(updated speakers: [HMSSpeaker]) {
-
-        if useActiveSpeakerInPIP {
-            if let controller = pipController, controller.isPictureInPictureActive {
-                if #available(iOS 15.0, *) {
-                    if let track = speakers.first?.peer.videoTrack {
-                        if track.isMute() {
-                            pipModel?.text = speakers.first?.peer.name
-                            pipModel?.track = nil
-                        } else {
+        
+        if #available(iOS 15.0, *),
+           useActiveSpeakerInPIP,
+           let controller = pipController,
+           controller.isPictureInPictureActive,
+           let peer = speakers.first?.peer,
+           let track = peer.videoTrack {
+            
+            if track.isMute() {
+                pipModel?.text = peer.name
+                pipModel?.track = nil
+            } else {
+                if peer.isLocal {
+                    if #available(iOS 16.0, *) {
+                        if AVCaptureSession().isMultitaskingCameraAccessSupported {
                             pipModel?.text = nil
                             pipModel?.track = track
+                            return
                         }
                     }
+                    pipModel?.text = peer.name
+                    pipModel?.track = nil
+                } else {
+                    pipModel?.text = nil
+                    pipModel?.track = track
                 }
             }
         }
-
+        
         if eventsEnableStatus[HMSConstants.ON_SPEAKER] != true {
             return
         }
@@ -2458,9 +2482,6 @@ class HMSRNSDK: NSObject, HMSUpdateListener, HMSPreviewListener {
 
     internal var pipController: AVPictureInPictureController?
 
-    var customView = UIView()
-    var customView2 = UIView()
-
     private var useActiveSpeakerInPIP: Bool = true
 
     @available(iOS 15.0, *)
@@ -2489,6 +2510,7 @@ class HMSRNSDK: NSObject, HMSUpdateListener, HMSPreviewListener {
         }
 
         pipModel?.color = .black
+        pipModel?.text = hms?.localPeer?.name
 
         let controller = UIHostingController(rootView: HMSPipView(model: pipModel!))
 

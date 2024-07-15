@@ -258,7 +258,7 @@ export const HMSRoomSetup = () => {
 
   // HMS Join Listener
   useEffect(() => {
-    const onJoinHandler = async (data: { room: HMSRoom }) => {
+    const onJoinHandler = (data: { room: HMSRoom }) => {
       clearConfig();
 
       setLoading(false);
@@ -356,12 +356,6 @@ export const HMSRoomSetup = () => {
       dispatch(changeMeetingState(MeetingState.IN_MEETING));
     };
 
-    // const onPipModeChanged = (data: { pipMode: boolean }) => {
-    //   console.warn('####################################### PIP Mode Changed: ', data.pipMode);
-    // }
-    //
-    // hmsInstance.addEventListener(HMSPIPListenerActions.ON_PIP_MODE_CHANGED, onPipModeChanged);
-
     hmsInstance.addEventListener(
       HMSUpdateListenerActions.ON_JOIN,
       onJoinHandler
@@ -399,9 +393,9 @@ export const HMSRoomSetup = () => {
             if (!hmsConfig.username) {
               updateConfig({ username: getRandomUserId(16) });
             }
-            await joinMeeting();
+            joinMeeting();
           } else {
-            await previewMeeting();
+            previewMeeting();
           }
         } catch (error) {
           // TODO: handle token error gracefully
