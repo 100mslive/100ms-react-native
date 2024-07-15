@@ -17,9 +17,9 @@ export type JsonArray = Array<JsonPrimitive | JsonMap | JsonArray>;
 export type JsonValue = JsonPrimitive | JsonMap | JsonArray;
 
 /**
- * Session store is a shared realtime key-value store that is accessible by everyone in the room.
+ * Session store is a shared realtime key-value store that is accessible by all Peers in a Room.
  * It can be utilized to implement features such as pinned text, spotlight (which brings a particular
- * peer to the center stage for everyone in the room) and more.
+ * peer to the center stage for everyone in the room) and more, enhancing interactive experiences.
  *
  * To get an instance of `HMSSessionStore` class, You can add an event listener for `ON_SESSION_STORE_AVAILABLE`
  * event on the `HMSSDK` instance
@@ -41,9 +41,9 @@ export class HMSSessionStore {
    * Once a value is assigned, it will be available for other peers in the room
    * who are listening for changes in value for that specific key.
    *
-   * @param {JsonValue} value
-   * @param {string} key
-   * @returns {Promise}
+   * @param {JsonValue} value - The value to set, which can be any JSON-compatible type.
+   * @param {string} key - The key under which to store the value.
+   * @returns {Promise} A promise that resolves when the operation is complete.
    */
   async set(value: JsonValue, key: string) {
     const data: { success: true } = await HMSManager.setSessionMetadataForKey({
@@ -55,14 +55,13 @@ export class HMSSessionStore {
   }
 
   /**
-   * This method returns the value of any specified key on session store.
-   * Note that you will not get updates for any change in value of the specified key,
-   * It returns the latest value at the time it was called.
+   * Retrieves the value for a given key from the session store. This method does not subscribe
+   * to changes; it only returns the current value at the time of the call.
    *
    * To listen to value change updates use `addKeyChangeListener` method instead.
    *
-   * @param {string} key
-   * @returns {Promise}
+   * @param {string} key - The key whose value is to be retrieved.
+   * @returns {Promise} A promise that resolves with the value of the key.
    */
   async get(key: string) {
     const data: JsonValue = await HMSManager.getSessionMetadataForKey({
@@ -73,12 +72,12 @@ export class HMSSessionStore {
   }
 
   /**
-   * This method registers a callback function for listening to value changes of a particular key.
-   * Registered Callback function will be called initially with latest value and whenever the value updates
+   * Registers a callback to listen for changes to specified keys in the session store.
+   * The callback is called with the initial value and again whenever any value changes.
    *
-   * @param {string[]} forKeys
-   * @param {Function} callback
-   * @returns {Object} subscription object
+   * @param {string[]} forKeys - An array of keys to listen for changes on.
+   * @param {Function} callback - The function to call when a value changes.
+   * @returns {Object} An object with a `remove` method to unregister the listener.
    */
   addKeyChangeListener<T extends string[]>(
     forKeys: T,
