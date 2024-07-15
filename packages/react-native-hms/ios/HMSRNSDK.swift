@@ -1537,7 +1537,7 @@ class HMSRNSDK: NSObject, HMSUpdateListener, HMSPreviewListener {
                 }
             }
         }
-        
+
         if #available(iOS 15.0, *),
             useActiveSpeakerInPIP,
             let controller = pipController,
@@ -1545,7 +1545,7 @@ class HMSRNSDK: NSObject, HMSUpdateListener, HMSPreviewListener {
             track.kind == .video,
             update == .trackRemoved,
             pipModel?.track == track {
-            
+
             pipModel?.text = hms?.localPeer?.name
             pipModel?.track = nil
         }
@@ -1577,14 +1577,14 @@ class HMSRNSDK: NSObject, HMSUpdateListener, HMSPreviewListener {
     }
 
     func on(updated speakers: [HMSSpeaker]) {
-        
+
         if #available(iOS 15.0, *),
            useActiveSpeakerInPIP,
            let controller = pipController,
            controller.isPictureInPictureActive,
            let peer = speakers.first?.peer,
            let track = peer.videoTrack {
-            
+
             if track.isMute() {
                 pipModel?.text = peer.name
                 pipModel?.track = nil
@@ -1605,7 +1605,7 @@ class HMSRNSDK: NSObject, HMSUpdateListener, HMSPreviewListener {
                 }
             }
         }
-        
+
         if eventsEnableStatus[HMSConstants.ON_SPEAKER] != true {
             return
         }
