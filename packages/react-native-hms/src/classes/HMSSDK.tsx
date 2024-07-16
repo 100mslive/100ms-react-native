@@ -18,7 +18,7 @@ import type { HMSRole } from './HMSRole';
 import type { HMSTrack } from './HMSTrack';
 import type { HMSLogger } from './HMSLogger';
 import type { HMSPeer } from './HMSPeer';
-import { HMSVideoViewMode } from './HMSVideoViewMode';
+import type { HMSVideoViewMode } from './HMSVideoViewMode';
 import type { HMSTrackSettings } from './HMSTrackSettings';
 import type { HMSRTMPConfig } from './HMSRTMPConfig';
 import type { HMSHLSConfig } from './HMSHLSConfig';
@@ -63,6 +63,7 @@ export class HMSSDK {
   private appStateSubscription?: any;
   private onPreviewDelegate?: any;
   private onJoinDelegate?: any;
+  private onPermissionsRequestedDelegate?: any;
   private onRoomDelegate?: any;
   private onTranscriptsDelegate?: any;
   private onPeerDelegate?: any;
@@ -106,6 +107,7 @@ export class HMSSDK {
    * const hmsInstance = await HMSSDK.build();
    *
    * For Advanced Use-Cases:
+   * @param {haltPreviewJoinForPermissionsRequest} boolean is an optional value only required to enable Android SDK to request required permissions when needed, user doesn't have to allow all permissions in advance.
    * @param {trackSettings} trackSettings is an optional value only required to enable features like iOS Screen/Audio Share, Android Software Echo Cancellation, etc
    * @param {appGroup} appGroup is an optional value only required for implementing Screen & Audio Share on iOS. They are not required for Android. DO NOT USE if your app does not implements Screen or Audio Share on iOS.
    * @param {preferredExtension} preferredExtension is an optional value only required for implementing Screen & Audio Share on iOS. They are not required for Android. DO NOT USE if your app does not implements Screen or Audio Share on iOS.
@@ -116,6 +118,7 @@ export class HMSSDK {
    */
   static async build(params?: {
     trackSettings?: HMSTrackSettings;
+    haltPreviewJoinForPermissionsRequest?: boolean;
     appGroup?: String;
     preferredExtension?: String;
     logSettings?: HMSLogSettings;
@@ -125,6 +128,8 @@ export class HMSSDK {
     const { major, minor, patch } = ReactNativeVersion.version;
     let id = await HMSManager.build({
       trackSettings: params?.trackSettings,
+      haltPreviewJoinForPermissionsRequest:
+        params?.haltPreviewJoinForPermissionsRequest, // required for Android Permissions, not required for iOS
       appGroup: params?.appGroup, // required for iOS Screenshare, not required for Android
       preferredExtension: params?.preferredExtension, // required for iOS Screenshare, not required for Android
       frameworkInfo: {
@@ -1224,6 +1229,12 @@ export class HMSSDK {
     return HMSManager.setAlwaysScreenOn({ id: this.id, enabled });
   };
 
+  setPermissionsAccepted = async () => {
+    if (Platform.OS === 'ios') return;
+    logger?.verbose('#Function setPermissionsAccepted', { id: this.id });
+    return HMSManager.setPermissionsAccepted({ id: this.id });
+  };
+
   /**
    * - This is a prototype event listener that takes action and listens for updates related to that particular action
    *
@@ -1270,6 +1281,28 @@ export class HMSSDK {
         }
         // Adding App Delegate listener
         this.onJoinDelegate = callback;
+        break;
+      }
+      case HMSUpdateListenerActions.ON_PERMISSIONS_REQUESTED: {
+        // Checking if we already have ON_PERMISSIONS_REQUESTED subscription
+        if (
+          !this.emitterSubscriptions[
+            HMSUpdateListenerActions.ON_PERMISSIONS_REQUESTED
+          ]
+        ) {
+          // Adding ON_PERMISSIONS_REQUESTED native listener
+          const permissionsRequestedSubscription =
+            HMSNativeEventListener.addListener(
+              this.id,
+              HMSUpdateListenerActions.ON_PERMISSIONS_REQUESTED,
+              this.onPermissionsRequestedListener
+            );
+          this.emitterSubscriptions[
+            HMSUpdateListenerActions.ON_PERMISSIONS_REQUESTED
+          ] = permissionsRequestedSubscription;
+        }
+        // Adding App Delegate listener
+        this.onPermissionsRequestedDelegate = callback;
         break;
       }
       case HMSUpdateListenerActions.ON_ROOM_UPDATE: {
@@ -1735,6 +1768,23 @@ export class HMSSDK {
         this.onJoinDelegate = null;
         break;
       }
+      case HMSUpdateListenerActions.ON_PERMISSIONS_REQUESTED: {
+        const subscription =
+          this.emitterSubscriptions[
+            HMSUpdateListenerActions.ON_PERMISSIONS_REQUESTED
+          ];
+        // Removing ON_PERMISSIONS_REQUESTED native listener
+        if (subscription) {
+          subscription.remove();
+
+          this.emitterSubscriptions[
+            HMSUpdateListenerActions.ON_PERMISSIONS_REQUESTED
+          ] = undefined;
+        }
+        // Removing App Delegate listener
+        this.onPermissionsRequestedDelegate = null;
+        break;
+      }
       case HMSUpdateListenerActions.ON_ROOM_UPDATE: {
         const subscription =
           this.emitterSubscriptions[HMSUpdateListenerActions.ON_ROOM_UPDATE];
@@ -2147,6 +2197,19 @@ export class HMSSDK {
         room,
       });
       this.onJoinDelegate({ room });
+    }
+  };
+
+  onPermissionsRequestedListener = (data: {
+    id: string;
+    permissions: Array<string>;
+  }) => {
+    if (data.id !== this.id) {
+      return;
+    }
+    if (this.onPermissionsRequestedDelegate) {
+      logger?.verbose('#Listener ON_PERMISSIONS_REQUESTED_LISTENER_CALL', data);
+      this.onPermissionsRequestedDelegate({ ...data });
     }
   };
 

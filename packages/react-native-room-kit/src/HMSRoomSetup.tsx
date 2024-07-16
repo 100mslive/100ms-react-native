@@ -10,7 +10,16 @@ import {
   HMSWhiteboardUpdateType,
 } from '@100mslive/react-native-hms';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Alert, Keyboard, StatusBar, StyleSheet, View } from 'react-native';
+import {
+  Alert,
+  Keyboard,
+  PermissionsAndroid,
+  Platform,
+  StatusBar,
+  StyleSheet,
+  View,
+} from 'react-native';
+import type { Permission } from 'react-native';
 import Toast from 'react-native-simple-toast';
 import { batch, useDispatch, useSelector, useStore } from 'react-redux';
 
@@ -374,6 +383,31 @@ export const HMSRoomSetup = () => {
       hmsInstance.removeEventListener(HMSUpdateListenerActions.ON_JOIN);
     };
   }, [startHLSStreaming, hmsInstance]);
+
+  if (Platform.OS === 'android') {
+    // HMS Android Permissions Listener
+    useEffect(() => {
+      const onPermissionsRequested = async ({
+        permissions,
+      }: {
+        permissions: Array<string>;
+      }) => {
+        await PermissionsAndroid.requestMultiple(permissions as Permission[]);
+        await hmsInstance.setPermissionsAccepted();
+      };
+
+      hmsInstance.addEventListener(
+        HMSUpdateListenerActions.ON_PERMISSIONS_REQUESTED,
+        onPermissionsRequested
+      );
+
+      return () => {
+        hmsInstance.removeEventListener(
+          HMSUpdateListenerActions.ON_PERMISSIONS_REQUESTED
+        );
+      };
+    }, [hmsInstance]);
+  }
 
   // HMS Active Speaker Listener
   // dev-note: This is added here because we have `setPeerTrackNodes` here

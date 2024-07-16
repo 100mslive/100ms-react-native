@@ -87,6 +87,13 @@ class HMSRNSDK(
       }
     }
 
+    if (data?.hasKey("haltPreviewJoinForPermissionsRequest") == true) {
+      val halt = data?.getBoolean("haltPreviewJoinForPermissionsRequest")
+      if (halt != null) {
+        builder.haltPreviewJoinForPermissionsRequest(halt)
+      }
+    }
+
     this.hmsSDK = builder.build()
 
     hmsSDK?.let {
@@ -285,6 +292,17 @@ class HMSRNSDK(
             data.putArray("addedPeers", addedPeersArray)
             data.putArray("removedPeers", removedPeersArray)
             delegate.emitEvent("ON_PEER_LIST_UPDATED", data)
+          }
+
+          override fun onPermissionsRequested(permissions: List<String>) {
+            if (eventsEnableStatus["ON_PERMISSIONS_REQUESTED"] != true) {
+              return
+            }
+            val data: WritableMap = Arguments.createMap()
+
+            data.putArray("permissions", Arguments.fromList(permissions))
+            data.putString("id", id)
+            delegate.emitEvent("ON_PERMISSIONS_REQUESTED", data)
           }
         },
       )
@@ -556,6 +574,17 @@ class HMSRNSDK(
               data.putArray("transcripts", transcriptsArray)
               data.putString("id", id)
               delegate.emitEvent("ON_TRANSCRIPTS", data)
+            }
+
+            override fun onPermissionsRequested(permissions: List<String>) {
+              if (eventsEnableStatus["ON_PERMISSIONS_REQUESTED"] != true) {
+                return
+              }
+              val data: WritableMap = Arguments.createMap()
+
+              data.putArray("permissions", Arguments.fromList(permissions))
+              data.putString("id", id)
+              delegate.emitEvent("ON_PERMISSIONS_REQUESTED", data)
             }
           },
         )
