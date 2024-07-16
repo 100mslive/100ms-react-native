@@ -22,7 +22,7 @@
     "react": "18.2.0",
     "react-native": "0.71.19",
     "react-native-camera": "4.2.1",
-    "react-native-device-info": "9.0.2",
+    "react-native-device-info": "11.1.0",
     "react-native-gesture-handler": "2.15.0",
     "react-native-image-picker": "^7.1.2",
     "react-native-linear-gradient": "^2.7.3",
