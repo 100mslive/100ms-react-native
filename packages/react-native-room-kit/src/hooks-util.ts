@@ -217,9 +217,10 @@ const useHMSRoomUpdate = (hmsInstance: HMSSDK) => {
         if (captionTranscription?.state === TranscriptionState.STARTED) {
           batch(() => {
             dispatch(removeNotification('enable-cc'));
+            dispatch(removeNotification('TranscriptionState.STARTED'));
             dispatch(
               addNotification({
-                id: Math.random().toString(16).slice(2),
+                id: 'TranscriptionState.STARTED',
                 type: NotificationTypes.INFO,
                 icon: 'cc',
                 title: 'Closed Captioning enabled for everyone',
