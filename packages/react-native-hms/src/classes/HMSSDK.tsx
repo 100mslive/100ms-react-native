@@ -2965,6 +2965,9 @@ export class HMSSDK {
    * @param {HMSVideoTrack} track - The video track to be used in PIP mode. Must contain a valid `trackId`.
    * @returns {Promise} - A promise that resolves when the video track has been successfully changed for PIP mode, or rejects with an error if the operation fails.
    * @throws {Error} - Throws an error if the operation fails.
+   * @async
+   * @function changeIOSPIPVideoTrack
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/set-up-video-conferencing/render-video/pip-mode
    * @memberof HMSSDK
    * @example
    * // Example of changing the video track for PIP mode on iOS
@@ -2974,22 +2977,28 @@ export class HMSSDK {
    *   console.error('Failed to change video track for PIP mode', error);
    * });
    */
-  async changeIOSPIPVideoTrack(track: HMSVideoTrack): Promise<any> {
-    const data = {
-      id: this.id,
-      trackId: track.trackId,
-    };
-    logger?.verbose('#Function changeIOSPIPVideoTrack', data);
-    return await HMSManager.changeIOSPIPVideoTrack(data);
+  async changeIOSPIPVideoTrack(track: HMSVideoTrack) {
+    if (Platform.OS === 'ios') {
+      const data = {
+        id: this.id,
+        trackId: track.trackId,
+      };
+      logger?.verbose('#Function changeIOSPIPVideoTrack', data);
+      return await HMSManager.changeIOSPIPVideoTrack(data);
+    } else {
+      return Promise.resolve(false);
+    }
   }
 
   /**
-   * - Use this function to automatically show the current Active Speaker Peer video in the PIP Mode window. iOS Only.
    * - This function is used to automatically switch the video track of the active speaker to the Picture in Picture (PIP) mode window on iOS devices.
    * - When enabled, the video track of the active speaker will be displayed in the PIP mode window, providing a focused view of the current speaker during a meeting or conference.
    * @param {boolean} enable - A boolean value indicating whether to enable or disable the automatic switching of the active speaker video track in PIP mode.
    * @returns {Promise} - A promise that resolves when the operation is successful, or rejects with an error if the operation fails.
    * @throws {Error} - Throws an error if the operation fails.
+   * @async
+   * @function setActiveSpeakerInIOSPIP
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/set-up-video-conferencing/render-video/pip-mode
    * @memberof HMSSDK
    * @example
    * // Example of enabling the automatic switching of the active speaker video track in PIP mode
@@ -3000,12 +3009,16 @@ export class HMSSDK {
    *  });
    */
   async setActiveSpeakerInIOSPIP(enable: boolean): Promise<any> {
-    const data = {
-      id: this.id,
-      enable,
-    };
-    logger?.verbose('#Function setActiveSpeakerInIOSPIP', data);
-    return await HMSManager.setActiveSpeakerInIOSPIP(data);
+    if (Platform.OS === 'ios') {
+      const data = {
+        id: this.id,
+        enable,
+      };
+      logger?.verbose('#Function setActiveSpeakerInIOSPIP', data);
+      return await HMSManager.setActiveSpeakerInIOSPIP(data);
+    } else {
+      return Promise.resolve(false);
+    }
   }
 
   async startRealTimeTranscription() {

@@ -27,8 +27,15 @@ xcuserdata
 DerivedData
 *.hmap
 *.ipa
+*/ios/.xcode.env.local
 *.xcuserstate
 project.xcworkspace
+
+.cxx/
+
+# Ruby / CocoaPods
+**/ios/Pods/
+**/vendor/bundle/
 
 # Android/IJ
 .idea
