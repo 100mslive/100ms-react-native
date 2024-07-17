@@ -481,15 +481,22 @@ export class HMSSDK {
   };
 
   /**
-   * - changeMetadata changes a specific field in localPeer which is [metadata] it is a string that can
-   * be used for various functionalities like raiseHand, beRightBack and many more that explains the
-   * current status of the peer.
+   * Asynchronously changes the metadata for the local peer.
    *
-   * - it is advised to use a json object in string format to store multiple dataPoints in metadata.
+   * This method updates the metadata field of the local peer in the room. The metadata is a versatile field that can be used
+   * to store various information such as the peer's current status (e.g., raising hand, be right back, etc.). It is recommended
+   * to use a JSON object in string format to store multiple data points within the metadata. This allows for a structured and
+   * easily parseable format for metadata management.
    *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/advanced-features/change-metadata} for more info
+   * @param {string} metadata - The new metadata in string format. It is advised to use a JSON string for structured data.
+   * @returns {Promise<void>} A promise that resolves when the metadata has been successfully changed.
+   * @throws {Error} Throws an error if the metadata change operation fails.
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/interact-with-room/peer/change-metadata
+   * @example
+   * // Changing metadata to indicate the peer is raising their hand
+   * const newMetadata = JSON.stringify({ status: 'raiseHand' });
+   * await hmsInstance.changeMetadata(newMetadata);
    *
-   * @param {string}
    * @memberof HMSSDK
    */
   changeMetadata = async (metadata: string) => {
@@ -2238,21 +2245,6 @@ export class HMSSDK {
 
     logger?.verbose('#Function REMOVE_ALL_LISTENER', { id: this.id });
   };
-
-  /**
-   * - Below are all the listeners that are connected to native side.
-   *
-   * - All of the are connected when build function is called, we can connect them to the app by
-   * calling {@link addEventListener} with corresponding event type.
-   *
-   * - Before passing the data to the eventListener of the app these listeners encode the data in
-   * ts classes for a proper structuring of the data.
-   *
-   * - Even When event listeners of the app are disconnected using {@link removeEventListener} or
-   * {@link removeAllListeners} or not even connected in first place, these functions still run to
-   * maintain the current state of the instance of {@link HMSSDK}.
-   *
-   */
 
   onPreviewListener = (data: any) => {
     if (data.id !== this.id) {

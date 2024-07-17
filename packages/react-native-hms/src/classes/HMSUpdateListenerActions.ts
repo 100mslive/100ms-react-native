@@ -4,7 +4,8 @@
  * This enumeration defines the set of possible events that can be emitted by the HMSSDK during a Session.
  * These events cover a wide range of actions, from joining a room to receiving updates about peers and tracks, and more.
  * For more info about these events, checkout Event Listener docs
- * {@link https://www.100ms.live/docs/react-native/v2/how-to-guides/listen-to-room-updates/event-listeners}
+ *
+ * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/listen-to-room-updates/event-listeners
  *
  * @enum {string}
  *
