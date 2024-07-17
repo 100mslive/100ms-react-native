@@ -1,4 +1,4 @@
-import { Platform } from 'react-native';
+import {Platform} from 'react-native';
 
 import {
   PERMISSIONS,
@@ -6,7 +6,7 @@ import {
   requestMultiple,
   RESULTS,
 } from 'react-native-permissions';
-import { getRoomLinkDetails } from './getRoomLinkDetails';
+import {getRoomLinkDetails} from './getRoomLinkDetails';
 
 export const getMeetingUrl = () =>
   'https://reactnative.app.100ms.live/meeting/rlk-lsml-aiy';
@@ -14,13 +14,13 @@ export const getMeetingUrl = () =>
 export const callService = async (
   roomID: string,
   success: Function,
-  failure: Function
+  failure: Function,
 ) => {
   let roomCode;
   let subdomain;
   try {
     if (validateUrl(roomID)) {
-      const { roomCode: code, roomDomain: domain } = getRoomLinkDetails(roomID);
+      const {roomCode: code, roomDomain: domain} = getRoomLinkDetails(roomID);
       roomCode = code;
       subdomain = domain;
 
@@ -33,29 +33,17 @@ export const callService = async (
       return;
     }
 
-    const permissions = await checkPermissions([
-      PERMISSIONS.ANDROID.CAMERA,
-      PERMISSIONS.ANDROID.RECORD_AUDIO,
-      PERMISSIONS.ANDROID.BLUETOOTH_CONNECT,
-    ]);
-
-    if (permissions) {
-      const userId = getRandomUserId(6);
-      const isQARoom = subdomain && subdomain.search('.qa-') >= 0;
-      success(
-        roomCode,
-        userId,
-        isQARoom
-          ? `https://auth-nonprod.100ms.live${Platform.OS === 'ios' ? '/' : ''}`
-          : undefined, // Auth Endpoint
-        isQARoom ? 'https://qa-init.100ms.live/init' : undefined, // HMSConfig Endpoint
-        isQARoom ? 'https://api-nonprod.100ms.live' : undefined // Room Layout endpoint
-      );
-      return;
-    } else {
-      failure('permission not granted');
-      return;
-    }
+    const userId = getRandomUserId(6);
+    const isQARoom = subdomain && subdomain.search('.qa-') >= 0;
+    success(
+      roomCode,
+      userId,
+      isQARoom
+        ? `https://auth-nonprod.100ms.live${Platform.OS === 'ios' ? '/' : ''}`
+        : undefined, // Auth Endpoint
+      isQARoom ? 'https://qa-init.100ms.live/init' : undefined, // HMSConfig Endpoint
+      isQARoom ? 'https://api-nonprod.100ms.live' : undefined, // Room Layout endpoint
+    );
   } catch (error) {
     console.log(error);
     failure('error in call service');
@@ -73,7 +61,7 @@ export const getRandomNumberInRange = (min: number, max: number) => {
 };
 
 export const getRandomUserId = (length: number) => {
-  return Array.from({ length }, () => {
+  return Array.from({length}, () => {
     const randomAlphaAsciiCode = getRandomNumberInRange(97, 123); // 97 - 122 is the ascii code range for a-z chars
     const alphaCharacter = String.fromCharCode(randomAlphaAsciiCode);
     return alphaCharacter;
@@ -89,7 +77,7 @@ export const validateUrl = (url?: string): boolean => {
         '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' +
         '(\\?[;&a-z\\d%_.~+=-]*)?' +
         '(\\#[-a-z\\d_]*)?$',
-      'i'
+      'i',
     );
     return pattern.test(url);
   }
@@ -99,7 +87,7 @@ export const validateUrl = (url?: string): boolean => {
 export const checkPermissions = async (
   permissions: Array<
     (typeof PERMISSIONS.ANDROID)[keyof typeof PERMISSIONS.ANDROID]
-  >
+  >,
 ): Promise<boolean> => {
   if (Platform.OS === 'ios') {
     return true;
@@ -107,8 +95,8 @@ export const checkPermissions = async (
 
   try {
     const requiredPermissions = permissions.filter(
-      (permission) =>
-        permission.toString() !== PERMISSIONS.ANDROID.BLUETOOTH_CONNECT
+      permission =>
+        permission.toString() !== PERMISSIONS.ANDROID.BLUETOOTH_CONNECT,
     );
 
     const results = await requestMultiple(requiredPermissions);
@@ -121,22 +109,22 @@ export const checkPermissions = async (
       console.log(
         requiredPermissions[permission],
         ':',
-        results[requiredPermissions[permission]]
+        results[requiredPermissions[permission]],
       );
     }
 
     // Bluetooth Connect Permission handling
     if (
       permissions.findIndex(
-        (permission) =>
-          permission.toString() === PERMISSIONS.ANDROID.BLUETOOTH_CONNECT
+        permission =>
+          permission.toString() === PERMISSIONS.ANDROID.BLUETOOTH_CONNECT,
       ) >= 0
     ) {
       const bleConnectResult = await request(
-        PERMISSIONS.ANDROID.BLUETOOTH_CONNECT
+        PERMISSIONS.ANDROID.BLUETOOTH_CONNECT,
       );
       console.log(
-        `${PERMISSIONS.ANDROID.BLUETOOTH_CONNECT} : ${bleConnectResult}`
+        `${PERMISSIONS.ANDROID.BLUETOOTH_CONNECT} : ${bleConnectResult}`,
       );
     }
 
