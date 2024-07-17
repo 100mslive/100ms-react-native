@@ -466,7 +466,7 @@ PODS:
     - React-Core
   - RNCMaskedView (0.2.9):
     - React-Core
-  - RNDeviceInfo (9.0.2):
+  - RNDeviceInfo (11.1.0):
     - React-Core
   - RNFlashList (1.7.0):
     - RCT-Folly (= 2021.07.22.00)
@@ -800,7 +800,7 @@ SPEC CHECKSUMS:
   ReactCommon: bb3d7051c9b8c58ee34f9af76f883bd0fd7c9c31
   RNCAsyncStorage: 8616bd5a58af409453ea4e1b246521bb76578d60
   RNCMaskedView: 949696f25ec596bfc697fc88e6f95cf0c79669b6
-  RNDeviceInfo: 1e3f62b9ec32f7754fac60bd06b8f8a27124e7f0
+  RNDeviceInfo: b899ce37a403a4dea52b7cb85e16e49c04a5b88e
   RNFlashList: a74c48e93cded2dd0b8a8b30e73c44afa8275c66
   RNGestureHandler: 7909c50383a18f0cb10ce1db7262b9a6da504c03
   RNPermissions: eac721f71748c4472d6e876038270b75397d6ee7
