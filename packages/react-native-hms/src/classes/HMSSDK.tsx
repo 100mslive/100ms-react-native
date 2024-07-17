@@ -505,12 +505,28 @@ export class HMSSDK {
   };
 
   /**
-   * - startRTMPOrRecording takes a configuration object {@link HMSRTMPConfig} and stats the RTMP recording
-   * - this object of {@link HMSRTMPConfig} sets the urls for streaming and weather to set recording on or not
-   * - we get the response of this function in onRoomUpdate as RTMP_STREAMING_STATE_UPDATED.
+   * Initiates RTMP streaming or recording based on the provided configuration.
    *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/recording} for more info
+   * This method starts RTMP streaming or recording by taking a configuration object of type HMSRTMPConfig.
+   * The configuration specifies the URLs for streaming and whether recording should be enabled. The response to this
+   * operation can be observed in the `onRoomUpdate` event, specifically when the `RTMP_STREAMING_STATE_UPDATED` action is triggered.
    *
+   * @param {HMSRTMPConfig} data - The configuration object for RTMP streaming or recording. It includes streaming URLs and recording settings.
+   * @returns {Promise<any>} A promise that resolves with the operation result when the streaming or recording starts successfully.
+   * @throws {Error} Throws an error if the operation fails or the configuration is invalid.
+   *
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/record-and-live-stream/recording
+   *
+   * @example
+   * const rtmpConfig = {
+   *   meetingURL: "https://meet.example.com/myMeeting",
+   *   rtmpURLs: ["rtmp://live.twitch.tv/app", "rtmp://a.rtmp.youtube.com/live2"],
+   *   record: true,
+   *   resolution: { width: 1280, height: 720 }
+   * };
+   * await hmsInstance.startRTMPOrRecording(rtmpConfig);
+   * @async
+   * @function startRTMPOrRecording
    * @memberof HMSSDK
    */
   startRTMPOrRecording = async (data: HMSRTMPConfig) => {
@@ -524,12 +540,19 @@ export class HMSSDK {
   };
 
   /**
-   * - this function stops all the ongoing RTMP streaming and recording.
-   * - we get the response of this function in onRoomUpdate as RTMP_STREAMING_STATE_UPDATED.
+   * Stops all ongoing RTMP streaming and recording.
    *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/recording} for more info
+   * This function is responsible for halting any active RTMP streaming or recording sessions.
+   * It communicates with the native `HMSManager` module to execute the stop operation.
+   * The completion or status of this operation can be monitored through the `onRoomUpdate` event, specifically when the `RTMP_STREAMING_STATE_UPDATED` action is triggered, indicating that the streaming or recording has been successfully stopped.
    *
+   * @async
+   * @function stopRtmpAndRecording
+   * @returns {Promise<any>} A promise that resolves when the RTMP streaming and recording have been successfully stopped.
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/record-and-live-stream/recording
    * @memberof HMSSDK
+   * @example
+   * await hmsInstance.stopRtmpAndRecording();
    */
   stopRtmpAndRecording = async () => {
     logger?.verbose('#Function stopRtmpAndRecording', {});
