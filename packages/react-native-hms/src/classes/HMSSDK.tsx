@@ -103,8 +103,6 @@ export class HMSSDK {
    * It is responsible for setting up the SDK with specific settings for track management, app groups, extensions for iOS screen sharing,
    * logging configurations, etc.
    *
-   * For more information, checkout Join Room docs
-   * {@link https://www.100ms.live/docs/react-native/v2/how-to-guides/set-up-video-conferencing/join}
    *
    * @param {Object} params - Optional configuration parameters for initializing the HMSSDK.
    * @param {trackSettings} params.trackSettings is an optional value only required to enable features like iOS Screen/Audio Share, Android Software Echo Cancellation, etc
@@ -157,7 +155,18 @@ export class HMSSDK {
   }
 
   /**
-   * - Calls removeListeners that in turn breaks all connections with native listeners.
+   * Asynchronously destroys the HMSSDK instance.
+   *
+   * - This method performs a series of cleanup actions before destroying the HMSSDK instance.
+   * - It logs the destruction process, clears both the HMS peers and room caches, removes all event listeners to prevent memory leaks, and finally calls the native
+   * `destroy` method on the `HMSManager` with the instance's ID.
+   * - This is typically used to ensure that all resources are properly released when the HMSSDK instance is no longer needed, such as when a user leaves a room or the application is shutting down.
+   *
+   * @returns {Promise<void>} A promise that resolves when the destruction process has completed.
+   * @throws {Error} If the HMSSDK instance cannot be destroyed.
+   *
+   * @example
+   * await hmsInstance.destroy();
    *
    * @memberof HMSSDK
    */
