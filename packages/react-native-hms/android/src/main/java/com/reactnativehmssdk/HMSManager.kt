@@ -1093,7 +1093,7 @@ class HMSManager(
       activity.setPictureInPictureParams(pipParams)
       return true
     } catch (e: Exception) {
-      throw e
+      return false
     }
   }
 
@@ -1128,7 +1128,7 @@ class HMSManager(
 
       return activity.enterPictureInPictureMode(pipParams)
     } catch (e: Exception) {
-      throw e
+      return false
     }
   }
 
