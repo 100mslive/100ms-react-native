@@ -696,24 +696,36 @@ export class HMSSDK {
   };
 
   /**
-   * - This function can be used in a situation when we want to change role hence manipulate their
-   * access and rights in the current room, it takes the peer {@link HMSPeer} whom role we want to change,
-   * role {@link HMSRole} which will be the new role for that peer and weather to forcefully change
-   * the role or ask the to accept the role change request using a boolean force.
+   * Asynchronously changes the role of a specified peer within the room.
    *
-   * - if we change the role forcefully the peer's role will be updated without asking the peer
-   * otherwise the user will get the roleChangeRequest in roleChangeRequest listener.
-   * for more information on this checkout {@link onRoleChangeRequestListener}
+   * This function is designed to dynamically adjust a peer's permissions and capabilities within the room by changing their role.
+   * It can enforce the role change immediately or offer it to the peer as a request, depending on the `force` parameter.
+   * If the role change is forced, it is applied immediately without the peer's consent. Otherwise, the peer receives a role change request,
+   * which can be accepted or declined. This functionality supports flexible room management and control over participant permissions.
    *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/change-role} for more info
+   * @async
+   * @function changeRoleOfPeer
+   * @param {HMSPeer} peer - The peer whose role is to be changed.
+   * @param {HMSRole} role - The new role to be assigned to the peer.
+   * @param {boolean} [force=false] - Determines whether the role change should be applied immediately (`true`) or sent as a request (`false`).
+   * @returns {Promise<void>} A promise that resolves when the role change operation is complete.
+   * @throws {Error} Throws an error if the operation fails.
+   * @see  https://www.100ms.live/docs/react-native/v2/features/change-role
+   * @example
+   * // Change the role of a peer to 'viewer' forcefully
+   * const peer = { peerID: 'peer123', ... };
+   * const newRole = { name: 'viewer', ... };
+   * await hmsInstance.changeRoleOfPeer(peer, newRole, true);
    *
+   * @async
+   * @function changeRoleOfPeer
    * @memberof HMSSDK
    */
   changeRoleOfPeer = async (
     peer: HMSPeer,
     role: HMSRole,
     force: boolean = false
-  ) => {
+  ): Promise<void> => {
     const data = {
       peerId: peer.peerID,
       role: role.name,
@@ -725,19 +737,32 @@ export class HMSSDK {
   };
 
   /**
-   * - This function can be used in a situation when we want to change role of multiple peers by specifying their roles.
-   * Hence manipulate their access and rights in the current room.
-   * It takes the list of roles {@link HMSRole} whom role we want to change
-   * and role {@link HMSRole} which will be the new role for peers.
+   * Asynchronously changes the roles of multiple peers within the room.
    *
-   * - Note that role will be updated without asking the peers.
-   * Meaning, Peers will not get the roleChangeRequest in roleChangeRequest listener.
+   * This function is designed to batch update the roles of peers based on their current roles. It is particularly useful
+   * in scenarios where a group of users need to be granted or restricted permissions en masse, such as promoting all viewers
+   * to participants or demoting all speakers to viewers. The function updates the roles of all peers that have any of the specified
+   * `ofRoles` to the new `toRole` without requiring individual consent, bypassing the `roleChangeRequest` listener on the peer's end.
    *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/change-role} for more info
+   * @async
+   * @function changeRoleOfPeersWithRoles
+   * @param {HMSRole[]} ofRoles - An array of roles to identify the peers whose roles are to be changed.
+   * @param {HMSRole} toRole - The new role to be assigned to the identified peers.
+   * @returns {Promise<void>} A promise that resolves when the role change operation is complete.
+   * @throws {Error} Throws an error if the operation fails.
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/interact-with-room/peer/change-role
+   * @example
+   * // Change the role of all peers with 'viewer' role to 'participant'
+   * const viewerRole = { name: 'viewer', ... };
+   * const participantRole = { name: 'participant', ... };
+   * await hmsInstance.changeRoleOfPeersWithRoles([viewerRole], participantRole);
    *
    * @memberof HMSSDK
    */
-  changeRoleOfPeersWithRoles = async (ofRoles: HMSRole[], toRole: HMSRole) => {
+  changeRoleOfPeersWithRoles = async (
+    ofRoles: HMSRole[],
+    toRole: HMSRole
+  ): Promise<void> => {
     const data = {
       ofRoles: ofRoles.map((ofRole) => ofRole.name).filter(Boolean),
       toRole: toRole.name,
@@ -751,7 +776,7 @@ export class HMSSDK {
    * - This function can be used to manipulate mute status of any track.
    * - Targeted peer affected by this action will get a callback in onChangeTrackStateRequestListener.
    *
-   * * checkout {@link https://www.100ms.live/docs/react-native/v2/features/change-track-state} for more info
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/interact-with-room/track/remote-mute
    *
    * @param {HMSTrack}
    * @memberof HMSSDK
