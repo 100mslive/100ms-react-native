@@ -127,6 +127,7 @@ export class HMSSDK {
    *   isPrebuilt: true
    * });
    *
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/install-the-sdk/hmssdk
    * @static async build - Asynchronously builds and returns an instance of the HMSSDK class.
    * @memberof HMSSDK
    */
@@ -168,6 +169,8 @@ export class HMSSDK {
    * @example
    * await hmsInstance.destroy();
    *
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/install-the-sdk/hmssdk
+   *
    * @memberof HMSSDK
    */
   destroy = async () => {
@@ -193,6 +196,8 @@ export class HMSSDK {
    * @example
    * const authToken = await hmsInstance.getAuthTokenByRoomCode('room-code');
    *
+   *
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/listen-to-room-updates/get-methods#getauthtokenbyroomcode
    * @memberof HMSSDK
    */
   getAuthTokenByRoomCode = async (
@@ -230,6 +235,7 @@ export class HMSSDK {
    * @example
    * await hmsInstance.join(hmsConfig);
    *
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/set-up-video-conferencing/join
    * @memberof HMSSDK
    */
   join = async (config: HMSConfig) => {
@@ -254,13 +260,28 @@ export class HMSSDK {
   };
 
   /**
-   * - HmsView is react component that takes trackId and starts showing that track on a tile.
-   * - The appearance of tile is completely customizable with style prop.
-   * - Scale type can determine how the incoming video will fit in the canvas check {@link HMSVideoViewMode} for more information.
-   * - Mirror to flip the video vertically.
-   * - Auto Simulcast to automatically select the best Streaming Quality of track if feature is enabled in Room.
+   * `HmsView` is a React component that renders a video track within a view.
    *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/render-video} for more info
+   * It utilizes the `HmsViewComponent` to display the media track specified by the `trackId`.
+   * This component is designed to be used with React's `forwardRef` to allow for ref forwarding,
+   * enabling direct interaction with the DOM element.
+   *
+   * Props:
+   * - `trackId`: The unique identifier for the track to be displayed.
+   * - `style`: Custom styles to apply to the view.
+   * - `mirror`: If true, the video will be mirrored; commonly used for local video tracks.
+   * - `scaleType`: Determines how the video fits within the bounds of the view (e.g., aspect fill, aspect fit).
+   * - `setZOrderMediaOverlay`: When true, the video view will be rendered above the regular view hierarchy.
+   * - `autoSimulcast`: Enables automatic simulcast layer switching based on network conditions (if supported).
+   *
+   * @param {Object} props - The properties passed to the HmsView component.
+   * @param {React.Ref} ref - A ref provided by `forwardRef` for accessing the underlying DOM element.
+   * @returns {React.Element} A `HmsViewComponent` element configured with the provided props and ref.
+   * @memberof HMSSDK
+   * @example
+   * <HmsView trackId="track-id" style={{ width: 100, height: 100 }} mirror={true} scaleType="aspectFill" />
+   *
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/set-up-video-conferencing/render-video/overview
    *
    * @param {HmsViewProps}
    * @memberof HMSSDK

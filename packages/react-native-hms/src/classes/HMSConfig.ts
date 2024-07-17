@@ -5,8 +5,8 @@
  * authentication token, optional endpoint for different server connections, metadata for additional information about the connection,
  * and a flag to capture network quality during the preview phase.
  *
- * For more information, checkout Join Room docs here
- * {@link https://www.100ms.live/docs/react-native/v2/how-to-guides/set-up-video-conferencing/join}
+ *
+ * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/set-up-video-conferencing/join
  *
  * @param {Object} params - The configuration parameters.
  * @param {string} params.username - The username of the participant.
@@ -14,6 +14,16 @@
  * @param {string} [params.endpoint] - Optional. The endpoint URL for the connection.
  * @param {string} [params.metadata] - Optional. Additional metadata associated with the Local Peer.
  * @param {boolean} [params.captureNetworkQualityInPreview] - Optional. Flag to capture network quality in the preview phase.
+ * @constructor
+ *
+ * @example
+ * const config = new HMSConfig({
+ *  username: 'username',
+ *  authToken: 'authToken',
+ *  metadata: 'metadata',
+ *  captureNetworkQualityInPreview: true,
+ * });
+ *
  */
 export class HMSConfig {
   username: string;
