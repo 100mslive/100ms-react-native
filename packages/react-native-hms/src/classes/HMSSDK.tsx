@@ -97,20 +97,39 @@ export class HMSSDK {
   }
 
   /**
-   * - Returns an instance of [HMSSDK] {@link HMSSDK}
-   * - This function must be called to get an instance of HMSSDK class and only then user can interact with its methods.
+   * Asynchronously builds and returns an instance of the HMSSDK class.
    *
-   * Regular Usage:
+   * This method initializes the HMSSDK with optional configuration parameters and returns the initialized instance.
+   * It is responsible for setting up the SDK with specific settings for track management, app groups, extensions for iOS screen sharing,
+   * logging configurations, etc.
    *
+   * For more information, checkout Join Room docs
+   * {@link https://www.100ms.live/docs/react-native/v2/how-to-guides/set-up-video-conferencing/join}
+   *
+   * @param {Object} params - Optional configuration parameters for initializing the HMSSDK.
+   * @param {trackSettings} params.trackSettings is an optional value only required to enable features like iOS Screen/Audio Share, Android Software Echo Cancellation, etc
+   * @param {appGroup} params.appGroup is an optional value only required for implementing Screen & Audio Share on iOS. They are not required for Android. DO NOT USE if your app does not implements Screen or Audio Share on iOS.
+   * @param {preferredExtension} params.preferredExtension is an optional value only required for implementing Screen & Audio Share on iOS. They are not required for Android. DO NOT USE if your app does not implements Screen or Audio Share on iOS.
+   * @param {HMSLogSettings} params.logSettings - Optional settings for logging.
+   *
+   * @returns {Promise<HMSSDK>} A promise that resolves to an instance of HMSSDK.
+   * @throws {Error} If the HMSSDK instance cannot be created.
+   *
+   * @example
+   * // Regular usage:
    * const hmsInstance = await HMSSDK.build();
    *
-   * For Advanced Use-Cases:
-   * @param {trackSettings} trackSettings is an optional value only required to enable features like iOS Screen/Audio Share, Android Software Echo Cancellation, etc
-   * @param {appGroup} appGroup is an optional value only required for implementing Screen & Audio Share on iOS. They are not required for Android. DO NOT USE if your app does not implements Screen or Audio Share on iOS.
-   * @param {preferredExtension} preferredExtension is an optional value only required for implementing Screen & Audio Share on iOS. They are not required for Android. DO NOT USE if your app does not implements Screen or Audio Share on iOS.
+   * @example
+   * // Advanced Usage:
+   * const hmsInstance = await HMSSDK.build({
+   *   trackSettings: {...},
+   *   appGroup: 'group.example',
+   *   preferredExtension: 'com.example.extension',
+   *   logSettings: {...},
+   *   isPrebuilt: true
+   * });
    *
-   * @static
-   * @returns
+   * @static async build - Asynchronously builds and returns an instance of the HMSSDK class.
    * @memberof HMSSDK
    */
   static async build(params?: {
