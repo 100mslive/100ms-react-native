@@ -773,15 +773,35 @@ export class HMSSDK {
   };
 
   /**
-   * - This function can be used to manipulate mute status of any track.
-   * - Targeted peer affected by this action will get a callback in onChangeTrackStateRequestListener.
+   * Asynchronously changes the mute state of a specified track.
    *
+   * This function is designed to control the mute state of any track (audio or video) within the room.
+   * When invoked, it sends a request to the HMSManager to change the mute state of the specified track.
+   * The targeted peer, whose track is being manipulated, will receive a callback on the `onChangeTrackStateRequestListener`,
+   * allowing for custom handling or UI updates based on the mute state change.
+   *
+   * @async
+   * @function changeTrackState
+   * @param {HMSTrack} track - The track object whose mute state is to be changed.
+   * @param {boolean} mute - The desired mute state of the track. `true` to mute the track, `false` to unmute.
+   * @returns {Promise<void>} A promise that resolves when the operation to change the track's mute state is complete.
+   * @throws {Error} Throws an error if the operation fails or the track cannot be found.
    * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/interact-with-room/track/remote-mute
-   *
-   * @param {HMSTrack}
+   * @async
+   * @function changeTrackState
    * @memberof HMSSDK
+   *
+   * @example
+   * // Mute a specific track
+   * const trackToMute = { trackId: 'track123', ... };
+   * await hmsInstance.changeTrackState(trackToMute, true);
+   *
+   * @example
+   * // Unmute a specific track
+   * const trackToUnmute = { trackId: 'track456', ... };
+   * await hmsInstance.changeTrackState(trackToUnmute, false);
    */
-  changeTrackState = async (track: HMSTrack, mute: boolean) => {
+  changeTrackState = async (track: HMSTrack, mute: boolean): Promise<void> => {
     logger?.verbose('#Function changeTrackState', {
       track,
       mute,
@@ -797,19 +817,37 @@ export class HMSSDK {
   };
 
   /**
-   * - changeTrackStateForRoles is an enhancement on the functionality of {@link changeTrackState}.
-   * - We can change mute status for all the tracks of peers having a particular role.
-   * - @param source determines the source of the track ex. video, audio etc.
-   * - The peers affected by this action will get a callback in onChangeTrackStateRequestListener.
+   * Asynchronously changes the mute state of tracks for peers with specified roles.
    *
+   * This method extends the functionality of `changeTrackState` by allowing the mute state of all tracks (audio, video, etc.)
+   * belonging to peers with certain roles to be changed in a single operation. It is particularly useful for managing the audio
+   * and video state of groups of users, such as muting all participants except the speaker in a conference call.
+   *
+   * The peers whose track states are being changed will receive a callback on `onChangeTrackStateRequestListener`, allowing for
+   * custom handling or UI updates based on the mute state change.
+   *
+   * @async
+   * @function changeTrackStateForRoles
+   * @param {boolean} mute - The desired mute state of the tracks. `true` to mute, `false` to unmute.
+   * @param {HMSTrackType} [type] - Optional. The type of the tracks to be muted/unmuted (e.g., audio, video).
+   * @param {string} [source] - Optional. The source of the track (e.g., camera, screen).
+   * @param {Array<HMSRole>} [roles] - The roles of the peers whose tracks are to be muted/unmuted. If not specified, affects all roles.
+   * @returns {Promise<void>} A promise that resolves when the operation to change the track's mute state is complete.
+   * @throws {Error} Throws an error if the operation fails.
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/interact-with-room/track/change-track-state-roles
    * @memberof HMSSDK
+   *
+   * @example
+   * // Mute all audio tracks for peers with the role of 'viewer'
+   * const viewerRole = { name: 'viewer', ... };
+   * await hmsInstance.changeTrackStateForRoles(true, 'audio', undefined, [viewerRole]);
    */
   changeTrackStateForRoles = async (
     mute: boolean,
     type?: HMSTrackType,
     source?: string,
     roles?: Array<HMSRole>
-  ) => {
+  ): Promise<void> => {
     let roleNames = null;
     if (roles) {
       roleNames = HMSHelper.getRoleNames(roles);
