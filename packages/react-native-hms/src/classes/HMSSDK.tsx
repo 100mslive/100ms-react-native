@@ -329,9 +329,19 @@ export class HMSSDK {
   };
 
   /**
-   * Calls leave function of native sdk and session of current user is invalidated.
+   * Asynchronously leaves the current room and performs cleanup.
    *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/leave} for more info
+   * This method triggers the leave process for the current user, effectively disconnecting them from the room they are in.
+   * It logs the leave action with the user's ID, calls the native `leave` method in `HMSManager` with the user's ID,
+   * and then performs additional cleanup through `roomLeaveCleanup`. This cleanup includes removing app state subscriptions
+   * and clearing cached data related to peers and the room.
+   *
+   * @returns {Promise<any>} A promise that resolves with the operation result once the leave process is complete.
+   * @memberof HMSSDK
+   * @example
+   * await hmsInstance.leave();
+   *
+   * @see https://www.100ms.live/docs/react-native/v2/features/leave
    *
    * @memberof HMSSDK
    */
