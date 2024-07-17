@@ -1,3 +1,4 @@
+// @ts-ignore - Ignoring React import as it is generating error while running prepack script
 import * as React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 

@@ -1,9 +1,6 @@
 Board: https://app.devrev.ai/100ms/vistas/vista-254
 
-- Add PIP Mode support in iOS
-https://app.devrev.ai/100ms/works/ISS-22784
-
-Room Kit: 1.2.1
-React Native SDK: 1.10.8
-Android SDK: 2.9.62
-iOS SDK: 1.13.0
+Room Kit: 1.2.2
+React Native SDK: 1.10.9
+Android SDK: 2.9.63
+iOS SDK: 1.14.1

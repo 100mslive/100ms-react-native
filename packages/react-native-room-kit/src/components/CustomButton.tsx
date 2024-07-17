@@ -1,3 +1,4 @@
+// @ts-ignore - Ignoring React import as it is generating error while running prepack script
 import React from 'react';
 import {
   StyleSheet,

@@ -2642,24 +2642,32 @@ export class HMSSDK {
    * - Use this function to set Video Track for Picture in Picture mode. iOS Only.
    */
   async changeIOSPIPVideoTrack(track: HMSVideoTrack) {
-    const data = {
-      id: this.id,
-      trackId: track.trackId,
-    };
-    logger?.verbose('#Function changeIOSPIPVideoTrack', data);
-    return await HMSManager.changeIOSPIPVideoTrack(data);
+    if (Platform.OS !== 'ios') {
+      const data = {
+        id: this.id,
+        trackId: track.trackId,
+      };
+      logger?.verbose('#Function changeIOSPIPVideoTrack', data);
+      return await HMSManager.changeIOSPIPVideoTrack(data);
+    } else {
+      return Promise.resolve(false);
+    }
   }
 
   /*
-   * - Use this function
+   * - Use this function to automatically show the current Active Speaker Peer video in the PIP Mode window. iOS Only.
    */
   async setActiveSpeakerInIOSPIP(enable: boolean) {
-    const data = {
-      id: this.id,
-      enable,
-    };
-    logger?.verbose('#Function setActiveSpeakerInIOSPIP', data);
-    return await HMSManager.setActiveSpeakerInIOSPIP(data);
+    if (Platform.OS == 'ios') {
+      const data = {
+        id: this.id,
+        enable,
+      };
+      logger?.verbose('#Function setActiveSpeakerInIOSPIP', data);
+      return await HMSManager.setActiveSpeakerInIOSPIP(data);
+    } else {
+      return Promise.resolve(false);
+    }
   }
 
   async startRealTimeTranscription() {

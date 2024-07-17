@@ -7,7 +7,7 @@ export interface HMSPIPConfig {
   autoEnterPipMode?: boolean;
 
   /*
-   * The aspect ratio of the PIP window. Default is [9, 16]. Other values can be [3, 4], [1, 1], [4, 3], [16, 9].
+   * The aspect ratio of the PIP window. Default is [16, 9] on Android & [9, 16] on iOS. Other values can be [3, 4], [1, 1], [4, 3], [16, 9].
    */
   aspectRatio?: [number, number];
 
