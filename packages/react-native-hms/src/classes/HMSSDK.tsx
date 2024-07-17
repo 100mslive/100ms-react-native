@@ -246,12 +246,24 @@ export class HMSSDK {
   };
 
   /**
-   * - preview function is used to initiate a preview for the localPeer.
-   * - We can call this function and wait for a response in previewListener, the response will contain previewTracks for local peer.
+   * Initiates a preview for the local peer.
    *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/preview} for more info
+   * This function triggers the preview process for the local peer, allowing the application to display
+   * preview tracks (e.g., video or audio tracks) before joining a room. The response from the previewListener
+   * will contain the preview tracks for the local peer, which can be used to render a preview UI.
    *
-   * @param {HMSConfig} config
+   * @param {HMSConfig} config - The configuration object required for previewing, including credentials and user details.
+   * @example
+   * // Example usage of the preview function
+   * const previewConfig = {
+   *   authToken: "your_auth_token",
+   *   userName: "John Doe",
+   *   roomCode: "your_room_code"
+   * };
+   * hmsInstance.preview(previewConfig);
+   *
+   * @see https://www.100ms.live/docs/react-native/v2/features/preview
+   *
    * @memberof HMSSDK
    */
   preview = (config: HMSConfig) => {
