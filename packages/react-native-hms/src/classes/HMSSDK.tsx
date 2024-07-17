@@ -196,8 +196,9 @@ export class HMSSDK {
    * @example
    * const authToken = await hmsInstance.getAuthTokenByRoomCode('room-code');
    *
-   *
    * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/listen-to-room-updates/get-methods#getauthtokenbyroomcode
+   * @async
+   * @function getAuthTokenByRoomCode
    * @memberof HMSSDK
    */
   getAuthTokenByRoomCode = async (
@@ -236,6 +237,8 @@ export class HMSSDK {
    * await hmsInstance.join(hmsConfig);
    *
    * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/set-up-video-conferencing/join
+   * @async
+   * @function join
    * @memberof HMSSDK
    */
   join = async (config: HMSConfig) => {
@@ -345,6 +348,8 @@ export class HMSSDK {
    *
    * @see https://www.100ms.live/docs/react-native/v2/features/leave
    *
+   * @async
+   * @function leave
    * @memberof HMSSDK
    */
   leave = async () => {
@@ -378,6 +383,8 @@ export class HMSSDK {
    *
    * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/set-up-video-conferencing/chat
    *
+   * @async
+   * @function sendBroadcastMessage
    * @memberof HMSSDK
    */
   sendBroadcastMessage = async (message: string, type: string = 'chat') => {
@@ -414,6 +421,8 @@ export class HMSSDK {
    *
    * @see https://www.100ms.live/docs/react-native/v2/features/chat
    *
+   * @async
+   * @function sendGroupMessage
    * @memberof HMSSDK
    */
   sendGroupMessage = async (
@@ -458,6 +467,8 @@ export class HMSSDK {
    *
    * @see https://www.100ms.live/docs/react-native/v2/features/chat
    *
+   * @async
+   * @function sendDirectMessage
    * @memberof HMSSDK
    */
   sendDirectMessage = async (
@@ -499,6 +510,8 @@ export class HMSSDK {
    * const newMetadata = JSON.stringify({ status: 'raiseHand' });
    * await hmsInstance.changeMetadata(newMetadata);
    *
+   * @async
+   * @function changeMetadata
    * @memberof HMSSDK
    */
   changeMetadata = async (metadata: string) => {
