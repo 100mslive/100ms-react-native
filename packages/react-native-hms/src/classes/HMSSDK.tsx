@@ -878,14 +878,30 @@ export class HMSSDK {
   };
 
   /**
-   * - removePeer can forcefully disconnect a Peer from the room.
-   * - the user who's removed from this action will get a callback in {@link onRemovedFromRoomListener}.
+   * Asynchronously removes a peer from the room.
    *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/remove-peer} for more info
+   * This method forcefully disconnects a specified peer from the room.
+   * Upon successful removal, the removed peer will receive a callback through the `onRemovedFromRoomListener`, indicating
+   * they have been removed from the room.
+   * This can be used for managing room participants, such as removing disruptive users or managing room capacity.
    *
+   * @param {HMSPeer} peer - The peer object representing the participant to be removed.
+   * @param {string} reason - A string detailing the reason for the removal. This reason is communicated
+   *                          to the removed peer, providing context for the action.
+   * @returns {Promise<void>} A promise that resolves when the peer has been successfully removed.
+   *                          If the operation fails, the promise will reject with an error.
+   *
+   * @example
+   * // Assuming `peer` is an instance of HMSPeer representing the participant to remove
+   * await hmsInstance.removePeer(peer, "Violation of room rules");
+   *
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/interact-with-room/peer/remove-peer
+   *
+   * @async
+   * @function removePeer
    * @memberof HMSSDK
    */
-  removePeer = async (peer: HMSPeer, reason: string) => {
+  removePeer = async (peer: HMSPeer, reason: string): Promise<void> => {
     logger?.verbose('#Function removePeer', {
       peerId: peer.peerID,
       reason,
@@ -901,15 +917,28 @@ export class HMSSDK {
   };
 
   /**
-   * - endRoom can be used in a situation where we want to disconnect all the peers from current room
-   * and end the call.
-   * - everyone in the room will get an update of this action in {@link onRemovedFromRoomListener}.
+   * Asynchronously ends the current room session for all participants.
    *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/end-room} for more info
+   * This method is used to programmatically end the current room session, effectively disconnecting all participants.
+   * It can also optionally lock the room to prevent new participants from joining. This is particularly useful for
+   * managing the end of scheduled events or meetings, ensuring that all participants are removed at the same time.
+   * Upon successful execution, all participants will receive a notification through the `onRemovedFromRoomListener`
+   * indicating that they have been removed from the room.
    *
+   * @param {string} reason - A descriptive reason for ending the room session. This reason is communicated to all participants.
+   * @param {boolean} [lock=false] - Optional. Specifies whether the room should be locked after ending the session. Default is `false`.
+   * @returns {Promise<void>} A promise that resolves when the room has been successfully ended and, optionally, locked.
+   *
+   * @example
+   * // End the room and lock it to prevent rejoining
+   * await hmsInstance.endRoom("Meeting concluded", true);
+   *
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/interact-with-room/room/end-room
+   * @async
+   * @function endRoom
    * @memberof HMSSDK
    */
-  endRoom = async (reason: string, lock: boolean = false) => {
+  endRoom = async (reason: string, lock: boolean = false): Promise<void> => {
     logger?.verbose('#Function endRoom', { lock, reason, id: this.id });
     const data = {
       lock,
@@ -921,13 +950,25 @@ export class HMSSDK {
   };
 
   /**
-   * - This function can be used to change name of localPeer.
+   * Asynchronously changes the name of the local peer.
    *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/change-name} for more info
+   * This function updates the name of the local peer in the room. It is useful for scenarios where a user's display name needs to be updated during a session, such as when a user decides to change their nickname or when correcting a typo in the user's name. The updated name is reflected across all participants in the room.
    *
+   * Once the name change is successful, all the peers receive HMSUpdateListenerActions.ON_PEER_UPDATE event with HMSPeerUpdate.NAME_CHANGED as update type. When this event is received, the UI for that peer should be updated.
+   *
+   * @param {string} name - The new name to be set for the local peer.
+   * @returns {Promise<void>} A promise that resolves when the name change operation has been successfully completed.
+   * @throws {Error} Throws an error if the name change operation fails.
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/interact-with-room/peer/change-name for more information on changing the peer's name.
+   * @async
+   * @function changeName
    * @memberof HMSSDK
+   *
+   * @example
+   * // Change the name of the local peer to 'Alice'
+   * await hmsInstance.changeName("Alice");
    */
-  changeName = async (name: string) => {
+  changeName = async (name: string): Promise<void> => {
     logger?.verbose('#Function changeName', { name, id: this.id });
     const data = {
       name,
@@ -938,13 +979,22 @@ export class HMSSDK {
   };
 
   /**
-   * -Preview for a specific Role before changing it.
+   * Asynchronously previews the audio and video tracks for a specific role before applying the role change.
    *
-   * By previewing before doing a Role Change, users can see their expected Audio & Video tracks which will be visible to other Peers in Room post changing the Role.
+   * This method allows users to preview the expected audio and video tracks that will be visible to other peers in the room
+   * after changing their role. It is useful for scenarios where a user wants to understand the impact of a role change on their
+   * media tracks before making the change. This can help in ensuring that the right media settings are applied for the new role.
    *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/how-to-guides/interact-with-room/peer/change-role} for more info
+   * @param {string} role - The role for which the preview is requested. The role should be defined within the room's role configurations.
+   * @returns {Promise<any>} A promise that resolves with the preview tracks information. The resolved object contains details about the audio and video tracks that would be available to the user if the role were changed to the specified role.
    *
-   * @param {role: string}
+   * @example
+   * // Preview the tracks for the 'speaker' role
+   * const previewTracks = await hmsInstance.previewForRole('speaker');
+   * console.log(previewTracks);
+   *
+   * @async
+   * @function previewForRole
    * @memberof HMSSDK
    */
   previewForRole = async (role: string) => {
@@ -966,15 +1016,23 @@ export class HMSSDK {
   };
 
   /**
-   * Cancel the Previewing for Role invocation.
+   * Asynchronously cancels the preview for a role change.
    *
-   * If a [previewForRole] call was performed previously then calling this method clears the tracks created anticipating a Change of Role
+   * This method is intended to be used after a `previewForRole` invocation. It cancels the ongoing preview operation,
+   * effectively clearing any tracks that were created in anticipation of a role change. This is useful in scenarios where
+   * a role change preview was initiated but needs to be aborted before the actual role change occurs, allowing for clean
+   * state management and resource cleanup.
    *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/how-to-guides/interact-with-room/peer/change-role} for more info
-   *
+   * @async
+   * @function cancelPreview
    * @memberof HMSSDK
+   * @returns {Promise<{data: string}>} A promise that resolves with an object containing a data string.
+   * @example
+   * // Cancel a previously initiated role change preview
+   * await hmsInstance.cancelPreview();
+   *
    */
-  cancelPreview = async () => {
+  cancelPreview = async (): Promise<{ data: string }> => {
     logger?.verbose('#Function cancelPreview', {
       id: this.id,
     });
@@ -986,13 +1044,26 @@ export class HMSSDK {
   };
 
   /**
-   * - Calling this function will accept the most recent roleChange request made by anyone in the room
+   * Asynchronously accepts a role change request for the local peer.
    *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/change-role} for more info
+   * This method is used when a role change request has been made to the local peer, typically by an admin or moderator of the room.
+   * Invoking this method signals acceptance of the new role, and the role change is applied to the local peer. This can affect the peer's
+   * permissions and capabilities within the room, such as the ability to send video, audio, or chat messages.
    *
+   * The successful execution of this method triggers an update across the room, notifying other peers of the role change.
+   * It is important to handle this method's response to ensure the local UI reflects the new role's permissions and capabilities.
+   *
+   * @async
+   * @function acceptRoleChange
    * @memberof HMSSDK
+   * @returns {Promise<void>} A promise that resolves when the role change has been successfully accepted and applied.
+   * @example
+   * // Accept a role change request to become a 'moderator'
+   * await hmsInstance.acceptRoleChange();
+   *
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/interact-with-room/peer/change-role
    */
-  acceptRoleChange = async () => {
+  acceptRoleChange = async (): Promise<void> => {
     logger?.verbose('#Function acceptRoleChange', { id: this.id });
     return await HMSManager.acceptRoleChange({ id: this.id });
   };
@@ -1534,11 +1605,26 @@ export class HMSSDK {
   };
 
   /**
-   * - This is a prototype event listener that takes action and listens for updates related to that particular action
+   * Registers an event listener for various HMS SDK events.
    *
-   * @param {string} action
-   * @param {*} callback
+   * This method allows the registration of callbacks for different types of events that can occur within the HMS SDK.
+   * These events include but are not limited to updates about the room, peers, tracks, and errors.
+   * The method dynamically adds listeners based on the specified action and associates them with a callback function
+   * to handle the event. It ensures that only one subscription exists per event type to avoid duplicate listeners.
+   *
+   * @param {HMSUpdateListenerActions | HMSPIPListenerActions} action - The specific action/event to listen for.
+   * @param {Function} callback - The callback function to execute when the event occurs. The specifics of the callback parameters depend on the event type.
    * @memberof HMSSDK
+   *
+   * @example
+   * hmsInstance.addEventListener(HMSUpdateListenerActions.ON_JOIN, (event) => {
+   *   console.log('Joined the room:', event);
+   * });
+   *
+   * @example
+   * hmsInstance.addEventListener(HMSUpdateListenerActions.ON_PEER_UPDATE, (event) => {
+   *   console.log('Peer update:', event);
+   * });
    */
   addEventListener = (
     action: HMSUpdateListenerActions | HMSPIPListenerActions,
@@ -2027,11 +2113,21 @@ export class HMSSDK {
   };
 
   /**
-   * - This is a prototype event listener that takes action and listens for updates related to that particular action
+   * Removes an event listener for a specified event action.
    *
-   * @param {string} action
-   * @param {*} callback
+   * This method allows for the deregistration of previously registered callbacks for specific event types within the HMS SDK.
+   * By specifying the action and the callback, it ensures that the event listener associated with that action is removed,
+   * preventing the callback from being executed when the event occurs in the future. This is useful for cleaning up resources
+   * and avoiding potential memory leaks in applications that dynamically add and remove event listeners based on component lifecycle
+   * or user interactions.
+   *
+   * @param {HMSUpdateListenerActions | HMSPIPListenerActions} action - The specific action/event for which the listener is to be removed.
+   * @param {Function} callback - The callback function that was originally registered for the event. This parameter is necessary to ensure
+   *                              that only the specific callback associated with the action is removed.
    * @memberof HMSSDK
+   * @example
+   * // Remove a listener for the ON_JOIN event
+   * hmsInstance.removeEventListener(HMSUpdateListenerActions.ON_JOIN, onJoinCallback);
    */
   removeEventListener = (
     action: HMSUpdateListenerActions | HMSPIPListenerActions
@@ -2884,6 +2980,7 @@ export class HMSSDK {
    * // Handle PIP room leave event
    * });
    *
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/set-up-video-conferencing/render-video/pip-mode
    */
   onPIPRoomLeaveListener = (data: { id: string }) => {
     if (data.id !== this.id) {
@@ -2917,6 +3014,8 @@ export class HMSSDK {
    *  // Handle PIP mode disabled
    *  }
    *  });
+   *
+   *  @see https://www.100ms.live/docs/react-native/v2/how-to-guides/set-up-video-conferencing/render-video/pip-mode
    */
   onPIPModeChangedListener = (data: {
     isInPictureInPictureMode: boolean;
@@ -2949,6 +3048,8 @@ export class HMSSDK {
    * // Picture in Picture mode is not supported
    * }
    * });
+   *
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/set-up-video-conferencing/render-video/pip-mode
    */
   async isPipModeSupported(): Promise<undefined | boolean> {
     const data = { id: this.id };
@@ -2985,6 +3086,7 @@ export class HMSSDK {
    * // Picture in Picture mode could not be entered
    * }
    *
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/set-up-video-conferencing/render-video/pip-mode
    */
   async enterPipMode(data?: HMSPIPConfig): Promise<boolean> {
     logger?.verbose('#Function enterPipMode', data);
@@ -3012,6 +3114,8 @@ export class HMSSDK {
    * // Picture in Picture mode parameters could not be set
    * }
    * });
+   *
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/set-up-video-conferencing/render-video/pip-mode
    */
   async setPipParams(data?: HMSPIPConfig): Promise<boolean | undefined> {
     return HMSManager.handlePipActions('setPictureInPictureParams', {
@@ -3041,6 +3145,7 @@ export class HMSSDK {
    * }).catch(error => {
    *   console.error('Failed to change video track for PIP mode', error);
    * });
+   *
    */
   async changeIOSPIPVideoTrack(track: HMSVideoTrack) {
     if (Platform.OS === 'ios') {
@@ -3086,6 +3191,21 @@ export class HMSSDK {
     }
   }
 
+  /**
+   * Initiates real-time transcription services.
+   *
+   * This asynchronous function triggers the HMSManager to start real-time transcription services,
+   * capturing and transcribing audio in real time.
+   *
+   * @async
+   * @function startRealTimeTranscription
+   * @memberof HMSSDK
+   * @example
+   * // Example of starting real-time transcription services
+   * await hmsInstance.startRealTimeTranscription();
+   *
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/extend-capabilities/live-captions
+   */
   async startRealTimeTranscription() {
     const data = {
       id: this.id,
@@ -3095,6 +3215,19 @@ export class HMSSDK {
     return HMSManager.handleRealTimeTranscription(data);
   }
 
+  /**
+   * Stops the real-time transcription services.
+   *
+   * This asynchronous function signals the HMSManager to terminate the ongoing real-time transcription services.
+   *
+   * @async
+   * @function stopRealTimeTranscription
+   * @memberof HMSSDK
+   * @example
+   * await hmsInstance.stopRealTimeTranscription();
+   *
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/extend-capabilities/live-captions
+   */
   async stopRealTimeTranscription() {
     const data = {
       id: this.id,
@@ -3112,18 +3245,35 @@ export class HMSSDK {
   }
 
   /**
-   * - Returns the instance of logger which can be used to manipulate log levels.
-   * @returns @instance HMSLogger
+   * Retrieves the current logger instance used by the HMSSDK.
+   *
+   * This static method provides access to the logger instance, allowing for the manipulation of log levels and the retrieval of log information. It is useful for debugging purposes, enabling developers to monitor and adjust the verbosity of logs generated by the HMS SDK.
+   *
+   * @returns {HMSLogger} The current logger instance.
    * @memberof HMSSDK
+   * @example
+   * const logger = HMSSDK.getLogger();
+   * logger.setLevel('debug'); // Adjusting the log level to debug
    */
   static getLogger() {
     return getLogger();
   }
 
   /**
-   * - Updates the logger for this instance of HMSSDK
-   * @param {HMSLogger} hmsLogger
+   * Updates the logger instance for this HMSSDK instance.
+   *
+   * This method allows for the dynamic updating of the logger instance used by the HMSSDK.
+   * It can be used to change the logger settings or replace the logger entirely at runtime.
+   * This is particularly useful for adjusting log levels or redirecting log output based on application state or user preferences.
+   *
+   * @param {HMSLogger} hmsLogger - The new logger instance to be used. If not provided, the logger will be reset to default.
    * @memberof HMSSDK
+   * @example
+   * // Set a custom logger with a specific configuration
+   * const customLogger = new HMSLogger();
+   * customLogger.setLevel('verbose');
+   * hmsInstance.setLogger(customLogger);
+   *
    */
   setLogger = (hmsLogger?: HMSLogger) => {
     setLogger(this.id, hmsLogger);
