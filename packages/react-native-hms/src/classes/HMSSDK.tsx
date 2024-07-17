@@ -18,7 +18,6 @@ import type { HMSRole } from './HMSRole';
 import type { HMSTrack } from './HMSTrack';
 import type { HMSLogger } from './HMSLogger';
 import type { HMSPeer } from './HMSPeer';
-import type { HMSVideoViewMode } from './HMSVideoViewMode';
 import type { HMSTrackSettings } from './HMSTrackSettings';
 import type { HMSRTMPConfig } from './HMSRTMPConfig';
 import type { HMSHLSConfig } from './HMSHLSConfig';
@@ -122,6 +121,7 @@ export class HMSSDK {
    * @param {trackSettings} params.trackSettings is an optional value only required to enable features like iOS Screen/Audio Share, Android Software Echo Cancellation, etc
    * @param {appGroup} params.appGroup is an optional value only required for implementing Screen & Audio Share on iOS. They are not required for Android. DO NOT USE if your app does not implements Screen or Audio Share on iOS.
    * @param {preferredExtension} params.preferredExtension is an optional value only required for implementing Screen & Audio Share on iOS. They are not required for Android. DO NOT USE if your app does not implements Screen or Audio Share on iOS.
+   * @param {boolean} params.haltPreviewJoinForPermissionsRequest - Optional flag to halt the preview/join process until permissions are explicitly granted by the user. Android only. This is particularly useful when you might want to request permissions before proceeding with the preview or join operation.
    * @param {HMSLogSettings} params.logSettings - Optional settings for logging.
    *
    * @returns {Promise<HMSSDK>} A promise that resolves to an instance of HMSSDK.
