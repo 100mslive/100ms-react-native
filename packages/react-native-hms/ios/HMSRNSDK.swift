@@ -2545,13 +2545,13 @@ class HMSRNSDK: NSObject, HMSUpdateListener, HMSPreviewListener {
             self?.stopPIP(nil, nil)
         }
 
-        resolve?(nil)
+        resolve?(true)
     }
 
     func enterPipMode(_ resolve: RCTPromiseResolveBlock?,
                       _ reject: RCTPromiseRejectBlock?) {
         pipController?.startPictureInPicture()
-        resolve?(nil)
+        resolve?(true)
     }
 
     func stopPIP(_ resolve: RCTPromiseResolveBlock?,
@@ -2578,6 +2578,11 @@ class HMSRNSDK: NSObject, HMSUpdateListener, HMSPreviewListener {
         }
     }
 
+    /// Change the video track in PIP Mode
+    /// - Parameters:
+    ///   - data: Data containing the trackId of the video track to be changed
+    ///   - resolve: Promise resolve block
+    ///   - reject: Promise reject block
     @available(iOS 15.0, *)
     func changeIOSPIPVideoTrack(_ data: NSDictionary,
                                 _ resolve: RCTPromiseResolveBlock?,

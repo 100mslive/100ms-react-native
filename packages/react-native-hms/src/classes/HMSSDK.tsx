@@ -55,6 +55,18 @@ const ReactNativeVersion = require('react-native/Libraries/Core/ReactNativeVersi
 
 let HmsSdk: HMSSDK | undefined;
 
+/**
+ * Represents the main SDK class for the 100ms (HMS) video conferencing service in a React Native application.
+ * This class provides methods to manage the video conferencing lifecycle including joining a room, leaving a room,
+ * managing streams, and handling events.
+ *
+ * @export
+ * @class HMSSDK
+ * @example
+ * const hmsInstance = await HMSSDK.build();
+ * await hmsInstance.join({ authToken: 'your_auth_token', username: 'John Appleseed' });
+ * @see https://www.100ms.live/docs/react-native/v2/quickstart/quickstart
+ */
 export class HMSSDK {
   id: string;
   private _interactivityCenter: HMSInteractivityCenter | null = null;
@@ -97,20 +109,38 @@ export class HMSSDK {
   }
 
   /**
-   * - Returns an instance of [HMSSDK] {@link HMSSDK}
-   * - This function must be called to get an instance of HMSSDK class and only then user can interact with its methods.
+   * Asynchronously builds and returns an instance of the HMSSDK class.
    *
-   * Regular Usage:
+   * This method initializes the HMSSDK with optional configuration parameters and returns the initialized instance.
+   * It is responsible for setting up the SDK with specific settings for track management, app groups, extensions for iOS screen sharing,
+   * logging configurations, etc.
    *
+   *
+   * @param {Object} params - Optional configuration parameters for initializing the HMSSDK.
+   * @param {trackSettings} params.trackSettings is an optional value only required to enable features like iOS Screen/Audio Share, Android Software Echo Cancellation, etc
+   * @param {appGroup} params.appGroup is an optional value only required for implementing Screen & Audio Share on iOS. They are not required for Android. DO NOT USE if your app does not implements Screen or Audio Share on iOS.
+   * @param {preferredExtension} params.preferredExtension is an optional value only required for implementing Screen & Audio Share on iOS. They are not required for Android. DO NOT USE if your app does not implements Screen or Audio Share on iOS.
+   * @param {HMSLogSettings} params.logSettings - Optional settings for logging.
+   *
+   * @returns {Promise<HMSSDK>} A promise that resolves to an instance of HMSSDK.
+   * @throws {Error} If the HMSSDK instance cannot be created.
+   *
+   * @example
+   * // Regular usage:
    * const hmsInstance = await HMSSDK.build();
    *
-   * For Advanced Use-Cases:
-   * @param {trackSettings} trackSettings is an optional value only required to enable features like iOS Screen/Audio Share, Android Software Echo Cancellation, etc
-   * @param {appGroup} appGroup is an optional value only required for implementing Screen & Audio Share on iOS. They are not required for Android. DO NOT USE if your app does not implements Screen or Audio Share on iOS.
-   * @param {preferredExtension} preferredExtension is an optional value only required for implementing Screen & Audio Share on iOS. They are not required for Android. DO NOT USE if your app does not implements Screen or Audio Share on iOS.
+   * @example
+   * // Advanced Usage:
+   * const hmsInstance = await HMSSDK.build({
+   *   trackSettings: {...},
+   *   appGroup: 'group.example',
+   *   preferredExtension: 'com.example.extension',
+   *   logSettings: {...},
+   *   isPrebuilt: true
+   * });
    *
-   * @static
-   * @returns
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/install-the-sdk/hmssdk
+   * @static async build - Asynchronously builds and returns an instance of the HMSSDK class.
    * @memberof HMSSDK
    */
   static async build(params?: {
@@ -138,7 +168,20 @@ export class HMSSDK {
   }
 
   /**
-   * - Calls removeListeners that in turn breaks all connections with native listeners.
+   * Asynchronously destroys the HMSSDK instance.
+   *
+   * - This method performs a series of cleanup actions before destroying the HMSSDK instance.
+   * - It logs the destruction process, clears both the HMS peers and room caches, removes all event listeners to prevent memory leaks, and finally calls the native
+   * `destroy` method on the `HMSManager` with the instance's ID.
+   * - This is typically used to ensure that all resources are properly released when the HMSSDK instance is no longer needed, such as when a user leaves a room or the application is shutting down.
+   *
+   * @returns {Promise<void>} A promise that resolves when the destruction process has completed.
+   * @throws {Error} If the HMSSDK instance cannot be destroyed.
+   *
+   * @example
+   * await hmsInstance.destroy();
+   *
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/install-the-sdk/hmssdk
    *
    * @memberof HMSSDK
    */
@@ -151,10 +194,23 @@ export class HMSSDK {
   };
 
   /**
-   * - getAuthTokenByRoomCode function is used to get the Auth Token by Room Code
+   * Asynchronously retrieves an authentication token using the room code, user ID, and endpoint.
    *
-   * checkout {@link https://www.100ms.live/docs/concepts/v2/concepts/rooms/room-codes/room-codes} for more info
+   * This method is responsible for fetching an authentication token that is required to join a room in the HMS ecosystem.
+   * It makes a call to the HMSManager's `getAuthTokenByRoomCode` method, passing in the necessary parameters.
+   * The function logs the attempt and returns the token as a string.
    *
+   * @param {string} roomCode - The unique code of the room for which the token is being requested.
+   * @param {string} [userId] - Optional. The user ID of the participant requesting the token. This can be used for identifying the user in the backend.
+   * @param {string} [endpoint] - Optional. The endpoint URL to which the token request is sent. This can be used to specify a different authentication server if needed.
+   * @returns {Promise<string>} A promise that resolves to the authentication token as a string.
+   * @throws {Error} If the authentication token cannot be retrieved.
+   * @example
+   * const authToken = await hmsInstance.getAuthTokenByRoomCode('room-code');
+   *
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/listen-to-room-updates/get-methods#getauthtokenbyroomcode
+   * @async
+   * @function getAuthTokenByRoomCode
    * @memberof HMSSDK
    */
   getAuthTokenByRoomCode = async (
@@ -178,12 +234,23 @@ export class HMSSDK {
   };
 
   /**
-   * takes an instance of [HMSConfig]{@link HMSConfig} and joins the room.
-   * after joining the room user will start receiving the events and updates of the room.
+   * Asynchronously joins a room with the provided configuration
    *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/join} for more info
+   * This method is responsible for initiating the process of joining a room in the HMS ecosystem. It performs several key actions:
+   * - Logs the attempt to join with the provided configuration and instance ID.
+   * - Initializes the peers and room caches for the current session.
+   * - Calls the `join` method on the `HMSManager` with the provided configuration and the instance ID.
    *
-   * @param {HMSConfig} config
+   * @param {HMSConfig} config - The configuration object required to join a room. This includes credentials, room details, and user information.
+   * @returns {Promise<void>} A promise that resolves when the join operation has been successfully initiated.
+   * @throws {Error} If the join operation cannot be completed.
+   *
+   * @example
+   * await hmsInstance.join(hmsConfig);
+   *
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/set-up-video-conferencing/join
+   * @async
+   * @function join
    * @memberof HMSSDK
    */
   join = async (config: HMSConfig) => {
@@ -194,27 +261,56 @@ export class HMSSDK {
   };
 
   /**
-   * - preview function is used to initiate a preview for the localPeer.
-   * - We can call this function and wait for a response in previewListener, the response will contain previewTracks for local peer.
+   * Initiates a preview for the local peer.
    *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/preview} for more info
+   * This function triggers the preview process for the local peer, allowing the application to display
+   * preview tracks (e.g., video or audio tracks) before joining a room. The response from the previewListener
+   * will contain the preview tracks for the local peer, which can be used to render a preview UI.
    *
-   * @param {HMSConfig} config
+   * @param {HMSConfig} config - The configuration object required for previewing, including credentials and user details.
+   * @example
+   * // Example usage of the preview function
+   * const previewConfig = {
+   *   authToken: "your_auth_token",
+   *   userName: "John Doe",
+   *   roomCode: "your_room_code"
+   * };
+   * hmsInstance.preview(previewConfig);
+   *
+   * @see https://www.100ms.live/docs/react-native/v2/features/preview
+   *
+   * @async
+   * @function preview
    * @memberof HMSSDK
    */
-  preview = (config: HMSConfig) => {
+  preview = async (config: HMSConfig) => {
     logger?.verbose('#Function preview', { config, id: this.id });
-    HMSManager.preview({ ...config, id: this.id });
+    await HMSManager.preview({ ...config, id: this.id });
   };
 
   /**
-   * - HmsView is react component that takes trackId and starts showing that track on a tile.
-   * - The appearance of tile is completely customizable with style prop.
-   * - Scale type can determine how the incoming video will fit in the canvas check {@link HMSVideoViewMode} for more information.
-   * - Mirror to flip the video vertically.
-   * - Auto Simulcast to automatically select the best Streaming Quality of track if feature is enabled in Room.
+   * `HmsView` is a React component that renders a video track within a view.
    *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/render-video} for more info
+   * It utilizes the `HmsViewComponent` to display the media track specified by the `trackId`.
+   * This component is designed to be used with React's `forwardRef` to allow for ref forwarding,
+   * enabling direct interaction with the DOM element.
+   *
+   * Props:
+   * - `trackId`: The unique identifier for the track to be displayed.
+   * - `style`: Custom styles to apply to the view.
+   * - `mirror`: If true, the video will be mirrored; commonly used for local video tracks.
+   * - `scaleType`: Determines how the video fits within the bounds of the view (e.g., aspect fill, aspect fit).
+   * - `setZOrderMediaOverlay`: When true, the video view will be rendered above the regular view hierarchy.
+   * - `autoSimulcast`: Enables automatic simulcast layer switching based on network conditions (if supported).
+   *
+   * @param {Object} props - The properties passed to the HmsView component.
+   * @param {React.Ref} ref - A ref provided by `forwardRef` for accessing the underlying DOM element.
+   * @returns {React.Element} A `HmsViewComponent` element configured with the provided props and ref.
+   * @memberof HMSSDK
+   * @example
+   * <HmsView trackId="track-id" style={{ width: 100, height: 100 }} mirror={true} scaleType="aspectFill" />
+   *
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/set-up-video-conferencing/render-video/overview
    *
    * @param {HmsViewProps}
    * @memberof HMSSDK
@@ -250,10 +346,22 @@ export class HMSSDK {
   };
 
   /**
-   * Calls leave function of native sdk and session of current user is invalidated.
+   * Asynchronously leaves the current room and performs cleanup.
    *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/leave} for more info
+   * This method triggers the leave process for the current user, effectively disconnecting them from the room they are in.
+   * It logs the leave action with the user's ID, calls the native `leave` method in `HMSManager` with the user's ID,
+   * and then performs additional cleanup through `roomLeaveCleanup`. This cleanup includes removing app state subscriptions
+   * and clearing cached data related to peers and the room.
    *
+   * @returns {Promise<any>} A promise that resolves with the operation result once the leave process is complete.
+   * @memberof HMSSDK
+   * @example
+   * await hmsInstance.leave();
+   *
+   * @see https://www.100ms.live/docs/react-native/v2/features/leave
+   *
+   * @async
+   * @function leave
    * @memberof HMSSDK
    */
   leave = async () => {
@@ -268,13 +376,28 @@ export class HMSSDK {
   };
 
   /**
-   * - This function sends message to all the peers in the room, the get the message in onMessage listener.
+   * Sends a broadcast message to all peers in the room.
    *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/chat} for more info
+   * This asynchronous function sends a message to all peers in the room, which they can receive through the `onMessage` listener.
+   * It can be used to send chat messages or custom types of messages like emoji reactions or notifications.
    *
+   * @param {string} message - The message to be sent to all peers.
+   * @param {string} [type='chat'] - The type of the message. Default is 'chat'. Custom types can be used for specific purposes.
+   * @returns {Promise<{messageId: string | undefined}>} A promise that resolves with the message ID of the sent message, or undefined if the message could not be sent.
+   *
+   * @example
+   * // Sending a chat message to all peers
+   * await hmsInstance.sendBroadcastMessage("Hello everyone!", "chat");
+   *
+   * @example
+   * // Sending a custom notification to all peers
+   * await hmsInstance.sendBroadcastMessage("Meeting starts in 5 minutes", "notification");
+   *
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/set-up-video-conferencing/chat
+   *
+   * @async
+   * @function sendBroadcastMessage
    * @memberof HMSSDK
-   * @param message the message that is to be sent
-   * @param type the default type is set to CHAT. You can pass a custom type here for sending events like Emoji Reactions, Notifications, etc
    */
   sendBroadcastMessage = async (message: string, type: string = 'chat') => {
     logger?.verbose('#Function sendBroadcastMessage', {
@@ -293,11 +416,25 @@ export class HMSSDK {
   };
 
   /**
-   * - sendGroupMessage sends a message to specific set of roles, whoever has any of those role in room
-   * will get the message in onMessage listener.
+   * Sends a message to a specific set of roles within the room.
    *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/chat} for more info
+   * This method allows for targeted communication by sending a message to peers who have any of the specified roles.
+   * The message is received by the peers through the `onMessage` listener. This can be useful for sending announcements,
+   * instructions, or other types of messages to a subset of the room based on their roles.
    *
+   * @param {string} message - The message to be sent.
+   * @param {HMSRole[]} roles - An array of roles to which the message will be sent. Peers with these roles will receive the message.
+   * @param {string} [type='chat'] - The type of the message. Defaults to 'chat'. Custom types can be used for specific messaging scenarios.
+   * @returns {Promise<{messageId: string | undefined}>} A promise that resolves with an object containing the `messageId` of the sent message. If the message could not be sent, `messageId` will be `undefined`.
+   *
+   * @example
+   * // Sending a message to all peers with the role of 'moderator'
+   * await hmsInstance.sendGroupMessage("Please start the meeting.", [moderator]);
+   *
+   * @see https://www.100ms.live/docs/react-native/v2/features/chat
+   *
+   * @async
+   * @function sendGroupMessage
    * @memberof HMSSDK
    */
   sendGroupMessage = async (
@@ -323,11 +460,27 @@ export class HMSSDK {
   };
 
   /**
-   * - sendDirectMessage sends a private message to a single peer, only that peer will get the message
-   * in onMessage Listener.
+   * Sends a direct message to a specific peer in the room.
    *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/chat} for more info
+   * This method allows sending a private message to a single peer, ensuring that only the specified recipient can receive and view the message.
+   * The message is delivered to the recipient through the `onMessage` listener. This functionality is useful for implementing private chat features
+   * within a larger group chat context.
    *
+   * @param {string} message - The message text to be sent.
+   * @param {HMSPeer} peer - The peer object representing the recipient of the message.
+   * @param {string} [type='chat'] - The type of the message being sent. Defaults to 'chat'. This can be customized to differentiate between various message types (e.g., 'private', 'system').
+   * @returns {Promise<{messageId: string | undefined}>} A promise that resolves with an object containing the `messageId` of the sent message. If the message could not be sent, `messageId` will be `undefined`.
+   * @throws {Error} Throws an error if the message could not be sent.
+   *
+   * @example
+   * // Sending a private chat message to a specific peer
+   * const peer = { peerID: 'peer123', ... };
+   * await hmsInstance.sendDirectMessage("Hello, this is a private message.", peer, "chat");
+   *
+   * @see https://www.100ms.live/docs/react-native/v2/features/chat
+   *
+   * @async
+   * @function sendDirectMessage
    * @memberof HMSSDK
    */
   sendDirectMessage = async (
@@ -353,15 +506,24 @@ export class HMSSDK {
   };
 
   /**
-   * - changeMetadata changes a specific field in localPeer which is [metadata] it is a string that can
-   * be used for various functionalities like raiseHand, beRightBack and many more that explains the
-   * current status of the peer.
+   * Asynchronously changes the metadata for the local peer.
    *
-   * - it is advised to use a json object in string format to store multiple dataPoints in metadata.
+   * This method updates the metadata field of the local peer in the room. The metadata is a versatile field that can be used
+   * to store various information such as the peer's current status (e.g., raising hand, be right back, etc.). It is recommended
+   * to use a JSON object in string format to store multiple data points within the metadata. This allows for a structured and
+   * easily parseable format for metadata management.
    *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/advanced-features/change-metadata} for more info
+   * @param {string} metadata - The new metadata in string format. It is advised to use a JSON string for structured data.
+   * @returns {Promise<void>} A promise that resolves when the metadata has been successfully changed.
+   * @throws {Error} Throws an error if the metadata change operation fails.
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/interact-with-room/peer/change-metadata
+   * @example
+   * // Changing metadata to indicate the peer is raising their hand
+   * const newMetadata = JSON.stringify({ status: 'raiseHand' });
+   * await hmsInstance.changeMetadata(newMetadata);
    *
-   * @param {string}
+   * @async
+   * @function changeMetadata
    * @memberof HMSSDK
    */
   changeMetadata = async (metadata: string) => {
@@ -370,12 +532,28 @@ export class HMSSDK {
   };
 
   /**
-   * - startRTMPOrRecording takes a configuration object {@link HMSRTMPConfig} and stats the RTMP recording
-   * - this object of {@link HMSRTMPConfig} sets the urls for streaming and weather to set recording on or not
-   * - we get the response of this function in onRoomUpdate as RTMP_STREAMING_STATE_UPDATED.
+   * Initiates RTMP streaming or recording based on the provided configuration.
    *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/recording} for more info
+   * This method starts RTMP streaming or recording by taking a configuration object of type HMSRTMPConfig.
+   * The configuration specifies the URLs for streaming and whether recording should be enabled. The response to this
+   * operation can be observed in the `onRoomUpdate` event, specifically when the `RTMP_STREAMING_STATE_UPDATED` action is triggered.
    *
+   * @param {HMSRTMPConfig} data - The configuration object for RTMP streaming or recording. It includes streaming URLs and recording settings.
+   * @returns {Promise<any>} A promise that resolves with the operation result when the streaming or recording starts successfully.
+   * @throws {Error} Throws an error if the operation fails or the configuration is invalid.
+   *
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/record-and-live-stream/recording
+   *
+   * @example
+   * const rtmpConfig = {
+   *   meetingURL: "https://meet.example.com/myMeeting",
+   *   rtmpURLs: ["rtmp://live.twitch.tv/app", "rtmp://a.rtmp.youtube.com/live2"],
+   *   record: true,
+   *   resolution: { width: 1280, height: 720 }
+   * };
+   * await hmsInstance.startRTMPOrRecording(rtmpConfig);
+   * @async
+   * @function startRTMPOrRecording
    * @memberof HMSSDK
    */
   startRTMPOrRecording = async (data: HMSRTMPConfig) => {
@@ -389,12 +567,19 @@ export class HMSSDK {
   };
 
   /**
-   * - this function stops all the ongoing RTMP streaming and recording.
-   * - we get the response of this function in onRoomUpdate as RTMP_STREAMING_STATE_UPDATED.
+   * Stops all ongoing RTMP streaming and recording.
    *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/recording} for more info
+   * This function is responsible for halting any active RTMP streaming or recording sessions.
+   * It communicates with the native `HMSManager` module to execute the stop operation.
+   * The completion or status of this operation can be monitored through the `onRoomUpdate` event, specifically when the `RTMP_STREAMING_STATE_UPDATED` action is triggered, indicating that the streaming or recording has been successfully stopped.
    *
+   * @async
+   * @function stopRtmpAndRecording
+   * @returns {Promise<any>} A promise that resolves when the RTMP streaming and recording have been successfully stopped.
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/record-and-live-stream/recording
    * @memberof HMSSDK
+   * @example
+   * await hmsInstance.stopRtmpAndRecording();
    */
   stopRtmpAndRecording = async () => {
     logger?.verbose('#Function stopRtmpAndRecording', {});
@@ -403,13 +588,21 @@ export class HMSSDK {
   };
 
   /**
-   * - This function starts HLSStreaming.
-   * - we get the response of this function in onRoomUpdate as HLS_STREAMING_STATE_UPDATED.
+   * Initiates HLS (HTTP Live Streaming) based on the provided configuration.
    *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/hls-streaming} for more info
+   * This asynchronous function starts HLS streaming, allowing for live video content to be delivered over the internet in a scalable manner.
+   * The function takes an optional `HMSHLSConfig` object as a parameter, which includes settings such as the meeting URL, HLS variant parameters, and recording settings.
+   * The operation's response can be observed through the `onRoomUpdate` event, specifically when the `HLS_STREAMING_STATE_UPDATED` action is triggered, indicating the streaming state has been updated.
    *
-   * @param {HMSHLSConfig}
+   * @param {HMSHLSConfig} [data] - Optional configuration object for HLS streaming. Defines parameters such as meeting URL, HLS variants, and recording options.
+   * @returns {Promise<any>} A promise that resolves when the HLS streaming starts successfully. The promise resolves with the operation result.
+   * @throws {Error} Throws an error if the operation fails or if the provided configuration is invalid.
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/record-and-live-stream/hls
+   * @async
+   * @function startHLSStreaming
    * @memberof HMSSDK
+   * @example
+   * await hmsInstance.startHLSStreaming();
    */
   startHLSStreaming = async (data?: HMSHLSConfig) => {
     logger?.verbose('#Function startHLSStreaming', {
@@ -420,12 +613,19 @@ export class HMSSDK {
   };
 
   /**
-   * - stopHLSStreaming function stops the ongoing HLSStreams.
-   * - we get the response of this function in onRoomUpdate as HLS_STREAMING_STATE_UPDATED.
+   * Stops the ongoing HLS (HTTP Live Streaming) streams.
    *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/hls-streaming} for more info
+   * This asynchronous function is responsible for stopping any active HLS streaming sessions.
+   * It communicates with the native `HMSManager` module to execute the stop operation.
+   * The completion or status of this operation can be observed through the `onRoomUpdate` event, specifically when the `HLS_STREAMING_STATE_UPDATED` action is triggered, indicating that the HLS streaming has been successfully stopped.
    *
+   * @async
+   * @function stopHLSStreaming
+   * @returns {Promise<void>} A promise that resolves when the HLS streaming has been successfully stopped.
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/record-and-live-stream/hls for more details on HLS streaming.
    * @memberof HMSSDK
+   * @example
+   * await hmsInstance.stopHLSStreaming();
    */
   stopHLSStreaming = async () => {
     logger?.verbose('#Function stopHLSStreaming', {});
@@ -433,9 +633,25 @@ export class HMSSDK {
   };
 
   /**
-   * send timed metadata for HLS player
-   * @param metadata list of {@link HMSHLSTimedMetadata} to be sent
-   * @returns Promise<boolean>
+   * Sends timed metadata for HLS (HTTP Live Streaming) playback.
+   *
+   * This asynchronous function is designed to send metadata that can be synchronized with the HLS video playback.
+   * The metadata is sent to all viewers of the HLS stream, allowing for a variety of use cases such as displaying
+   * song titles, ads, or other information at specific times during the stream.
+   * The metadata should be an array of HMSHLSTimedMetadata objects, each specifying the content and timing for the metadata display.
+   *
+   * @async
+   * @function sendHLSTimedMetadata
+   * @param {HMSHLSTimedMetadata[]} metadata - An array of metadata objects to be sent.
+   * @returns {Promise<boolean>} A promise that resolves to `true` if the metadata was successfully sent, or `false` otherwise.
+   * @example
+   * const metadata = [
+   *   { time: 10, data: "Song: Example Song Title" },
+   *   { time: 20, data: "Advertisement: Buy Now!" }
+   * ];
+   * await hmsInstance.sendHLSTimedMetadata(metadata);
+   *
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/record-and-live-stream/hls-player#how-to-use-hls-timed-metadata-with-100ms-hls-player
    */
   sendHLSTimedMetadata = async (
     metadata: HMSHLSTimedMetadata[]
@@ -446,19 +662,26 @@ export class HMSSDK {
   };
 
   /**
-   * @deprecated This function has been deprecated in favor of #Function changeRoleOfPeer
+   * Deprecated. Changes the role of a specified peer within the room.
    *
-   * - This function can be used in a situation when we want to change role hence manipulate their
-   * access and rights in the current room, it takes the peer {@link HMSPeer} whom role we want to change,
-   * role {@link HMSRole} which will be the new role for that peer and weather to forcefully change
-   * the role or ask the to accept the role change request using a boolean force.
+   * This function is marked as deprecated and should not be used in new implementations. Use `changeRoleOfPeer` instead.
+   * It allows for the dynamic adjustment of a peer's permissions and capabilities within the room by changing their role.
+   * The role change can be enforced immediately or offered to the peer as a request, depending on the `force` parameter.
    *
-   * - if we change the role forcefully the peer's role will be updated without asking the peer
-   * otherwise the user will get the roleChangeRequest in roleChangeRequest listener.
-   * for more information on this checkout {@link onRoleChangeRequestListener}
-   *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/change-role} for more info
-   *
+   * @deprecated Since version 1.1.0. Use `changeRoleOfPeer` instead.
+   * @param {HMSPeer} peer - The peer whose role is to be changed.
+   * @param {HMSRole} role - The new role to be assigned to the peer.
+   * @param {boolean} [force=false] - If `true`, the role change is applied immediately without the peer's consent. If `false`, the peer receives a role change request.
+   * @returns {Promise<void>} A promise that resolves when the role change operation is complete.
+   * @throws {Error} Throws an error if the operation fails.
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/interact-with-room/peer/change-role
+   * @example
+   * // Change the role of a peer to 'viewer' forcefully
+   * const peer = { peerID: 'peer123', ... };
+   * const newRole = { name: 'viewer', ... };
+   * await hmsInstance.changeRole(peer, newRole, true);
+   * @async
+   * @function changeRole
    * @memberof HMSSDK
    */
   changeRole = async (peer: HMSPeer, role: HMSRole, force: boolean = false) => {
@@ -473,24 +696,36 @@ export class HMSSDK {
   };
 
   /**
-   * - This function can be used in a situation when we want to change role hence manipulate their
-   * access and rights in the current room, it takes the peer {@link HMSPeer} whom role we want to change,
-   * role {@link HMSRole} which will be the new role for that peer and weather to forcefully change
-   * the role or ask the to accept the role change request using a boolean force.
+   * Asynchronously changes the role of a specified peer within the room.
    *
-   * - if we change the role forcefully the peer's role will be updated without asking the peer
-   * otherwise the user will get the roleChangeRequest in roleChangeRequest listener.
-   * for more information on this checkout {@link onRoleChangeRequestListener}
+   * This function is designed to dynamically adjust a peer's permissions and capabilities within the room by changing their role.
+   * It can enforce the role change immediately or offer it to the peer as a request, depending on the `force` parameter.
+   * If the role change is forced, it is applied immediately without the peer's consent. Otherwise, the peer receives a role change request,
+   * which can be accepted or declined. This functionality supports flexible room management and control over participant permissions.
    *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/change-role} for more info
+   * @async
+   * @function changeRoleOfPeer
+   * @param {HMSPeer} peer - The peer whose role is to be changed.
+   * @param {HMSRole} role - The new role to be assigned to the peer.
+   * @param {boolean} [force=false] - Determines whether the role change should be applied immediately (`true`) or sent as a request (`false`).
+   * @returns {Promise<void>} A promise that resolves when the role change operation is complete.
+   * @throws {Error} Throws an error if the operation fails.
+   * @see  https://www.100ms.live/docs/react-native/v2/features/change-role
+   * @example
+   * // Change the role of a peer to 'viewer' forcefully
+   * const peer = { peerID: 'peer123', ... };
+   * const newRole = { name: 'viewer', ... };
+   * await hmsInstance.changeRoleOfPeer(peer, newRole, true);
    *
+   * @async
+   * @function changeRoleOfPeer
    * @memberof HMSSDK
    */
   changeRoleOfPeer = async (
     peer: HMSPeer,
     role: HMSRole,
     force: boolean = false
-  ) => {
+  ): Promise<void> => {
     const data = {
       peerId: peer.peerID,
       role: role.name,
@@ -502,19 +737,32 @@ export class HMSSDK {
   };
 
   /**
-   * - This function can be used in a situation when we want to change role of multiple peers by specifying their roles.
-   * Hence manipulate their access and rights in the current room.
-   * It takes the list of roles {@link HMSRole} whom role we want to change
-   * and role {@link HMSRole} which will be the new role for peers.
+   * Asynchronously changes the roles of multiple peers within the room.
    *
-   * - Note that role will be updated without asking the peers.
-   * Meaning, Peers will not get the roleChangeRequest in roleChangeRequest listener.
+   * This function is designed to batch update the roles of peers based on their current roles. It is particularly useful
+   * in scenarios where a group of users need to be granted or restricted permissions en masse, such as promoting all viewers
+   * to participants or demoting all speakers to viewers. The function updates the roles of all peers that have any of the specified
+   * `ofRoles` to the new `toRole` without requiring individual consent, bypassing the `roleChangeRequest` listener on the peer's end.
    *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/change-role} for more info
+   * @async
+   * @function changeRoleOfPeersWithRoles
+   * @param {HMSRole[]} ofRoles - An array of roles to identify the peers whose roles are to be changed.
+   * @param {HMSRole} toRole - The new role to be assigned to the identified peers.
+   * @returns {Promise<void>} A promise that resolves when the role change operation is complete.
+   * @throws {Error} Throws an error if the operation fails.
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/interact-with-room/peer/change-role
+   * @example
+   * // Change the role of all peers with 'viewer' role to 'participant'
+   * const viewerRole = { name: 'viewer', ... };
+   * const participantRole = { name: 'participant', ... };
+   * await hmsInstance.changeRoleOfPeersWithRoles([viewerRole], participantRole);
    *
    * @memberof HMSSDK
    */
-  changeRoleOfPeersWithRoles = async (ofRoles: HMSRole[], toRole: HMSRole) => {
+  changeRoleOfPeersWithRoles = async (
+    ofRoles: HMSRole[],
+    toRole: HMSRole
+  ): Promise<void> => {
     const data = {
       ofRoles: ofRoles.map((ofRole) => ofRole.name).filter(Boolean),
       toRole: toRole.name,
@@ -525,15 +773,35 @@ export class HMSSDK {
   };
 
   /**
-   * - This function can be used to manipulate mute status of any track.
-   * - Targeted peer affected by this action will get a callback in onChangeTrackStateRequestListener.
+   * Asynchronously changes the mute state of a specified track.
    *
-   * * checkout {@link https://www.100ms.live/docs/react-native/v2/features/change-track-state} for more info
+   * This function is designed to control the mute state of any track (audio or video) within the room.
+   * When invoked, it sends a request to the HMSManager to change the mute state of the specified track.
+   * The targeted peer, whose track is being manipulated, will receive a callback on the `onChangeTrackStateRequestListener`,
+   * allowing for custom handling or UI updates based on the mute state change.
    *
-   * @param {HMSTrack}
+   * @async
+   * @function changeTrackState
+   * @param {HMSTrack} track - The track object whose mute state is to be changed.
+   * @param {boolean} mute - The desired mute state of the track. `true` to mute the track, `false` to unmute.
+   * @returns {Promise<void>} A promise that resolves when the operation to change the track's mute state is complete.
+   * @throws {Error} Throws an error if the operation fails or the track cannot be found.
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/interact-with-room/track/remote-mute
+   * @async
+   * @function changeTrackState
    * @memberof HMSSDK
+   *
+   * @example
+   * // Mute a specific track
+   * const trackToMute = { trackId: 'track123', ... };
+   * await hmsInstance.changeTrackState(trackToMute, true);
+   *
+   * @example
+   * // Unmute a specific track
+   * const trackToUnmute = { trackId: 'track456', ... };
+   * await hmsInstance.changeTrackState(trackToUnmute, false);
    */
-  changeTrackState = async (track: HMSTrack, mute: boolean) => {
+  changeTrackState = async (track: HMSTrack, mute: boolean): Promise<void> => {
     logger?.verbose('#Function changeTrackState', {
       track,
       mute,
@@ -549,19 +817,37 @@ export class HMSSDK {
   };
 
   /**
-   * - changeTrackStateForRoles is an enhancement on the functionality of {@link changeTrackState}.
-   * - We can change mute status for all the tracks of peers having a particular role.
-   * - @param source determines the source of the track ex. video, audio etc.
-   * - The peers affected by this action will get a callback in onChangeTrackStateRequestListener.
+   * Asynchronously changes the mute state of tracks for peers with specified roles.
    *
+   * This method extends the functionality of `changeTrackState` by allowing the mute state of all tracks (audio, video, etc.)
+   * belonging to peers with certain roles to be changed in a single operation. It is particularly useful for managing the audio
+   * and video state of groups of users, such as muting all participants except the speaker in a conference call.
+   *
+   * The peers whose track states are being changed will receive a callback on `onChangeTrackStateRequestListener`, allowing for
+   * custom handling or UI updates based on the mute state change.
+   *
+   * @async
+   * @function changeTrackStateForRoles
+   * @param {boolean} mute - The desired mute state of the tracks. `true` to mute, `false` to unmute.
+   * @param {HMSTrackType} [type] - Optional. The type of the tracks to be muted/unmuted (e.g., audio, video).
+   * @param {string} [source] - Optional. The source of the track (e.g., camera, screen).
+   * @param {Array<HMSRole>} [roles] - The roles of the peers whose tracks are to be muted/unmuted. If not specified, affects all roles.
+   * @returns {Promise<void>} A promise that resolves when the operation to change the track's mute state is complete.
+   * @throws {Error} Throws an error if the operation fails.
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/interact-with-room/track/change-track-state-roles
    * @memberof HMSSDK
+   *
+   * @example
+   * // Mute all audio tracks for peers with the role of 'viewer'
+   * const viewerRole = { name: 'viewer', ... };
+   * await hmsInstance.changeTrackStateForRoles(true, 'audio', undefined, [viewerRole]);
    */
   changeTrackStateForRoles = async (
     mute: boolean,
     type?: HMSTrackType,
     source?: string,
     roles?: Array<HMSRole>
-  ) => {
+  ): Promise<void> => {
     let roleNames = null;
     if (roles) {
       roleNames = HMSHelper.getRoleNames(roles);
@@ -940,11 +1226,22 @@ export class HMSSDK {
   };
 
   /**
-   * - This wrapper function used to change the mode while the user is streaming audio, currently available only for android.
+   * Sets the audio mixing mode for the current session. Android only.
    *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/audio-share#how-to-change-mode} for more info
+   * This asynchronous function is used to change the mode of audio mixing during a session. It is currently
+   * available only for Android. The function logs the action with the instance ID and the specified audio mixing mode,
+   * then calls the native `setAudioMixingMode` method in `HMSManager` with the provided parameters.
    *
-   * @param {HMSAudioMixingMode}
+   * If the platform is not Android, it logs a message indicating that the API is not available for iOS.
+   *
+   * @param {HMSAudioMixingMode} audioMixingMode - The audio mixing mode to be set.
+   * @returns {Promise<string>} A promise that resolves to a string indicating the success of the operation
+   *                            or a message stating the API is not available for iOS.
+   * @example
+   * await hmsInstance.setAudioMixingMode(HMSAudioMixingMode.TALK_AND_MUSIC);
+   *
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/set-up-video-conferencing/local-audio-share
+   *
    * @memberof HMSSDK
    */
   setAudioMixingMode = async (audioMixingMode: HMSAudioMixingMode) => {
@@ -2100,21 +2397,6 @@ export class HMSSDK {
     logger?.verbose('#Function REMOVE_ALL_LISTENER', { id: this.id });
   };
 
-  /**
-   * - Below are all the listeners that are connected to native side.
-   *
-   * - All of the are connected when build function is called, we can connect them to the app by
-   * calling {@link addEventListener} with corresponding event type.
-   *
-   * - Before passing the data to the eventListener of the app these listeners encode the data in
-   * ts classes for a proper structuring of the data.
-   *
-   * - Even When event listeners of the app are disconnected using {@link removeEventListener} or
-   * {@link removeAllListeners} or not even connected in first place, these functions still run to
-   * maintain the current state of the instance of {@link HMSSDK}.
-   *
-   */
-
   onPreviewListener = (data: any) => {
     if (data.id !== this.id) {
       return;
@@ -2499,6 +2781,15 @@ export class HMSSDK {
     }
   };
 
+  /**
+   * Listener for the `SessionStoreAvailable` event.
+   *
+   * This listener is triggered when the session store becomes available in the SDK. It is an important event
+   * for developers who need to access or manipulate the session store after it has been initialized and made available.
+   *
+   * @param {Object} data - The event data.
+   * @param {HMSSessionStore} data.sessionStore - The session store object that has been made available.
+   */
   onSessionStoreAvailableListener = (data: { id: string }) => {
     if (data.id !== this.id) {
       return;
@@ -2515,8 +2806,19 @@ export class HMSSDK {
     }
   };
 
-  /*
-   * - This listener is fired when Room is left from the Picture in Picture mode. Android only.
+  /**
+   * Listener for the `PIPRoomLeave` event. Android only.
+   *
+   * This listener is triggered when a room is left from the Picture in Picture (PIP) mode, which is currently supported only on Android platforms.
+   * It is an essential event for handling cleanup or UI updates when the user exits the room while in PIP mode.
+   * @param {Object} data - The event data.
+   * @memberof HMSSDK
+   * @example
+   * // Example of handling the `PIPRoomLeave` event
+   * hms.onPIPRoomLeave((data) => {
+   * // Handle PIP room leave event
+   * });
+   *
    */
   onPIPRoomLeaveListener = (data: { id: string }) => {
     if (data.id !== this.id) {
@@ -2533,10 +2835,27 @@ export class HMSSDK {
     }
   };
 
-  /*
-   * - Attach this listener to get notified when Picture in Picture mode is changed
+  /**
+   * Listener for the `PIPModeChanged` event.
+   * This listener is triggered when the Picture in Picture (PIP) mode is toggled on or off.
+   * It is an important event for handling UI updates or other actions when the user enters or exits PIP mode.
+   * @param {Object} data - The event data.
+   * @param {boolean} data.isInPictureInPictureMode - A boolean value indicating whether the user is currently in PIP mode.
+   * @returns {void} - Returns nothing.
+   * @memberof HMSSDK
+   * @example
+   * // Example of handling the `PIPModeChanged` event
+   * hms.onPIPModeChanged((data) => {
+   *  if (data.isInPictureInPictureMode) {
+   *  // Handle PIP mode enabled
+   *  } else {
+   *  // Handle PIP mode disabled
+   *  }
+   *  });
    */
-  onPIPModeChangedListener = (data: { isInPictureInPictureMode: boolean }) => {
+  onPIPModeChangedListener = (data: {
+    isInPictureInPictureMode: boolean;
+  }): void => {
     if (this.onPIPModeChangedDelegate) {
       logger?.verbose('#Listener onPIPModeChanged_CALL', data);
 
@@ -2544,8 +2863,27 @@ export class HMSSDK {
     }
   };
 
-  /*
+  /**
    * - This function is used to check if Picture in Picture mode is supported on the device
+   * @returns {Promise<boolean>} - Returns a boolean value indicating whether Picture in Picture mode is supported on the device.
+   * @memberof HMSSDK
+   * @example
+   * // Example of checking if Picture in Picture mode is supported
+   * const isPipModeSupported = await hms.isPipModeSupported();
+   * if (isPipModeSupported) {
+   * // Picture in Picture mode is supported
+   * } else {
+   * // Picture in Picture mode is not supported
+   * }
+   * @example
+   * // Example of checking if Picture in Picture mode is supported
+   * hms.isPipModeSupported().then((isPipModeSupported) => {
+   * if (isPipModeSupported) {
+   * // Picture in Picture mode is supported
+   * } else {
+   * // Picture in Picture mode is not supported
+   * }
+   * });
    */
   async isPipModeSupported(): Promise<undefined | boolean> {
     const data = { id: this.id };
@@ -2553,10 +2891,37 @@ export class HMSSDK {
     return HMSManager.handlePipActions('isPipModeSupported', data);
   }
 
-  /*
-   * - This function can be used to manually enter Picture in Picture mode
+  /**
+   * Asynchronously enters Picture in Picture (PIP) mode with optional configuration.
+   *
+   * This method attempts to enter PIP mode based on the provided configuration.
+   * It returns a promise that resolves to a boolean indicating the success of the operation.
+   * If PIP mode is not supported or fails to activate, the promise may resolve to `undefined` or `false`.
+   *
+   * @param {HMSPIPConfig} [data] - Optional configuration for entering PIP mode. This can include settings such as `autoEnterPipMode` and `aspectRatio`.
+   * @returns {Promise<boolean>} - A promise that resolves to `true` if PIP mode was successfully entered, `false` if unsuccessful or PIP mode is not supported.
+   * @throws {Error} - Throws an error if the operation fails.
+   * @memberof HMSSDK
+   * @example
+   * // Example of entering Picture in Picture mode
+   * hms.enterPipMode().then((success) => {
+   * if (success) {
+   * // Picture in Picture mode entered successfully
+   * } else {
+   * // Picture in Picture mode could not be entered
+   * }
+   * });
+   * @example
+   * // Example of entering Picture in Picture mode with configuration
+   * const success = await hms.enterPipMode({ autoEnterPipMode: true, aspectRatio: [16,9] });
+   * if (success) {
+   * // Picture in Picture mode entered successfully
+   * } else {
+   * // Picture in Picture mode could not be entered
+   * }
+   *
    */
-  async enterPipMode(data?: HMSPIPConfig): Promise<undefined | boolean> {
+  async enterPipMode(data?: HMSPIPConfig): Promise<boolean> {
     logger?.verbose('#Function enterPipMode', data);
     return HMSManager.handlePipActions('enterPipMode', {
       ...data,
@@ -2564,20 +2929,52 @@ export class HMSSDK {
     });
   }
 
-  /*
-   * - This function is to be used to configure the Picture in Picture window
+  /**
+   * Asynchronously sets the parameters for Picture in Picture (PIP) mode.
+   *
+   * This method configures the PIP window according to the provided `HMSPIPConfig` settings. It can be used to adjust various aspects of the PIP mode, such as its size, aspect ratio, and more. The method returns a promise that resolves to a boolean indicating the success of the operation. If the PIP mode is not supported or the configuration fails, the promise may resolve to `undefined` or `false`.
+   *
+   * @param {HMSPIPConfig} [data] - Optional configuration for setting PIP mode parameters. This can include settings such as `aspectRatio`, `autoEnterPipMode`, etc.
+   * @returns {Promise<boolean | undefined>} - A promise that resolves to `true` if the PIP parameters were successfully set, `false` if unsuccessful. `undefined` may be returned if PIP mode is not supported.
+   * @throws {Error} - Throws an error if the operation fails.
+   * @memberof HMSSDK
+   * @example
+   * // Example of setting Picture in Picture mode parameters
+   * hms.setPipParams({ aspectRatio: [16, 9], autoEnterPipMode: true }).then((success) => {
+   * if (success) {
+   * // Picture in Picture mode parameters set successfully
+   * } else {
+   * // Picture in Picture mode parameters could not be set
+   * }
+   * });
    */
-  async setPipParams(data?: HMSPIPConfig): Promise<undefined | boolean> {
+  async setPipParams(data?: HMSPIPConfig): Promise<boolean | undefined> {
     return HMSManager.handlePipActions('setPictureInPictureParams', {
       ...data,
       id: this.id,
     });
   }
 
-  /*
-   * - Use this function to set Video Track for Picture in Picture mode. iOS Only.
+  /**
+   * Changes the video track used in Picture in Picture (PIP) mode on iOS devices.
+   *
+   * This function is specifically designed for iOS platforms to switch the video track displayed in PIP mode.
+   * It takes a `HMSVideoTrack` object as an argument, which contains the track ID of the video track to be displayed in PIP mode.
+   * This allows for dynamic changes to the video source in PIP mode, enhancing the flexibility of video presentation in applications that support PIP.
+   *
+   * @param {HMSVideoTrack} track - The video track to be used in PIP mode. Must contain a valid `trackId`.
+   * @returns {Promise} - A promise that resolves when the video track has been successfully changed for PIP mode, or rejects with an error if the operation fails.
+   * @throws {Error} - Throws an error if the operation fails.
+   * @memberof HMSSDK
+   * @example
+   * // Example of changing the video track for PIP mode on iOS
+   * hms.changeIOSPIPVideoTrack(videoTrack).then(() => {
+   *   console.log('Video track for PIP mode changed successfully');
+   * }).catch(error => {
+   *   console.error('Failed to change video track for PIP mode', error);
+   * });
    */
-  async changeIOSPIPVideoTrack(track: HMSVideoTrack) {
+  async changeIOSPIPVideoTrack(track: HMSVideoTrack): Promise<any> {
     const data = {
       id: this.id,
       trackId: track.trackId,
@@ -2586,10 +2983,23 @@ export class HMSSDK {
     return await HMSManager.changeIOSPIPVideoTrack(data);
   }
 
-  /*
+  /**
    * - Use this function to automatically show the current Active Speaker Peer video in the PIP Mode window. iOS Only.
+   * - This function is used to automatically switch the video track of the active speaker to the Picture in Picture (PIP) mode window on iOS devices.
+   * - When enabled, the video track of the active speaker will be displayed in the PIP mode window, providing a focused view of the current speaker during a meeting or conference.
+   * @param {boolean} enable - A boolean value indicating whether to enable or disable the automatic switching of the active speaker video track in PIP mode.
+   * @returns {Promise} - A promise that resolves when the operation is successful, or rejects with an error if the operation fails.
+   * @throws {Error} - Throws an error if the operation fails.
+   * @memberof HMSSDK
+   * @example
+   * // Example of enabling the automatic switching of the active speaker video track in PIP mode
+   * hms.setActiveSpeakerInIOSPIP(true).then(() => {
+   *  console.log('Active speaker video track enabled in PIP mode');
+   *  }).catch(error => {
+   *  console.error('Failed to enable active speaker video track in PIP mode', error);
+   *  });
    */
-  async setActiveSpeakerInIOSPIP(enable: boolean) {
+  async setActiveSpeakerInIOSPIP(enable: boolean): Promise<any> {
     const data = {
       id: this.id,
       enable,
