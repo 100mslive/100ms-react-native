@@ -1043,7 +1043,7 @@ export class HMSSDK {
    * @example
    * await hmsInstance.setAudioMixingMode(HMSAudioMixingMode.TALK_AND_MUSIC);
    *
-   * @see https://www.100ms.live/docs/react-native/v2/features/audio-share
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/set-up-video-conferencing/local-audio-share
    *
    * @memberof HMSSDK
    */

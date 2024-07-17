@@ -7,7 +7,7 @@
  * - `TALK_AND_MUSIC`: Both talk and music tracks are active, allowing for background music with clear voice overlay.
  * - `MUSIC_ONLY`: Only the music track is active, ideal for sessions focusing on music playback.
  *
- * @see https://www.100ms.live/docs/react-native/v2/features/audio-share
+ * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/set-up-video-conferencing/local-audio-share
  */
 export enum HMSAudioMixingMode {
   TALK_ONLY = 'TALK_ONLY',
