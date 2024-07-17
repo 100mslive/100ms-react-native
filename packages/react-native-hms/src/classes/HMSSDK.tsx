@@ -1029,11 +1029,22 @@ export class HMSSDK {
   };
 
   /**
-   * - This wrapper function used to change the mode while the user is streaming audio, currently available only for android.
+   * Sets the audio mixing mode for the current session. Android only.
    *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/audio-share#how-to-change-mode} for more info
+   * This asynchronous function is used to change the mode of audio mixing during a session. It is currently
+   * available only for Android. The function logs the action with the instance ID and the specified audio mixing mode,
+   * then calls the native `setAudioMixingMode` method in `HMSManager` with the provided parameters.
    *
-   * @param {HMSAudioMixingMode}
+   * If the platform is not Android, it logs a message indicating that the API is not available for iOS.
+   *
+   * @param {HMSAudioMixingMode} audioMixingMode - The audio mixing mode to be set.
+   * @returns {Promise<string>} A promise that resolves to a string indicating the success of the operation
+   *                            or a message stating the API is not available for iOS.
+   * @example
+   * await hmsInstance.setAudioMixingMode(HMSAudioMixingMode.TALK_AND_MUSIC);
+   *
+   * @see https://www.100ms.live/docs/react-native/v2/features/audio-share
+   *
    * @memberof HMSSDK
    */
   setAudioMixingMode = async (audioMixingMode: HMSAudioMixingMode) => {
