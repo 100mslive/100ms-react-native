@@ -858,22 +858,6 @@ class HMSManager(
   )
 
   @ReactMethod
-  fun changeIOSPIPVideoTrack(
-    data: ReadableMap,
-    promise: Promise?,
-  ) {
-    promise.reject(Throwable("changeIOSPIPVideoTrack is not supported on Android platform!"))
-  }
-
-  @ReactMethod
-  fun setActiveSpeakerInIOSPIP(
-    data: ReadableMap,
-    promise: Promise?,
-  ) {
-    promise.reject(Throwable("setActiveSpeakerInIOSPIP is not supported on Android platform!"))
-  }
-
-  @ReactMethod
   fun handlePipActions(
     action: String,
     data: ReadableMap,
