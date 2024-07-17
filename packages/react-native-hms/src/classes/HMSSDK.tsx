@@ -357,13 +357,26 @@ export class HMSSDK {
   };
 
   /**
-   * - This function sends message to all the peers in the room, the get the message in onMessage listener.
+   * Sends a broadcast message to all peers in the room.
    *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/chat} for more info
+   * This asynchronous function sends a message to all peers in the room, which they can receive through the `onMessage` listener.
+   * It can be used to send chat messages or custom types of messages like emoji reactions or notifications.
+   *
+   * @param {string} message - The message to be sent to all peers.
+   * @param {string} [type='chat'] - The type of the message. Default is 'chat'. Custom types can be used for specific purposes.
+   * @returns {Promise<{messageId: string | undefined}>} A promise that resolves with the message ID of the sent message, or undefined if the message could not be sent.
+   *
+   * @example
+   * // Sending a chat message to all peers
+   * await hmsInstance.sendBroadcastMessage("Hello everyone!", "chat");
+   *
+   * @example
+   * // Sending a custom notification to all peers
+   * await hmsInstance.sendBroadcastMessage("Meeting starts in 5 minutes", "notification");
+   *
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/set-up-video-conferencing/chat
    *
    * @memberof HMSSDK
-   * @param message the message that is to be sent
-   * @param type the default type is set to CHAT. You can pass a custom type here for sending events like Emoji Reactions, Notifications, etc
    */
   sendBroadcastMessage = async (message: string, type: string = 'chat') => {
     logger?.verbose('#Function sendBroadcastMessage', {
@@ -382,10 +395,22 @@ export class HMSSDK {
   };
 
   /**
-   * - sendGroupMessage sends a message to specific set of roles, whoever has any of those role in room
-   * will get the message in onMessage listener.
+   * Sends a message to a specific set of roles within the room.
    *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/chat} for more info
+   * This method allows for targeted communication by sending a message to peers who have any of the specified roles.
+   * The message is received by the peers through the `onMessage` listener. This can be useful for sending announcements,
+   * instructions, or other types of messages to a subset of the room based on their roles.
+   *
+   * @param {string} message - The message to be sent.
+   * @param {HMSRole[]} roles - An array of roles to which the message will be sent. Peers with these roles will receive the message.
+   * @param {string} [type='chat'] - The type of the message. Defaults to 'chat'. Custom types can be used for specific messaging scenarios.
+   * @returns {Promise<{messageId: string | undefined}>} A promise that resolves with an object containing the `messageId` of the sent message. If the message could not be sent, `messageId` will be `undefined`.
+   *
+   * @example
+   * // Sending a message to all peers with the role of 'moderator'
+   * await hmsInstance.sendGroupMessage("Please start the meeting.", [moderator]);
+   *
+   * @see https://www.100ms.live/docs/react-native/v2/features/chat
    *
    * @memberof HMSSDK
    */
@@ -412,10 +437,24 @@ export class HMSSDK {
   };
 
   /**
-   * - sendDirectMessage sends a private message to a single peer, only that peer will get the message
-   * in onMessage Listener.
+   * Sends a direct message to a specific peer in the room.
    *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/chat} for more info
+   * This method allows sending a private message to a single peer, ensuring that only the specified recipient can receive and view the message.
+   * The message is delivered to the recipient through the `onMessage` listener. This functionality is useful for implementing private chat features
+   * within a larger group chat context.
+   *
+   * @param {string} message - The message text to be sent.
+   * @param {HMSPeer} peer - The peer object representing the recipient of the message.
+   * @param {string} [type='chat'] - The type of the message being sent. Defaults to 'chat'. This can be customized to differentiate between various message types (e.g., 'private', 'system').
+   * @returns {Promise<{messageId: string | undefined}>} A promise that resolves with an object containing the `messageId` of the sent message. If the message could not be sent, `messageId` will be `undefined`.
+   * @throws {Error} Throws an error if the message could not be sent.
+   *
+   * @example
+   * // Sending a private chat message to a specific peer
+   * const peer = { peerID: 'peer123', ... };
+   * await hmsInstance.sendDirectMessage("Hello, this is a private message.", peer, "chat");
+   *
+   * @see https://www.100ms.live/docs/react-native/v2/features/chat
    *
    * @memberof HMSSDK
    */
