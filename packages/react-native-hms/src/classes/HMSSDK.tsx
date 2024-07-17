@@ -264,11 +264,13 @@ export class HMSSDK {
    *
    * @see https://www.100ms.live/docs/react-native/v2/features/preview
    *
+   * @async
+   * @function preview
    * @memberof HMSSDK
    */
-  preview = (config: HMSConfig) => {
+  preview = async (config: HMSConfig) => {
     logger?.verbose('#Function preview', { config, id: this.id });
-    HMSManager.preview({ ...config, id: this.id });
+    await HMSManager.preview({ ...config, id: this.id });
   };
 
   /**
