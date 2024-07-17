@@ -7,7 +7,16 @@ import {
   HMSWhiteboardUpdateType,
 } from '@100mslive/react-native-hms';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Alert, Keyboard, StatusBar, StyleSheet, View } from 'react-native';
+import {
+  Alert,
+  Keyboard,
+  PermissionsAndroid,
+  Platform,
+  StatusBar,
+  StyleSheet,
+  View,
+} from 'react-native';
+import type { Permission } from 'react-native';
 import Toast from 'react-native-simple-toast';
 import { batch, useDispatch, useSelector, useStore } from 'react-redux';
 
@@ -258,7 +267,7 @@ export const HMSRoomSetup = () => {
 
   // HMS Join Listener
   useEffect(() => {
-    const onJoinHandler = async (data: { room: HMSRoom }) => {
+    const onJoinHandler = (data: { room: HMSRoom }) => {
       clearConfig();
 
       setLoading(false);
@@ -366,6 +375,44 @@ export const HMSRoomSetup = () => {
     };
   }, [startHLSStreaming, hmsInstance]);
 
+  if (Platform.OS === 'android') {
+    /**
+     * Sets up a listener for permissions requests on Android devices.
+     *
+     * This listener is activated when the HMS SDK requests permissions, such as camera or microphone access.
+     * It uses the `PermissionsAndroid` API to request these permissions from the user asynchronously.
+     * Upon receiving the permissions, it notifies the HMS SDK that the permissions have been accepted,
+     * allowing the SDK to proceed with operations that require these permissions.
+     *
+     * Note: This listener is only set up and functional on Android devices, as indicated by the `Platform.OS` check.
+     */
+    useEffect(() => {
+      const onPermissionsRequested = async ({
+        permissions,
+      }: {
+        permissions: Array<string>;
+      }) => {
+        // Requests multiple permissions using the PermissionsAndroid API.
+        await PermissionsAndroid.requestMultiple(permissions as Permission[]);
+        // Notifies the HMS SDK that the permissions have been accepted.
+        await hmsInstance.setPermissionsAccepted();
+      };
+
+      // Adds the permissions requested listener to the HMS SDK.
+      hmsInstance.addEventListener(
+        HMSUpdateListenerActions.ON_PERMISSIONS_REQUESTED,
+        onPermissionsRequested
+      );
+
+      // Cleanup function to remove the listener when the component unmounts or dependencies change.
+      return () => {
+        hmsInstance.removeEventListener(
+          HMSUpdateListenerActions.ON_PERMISSIONS_REQUESTED
+        );
+      };
+    }, [hmsInstance]);
+  }
+
   // HMS Active Speaker Listener
   // dev-note: This is added here because we have `setPeerTrackNodes` here
   useHMSActiveSpeakerUpdates(setPeerTrackNodes, meetingJoined);
@@ -393,9 +440,9 @@ export const HMSRoomSetup = () => {
             if (!hmsConfig.username) {
               updateConfig({ username: getRandomUserId(16) });
             }
-            await joinMeeting();
+            joinMeeting();
           } else {
-            await previewMeeting();
+            previewMeeting();
           }
         } catch (error) {
           // TODO: handle token error gracefully

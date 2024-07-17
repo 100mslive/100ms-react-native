@@ -1,9 +1,15 @@
 Board: https://app.devrev.ai/100ms/vistas/vista-254
 
-- Add PIP Mode support in iOS
-https://app.devrev.ai/100ms/works/ISS-22784
+- Add runtime permission flow on Android
+https://app.devrev.ai/100ms/works/ISS-22855
 
-Room Kit: 1.2.1
-React Native SDK: 1.10.8
+- Resolve app not running on Android 14 issue
+https://app.devrev.ai/100ms/works/ISS-22860
+
+- Resolve warning about React State update
+https://app.devrev.ai/100ms/works/ISS-22807
+
+Room Kit: 1.2.2
+React Native SDK: 1.10.9
 Android SDK: 2.9.62
-iOS SDK: 1.13.0
+iOS SDK: 1.14.1

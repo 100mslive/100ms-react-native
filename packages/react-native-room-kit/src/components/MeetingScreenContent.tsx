@@ -164,7 +164,7 @@ export const MeetingScreenContent: React.FC<MeetingScreenContentProps> = ({
 
       <GestureDetector gesture={tapGesture}>
         <View collapsable={false} style={styles.container}>
-          {isPipModeActive ? null : (
+          {isPipModeActive && Platform.OS === 'android' ? null : (
             <AnimatedHeader offset={offset}>
               <Header />
             </AnimatedHeader>
@@ -172,7 +172,7 @@ export const MeetingScreenContent: React.FC<MeetingScreenContentProps> = ({
 
           <DisplayView offset={offset} peerTrackNodes={peerTrackNodes} />
 
-          {isPipModeActive ? null : (
+          {isPipModeActive && Platform.OS === 'android' ? null : (
             <AnimatedFooter offset={offset}>
               <Footer />
             </AnimatedFooter>

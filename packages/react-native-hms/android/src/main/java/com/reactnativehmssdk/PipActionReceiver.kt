@@ -7,6 +7,8 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.RECEIVER_NOT_EXPORTED
 
 data class PIPAction(
   val title: String,
@@ -62,7 +64,7 @@ class PipActionReceiver(
 
     IntentFilter().also {
       it.addAction(PIP_INTENT_ACTION)
-      activity.registerReceiver(this, it)
+      ContextCompat.registerReceiver(activity, this, it, RECEIVER_NOT_EXPORTED)
     }
     registered = true
   }
