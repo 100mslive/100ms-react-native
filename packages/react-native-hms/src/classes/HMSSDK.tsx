@@ -179,9 +179,19 @@ export class HMSSDK {
   };
 
   /**
-   * - getAuthTokenByRoomCode function is used to get the Auth Token by Room Code
+   * Asynchronously retrieves an authentication token using the room code, user ID, and endpoint.
    *
-   * checkout {@link https://www.100ms.live/docs/concepts/v2/concepts/rooms/room-codes/room-codes} for more info
+   * This method is responsible for fetching an authentication token that is required to join a room in the HMS ecosystem.
+   * It makes a call to the HMSManager's `getAuthTokenByRoomCode` method, passing in the necessary parameters.
+   * The function logs the attempt and returns the token as a string.
+   *
+   * @param {string} roomCode - The unique code of the room for which the token is being requested.
+   * @param {string} [userId] - Optional. The user ID of the participant requesting the token. This can be used for identifying the user in the backend.
+   * @param {string} [endpoint] - Optional. The endpoint URL to which the token request is sent. This can be used to specify a different authentication server if needed.
+   * @returns {Promise<string>} A promise that resolves to the authentication token as a string.
+   * @throws {Error} If the authentication token cannot be retrieved.
+   * @example
+   * const authToken = await hmsInstance.getAuthTokenByRoomCode('room-code');
    *
    * @memberof HMSSDK
    */
@@ -206,12 +216,20 @@ export class HMSSDK {
   };
 
   /**
-   * takes an instance of [HMSConfig]{@link HMSConfig} and joins the room.
-   * after joining the room user will start receiving the events and updates of the room.
+   * Asynchronously joins a room with the provided configuration
    *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/join} for more info
+   * This method is responsible for initiating the process of joining a room in the HMS ecosystem. It performs several key actions:
+   * - Logs the attempt to join with the provided configuration and instance ID.
+   * - Initializes the peers and room caches for the current session.
+   * - Calls the `join` method on the `HMSManager` with the provided configuration and the instance ID.
    *
-   * @param {HMSConfig} config
+   * @param {HMSConfig} config - The configuration object required to join a room. This includes credentials, room details, and user information.
+   * @returns {Promise<void>} A promise that resolves when the join operation has been successfully initiated.
+   * @throws {Error} If the join operation cannot be completed.
+   *
+   * @example
+   * await hmsInstance.join(hmsConfig);
+   *
    * @memberof HMSSDK
    */
   join = async (config: HMSConfig) => {
