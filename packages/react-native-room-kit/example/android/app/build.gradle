@@ -38,7 +38,7 @@ react {
   // bundleAssetName = "MyApplication.android.bundle"
   //
   //   The entry file for bundle generation. Default is 'index.android.js' or 'index.js'
-  entryFile = file("index.js")
+  entryFile = file("../../index.js")
   //
   //   A list of extra flags to pass to the 'bundle' commands.
   //   See https://github.com/react-native-community/cli/blob/main/docs/commands.md#bundle
@@ -98,8 +98,8 @@ android {
         applicationId "live.hms.rn"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 513
-        versionName "2.4.63"
+        versionCode 520
+        versionName "2.4.70"
         missingDimensionStrategy 'react-native-camera', 'general'
     }
 
