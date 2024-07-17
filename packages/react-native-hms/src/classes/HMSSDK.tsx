@@ -588,13 +588,21 @@ export class HMSSDK {
   };
 
   /**
-   * - This function starts HLSStreaming.
-   * - we get the response of this function in onRoomUpdate as HLS_STREAMING_STATE_UPDATED.
+   * Initiates HLS (HTTP Live Streaming) based on the provided configuration.
    *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/hls-streaming} for more info
+   * This asynchronous function starts HLS streaming, allowing for live video content to be delivered over the internet in a scalable manner.
+   * The function takes an optional `HMSHLSConfig` object as a parameter, which includes settings such as the meeting URL, HLS variant parameters, and recording settings.
+   * The operation's response can be observed through the `onRoomUpdate` event, specifically when the `HLS_STREAMING_STATE_UPDATED` action is triggered, indicating the streaming state has been updated.
    *
-   * @param {HMSHLSConfig}
+   * @param {HMSHLSConfig} [data] - Optional configuration object for HLS streaming. Defines parameters such as meeting URL, HLS variants, and recording options.
+   * @returns {Promise<any>} A promise that resolves when the HLS streaming starts successfully. The promise resolves with the operation result.
+   * @throws {Error} Throws an error if the operation fails or if the provided configuration is invalid.
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/record-and-live-stream/hls
+   * @async
+   * @function startHLSStreaming
    * @memberof HMSSDK
+   * @example
+   * await hmsInstance.startHLSStreaming();
    */
   startHLSStreaming = async (data?: HMSHLSConfig) => {
     logger?.verbose('#Function startHLSStreaming', {
@@ -605,12 +613,19 @@ export class HMSSDK {
   };
 
   /**
-   * - stopHLSStreaming function stops the ongoing HLSStreams.
-   * - we get the response of this function in onRoomUpdate as HLS_STREAMING_STATE_UPDATED.
+   * Stops the ongoing HLS (HTTP Live Streaming) streams.
    *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/hls-streaming} for more info
+   * This asynchronous function is responsible for stopping any active HLS streaming sessions.
+   * It communicates with the native `HMSManager` module to execute the stop operation.
+   * The completion or status of this operation can be observed through the `onRoomUpdate` event, specifically when the `HLS_STREAMING_STATE_UPDATED` action is triggered, indicating that the HLS streaming has been successfully stopped.
    *
+   * @async
+   * @function stopHLSStreaming
+   * @returns {Promise<void>} A promise that resolves when the HLS streaming has been successfully stopped.
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/record-and-live-stream/hls for more details on HLS streaming.
    * @memberof HMSSDK
+   * @example
+   * await hmsInstance.stopHLSStreaming();
    */
   stopHLSStreaming = async () => {
     logger?.verbose('#Function stopHLSStreaming', {});
@@ -618,9 +633,25 @@ export class HMSSDK {
   };
 
   /**
-   * send timed metadata for HLS player
-   * @param metadata list of {@link HMSHLSTimedMetadata} to be sent
-   * @returns Promise<boolean>
+   * Sends timed metadata for HLS (HTTP Live Streaming) playback.
+   *
+   * This asynchronous function is designed to send metadata that can be synchronized with the HLS video playback.
+   * The metadata is sent to all viewers of the HLS stream, allowing for a variety of use cases such as displaying
+   * song titles, ads, or other information at specific times during the stream.
+   * The metadata should be an array of HMSHLSTimedMetadata objects, each specifying the content and timing for the metadata display.
+   *
+   * @async
+   * @function sendHLSTimedMetadata
+   * @param {HMSHLSTimedMetadata[]} metadata - An array of metadata objects to be sent.
+   * @returns {Promise<boolean>} A promise that resolves to `true` if the metadata was successfully sent, or `false` otherwise.
+   * @example
+   * const metadata = [
+   *   { time: 10, data: "Song: Example Song Title" },
+   *   { time: 20, data: "Advertisement: Buy Now!" }
+   * ];
+   * await hmsInstance.sendHLSTimedMetadata(metadata);
+   *
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/record-and-live-stream/hls-player#how-to-use-hls-timed-metadata-with-100ms-hls-player
    */
   sendHLSTimedMetadata = async (
     metadata: HMSHLSTimedMetadata[]
@@ -631,19 +662,26 @@ export class HMSSDK {
   };
 
   /**
-   * @deprecated This function has been deprecated in favor of #Function changeRoleOfPeer
+   * Deprecated. Changes the role of a specified peer within the room.
    *
-   * - This function can be used in a situation when we want to change role hence manipulate their
-   * access and rights in the current room, it takes the peer {@link HMSPeer} whom role we want to change,
-   * role {@link HMSRole} which will be the new role for that peer and weather to forcefully change
-   * the role or ask the to accept the role change request using a boolean force.
+   * This function is marked as deprecated and should not be used in new implementations. Use `changeRoleOfPeer` instead.
+   * It allows for the dynamic adjustment of a peer's permissions and capabilities within the room by changing their role.
+   * The role change can be enforced immediately or offered to the peer as a request, depending on the `force` parameter.
    *
-   * - if we change the role forcefully the peer's role will be updated without asking the peer
-   * otherwise the user will get the roleChangeRequest in roleChangeRequest listener.
-   * for more information on this checkout {@link onRoleChangeRequestListener}
-   *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/change-role} for more info
-   *
+   * @deprecated Since version 1.1.0. Use `changeRoleOfPeer` instead.
+   * @param {HMSPeer} peer - The peer whose role is to be changed.
+   * @param {HMSRole} role - The new role to be assigned to the peer.
+   * @param {boolean} [force=false] - If `true`, the role change is applied immediately without the peer's consent. If `false`, the peer receives a role change request.
+   * @returns {Promise<void>} A promise that resolves when the role change operation is complete.
+   * @throws {Error} Throws an error if the operation fails.
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/interact-with-room/peer/change-role
+   * @example
+   * // Change the role of a peer to 'viewer' forcefully
+   * const peer = { peerID: 'peer123', ... };
+   * const newRole = { name: 'viewer', ... };
+   * await hmsInstance.changeRole(peer, newRole, true);
+   * @async
+   * @function changeRole
    * @memberof HMSSDK
    */
   changeRole = async (peer: HMSPeer, role: HMSRole, force: boolean = false) => {
