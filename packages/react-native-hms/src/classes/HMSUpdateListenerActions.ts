@@ -32,7 +32,7 @@
  * @property {string} ON_SESSION_STORE_CHANGED - Emitted when the session store has changed.
  * @property {string} ON_PEER_LIST_UPDATED - Emitted when the list of peers is updated.
  * @property {string} ON_TRANSCRIPTS - Emitted when transcripts are available.
- *
+ * @property {string} ON_PERMISSIONS_REQUESTED - Emitted when permissions are requested.
  */
 export enum HMSUpdateListenerActions {
   ON_PREVIEW = 'ON_PREVIEW',
@@ -57,6 +57,28 @@ export enum HMSUpdateListenerActions {
   ON_SESSION_STORE_AVAILABLE = 'ON_SESSION_STORE_AVAILABLE',
   ON_SESSION_STORE_CHANGED = 'ON_SESSION_STORE_CHANGED',
   ON_PEER_LIST_UPDATED = 'ON_PEER_LIST_UPDATED',
+
+  /**
+   * Event emitted when transcripts are available.
+   *
+   * This event is triggered when the HMS SDK has generated transcripts from the audio streams in the room.
+   * It allows the application to receive real-time or post-processed text versions of spoken content, which can be used for
+   * accessibility features, content analysis, or storing meeting minutes. The availability of this feature depends on the
+   * HMS service configuration and may require additional setup or permissions.
+   *
+   * @type {string}
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/extend-capabilities/live-captions
+   */
   ON_TRANSCRIPTS = 'ON_TRANSCRIPTS',
+
+  /**
+   * Event emitted when the HMS SDK requests permissions from the user. Android only.
+   *
+   * This event is triggered whenever the application needs to request permissions from the user, such as access to the camera or microphone.
+   * It is used in conjunction with the platform's permissions API to prompt the user for the necessary permissions and to inform the HMS SDK
+   * of the user's response. This is crucial for features that require explicit user consent before they can be used.
+   *
+   * @type {string}
+   */
   ON_PERMISSIONS_REQUESTED = 'ON_PERMISSIONS_REQUESTED',
 }

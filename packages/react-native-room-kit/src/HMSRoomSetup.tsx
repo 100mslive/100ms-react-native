@@ -376,22 +376,35 @@ export const HMSRoomSetup = () => {
   }, [startHLSStreaming, hmsInstance]);
 
   if (Platform.OS === 'android') {
-    // HMS Android Permissions Listener
+    /**
+     * Sets up a listener for permissions requests on Android devices.
+     *
+     * This listener is activated when the HMS SDK requests permissions, such as camera or microphone access.
+     * It uses the `PermissionsAndroid` API to request these permissions from the user asynchronously.
+     * Upon receiving the permissions, it notifies the HMS SDK that the permissions have been accepted,
+     * allowing the SDK to proceed with operations that require these permissions.
+     *
+     * Note: This listener is only set up and functional on Android devices, as indicated by the `Platform.OS` check.
+     */
     useEffect(() => {
       const onPermissionsRequested = async ({
         permissions,
       }: {
         permissions: Array<string>;
       }) => {
+        // Requests multiple permissions using the PermissionsAndroid API.
         await PermissionsAndroid.requestMultiple(permissions as Permission[]);
+        // Notifies the HMS SDK that the permissions have been accepted.
         await hmsInstance.setPermissionsAccepted();
       };
 
+      // Adds the permissions requested listener to the HMS SDK.
       hmsInstance.addEventListener(
         HMSUpdateListenerActions.ON_PERMISSIONS_REQUESTED,
         onPermissionsRequested
       );
 
+      // Cleanup function to remove the listener when the component unmounts or dependencies change.
       return () => {
         hmsInstance.removeEventListener(
           HMSUpdateListenerActions.ON_PERMISSIONS_REQUESTED

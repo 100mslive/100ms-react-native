@@ -142,7 +142,9 @@ export class HMSSDK {
    * });
    *
    * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/install-the-sdk/hmssdk
-   * @static async build - Asynchronously builds and returns an instance of the HMSSDK class.
+   * @static
+   * @async
+   * @function build
    * @memberof HMSSDK
    */
   static async build(params?: {
