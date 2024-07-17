@@ -55,6 +55,18 @@ const ReactNativeVersion = require('react-native/Libraries/Core/ReactNativeVersi
 
 let HmsSdk: HMSSDK | undefined;
 
+/**
+ * Represents the main SDK class for the 100ms (HMS) video conferencing service in a React Native application.
+ * This class provides methods to manage the video conferencing lifecycle including joining a room, leaving a room,
+ * managing streams, and handling events.
+ *
+ * @export
+ * @class HMSSDK
+ * @example
+ * const hmsInstance = await HMSSDK.build();
+ * await hmsInstance.join({ authToken: 'your_auth_token', username: 'John Appleseed' });
+ * @see https://www.100ms.live/docs/react-native/v2/quickstart/quickstart
+ */
 export class HMSSDK {
   id: string;
   private _interactivityCenter: HMSInteractivityCenter | null = null;
