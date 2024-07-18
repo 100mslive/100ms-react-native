@@ -1069,36 +1069,71 @@ export class HMSSDK {
   };
 
   /**
-   * - setPlaybackForAllAudio is an extension of the abilities of setPlaybackAllowed in
-   * HMSRemoteAudioTrack. It sets mute status for all peers in the room only for the local peer.
+   * Sets the mute status for all remote audio tracks in the room for the local peer.
    *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/playback-allowed} for more info
+   * This method allows the local user to mute or unmute the playback of all remote audio tracks in the room.
+   * It affects only the local peer's audio playback and does not impact other peers. This can be useful in scenarios
+   * where a user needs to quickly mute all incoming audio without affecting the audio state for other participants in the room.
    *
+   * @param {boolean} mute - A boolean value indicating whether to mute (`true`) or unmute (`false`) all remote audio tracks for the local peer.
+   * @returns {Promise<boolean>} A promise that resolves with a boolean value indicating the success of the operation.
+   * @async
+   * @function setPlaybackForAllAudio
    * @memberof HMSSDK
+   * @example
+   * // Mute all remote audio tracks for the local peer
+   * hmsInstance.setPlaybackForAllAudio(true);
+   *
+   * @example
+   * // Unmute all remote audio tracks for the local peer
+   * hmsInstance.setPlaybackForAllAudio(false);
+   *
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/interact-with-room/track/playback-allowed
    */
-  setPlaybackForAllAudio = (mute: boolean) => {
+  setPlaybackForAllAudio = async (mute: boolean): Promise<boolean> => {
     logger?.verbose('#Function setPlaybackForAllAudio', { mute, id: this.id });
-    HMSManager.setPlaybackForAllAudio({ mute, id: this.id });
+    return await HMSManager.setPlaybackForAllAudio({ mute, id: this.id });
   };
 
   /**
-   * - This function mutes audio for all peers in the room.
+   * Mutes the audio for all peers in the room.
    *
+   * This asynchronous function communicates with the native `HMSManager` module to mute the audio tracks of all remote peers in the room.
+   * It is particularly useful in scenarios where a moderator needs to quickly mute all participants to prevent background noise or interruptions during a session.
+   *
+   * @async
+   * @function remoteMuteAllAudio
    * @memberof HMSSDK
+   * @returns {Promise<{success: boolean}>} A promise that resolves with a boolean value indicating the success of the operation.
+   * @example
+   * // Mute all remote audio tracks in the room
+   * await hmsInstance.remoteMuteAllAudio();
+   *
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/interact-with-room/track/remote-mute
    */
-  remoteMuteAllAudio = async () => {
+  remoteMuteAllAudio = async (): Promise<{ success: boolean }> => {
     logger?.verbose('#Function remoteMuteAllAudio', { id: this.id });
     return await HMSManager.remoteMuteAllAudio({ id: this.id });
   };
 
   /**
-   * - getRoom is a wrapper function on an existing native function also known as getRoom the returns
-   * current room object which is of type {@link HMSRoom}
+   * Retrieves the current room's details.
    *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/join#get-room} for more info
+   * This method acts as a wrapper around the native `getRoom` function, providing an easy way to obtain the current room's state and details,
+   * including participants, tracks, and other relevant information. The room object is fetched from the native module and then processed
+   * to match the expected format in the React Native layer. This method is useful for getting the room's state at any point in time, such as
+   * when needing to display current room information or for debugging purposes.
    *
+   * @async
+   * @function getRoom
    * @memberof HMSSDK
-   * @return Promise<HMSRoom>
+   * @returns {Promise<HMSRoom>} A promise that resolves to the current room object.
+   * @example
+   * // Fetch the current room details
+   * const roomDetails = await hmsInstance.getRoom();
+   * console.log(roomDetails);
+   *
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/listen-to-room-updates/get-methods
    */
   getRoom = async (): Promise<HMSRoom> => {
     logger?.verbose('#Function getRoom', {
