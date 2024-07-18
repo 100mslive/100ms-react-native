@@ -360,7 +360,8 @@ export class HMSSDK {
    * and then performs additional cleanup through `roomLeaveCleanup`. This cleanup includes removing app state subscriptions
    * and clearing cached data related to peers and the room.
    *
-   * @returns {Promise<any>} A promise that resolves with the operation result once the leave process is complete.
+   * @returns {Promise<boolean>} A promise that resolves to `true` if the user has successfully left the room, or `false` otherwise.
+   * @throws {Error} If the user cannot leave the room.
    * @memberof HMSSDK
    * @example
    * await hmsInstance.leave();
@@ -715,7 +716,7 @@ export class HMSSDK {
    * @param {HMSPeer} peer - The peer whose role is to be changed.
    * @param {HMSRole} role - The new role to be assigned to the peer.
    * @param {boolean} [force=false] - Determines whether the role change should be applied immediately (`true`) or sent as a request (`false`).
-   * @returns {Promise<void>} A promise that resolves when the role change operation is complete.
+   * @returns {Promise<void>} A promise that resolves to `true` if the role change operation is successful, or `false` otherwise.
    * @throws {Error} Throws an error if the operation fails.
    * @see  https://www.100ms.live/docs/react-native/v2/features/change-role
    * @example
@@ -1027,16 +1028,17 @@ export class HMSSDK {
    * @function cancelPreview
    * @memberof HMSSDK
    * @returns {Promise<{data: string}>} A promise that resolves with an object containing a data string.
+   *
    * @example
    * // Cancel a previously initiated role change preview
    * await hmsInstance.cancelPreview();
    *
    */
-  cancelPreview = async (): Promise<{ data: string }> => {
+  cancelPreview = async (): Promise<{ success: boolean }> => {
     logger?.verbose('#Function cancelPreview', {
       id: this.id,
     });
-    const data: { data: string } = await HMSManager.cancelPreview({
+    const data = await HMSManager.cancelPreview({
       id: this.id,
     });
 
@@ -1057,6 +1059,7 @@ export class HMSSDK {
    * @function acceptRoleChange
    * @memberof HMSSDK
    * @returns {Promise<void>} A promise that resolves when the role change has been successfully accepted and applied.
+   * @throws {Error} Throws an error if the role change acceptance operation fails.
    * @example
    * // Accept a role change request to become a 'moderator'
    * await hmsInstance.acceptRoleChange();
@@ -1077,6 +1080,7 @@ export class HMSSDK {
    *
    * @param {boolean} mute - A boolean value indicating whether to mute (`true`) or unmute (`false`) all remote audio tracks for the local peer.
    * @returns {Promise<boolean>} A promise that resolves with a boolean value indicating the success of the operation.
+   * @throws {Error} Throws an error if the operation fails.
    * @async
    * @function setPlaybackForAllAudio
    * @memberof HMSSDK
@@ -1105,6 +1109,7 @@ export class HMSSDK {
    * @function remoteMuteAllAudio
    * @memberof HMSSDK
    * @returns {Promise<{success: boolean}>} A promise that resolves with a boolean value indicating the success of the operation.
+   * @throws {Error} Throws an error if the operation fails.
    * @example
    * // Mute all remote audio tracks in the room
    * await hmsInstance.remoteMuteAllAudio();
@@ -1148,11 +1153,23 @@ export class HMSSDK {
   };
 
   /**
-   * - getLocalPeer is a wrapper function on an existing native function also known as getLocalPeer the returns
-   * current local peer object which is of type {@link HMSLocalPeer}
+   * Retrieves the current local peer's details.
    *
+   * This asynchronous method wraps around the native `getLocalPeer` function, providing a straightforward way to obtain the current local peer's details,
+   * including their ID, name, role, and any tracks they may be publishing. The local peer object is fetched from the native module and then processed
+   * to match the expected format in the React Native layer. This method is particularly useful for operations that require information about the local user,
+   * such as updating UI elements to reflect the current user's status or for debugging purposes.
+   *
+   * @async
+   * @function getLocalPeer
    * @memberof HMSSDK
-   * @return Promise<HMSLocalPeer>
+   * @returns {Promise<HMSLocalPeer>} A promise that resolves to the current local peer object.
+   * @example
+   * // Fetch the current local peer's details
+   * const localPeerDetails = await hmsInstance.getLocalPeer();
+   * console.log(localPeerDetails);
+   *
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/listen-to-room-updates/get-methods
    */
   getLocalPeer = async (): Promise<HMSLocalPeer> => {
     logger?.verbose('#Function getLocalPeer', {
@@ -1165,11 +1182,22 @@ export class HMSSDK {
   };
 
   /**
-   * - getRemotePeers is a wrapper function on an existing native function also known as getRemotePeers the returns
-   * remote peers array which is of type {@link HMSRemotePeer}
+   * Retrieves an array of remote peers currently in the room.
    *
+   * This asynchronous method serves as a wrapper around the native `getRemotePeers` function, facilitating the retrieval of remote peers' details.
+   * It fetches an array of `HMSRemotePeer` objects, each representing a remote participant in the room. The method processes the fetched data
+   * to conform to the expected format in the React Native layer, making it suitable for UI rendering or further processing.
+   *
+   * @async
+   * @function getRemotePeers
    * @memberof HMSSDK
-   * @return Promise<HMSRemotePeer[]>
+   * @returns {Promise<HMSRemotePeer[]>} A promise that resolves with an array of `HMSRemotePeer` objects, representing the remote peers in the room.
+   * @example
+   * // Fetch the list of remote peers in the room
+   * const remotePeers = await hmsInstance.getRemotePeers();
+   * console.log(remotePeers);
+   *
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/listen-to-room-updates/get-methods
    */
   getRemotePeers = async (): Promise<HMSRemotePeer[]> => {
     logger?.verbose('#Function getRemotePeers', {
@@ -1185,11 +1213,22 @@ export class HMSSDK {
   };
 
   /**
-   * - getRoles is a wrapper function on an existing native function also known as getRoles the returns
-   * array of all present roles which is of type {@link HMSRole}
+   * Retrieves a list of all roles currently available in the room.
    *
+   * This asynchronous method calls the native `getRoles` function to fetch an array of `HMSRole` objects, representing the roles defined for the room.
+   * Each `HMSRole` object includes details such as the role name, permissions, and other role-specific settings. The roles are then processed
+   * to match the expected format in the React Native layer. This method is useful for operations that require a comprehensive list of roles,
+   * such as displaying role options in a UI dropdown for role assignment or for role-based access control checks.
+   *
+   * @async
+   * @function getRoles
    * @memberof HMSSDK
-   * @return Promise<HMSRole[]>
+   * @returns {Promise<HMSRole[]>} A promise that resolves with an array of `HMSRole` objects, representing the available roles in the room.
+   *
+   * @example
+   * // Fetch the list of available roles in the room
+   * const roles = await hmsInstance.getRoles();
+   * console.log(roles);
    */
   getRoles = async (): Promise<HMSRole[]> => {
     logger?.verbose('#Function getRoles', {
@@ -1202,19 +1241,32 @@ export class HMSSDK {
   };
 
   /**
-   * - This function sets the volume of any peer in the room
+   * Sets the volume for a specific track of any peer in the room.
    *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/advanced-features/set-volume} for more info
+   * This function allows the adjustment of the playback volume for any given audio track of a peer within the room.
+   * It is particularly useful for controlling the audio levels of individual participants in a conference call or meeting.
+   * The volume level is specified as a number. Volume level can vary from 0(min) to 10(max). The default value for volume is 1.0.
+   *
+   * @param {HMSTrack} track - The track object whose volume is to be set. This object must include a valid `trackId`.
+   * @param {number} volume - The volume level to set for the specified track.
+   * @returns Promise<boolean> A promise that resolves to `true` if the volume was successfully set, or `false` otherwise.
+   * @throws {Error} Throws an error if the operation fails or the track cannot be found.
+   *
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/interact-with-room/track/set-volume
    *
    * @memberof HMSSDK
+   *
+   * @example
+   * // Assuming `track` is an instance of HMSTrack representing the participant's audio track
+   * hmsInstance.setVolume(track, 10);
    */
-  setVolume = (track: HMSTrack, volume: number) => {
+  setVolume = async (track: HMSTrack, volume: number): Promise<boolean> => {
     logger?.verbose('#Function setVolume', {
       track,
       volume,
       id: this.id,
     });
-    HMSManager.setVolume({
+    return await HMSManager.setVolume({
       id: this.id,
       trackId: track.trackId,
       volume,
