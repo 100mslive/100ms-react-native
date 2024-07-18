@@ -1469,7 +1469,7 @@ class HMSRNSDK(
 
           if (audioTrackId == trackId) {
             peer.audioTrack?.setVolume(volume)
-            callback.resolve(null)
+            callback?.resolve(null)
             return
           }
 
@@ -1479,7 +1479,7 @@ class HMSRNSDK(
 
               if (trackExtracted != null) {
                 trackExtracted.setVolume(volume)
-                callback.resolve(null)
+                callback?.resolve(null)
                 return
               }
             }
