@@ -48,6 +48,8 @@ import type { HMSPIPConfig } from './HMSPIPConfig';
 import { HMSInteractivityCenter } from './HMSInteractivityCenter';
 import type { HMSHLSTimedMetadata } from './HMSHLSTimedMetadata';
 import type { HMSVideoTrack } from './HMSVideoTrack';
+import type { HMSRemoteVideoTrack } from './HMSRemoteVideoTrack';
+import type { HMSRemoteAudioTrack } from './HMSRemoteAudioTrack';
 
 type HmsViewProps = Omit<HmsComponentProps, 'id'>;
 
@@ -1249,18 +1251,19 @@ export class HMSSDK {
    *
    * @param {HMSTrack} track - The track object whose volume is to be set. This object must include a valid `trackId`.
    * @param {number} volume - The volume level to set for the specified track.
-   * @returns Promise<boolean> A promise that resolves to `true` if the volume was successfully set, or `false` otherwise.
+   * @returns {Promise<void>} A promise that resolves when the operation to set the track's volume is complete.
    * @throws {Error} Throws an error if the operation fails or the track cannot be found.
    *
    * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/interact-with-room/track/set-volume
    *
+   * @async
    * @memberof HMSSDK
    *
    * @example
    * // Assuming `track` is an instance of HMSTrack representing the participant's audio track
    * hmsInstance.setVolume(track, 10);
    */
-  setVolume = async (track: HMSTrack, volume: number): Promise<boolean> => {
+  setVolume = async (track: HMSTrack, volume: number): Promise<void> => {
     logger?.verbose('#Function setVolume', {
       track,
       volume,
@@ -1274,11 +1277,23 @@ export class HMSSDK {
   };
 
   /**
-   * - This function is used to start screenshare, currently available only for android
+   * Initiates screen sharing in the room.
    *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/screenshare} for more info
+   * This asynchronous function triggers the screen sharing feature, allowing the local peer to share their screen with other participants in the room.
+   * Upon successful execution, other participants in the room will be able to see the shared screen as part of the video conference.
    *
+   * Note: Proper permissions must be granted by the user for screen sharing to work. Ensure to handle permission requests appropriately in your application.
+   *
+   * @async
+   * @function startScreenshare
    * @memberof HMSSDK
+   * @returns {Promise<void>} A promise that resolves when the screen sharing has successfully started.
+   * @throws {Error} Throws an error if the operation fails or screen sharing cannot be initiated.
+   *
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/set-up-video-conferencing/screenshare
+   * @example
+   * // Start screen sharing
+   * await hmsInstance.startScreenshare();
    */
   startScreenshare = async () => {
     logger?.verbose('#Function startScreenshare', { id: this.id });
@@ -1286,46 +1301,115 @@ export class HMSSDK {
   };
 
   /**
-   * - Returns a boolean stating if the screen is currently shared or not
+   * Checks if the screen sharing is currently active in the room.
    *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/screenshare} for more info
+   * This asynchronous method queries the native `HMSManager` module to determine if the screen is currently being shared by the local peer in the room.
+   * It returns a promise that resolves to a boolean value, indicating the screen sharing status. `true` signifies that the screen sharing is active,
+   * while `false` indicates that it is not. This method can be used to toggle UI elements or to decide whether to start or stop screen sharing based on the current state.
    *
+   * @async
+   * @function isScreenShared
    * @memberof HMSSDK
+   * @returns {Promise<boolean>} A promise that resolves to a boolean indicating whether the screen is currently shared.
+   * @example
+   * // Check if the screen is currently shared
+   * const isShared = await hmsInstance.isScreenShared();
+   * console.log(isShared ? "Screen is being shared" : "Screen is not being shared");
+   *
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/set-up-video-conferencing/screenshare
    */
-  isScreenShared = async () => {
+  isScreenShared = async (): Promise<boolean> => {
     logger?.verbose('#Function isScreenShared', { id: this.id });
     return await HMSManager.isScreenShared({ id: this.id });
   };
 
   /**
-   * - stops the screenShare, currently available for android only.
+   * Asynchronously stops the screen sharing session.
    *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/screenshare} for more info
+   * This method communicates with the native `HMSManager` module to stop the ongoing screen sharing session initiated by the local peer.
+   * Upon successful execution, the screen sharing session is terminated, and other participants
+   * in the room will no longer be able to see the shared screen. This method can be used to programmatically control the end of a screen sharing session,
+   * providing flexibility in managing the screen sharing feature within your application.
    *
+   * Note: Ensure that the necessary permissions and conditions for screen sharing are managed appropriately in your application.
+   *
+   * @async
+   * @function stopScreenshare
    * @memberof HMSSDK
+   * @returns {Promise<void>} A promise that resolves when the screen sharing has successfully stopped.
+   * @throws {Error} Throws an error if the operation fails or the screen sharing cannot be stopped.
+   *
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/set-up-video-conferencing/screenshare
+   * @example
+   * // Stop screen sharing
+   * await hmsInstance.stopScreenshare();
    */
   stopScreenshare = async () => {
     logger?.verbose('#Function stopScreenshare', { id: this.id });
     return await HMSManager.stopScreenshare({ id: this.id });
   };
 
+  /**
+   * Enables network quality updates for the local peer.
+   *
+   * This method activates the network quality monitoring feature, which periodically assesses and reports the network quality of peers in a room.
+   * The network quality updates are useful for providing feedback to the user about their current connection status, potentially prompting them to improve their network environment if necessary.
+   * Upon enabling, network quality updates are emitted through the appropriate event listeners - `HMSPeerUpdate.NETWORK_QUALITY_UPDATED` allowing the application to react or display the network status dynamically.
+   *
+   * @function enableNetworkQualityUpdates
+   * @memberof HMSSDK
+   * @example
+   * // Enable network quality updates
+   * hmsInstance.enableNetworkQualityUpdates();
+   *
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/measure-network-quality-and-performance/network-quality
+   */
   enableNetworkQualityUpdates = () => {
     logger?.verbose('#Function enableNetworkQualityUpdates', { id: this.id });
     HMSManager.enableNetworkQualityUpdates({ id: this.id });
   };
 
+  /**
+   * Disables network quality updates for the local peer.
+   *
+   * This method deactivates the network quality monitoring feature, which stops the periodic assessment and reporting of the network quality of peers in a room.
+   * Disabling network quality updates can be useful in scenarios where network quality information is no longer needed, or to reduce the computational overhead associated with monitoring network quality.
+   * Once disabled, network quality updates will no longer be emitted through the event listeners, allowing the application to cease reacting to or displaying network status information.
+   *
+   * @function disableNetworkQualityUpdates
+   * @memberof HMSSDK
+   * @example
+   * // Disable network quality updates
+   * hmsInstance.disableNetworkQualityUpdates();
+   *
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/measure-network-quality-and-performance/network-quality
+   */
   disableNetworkQualityUpdates = () => {
     logger?.verbose('#Function disableNetworkQualityUpdates', { id: this.id });
     HMSManager.disableNetworkQualityUpdates({ id: this.id });
   };
 
   /**
-   * - This wrapper function is used to start streaming device audio, currently available only for android.
+   * Starts streaming device audio, available only on Android devices.
    *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/audio-share#how-to-stream-device-audio-from-the-app} for more info.
+   * This method allows the application to share device audio, such as music or system sounds, with other participants in a video conference.
+   * It leverages the native HMSManager's `startAudioshare` method to initiate audio sharing. The function takes an `HMSAudioMixingMode` parameter,
+   * which specifies the audio mixing mode to be used during the audio share session.
    *
-   * @param {HMSAudioMixingMode}
-   * @memberof HMSSDK
+   * Note: This feature is currently supported only on Android. Attempting to use this feature on iOS will result in a console log indicating
+   * that the API is not available for iOS.
+   *
+   * @async
+   * @function startAudioshare
+   * @param {HMSAudioMixingMode} audioMixingMode - The audio mixing mode to be used for the audio share session.
+   * @returns {Promise} A promise that resolves to a success if the audio share is started successfully
+   * @throws {Error} Throws an error if the operation fails or the audio share cannot be started.
+   *
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/set-up-video-conferencing/local-audio-share
+   *
+   * @example
+   * // Start audio sharing with the default mixing mode
+   * await hmsInstance.startAudioshare(HMSAudioMixingMode.DEFAULT);
    */
   startAudioshare = async (audioMixingMode: HMSAudioMixingMode) => {
     logger?.verbose('#Function startAudioshare', {
@@ -1341,52 +1425,88 @@ export class HMSSDK {
   };
 
   /**
-   * - This wrapper function returns true if audio is being shared and vice versa, currently available only for android.
+   * Checks if audio sharing is currently active.
    *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/audio-share#how-to-get-audio-share-status} for more info.
+   * This asynchronous method determines whether audio sharing is currently active, with support limited to Android devices.
+   * On Android, it queries the native `HMSManager` module to check the audio sharing status and returns a promise that resolves to a boolean value.
    *
+   * @async
+   * @function isAudioShared
    * @memberof HMSSDK
+   * @returns {Promise<boolean>} A promise that resolves to a boolean indicating whether audio sharing is currently active.
+   * @example
+   * // Check if audio is being shared on an Android device
+   * const isSharing = await hmsInstance.isAudioShared();
+   * console.log(isSharing); // true or false based on the sharing status, or a message for iOS
+   *
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/set-up-video-conferencing/local-audio-share
    */
-  isAudioShared = async () => {
+  isAudioShared = async (): Promise<boolean> => {
     logger?.verbose('#Function isAudioShared', { id: this.id });
     if (Platform.OS === 'android') {
       return await HMSManager.isAudioShared({ id: this.id });
     } else {
       console.log('API currently not available for iOS');
-      return 'API currently not available for iOS';
+      return Promise.resolve(false);
     }
   };
 
   /**
-   * - This wrapper function is used to stop streaming device audio, currently available only for android.
+   * Stops the streaming of device audio, with functionality currently limited to Android devices.
    *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/audio-share#how-to-stop-audio-sharing} for more info.
+   * This asynchronous method communicates with the native `HMSManager` module to stop the audio sharing session that was previously started.
+   * It is primarily used when the application needs to cease sharing device audio, such as music or system sounds, with other participants in a video conference.
+   * On Android devices, it successfully terminates the audio share session. On iOS devices, since the feature is not supported, it logs a message indicating the unavailability of the API.
    *
+   * @async
+   * @function stopAudioshare
    * @memberof HMSSDK
+   * @returns {Promise<boolean>} A promise that resolves to a boolean indicating the success of the operation.
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/set-up-video-conferencing/local-audio-share
+   *
+   * @example
+   * // Stop audio sharing
+   * await hmsInstance.stopAudioshare();
    */
-  stopAudioshare = async () => {
+  stopAudioshare = async (): Promise<boolean> => {
     logger?.verbose('#Function stopAudioshare', { id: this.id });
     if (Platform.OS === 'android') {
       return await HMSManager.stopAudioshare({ id: this.id });
     } else {
       console.log('API currently not available for iOS');
-      return 'API currently not available for iOS';
+      return Promise.resolve(false);
     }
   };
 
   /**
-   * - This wrapper function returns the current audio mixing mode, currently available only for android.
+   * Asynchronously retrieves the current audio mixing mode, with functionality currently limited to Android devices.
    *
+   * This method queries the native `HMSManager` module to obtain the current audio mixing mode used in the audio share session.
+   * The audio mixing mode determines how local and remote audio tracks are mixed together during an audio share session.
+   *
+   * Note: This feature is only supported on Android. Attempting to use this feature on iOS will result in a console log indicating
+   * that the API is not available for iOS devices.
+   *
+   * @async
+   * @function getAudioMixingMode
    * @memberof HMSSDK
-   * @return HMSAudioMixingMode
+   * @returns {Promise<string>} A promise that resolves to a string indicating the current audio mixing mode.
+   *
+   * @throws {Error} Throws an error if the operation fails or the audio mixing mode cannot be retrieved.
+   *
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/set-up-video-conferencing/local-audio-share
+   * @example
+   * // Get the current audio mixing mode on an Android device
+   * const mixingMode = await hmsInstance.getAudioMixingMode();
+   * console.log(mixingMode); // Outputs the current audio mixing mode or a message for iOS
    */
-  getAudioMixingMode = async () => {
+  getAudioMixingMode = async (): Promise<string> => {
     logger?.verbose('#Function getAudioMixingMode', { id: this.id });
     if (Platform.OS === 'android') {
       return await HMSManager.getAudioMixingMode({ id: this.id });
     } else {
       console.log('API currently not available for iOS');
-      return 'API currently not available for iOS';
+      return Promise.reject('API currently not available for iOS');
     }
   };
 
@@ -1400,8 +1520,9 @@ export class HMSSDK {
    * If the platform is not Android, it logs a message indicating that the API is not available for iOS.
    *
    * @param {HMSAudioMixingMode} audioMixingMode - The audio mixing mode to be set.
-   * @returns {Promise<string>} A promise that resolves to a string indicating the success of the operation
-   *                            or a message stating the API is not available for iOS.
+   * @returns {Promise<boolean>} A promise that resolves to a boolean indicating the success of the operation.
+   * @throws {Error} Throws an error if the operation fails or the audio mixing mode cannot be set.
+   *
    * @example
    * await hmsInstance.setAudioMixingMode(HMSAudioMixingMode.TALK_AND_MUSIC);
    *
@@ -1409,7 +1530,9 @@ export class HMSSDK {
    *
    * @memberof HMSSDK
    */
-  setAudioMixingMode = async (audioMixingMode: HMSAudioMixingMode) => {
+  setAudioMixingMode = async (
+    audioMixingMode: HMSAudioMixingMode
+  ): Promise<boolean> => {
     logger?.verbose('#Function setAudioMixingMode', {
       id: this.id,
       audioMixingMode,
@@ -1421,20 +1544,27 @@ export class HMSSDK {
       });
     } else {
       console.log('API currently not available for iOS');
-      return 'API currently not available for iOS';
+      return Promise.reject('API currently not available for iOS');
     }
   };
 
   /**
-   * - This wrapper function returns the array of audio output devices which is of
-   * type {@link HMSAudioDevice[]}, currently available only for android.
+   * Retrieves a list of audio output devices. Android only.
    *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/audio-output-routing#get-list-of-audio-device} for more info
+   * This method asynchronously fetches and returns an array of audio output devices available on the device.
+   * It is designed to work specifically on Android platforms. For iOS, it will reject the promise with a message
+   * indicating that the API is not available. This can be useful for applications that need to display or allow
+   * the user to select from available audio output options, such as speakers, headphones, or Bluetooth devices.
+   *
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/configure-your-device/speaker/audio-output-routing
    *
    * @memberof HMSSDK
-   * @return HMSAudioDevice[]
+   * @returns {Promise<HMSAudioDevice[]>} A promise that resolves to an array of `HMSAudioDevice` objects on Android. On iOS, the promise is rejected.
+   * @example
+   * // Get the list of audio output devices
+   * const audioDevices = await hmsInstance.getAudioDevicesList();
    */
-  getAudioDevicesList = async () => {
+  getAudioDevicesList = async (): Promise<HMSAudioDevice[]> => {
     logger?.verbose('#Function getAudioDevicesList', {
       id: this.id,
     });
@@ -1442,20 +1572,28 @@ export class HMSSDK {
       return await HMSManager.getAudioDevicesList({ id: this.id });
     } else {
       console.log('API currently not available for iOS');
-      return 'API currently not available for iOS';
+      return Promise.reject('API currently not available for iOS');
     }
   };
 
   /**
-   * - This wrapper function returns the current audio output device which is of
-   * type {@link HMSAudioDevice}, currently available only for android.
+   * Retrieves the current audio output device type on Android devices.
    *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/audio-output-routing#get-current-focussed-device} for more info
+   * This method is a wrapper function that returns the type of the current audio output device.
+   * The return type is a `HMSAudioDevice`, which is an enumeration representing different types of audio output devices.
+   *
+   * Note: This API is not available for iOS devices. If invoked on iOS, it logs a message indicating the unavailability and rejects the promise.
+   *
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/configure-your-device/speaker/audio-output-routing
    *
    * @memberof HMSSDK
-   * @return HMSAudioDevice
+   * @returns {Promise<HMSAudioDevice>} A promise that resolves to the current audio output device type if the platform is Android. If the platform is iOS, the promise is rejected.
+   *
+   * @example
+   * // Get the current audio output device type
+   * const currentAudioOutputDevice = await hmsInstance.getAudioOutputRouteType();
    */
-  getAudioOutputRouteType = async () => {
+  getAudioOutputRouteType = async (): Promise<HMSAudioDevice> => {
     logger?.verbose('#Function getAudioOutputRouteType', {
       id: this.id,
     });
@@ -1463,19 +1601,26 @@ export class HMSSDK {
       return await HMSManager.getAudioOutputRouteType({ id: this.id });
     } else {
       console.log('API currently not available for iOS');
-      return 'API currently not available for iOS';
+      return Promise.reject('API currently not available for iOS');
     }
   };
 
   /**
-   * - This wrapper function used to switch output to device other than the default route.
+   * Switches the audio output device to a specified device.
+   * This function is a wrapper around the native module's method to change the audio output route.
+   * It allows for changing the audio output to a device other than the default one, such as a Bluetooth headset or speaker.
    *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/audio-output-routing#switch-audio-focus-to-another-device} for more info
+   * @param {HMSAudioDevice} audioDevice - The audio device to switch the output to. This should be one of the devices available in `HMSAudioDevice`.
+   *
+   * @returns {Promise<void>} A promise that resolves when the audio output device is successfully switched. Rejected if the operation fails.
+   *
+   *  @example
+   * // To switch audio output to a Bluetooth device
+   * hmsSDK.switchAudioOutput(HMSAudioDevice.Bluetooth);
    *
    * @memberof HMSSDK
-   * @param audioDevice
    */
-  switchAudioOutput = (audioDevice: HMSAudioDevice) => {
+  switchAudioOutput = (audioDevice: HMSAudioDevice): Promise<void> => {
     logger?.verbose('#Function switchAudioOutput', {
       id: this.id,
       audioDevice,
@@ -1500,7 +1645,7 @@ export class HMSSDK {
   /**
    * - This wrapper function used to change Audio Mode manually, currently available only for android.
    *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/audio-mode-change} for more info
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/configure-your-device/speaker/audio-mode-change
    *
    * @param {HMSAudioMode}
    * @memberof HMSSDK
@@ -1519,12 +1664,16 @@ export class HMSSDK {
   };
 
   /**
-   * - This is a wrapper function which adds a listener which is triggered when audio output device is switched, currently available only for android.
+   * Adds a listener for changes in the audio output device.
+   * This function is platform-specific and currently only implemented for Android devices.
+   * When the audio output device changes (e.g., switching from the phone speaker to a Bluetooth headset), the specified callback function is triggered.
+   * This can be useful for applications that need to react to changes in audio routing, such as updating the UI to reflect the current output device.
    *
-   * checkout {@link https://www.100ms.live/docs/react-native/v2/features/audio-output-routing#adding-a-listener} for more info
+   * Note: This API is not available on iOS as of the current implementation. Attempting to use it on iOS will result in a rejected promise with an appropriate error message.
    *
-   * @param {Function}
+   * @param {Function} callback - The function to be called when the audio output device changes. This function does not receive any parameters.
    * @memberof HMSSDK
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/configure-your-device/speaker/audio-output-routing
    */
   setAudioDeviceChangeListener = (callback: Function) => {
     logger?.verbose('#Function setAudioDeviceChangeListener', {
@@ -1538,11 +1687,19 @@ export class HMSSDK {
       return HMSManager.setAudioDeviceChangeListener({ id: this.id });
     } else {
       console.log('API currently not available for iOS');
-      return 'API currently not available for iOS';
+      return Promise.reject('API currently not available for iOS');
     }
   };
 
-  getRemoteVideoTrackFromTrackId = async (trackId: string) => {
+  /**
+   * Asynchronously retrieves a remote video track by its track ID.
+   *
+   * @param {string} trackId - The unique identifier for the remote video track to be retrieved.
+   * @returns {Promise<HMSRemoteVideoTrack>} A promise that resolves to the encoded remote video track data.
+   */
+  getRemoteVideoTrackFromTrackId = async (
+    trackId: string
+  ): Promise<HMSRemoteVideoTrack> => {
     logger?.verbose('#Function getRemoteVideoTrackFromTrackId', {
       id: this.id,
       trackId,
@@ -1556,20 +1713,37 @@ export class HMSSDK {
     return HMSEncoder.encodeHmsRemoteVideoTrack(remoteVideoTrackData, this.id);
   };
 
-  getRemoteAudioTrackFromTrackId = async (trackId: string) => {
+  /**
+   * Retrieves a remote audio track by its track ID.
+   *
+   * @param {string} trackId - The unique identifier for the remote audio track to be retrieved.
+   * @returns {Promise<HMSRemoteAudioTrack>} A promise that resolves to the encoded remote audio track data.
+   */
+  getRemoteAudioTrackFromTrackId = async (
+    trackId: string
+  ): Promise<HMSRemoteAudioTrack> => {
+    // Log the function call with the track ID for debugging purposes.
     logger?.verbose('#Function getRemoteAudioTrackFromTrackId', {
       id: this.id,
       trackId,
     });
 
+    // Fetch the remote audio track data from the native HMSManager.
     const remoteAudioTrackData =
       await HMSManager.getRemoteAudioTrackFromTrackId({
         id: this.id,
         trackId,
       });
+    // Encode and return the remote audio track data.
     return HMSEncoder.encodeHmsRemoteAudioTrack(remoteAudioTrackData, this.id);
   };
 
+  /**
+   * Retrieves a peer object based on the provided peer ID.
+   *
+   * @param {string} peerId - The ID of the peer to retrieve.
+   * @returns {HMSPeer | undefined} An encoded HMSPeer object if the peer is found otherwise `undefined`.
+   */
   getPeerFromPeerId = (peerId: string) => {
     logger?.verbose('#Function getPeerFromPeerId', {
       id: this.id,
