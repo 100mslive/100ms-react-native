@@ -1469,6 +1469,7 @@ class HMSRNSDK(
 
           if (audioTrackId == trackId) {
             peer.audioTrack?.setVolume(volume)
+            callback.resolve(null)
             return
           }
 
@@ -1478,6 +1479,7 @@ class HMSRNSDK(
 
               if (trackExtracted != null) {
                 trackExtracted.setVolume(volume)
+                callback.resolve(null)
                 return
               }
             }
@@ -1750,7 +1752,7 @@ class HMSRNSDK(
       val audioDevice = data.getString("audioDevice")
       hmsSDK?.let {
         it.switchAudioOutput(HMSHelper.getAudioDevice(audioDevice))
-        callback?.resolve(true)
+        callback?.resolve(null)
       }
     } else {
       val errorMessage = "switchAudioOutput: $requiredKeys"
@@ -1836,7 +1838,7 @@ class HMSRNSDK(
         override fun onSuccess() {
           isAudioSharing = false
           audioshareCallback = null
-          callback?.resolve(getPromiseResolveData())
+          callback?.resolve(true)
         }
       },
     )
@@ -1854,7 +1856,7 @@ class HMSRNSDK(
       val mode = HMSHelper.getAudioMixingMode(data.getString("audioMixingMode"))
       audioMixingMode = mode
       hmsSDK?.setAudioMixingMode(mode)
-      callback?.resolve(getPromiseResolveData())
+      callback?.resolve(true)
     } else {
       val errorMessage = "setAudioMixingMode: $requiredKeys"
       rejectCallback(callback, errorMessage)

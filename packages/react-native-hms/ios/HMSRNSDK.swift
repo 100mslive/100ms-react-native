@@ -776,7 +776,7 @@ class HMSRNSDK: NSObject, HMSUpdateListener, HMSPreviewListener {
 
             if remoteAudioTrack != nil {
                 remoteAudioTrack?.setVolume(volume)
-                resolve?(true)
+                resolve?(nil)
             } else {
                 let errorMessage = "setVolume: No remote audio track not available"
                 reject?(errorMessage, errorMessage, nil)
