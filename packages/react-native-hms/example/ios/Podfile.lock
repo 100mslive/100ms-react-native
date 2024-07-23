@@ -63,7 +63,7 @@ PODS:
   - HMSHLSPlayerSDK (0.0.2):
     - HMSAnalyticsSDK (= 0.0.2)
   - HMSNoiseCancellationModels (1.0.0)
-  - HMSSDK (1.14.1):
+  - HMSSDK (1.15.0):
     - HMSAnalyticsSDK (= 0.0.2)
     - HMSWebRTC (= 1.0.6170)
   - HMSWebRTC (1.0.6170)
@@ -297,7 +297,7 @@ PODS:
     - HMSBroadcastExtensionSDK (= 0.0.9)
     - HMSHLSPlayerSDK (= 0.0.2)
     - HMSNoiseCancellationModels (= 1.0.0)
-    - HMSSDK (= 1.14.1)
+    - HMSSDK (= 1.15.0)
     - React-Core
   - react-native-safe-area-context (3.4.1):
     - React-Core
@@ -633,7 +633,7 @@ SPEC CHECKSUMS:
   HMSBroadcastExtensionSDK: d80fe325f6c928bd8e5176290b5a4b7ae15d6fbb
   HMSHLSPlayerSDK: 6a54ad4d12f3dc2270d1ecd24019d71282a4f6a3
   HMSNoiseCancellationModels: a3bda1405a16015632f4bcabd46ce48f35103b02
-  HMSSDK: 389e692c315efd6abe1932e2dab4859ebb5cd60d
+  HMSSDK: fc3d2141c654e9fdca7f27c290c17b6b61b9dc92
   HMSWebRTC: b5ffaf5d6133ae2a4c841beaf1e5e4fe06d0fb07
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   OpenSSL-Universal: 1aa4f6a6ee7256b83db99ec1ccdaa80d10f9af9b
@@ -653,7 +653,7 @@ SPEC CHECKSUMS:
   react-native-avoid-softinput: 71a692888f0c1d426ad9045dc8325773583962cd
   react-native-camera: 3eae183c1d111103963f3dd913b65d01aef8110f
   react-native-document-picker: cd4d6b36a5207ad7a9e599ebb9eb0c2e84fa0b87
-  react-native-hms: 72cb0142701cffb81ebc7150a66d9ca1be0dbf32
+  react-native-hms: 2335c4b5b4cc078341cd2915a749c81e80e743ed
   react-native-safe-area-context: 9e40fb181dac02619414ba1294d6c2a807056ab9
   react-native-simple-toast: 8ee5d23f0b92b935ab7434cdb65159ce12dfb4b7
   React-perflogger: 5a890ca0911669421b7611661e9b58f91c805f5c
