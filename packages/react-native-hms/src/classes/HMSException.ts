@@ -1,3 +1,21 @@
+/**
+ * Represents an exception specific to the HMS SDK in a React Native context.
+ *
+ * This class encapsulates detailed information about errors that can occur while interacting with the HMS SDK.
+ * It includes a numeric code to identify the type of error, a human-readable description, and optionally,
+ * a message, name, and action that are primarily available on Android. Additionally, it indicates whether
+ * the error is terminal (i.e., cannot be recovered from) and whether a retry might be possible.
+ *
+ * @class HMSException
+ * @property {number} code - Numeric error code representing the type of error.
+ * @property {string} description - A brief, human-readable description of the error.
+ * @property {string} [message] - Additional message information about the error (Android only).
+ * @property {string} [name] - The name of the error (Android only).
+ * @property {string} [action] - The action during which the error occurred (Android only).
+ * @property {boolean} isTerminal - Indicates whether the error is terminal.
+ * @property {boolean} [canRetry] - Indicates whether the operation that caused the error can be retried (Android only).
+ *
+ */
 export class HMSException {
   code: number;
   description: string;
