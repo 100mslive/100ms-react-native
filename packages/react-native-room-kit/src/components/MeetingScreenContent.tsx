@@ -17,7 +17,7 @@ import type { RootState } from '../redux';
 import { Footer } from './Footer';
 import { DisplayView } from './DisplayView';
 import { Header } from './Header';
-import { useKeyboardState } from '../hooks-util';
+import { useHMSLayoutConfig, useKeyboardState } from '../hooks-util';
 import { HMSStatusBar } from './StatusBar';
 import { AnimatedFooter } from './AnimatedFooter';
 import { AnimatedHeader } from './AnimatedHeader';
@@ -137,6 +137,26 @@ export const MeetingScreenContent: React.FC<MeetingScreenContentProps> = ({
     .enabled(Platform.select({ android: !whiteboardActive, default: true }))
     .onEnd(() => toggleControls())
     .requireExternalGestureToFail();
+
+  const enabledByDefault = useHMSLayoutConfig((layoutConfig) => {
+    return (
+      layoutConfig?.screens?.preview?.default?.elements?.noise_cancellation
+        ?.enabled_by_default || false
+    );
+  });
+
+  const shouldEnableNoiseCancellation =
+    Platform.OS === 'ios' && enabledByDefault;
+
+  const noiseCancellationPlugin = useSelector(
+    (state: RootState) => state.hmsStates.noiseCancellationPlugin
+  );
+
+  React.useEffect(() => {
+    if (shouldEnableNoiseCancellation) {
+      noiseCancellationPlugin?.enable();
+    }
+  }, []);
 
   return (
     <View style={styles.container}>
