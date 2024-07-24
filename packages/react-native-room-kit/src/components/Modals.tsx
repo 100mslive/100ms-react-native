@@ -70,7 +70,7 @@ export const ChangeRoleModal = ({ cancelModal }: { cancelModal: Function }) => {
     instance
       ?.changeRoleOfPeer(peer!, newRole, skipPreviewForRoleChange)
       .catch((e) => {
-        console.log('Change Role of Peer Error: ', e);
+        console.log('Switch Role of Peer Error: ', e);
         Toast.showWithGravity((e as Error).message, Toast.LONG, Toast.TOP);
       });
     cancelModal();
@@ -78,9 +78,9 @@ export const ChangeRoleModal = ({ cancelModal }: { cancelModal: Function }) => {
 
   return (
     <View style={styles.roleChangeModal}>
-      <Text style={styles.roleChangeModalHeading}>Change Role</Text>
+      <Text style={styles.roleChangeModalHeading}>Switch Role</Text>
       <Text style={styles.roleChangeModalDescription}>
-        Change the role of '{peer?.name}' to
+        Switch the role of '{peer?.name}' from '{peer?.role?.name}' to
       </Text>
       <Menu
         visible={visible}
@@ -123,7 +123,7 @@ export const ChangeRoleModal = ({ cancelModal }: { cancelModal: Function }) => {
           textStyle={styles.roleChangeModalButtonText}
         />
         <CustomButton
-          title="Change"
+          title="Switch Role"
           onPress={changeRole}
           viewStyle={styles.roleChangeModalSuccessButton}
           textStyle={styles.roleChangeModalButtonText}
