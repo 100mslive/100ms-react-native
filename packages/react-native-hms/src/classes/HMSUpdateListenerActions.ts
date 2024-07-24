@@ -86,6 +86,18 @@ export enum HMSUpdateListenerActions {
   ON_PEER_UPDATE = '3',
 
   /**
+   * Event emitted when the list of peers in the room is updated.
+   *
+   * This event is triggered whenever there is a change in the list of peers present in the room, such as when a new peer joins,
+   * an existing peer leaves. It allows the application to react to changes in the room's
+   * participant list, enabling dynamic updates to the UI or other logic based on the current set of participants.
+   *
+   * @type {string}
+   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/interact-with-room/peer/large-room
+   */
+  ON_PEER_LIST_UPDATED = 'ON_PEER_LIST_UPDATED',
+
+  /**
    * Event emitted when there is an update related to a track in the room.
    *
    * This event is triggered whenever a track's state changes within the room, such as when a video or audio track is enabled or disabled,
@@ -260,7 +272,7 @@ export enum HMSUpdateListenerActions {
   ON_REMOTE_VIDEO_STATS = 'ON_REMOTE_VIDEO_STATS',
 
   /**
-   * Event emitted when the audio device has changed.
+   * Event emitted when the audio device has changed. Android only.
    *
    * This event is triggered whenever there is a change in the audio output device, such as switching from the built-in speaker to a Bluetooth headset.
    * Handling this event allows the application to update any UI elements or settings related to the current audio device, ensuring that the user is always aware of which device is being used for audio output.
@@ -293,18 +305,6 @@ export enum HMSUpdateListenerActions {
    * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/interact-with-room/room/session-store
    */
   ON_SESSION_STORE_CHANGED = 'ON_SESSION_STORE_CHANGED',
-
-  /**
-   * Event emitted when the list of peers in the room is updated.
-   *
-   * This event is triggered whenever there is a change in the list of peers present in the room, such as when a new peer joins,
-   * an existing peer leaves, or a peer's properties are updated. It allows the application to react to changes in the room's
-   * participant list, enabling dynamic updates to the UI or other logic based on the current set of participants.
-   *
-   * @type {string}
-   * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/interact-with-room/peer/large-room
-   */
-  ON_PEER_LIST_UPDATED = 'ON_PEER_LIST_UPDATED',
 
   /**
    * Event emitted when transcripts are available.
