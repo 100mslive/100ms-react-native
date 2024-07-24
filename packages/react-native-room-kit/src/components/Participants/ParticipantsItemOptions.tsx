@@ -259,15 +259,17 @@ const _ParticipantsItemOptions: React.FC<ParticipantsItemOptionsProps> = ({
           hide: Boolean(!onStageRoleStr || peer.role?.name !== onStageRoleStr),
         },
         {
+          id: 'change-role',
           icon: (
             <PersonIcon type="rectangle" style={{ width: 20, height: 20 }} />
           ),
           label: 'Switch Role',
           pressHandler: handleChangeRolePress,
           isActive: false,
-          hide: Boolean(!onStageRoleStr || peer.role?.name !== onStageRoleStr),
+          hide: !localPeerCanChangeRole,
         },
         {
+          id: 'remove-participant',
           icon: <PersonIcon type="left" style={{ width: 20, height: 20 }} />,
           label: 'Remove Participant',
           pressHandler: handleRemoveParticipantPress,
