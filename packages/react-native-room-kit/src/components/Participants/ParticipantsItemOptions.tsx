@@ -262,7 +262,7 @@ const _ParticipantsItemOptions: React.FC<ParticipantsItemOptionsProps> = ({
           icon: (
             <PersonIcon type="rectangle" style={{ width: 20, height: 20 }} />
           ),
-          label: 'Change Role',
+          label: 'Switch Role',
           pressHandler: handleChangeRolePress,
           isActive: false,
           hide: Boolean(!onStageRoleStr || peer.role?.name !== onStageRoleStr),
