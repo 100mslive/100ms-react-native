@@ -11,8 +11,7 @@
  *
  * @example
  * ```typescript
- * import { HMSUpdateListenerActions } from 'react-native-hms';
- * hmsinstance.on(HMSUpdateListenerActions.ON_JOIN, ({ room: HMSRoom }}) => {
+ * hmsInstance.addEventListener(HMSUpdateListenerActions.ON_JOIN, ({ room: HMSRoom }}) => {
  *  console.log('Joined room', data);
  *  // Handle the event
  * });
