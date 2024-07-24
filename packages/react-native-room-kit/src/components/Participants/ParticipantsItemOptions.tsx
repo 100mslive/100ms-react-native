@@ -50,6 +50,7 @@ const _ParticipantsItemOptions: React.FC<ParticipantsItemOptionsProps> = ({
       layoutConfig?.screens?.conferencing?.default?.elements?.on_stage_exp
         ?.on_stage_role
   );
+  const roles = useSelector((state: RootState) => state.hmsStates.roles);
   const onStageRole = useSelector((state: RootState) => {
     const roles = state.hmsStates.roles;
     return roles.find((role) => role.name === onStageRoleStr);
@@ -153,6 +154,14 @@ const _ParticipantsItemOptions: React.FC<ParticipantsItemOptionsProps> = ({
     onItemPress();
   };
 
+  const handleChangeRolePress = () => {
+    hmsInstance
+      .changeRoleOfPeer(peer, roles[0]!!, false)
+      .then((d) => console.log('Change Role Success: ', d))
+      .catch((e) => console.log('Change Role Error: ', e));
+    onItemPress();
+  };
+
   const showMuteAudioOption =
     !insideHandRaiseGroup &&
     localPeerCanMuteTrack &&
@@ -250,7 +259,15 @@ const _ParticipantsItemOptions: React.FC<ParticipantsItemOptionsProps> = ({
           hide: Boolean(!onStageRoleStr || peer.role?.name !== onStageRoleStr),
         },
         {
-          id: 'remove-participant',
+          icon: (
+            <PersonIcon type="rectangle" style={{ width: 20, height: 20 }} />
+          ),
+          label: 'Change Role',
+          pressHandler: handleChangeRolePress,
+          isActive: false,
+          hide: Boolean(!onStageRoleStr || peer.role?.name !== onStageRoleStr),
+        },
+        {
           icon: <PersonIcon type="left" style={{ width: 20, height: 20 }} />,
           label: 'Remove Participant',
           pressHandler: handleRemoveParticipantPress,
