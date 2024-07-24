@@ -9,6 +9,15 @@
  *
  * @enum {string}
  *
+ * @example
+ * ```typescript
+ * import { HMSUpdateListenerActions } from 'react-native-hms';
+ * hmsinstance.on(HMSUpdateListenerActions.ON_JOIN, ({ room: HMSRoom }}) => {
+ *  console.log('Joined room', data);
+ *  // Handle the event
+ * });
+ * ```
+ *
  * @property {string} ON_PREVIEW - Emitted when the local preview is available.
  * @property {string} ON_JOIN - Emitted when the local user joins the room.
  * @property {string} ON_ROOM_UPDATE - Emitted when there is an update related to the room.
