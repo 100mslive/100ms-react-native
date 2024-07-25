@@ -288,6 +288,8 @@ const useHMSPeersUpdate = (
   // );
   const hmsActions = useHMSActions();
 
+  const isFirstRunForRoleChangeModal = useRef(true);
+
   useEffect(() => {
     const peerUpdateHandler = ({ peer, type }: PeerUpdate) => {
       // Handle State from Preview screen
@@ -429,6 +431,18 @@ const useHMSPeersUpdate = (
               .catch((e) => {
                 console.log('Metadata change failed', e);
               });
+
+            if (isFirstRunForRoleChangeModal.current) {
+              isFirstRunForRoleChangeModal.current = false;
+            } else {
+              dispatch(
+                addNotification({
+                  id: Math.random().toString(16).slice(2),
+                  type: NotificationTypes.INFO,
+                  title: `You are now a ${peer.role?.name}`,
+                })
+              );
+            }
           }
         }
         return;
