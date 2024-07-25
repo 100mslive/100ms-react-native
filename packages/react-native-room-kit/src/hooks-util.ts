@@ -1592,35 +1592,37 @@ const pipConfig: HMSPIPConfig = {
 export const useEnableAutoPip = () => {
   const hmsInstance = useHMSInstance();
 
-  const enableAutoPip = useCallback(
+  return useCallback(
     (data: HMSPIPConfig) => {
-      hmsInstance.setPipParams({
-        ...pipConfig,
-        ...data,
-        autoEnterPipMode: true,
-      });
+      hmsInstance
+        .setPipParams({
+          ...pipConfig,
+          ...data,
+          autoEnterPipMode: true,
+        })
+        .then((r) => console.log('Enable Auto PIP: ', r))
+        .catch((e) => console.log('Enable Auto PIP Error: ', e));
     },
     [hmsInstance]
   );
-
-  return enableAutoPip;
 };
 
 export const useDisableAutoPip = () => {
   const hmsInstance = useHMSInstance();
 
-  const disableAutoPip = useCallback(
+  return useCallback(
     (data: HMSPIPConfig) => {
-      hmsInstance.setPipParams({
-        ...pipConfig,
-        ...data,
-        autoEnterPipMode: false,
-      });
+      hmsInstance
+        .setPipParams({
+          ...pipConfig,
+          ...data,
+          autoEnterPipMode: false,
+        })
+        .then((r) => console.log('Disable Auto PIP: ', r))
+        .catch((e) => console.log('Disable Auto PIP Error: ', e));
     },
     [hmsInstance]
   );
-
-  return disableAutoPip;
 };
 
 export const useAutoPip = (oneToOneCall: boolean) => {
