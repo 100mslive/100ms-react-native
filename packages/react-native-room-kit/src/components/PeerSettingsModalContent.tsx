@@ -200,9 +200,9 @@ export const PeerSettingsModalContent: React.FC<
           </>
         ) : null}
 
-        {/* If localPeer has change role permission
-        allRoles.length > 1 && */}
-        {!peer.isLocal && localPeerPermissions?.changeRole ? (
+        {allRoles.length > 1 &&
+        !peer.isLocal &&
+        localPeerPermissions?.changeRole ? (
           <SettingItem
             text={'Switch Role'}
             icon={<PersonIcon type="rectangle" style={styles.customIcon} />}
