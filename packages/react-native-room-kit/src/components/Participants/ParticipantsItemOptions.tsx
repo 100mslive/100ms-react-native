@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import type { HMSLocalPeer, HMSPeer } from '@100mslive/react-native-hms';
 import { HMSPeerType } from '@100mslive/react-native-hms';
 
@@ -8,12 +8,15 @@ import {
   useHMSInstance,
   useHMSLayoutConfig,
   useHMSRoomStyleSheet,
+  useModalType,
 } from '../../hooks-util';
 import { CameraIcon, HandIcon, MicIcon, PersonIcon } from '../../Icons';
 import { ParticipantsItemOption } from './ParticipantsItemOption';
 import type { RootState } from '../../redux';
 import { selectCanPublishTrackForRole } from '../../hooks-sdk-selectors';
 import { parseMetadata } from '../../utils/functions';
+import { ModalTypes } from '../../utils/types';
+import { setPeerToUpdate } from '../../redux/actions';
 
 interface ParticipantsItemOptionsProps {
   insideHandRaiseGroup: boolean;
@@ -33,12 +36,16 @@ const _ParticipantsItemOptions: React.FC<ParticipantsItemOptionsProps> = ({
     (state: RootState) => state.hmsStates.localPeer?.role?.permissions
   );
 
+  const roles = useSelector((state: RootState) => state.hmsStates.roles);
+
   const localPeerCanMuteTrack =
     localPeerPermissions && localPeerPermissions.mute;
   const localPeerCanUnmuteTrack =
     localPeerPermissions && localPeerPermissions.unmute;
   const localPeerCanRemove =
     localPeerPermissions && localPeerPermissions.removeOthers;
+  const localPeerCanChangeRole =
+    localPeerPermissions && localPeerPermissions.changeRole && roles.length > 1;
 
   // Selected Peer Permissions related states
   const peerCanPublishAudio = selectCanPublishTrackForRole(peer.role!, 'audio');
@@ -153,6 +160,16 @@ const _ParticipantsItemOptions: React.FC<ParticipantsItemOptionsProps> = ({
     onItemPress();
   };
 
+  const { handleModalVisibleType: setModalVisible } = useModalType();
+
+  const dispatch = useDispatch();
+
+  const handleChangeRolePress = () => {
+    setModalVisible(ModalTypes.CHANGE_ROLE, true);
+    dispatch(setPeerToUpdate(peer));
+    onItemPress();
+  };
+
   const showMuteAudioOption =
     !insideHandRaiseGroup &&
     localPeerCanMuteTrack &&
@@ -248,6 +265,16 @@ const _ParticipantsItemOptions: React.FC<ParticipantsItemOptionsProps> = ({
           pressHandler: handleRemoveFromStagePress,
           isActive: false,
           hide: Boolean(!onStageRoleStr || peer.role?.name !== onStageRoleStr),
+        },
+        {
+          id: 'change-role',
+          icon: (
+            <PersonIcon type="rectangle" style={{ width: 20, height: 20 }} />
+          ),
+          label: 'Switch Role',
+          pressHandler: handleChangeRolePress,
+          isActive: false,
+          hide: !localPeerCanChangeRole,
         },
         {
           id: 'remove-participant',
