@@ -12,6 +12,9 @@ https://app.devrev.ai/100ms/works/ISS-22807
 - Added support for Noise Cancellation Default State
 https://app.devrev.ai/100ms/works/ISS-22853
 
+- Added support for Switch Role on Prebuilt
+https://app.devrev.ai/100ms/works/ISS-22863
+
 Room Kit: 1.2.2
 React Native SDK: 1.10.9
 Android SDK: 2.9.64
