@@ -10,7 +10,6 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import type { ImageURISource } from 'react-native';
-import Toast from 'react-native-simple-toast';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   HMSTrack,
@@ -44,7 +43,7 @@ import { ModalTypes, SUPPORTED_ASPECT_RATIOS } from '../utils/types';
 import { COLORS } from '../utils/theme';
 import type { RootState } from '../redux';
 import { SwitchRow } from './SwitchRow';
-import { useHMSConferencingScreenConfig, useHMSInstance } from '../hooks-util';
+import { useHMSInstance } from '../hooks-util';
 import { ChevronIcon } from '../Icons';
 import { NotificationTypes } from '../types';
 
@@ -110,7 +109,7 @@ export const ChangeRoleModal = ({ cancelModal }: { cancelModal: Function }) => {
           <TouchableOpacity
             style={styles.participantChangeRoleContainer}
             onPress={showMenu}
-            disabled={validRoles?.length <= 1}
+            disabled={validRoles && validRoles?.length <= 1}
           >
             <Text style={styles.participantFilterText} numberOfLines={1}>
               {newRole?.name}

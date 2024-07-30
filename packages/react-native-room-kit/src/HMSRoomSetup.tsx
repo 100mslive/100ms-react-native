@@ -395,7 +395,7 @@ export const HMSRoomSetup = () => {
         // Requests multiple permissions using the PermissionsAndroid API.
         await PermissionsAndroid.requestMultiple(permissions as Permission[]);
         // Notifies the HMS SDK that the permissions have been accepted.
-        await hmsInstance.setPermissionsAccepted();
+        await hmsInstance.setPermissionsAcceptedOnAndroid();
       };
 
       // Adds the permissions requested listener to the HMS SDK.

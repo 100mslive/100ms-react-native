@@ -141,7 +141,7 @@ const getHmsInstance = async (
   const hmsInstance = await HMSSDK.build({
     logSettings,
     trackSettings,
-    haltPreviewJoinForPermissionsRequest: true,
+    haltPreviewJoinForPermissionsRequestOnAndroid: true,
     appGroup,
     preferredExtension,
     isPrebuilt: true,
