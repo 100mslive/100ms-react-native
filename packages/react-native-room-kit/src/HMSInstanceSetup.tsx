@@ -75,7 +75,7 @@ const getTrackSettings = (
       ? HMSTrackSettingsInitState.MUTED
       : HMSTrackSettingsInitState.UNMUTED,
     cameraFacing: HMSCameraFacing.FRONT,
-    disableAutoResize: !joinConfig.autoResize,
+    disableAutoResize: joinConfig.autoResize,
     forceSoftwareDecoder: joinConfig.softwareDecoder,
     videoPlugin: videoPlugin || undefined,
   });
