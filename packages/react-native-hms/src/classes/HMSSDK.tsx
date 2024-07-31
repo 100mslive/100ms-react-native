@@ -140,7 +140,6 @@ export class HMSSDK {
    *   appGroup: 'group.example',
    *   preferredExtension: 'com.example.extension',
    *   logSettings: {...},
-   *   isPrebuilt: true
    * });
    *
    * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/install-the-sdk/hmssdk
