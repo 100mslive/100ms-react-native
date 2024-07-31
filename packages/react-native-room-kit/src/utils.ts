@@ -4,8 +4,8 @@ const DEFAULT_JOINING_CONFIG = {
   mutedAudio: true,
   mutedVideo: true,
   skipPreview: false,
-  audioMixer: false, // IOS only
-  musicMode: false, // IOS only
+  audioMixer: false, // iOS only
+  musicMode: false, // iOS only
   softwareDecoder: true, // Android only
   autoResize: false, // Android only
 };

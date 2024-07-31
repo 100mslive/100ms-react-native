@@ -10,7 +10,6 @@ lint:
   disabled:
     - osv-scanner
   enabled:
-    - vale@3.7.0
     - dotenv-linter@3.3.0
     - actionlint@1.7.1
     - prettier@3.3.3
