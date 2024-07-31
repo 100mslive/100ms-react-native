@@ -14,7 +14,7 @@ import { HMSPeerType, HMSTrack } from '@100mslive/react-native-hms';
 import type { RootState } from '../redux';
 import type { PeerTrackNode } from '../utils/types';
 import { ModalTypes } from '../utils/types';
-import { setInsetViewMinimized } from '../redux/actions';
+import { setInsetViewMinimized, setPeerToUpdate } from '../redux/actions';
 import { useHMSRoomStyle, useModalType } from '../hooks-util';
 import {
   CameraIcon,
@@ -40,6 +40,7 @@ export const PeerSettingsModalContent: React.FC<
 > = ({ peerTrackNode, peerTrackNodesListEmpty, cancelModal }) => {
   const dispatch = useDispatch();
   const hmsInstance = useSelector((state: RootState) => state.user.hmsInstance);
+  const allRoles = useSelector((state: RootState) => state.hmsStates.roles);
   const localPeer = useSelector(
     (state: RootState) => state.hmsStates.localPeer
   );
@@ -90,6 +91,11 @@ export const PeerSettingsModalContent: React.FC<
       peerTrackNode.peer.videoTrack!!,
       !peerTrackNode.peer.videoTrack!!.isMute()
     );
+  };
+
+  const switchRole = () => {
+    setModalVisible(ModalTypes.CHANGE_ROLE, true);
+    dispatch(setPeerToUpdate(peerTrackNode.peer));
   };
 
   const changeName = () => {
@@ -192,6 +198,16 @@ export const PeerSettingsModalContent: React.FC<
               />
             ) : null}
           </>
+        ) : null}
+
+        {allRoles.length > 1 &&
+        !peer.isLocal &&
+        localPeerPermissions?.changeRole ? (
+          <SettingItem
+            text={'Switch Role'}
+            icon={<PersonIcon type="rectangle" style={styles.customIcon} />}
+            onPress={switchRole}
+          />
         ) : null}
 
         {!peer.isLocal && localPeerPermissions?.removeOthers ? (

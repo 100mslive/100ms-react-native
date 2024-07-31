@@ -10,7 +10,6 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import type { ImageURISource } from 'react-native';
-import Toast from 'react-native-simple-toast';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   HMSTrack,
@@ -34,53 +33,75 @@ import { styles } from './styles';
 import { CustomButton } from './CustomButton';
 import { Menu, MenuItem } from './MenuModal';
 
-import { changeHLSAspectRatio, changeShowStats } from '../redux/actions';
+import {
+  addNotification,
+  changeHLSAspectRatio,
+  changeShowStats,
+} from '../redux/actions';
 import { getTime } from '../utils/functions';
 import { ModalTypes, SUPPORTED_ASPECT_RATIOS } from '../utils/types';
 import { COLORS } from '../utils/theme';
 import type { RootState } from '../redux';
 import { SwitchRow } from './SwitchRow';
-import { useHMSConferencingScreenConfig, useHMSInstance } from '../hooks-util';
+import { useHMSInstance } from '../hooks-util';
+import { ChevronIcon } from '../Icons';
+import { NotificationTypes } from '../types';
 
 export const ChangeRoleModal = ({ cancelModal }: { cancelModal: Function }) => {
   const instance = useHMSInstance();
-  const peer = useSelector((state: RootState) => state.app.peerToUpdate);
-  const roles = useSelector((state: RootState) => state.hmsStates.roles);
+  const dispatch = useDispatch();
+  const allRoles = useSelector((state: RootState) => state.hmsStates.roles);
+  let peer = useSelector((state: RootState) => state.app.peerToUpdate);
 
-  const [newRole, setNewRole] = useState<HMSRole>(peer?.role!);
+  useEffect(() => {
+    let validRoles = allRoles.filter(
+      (role) =>
+        role.name !== peer?.role?.name && role.name !== '__internal_recorder'
+    );
+    setValidRoles(validRoles);
+    if (validRoles.length > 0) {
+      setNewRole(validRoles[0]);
+    }
+  }, [allRoles, peer]);
+
+  const [validRoles, setValidRoles] = useState<HMSRole[] | undefined>(
+    undefined
+  );
+  const [newRole, setNewRole] = useState<HMSRole | undefined>(undefined);
+
   const [visible, setVisible] = useState<boolean>(false);
 
-  const skipPreviewForRoleChange = useHMSConferencingScreenConfig(
-    (conferencingScreenConfig) => {
-      if (
-        conferencingScreenConfig?.elements &&
-        'on_stage_exp' in conferencingScreenConfig.elements
-      ) {
-        return (
-          conferencingScreenConfig.elements.on_stage_exp
-            ?.skip_preview_for_role_change || false
-        );
-      }
-      return false;
-    }
-  );
   const hideMenu = () => setVisible(false);
   const showMenu = () => setVisible(true);
-  const changeRole = () => {
-    instance
-      ?.changeRoleOfPeer(peer!, newRole, skipPreviewForRoleChange)
-      .catch((e) => {
-        console.log('Change Role of Peer Error: ', e);
-        Toast.showWithGravity((e as Error).message, Toast.LONG, Toast.TOP);
+  const switchRole = () => {
+    if (newRole) {
+      instance?.changeRoleOfPeer(peer!, newRole, true).catch((e) => {
+        console.log('Switch Role of Peer Error: ', e);
+        dispatch(
+          addNotification({
+            id: Math.random().toString(16).slice(2),
+            type: NotificationTypes.ERROR,
+            title: e.message,
+          })
+        );
       });
+    } else {
+      dispatch(
+        addNotification({
+          id: Math.random().toString(16).slice(2),
+          type: NotificationTypes.ERROR,
+          title: 'Please select a role',
+        })
+      );
+    }
     cancelModal();
   };
 
   return (
     <View style={styles.roleChangeModal}>
-      <Text style={styles.roleChangeModalHeading}>Change Role</Text>
+      <Text style={styles.roleChangeModalHeading}>Switch Role</Text>
       <Text style={styles.roleChangeModalDescription}>
-        Change the role of '{peer?.name}' to
+        Switch the role of '{peer?.name}' from '{peer?.role?.name}' to
       </Text>
       <Menu
         visible={visible}
@@ -88,16 +109,20 @@ export const ChangeRoleModal = ({ cancelModal }: { cancelModal: Function }) => {
           <TouchableOpacity
             style={styles.participantChangeRoleContainer}
             onPress={showMenu}
+            disabled={validRoles && validRoles?.length <= 1}
           >
             <Text style={styles.participantFilterText} numberOfLines={1}>
               {newRole?.name}
             </Text>
+            {validRoles && validRoles?.length > 1 && (
+              <ChevronIcon direction={'down'} />
+            )}
           </TouchableOpacity>
         }
         onRequestClose={hideMenu}
         style={styles.participantsMenuContainer}
       >
-        {roles?.map((knownRole) => {
+        {validRoles?.map((knownRole) => {
           return (
             <MenuItem
               onPress={() => {
@@ -123,8 +148,8 @@ export const ChangeRoleModal = ({ cancelModal }: { cancelModal: Function }) => {
           textStyle={styles.roleChangeModalButtonText}
         />
         <CustomButton
-          title="Change"
-          onPress={changeRole}
+          title="Switch Role"
+          onPress={switchRole}
           viewStyle={styles.roleChangeModalSuccessButton}
           textStyle={styles.roleChangeModalButtonText}
         />

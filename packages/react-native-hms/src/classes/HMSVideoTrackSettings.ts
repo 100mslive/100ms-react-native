@@ -15,9 +15,19 @@ export declare class HMSVirtualBackgroundPlugin {
 }
 
 /**
- * Customize local peer's Video track settings before Joining the Room.
+ * Represents the settings for a video track in a HMS (100ms) application.
  *
- * Checkout Track Settings docs for more details {@link https://www.100ms.live/docs/react-native/v2/how-to-guides/interact-with-room/track/track-settings}
+ * This class encapsulates the configurations for video tracks that can be used
+ * in a HMS session.
+ *
+ * @property {HMSSimulcastLayerSettings[]} simulcastSettings - Optional simulcast settings.
+ * @property {HMSTrackSettingsInitState} initialState - Optional initial state for the track.
+ * @property {HMSCameraFacing} cameraFacing - Optional camera facing for the track.
+ * @property {boolean} forceSoftwareDecoder - Optional flag to force software decoder.
+ * @property {boolean} disableAutoResize - Optional flag to disable auto resize.
+ * @property {HMSVirtualBackgroundPlugin} videoPlugin - Optional video plugin settings.
+ *
+ * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/interact-with-room/track/track-settings
  */
 export class HMSVideoTrackSettings {
   readonly simulcastSettings?: HMSSimulcastLayerSettings[];

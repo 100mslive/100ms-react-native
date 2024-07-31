@@ -3,18 +3,49 @@ import { HMSConstants } from './HMSConstants';
 import { logger } from './HMSLogger';
 
 /**
- * Class representing an HMS Noise Cancellation Plugin.
- * Checkout {@link https://www.100ms.live/docs/react-native/v2/how-to-guides/extend-capabilities/noise-cancellation} for more info
+ * Represents the HMS Noise Cancellation Plugin.
+ * This class encapsulates the functionality for managing noise cancellation within a room, including enabling, disabling, and checking the availability and current state of noise cancellation.
+ *
+ * @property {HMSNoiseCancellationModels} modelName - Specifies the model of noise cancellation to be used.
+ * This property determines the algorithm and intensity of noise cancellation, allowing for customization
+ * based on the requirements of the room or application.
+ *
+ * @property {HMSNoiseCancellationInitialState} initialState - Defines the initial state of noise cancellation
+ * when the plugin is instantiated. This can be either enabled or disabled, providing control over the
+ * noise cancellation feature's activation upon initialization.
+ *
+ * @see https://www.100ms.live/docs/react-native/v2/how-to-guides/extend-capabilities/noise-cancellation
  */
 export class HMSNoiseCancellationPlugin {
+  /**
+   * The `modelName` property specifies the model of noise cancellation to be used within the HMS Noise Cancellation Plugin.
+   * This property determines the algorithm and intensity of noise cancellation, allowing for customization
+   * based on the specific requirements of the room or application. It is of type `HMSNoiseCancellationModels`,
+   * an enum that defines the available noise cancellation models.
+   */
   modelName: HMSNoiseCancellationModels;
+
+  /**
+   * Defines the initial state of noise cancellation when the plugin is instantiated.
+   * This property can be set to either `HMSNoiseCancellationInitialState.Enabled`
+   * or `HMSNoiseCancellationInitialState.Disabled`, determining whether noise cancellation should be active
+   * immediately upon the plugin's instantiation. This allows for control over the feature's initial activation state,
+   * catering to scenarios where noise cancellation needs to be either immediately available or manually activated later.
+   */
   initialState: HMSNoiseCancellationInitialState;
 
   /**
-   * Creates an instance of HMSNoiseCancellationPlugin.
-   * @param {Object} [config] - The configuration options.
-   * @param {HMSNoiseCancellationModels} [config.modelName] - The model name for noise cancellation.
-   * @param {HMSNoiseCancellationInitialState} [config.initialState] - The initial state for noise cancellation.
+   * Constructs a new HMSNoiseCancellationPlugin instance with optional configuration settings.
+   * This constructor allows for the initialization of the plugin with specific noise cancellation
+   * model and initial state settings, providing flexibility in how noise cancellation is applied
+   * within the application.
+   *
+   * @param {Object} [config] - Optional configuration object for the plugin.
+   * @param {HMSNoiseCancellationModels} [config.modelName] - Specifies the noise cancellation model to be used.
+   *        This determines the algorithm and intensity of noise cancellation. If not provided, a default
+   *        model is used.
+   * @param {HMSNoiseCancellationInitialState} [config.initialState] - Sets the initial state of noise cancellation
+   *        (enabled or disabled) when the plugin is instantiated. Defaults to disabled if not specified.
    */
   constructor(config?: {
     modelName: HMSNoiseCancellationModels;
@@ -45,7 +76,7 @@ export class HMSNoiseCancellationPlugin {
     );
 
     try {
-      return HMSManagerModule.isNoiseCancellationPluginAvailable(data);
+      return await HMSManagerModule.isNoiseCancellationPluginAvailable(data);
     } catch (e) {
       logger?.error(
         '#Error in #Function HMSNoiseCancellationPlugin#isNoiseCancellationAvailable ',
@@ -64,7 +95,7 @@ export class HMSNoiseCancellationPlugin {
     logger?.verbose('#Function HMSNoiseCancellationPlugin#enable', data);
 
     try {
-      return HMSManagerModule.enableNoiseCancellationPlugin(data);
+      return await HMSManagerModule.enableNoiseCancellationPlugin(data);
     } catch (e) {
       logger?.error(
         '#Error in #Function HMSNoiseCancellationPlugin#enable ',
@@ -83,7 +114,7 @@ export class HMSNoiseCancellationPlugin {
     logger?.verbose('#Function HMSNoiseCancellationPlugin#disable', data);
 
     try {
-      return HMSManagerModule.disableNoiseCancellationPlugin(data);
+      return await HMSManagerModule.disableNoiseCancellationPlugin(data);
     } catch (e) {
       logger?.error(
         '#Error in #Function HMSNoiseCancellationPlugin#disable ',
@@ -102,7 +133,7 @@ export class HMSNoiseCancellationPlugin {
     logger?.verbose('#Function HMSNoiseCancellationPlugin#isEnabled', data);
 
     try {
-      return HMSManagerModule.isNoiseCancellationPluginEnabled(data);
+      return await HMSManagerModule.isNoiseCancellationPluginEnabled(data);
     } catch (e) {
       logger?.error(
         '#Error in #Function HMSNoiseCancellationPlugin#isEnabled ',

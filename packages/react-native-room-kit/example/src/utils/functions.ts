@@ -33,29 +33,17 @@ export const callService = async (
       return;
     }
 
-    const permissions = await checkPermissions([
-      PERMISSIONS.ANDROID.CAMERA,
-      PERMISSIONS.ANDROID.RECORD_AUDIO,
-      PERMISSIONS.ANDROID.BLUETOOTH_CONNECT,
-    ]);
-
-    if (permissions) {
-      const userId = getRandomUserId(6);
-      const isQARoom = subdomain && subdomain.search('.qa-') >= 0;
-      success(
-        roomCode,
-        userId,
-        isQARoom
-          ? `https://auth-nonprod.100ms.live${Platform.OS === 'ios' ? '/' : ''}`
-          : undefined, // Auth Endpoint
-        isQARoom ? 'https://qa-init.100ms.live/init' : undefined, // HMSConfig Endpoint
-        isQARoom ? 'https://api-nonprod.100ms.live' : undefined // Room Layout endpoint
-      );
-      return;
-    } else {
-      failure('permission not granted');
-      return;
-    }
+    const userId = getRandomUserId(6);
+    const isQARoom = subdomain && subdomain.search('.qa-') >= 0;
+    success(
+      roomCode,
+      userId,
+      isQARoom
+        ? `https://auth-nonprod.100ms.live${Platform.OS === 'ios' ? '/' : ''}`
+        : undefined, // Auth Endpoint
+      isQARoom ? 'https://qa-init.100ms.live/init' : undefined, // HMSConfig Endpoint
+      isQARoom ? 'https://api-nonprod.100ms.live' : undefined // Room Layout endpoint
+    );
   } catch (error) {
     console.log(error);
     failure('error in call service');

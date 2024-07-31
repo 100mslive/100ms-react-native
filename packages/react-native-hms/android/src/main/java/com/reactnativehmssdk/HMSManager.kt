@@ -1093,7 +1093,7 @@ class HMSManager(
       activity.setPictureInPictureParams(pipParams)
       return true
     } catch (e: Exception) {
-      throw e
+      return false
     }
   }
 
@@ -1128,7 +1128,7 @@ class HMSManager(
 
       return activity.enterPictureInPictureMode(pipParams)
     } catch (e: Exception) {
-      throw e
+      return false
     }
   }
 
@@ -1645,6 +1645,23 @@ class HMSManager(
     rnSDK.handleRealTimeTranscription(data, promise)
   }
   // endregion
+
+  @ReactMethod
+  fun setPermissionsAccepted(
+    data: ReadableMap,
+    promise: Promise?,
+  ) {
+    val rnSDK =
+      HMSHelper.getHms(data, hmsCollection) ?: run {
+        promise?.reject(
+          "6004",
+          "RN HMS SDK not initialized",
+        )
+        return
+      }
+    rnSDK.hmsSDK?.setPermissionsAccepted()
+    promise?.resolve(null)
+  }
 
   // region Warning on JS side
   @ReactMethod

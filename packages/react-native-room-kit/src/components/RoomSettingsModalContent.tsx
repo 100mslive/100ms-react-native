@@ -252,7 +252,7 @@ export const RoomSettingsModalContent: React.FC<
   }, [noiseCancellationPlugin]);
 
   const handleNoiseCancellation = () => {
-    // Register callback to be called when bottom sheet is hiddden
+    // Register callback to be called when bottom sheet is hidden
     registerOnModalHideAction(() => {
       if (!noiseCancellationPlugin || !isNoiseCancellationAvailable) return;
 

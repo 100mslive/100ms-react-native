@@ -217,9 +217,10 @@ const useHMSRoomUpdate = (hmsInstance: HMSSDK) => {
         if (captionTranscription?.state === TranscriptionState.STARTED) {
           batch(() => {
             dispatch(removeNotification('enable-cc'));
+            dispatch(removeNotification('TranscriptionState.STARTED'));
             dispatch(
               addNotification({
-                id: Math.random().toString(16).slice(2),
+                id: 'TranscriptionState.STARTED',
                 type: NotificationTypes.INFO,
                 icon: 'cc',
                 title: 'Closed Captioning enabled for everyone',
@@ -286,6 +287,8 @@ const useHMSPeersUpdate = (
   //   (state: RootState) => state.app.meetingState === MeetingState.IN_MEETING
   // );
   const hmsActions = useHMSActions();
+
+  const isFirstRunForRoleChangeModal = useRef(true);
 
   useEffect(() => {
     const peerUpdateHandler = ({ peer, type }: PeerUpdate) => {
@@ -428,6 +431,18 @@ const useHMSPeersUpdate = (
               .catch((e) => {
                 console.log('Metadata change failed', e);
               });
+
+            if (isFirstRunForRoleChangeModal.current) {
+              isFirstRunForRoleChangeModal.current = false;
+            } else {
+              dispatch(
+                addNotification({
+                  id: Math.random().toString(16).slice(2),
+                  type: NotificationTypes.INFO,
+                  title: `You are now a ${peer.role?.name}`,
+                })
+              );
+            }
           }
         }
         return;
@@ -1591,35 +1606,37 @@ const pipConfig: HMSPIPConfig = {
 export const useEnableAutoPip = () => {
   const hmsInstance = useHMSInstance();
 
-  const enableAutoPip = useCallback(
+  return useCallback(
     (data: HMSPIPConfig) => {
-      hmsInstance.setPipParams({
-        ...pipConfig,
-        ...data,
-        autoEnterPipMode: true,
-      });
+      hmsInstance
+        .setPipParams({
+          ...pipConfig,
+          ...data,
+          autoEnterPipMode: true,
+        })
+        .then((r) => console.log('Enable Auto PIP: ', r))
+        .catch((e) => console.log('Enable Auto PIP Error: ', e));
     },
     [hmsInstance]
   );
-
-  return enableAutoPip;
 };
 
 export const useDisableAutoPip = () => {
   const hmsInstance = useHMSInstance();
 
-  const disableAutoPip = useCallback(
+  return useCallback(
     (data: HMSPIPConfig) => {
-      hmsInstance.setPipParams({
-        ...pipConfig,
-        ...data,
-        autoEnterPipMode: false,
-      });
+      hmsInstance
+        .setPipParams({
+          ...pipConfig,
+          ...data,
+          autoEnterPipMode: false,
+        })
+        .then((r) => console.log('Disable Auto PIP: ', r))
+        .catch((e) => console.log('Disable Auto PIP Error: ', e));
     },
     [hmsInstance]
   );
-
-  return disableAutoPip;
 };
 
 export const useAutoPip = (oneToOneCall: boolean) => {
