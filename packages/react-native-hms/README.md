@@ -1,5 +1,5 @@
 <a href="https://100ms.live/">
-<img src="https://raw.githubusercontent.com/100mslive/react-native-hms/main/100ms.svg" title="100ms logo" float=center height=256>
+<img src="https://raw.githubusercontent.com/100mslive/react-native-hms/main/100ms.svg" title="100ms logo" float=center height=256 alt="100ms logo">
 </a>
 
 [![npm](https://img.shields.io/npm/v/@100mslive/react-native-hms)](https://www.npmjs.com/package/@100mslive/react-native-hms)

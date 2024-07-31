@@ -123,7 +123,7 @@ export class HMSSDK {
    * @param {trackSettings} params.trackSettings is an optional value only required to enable features like iOS Screen/Audio Share, Android Software Echo Cancellation, etc
    * @param {appGroup} params.appGroup is an optional value only required for implementing Screen & Audio Share on iOS. They are not required for Android. DO NOT USE if your app does not implements Screen or Audio Share on iOS.
    * @param {preferredExtension} params.preferredExtension is an optional value only required for implementing Screen & Audio Share on iOS. They are not required for Android. DO NOT USE if your app does not implements Screen or Audio Share on iOS.
-   * @param {boolean} params.haltPreviewJoinForPermissionsRequest - Optional flag to halt the preview/join process until permissions are explicitly granted by the user. Android only. This is particularly useful when you might want to request permissions before proceeding with the preview or join operation.
+   * @param {boolean} params.haltPreviewJoinForPermissionsRequestOnAndroid - Optional flag to halt the preview/join process until permissions are explicitly granted by the user. Android only. This is particularly useful when you might want to request permissions before proceeding with the preview or join operation.
    * @param {HMSLogSettings} params.logSettings - Optional settings for logging.
    *
    * @returns {Promise<HMSSDK>} A promise that resolves to an instance of HMSSDK.
@@ -151,7 +151,7 @@ export class HMSSDK {
    */
   static async build(params?: {
     trackSettings?: HMSTrackSettings;
-    haltPreviewJoinForPermissionsRequest?: boolean;
+    haltPreviewJoinForPermissionsRequestOnAndroid?: boolean;
     appGroup?: String;
     preferredExtension?: String;
     logSettings?: HMSLogSettings;
@@ -162,7 +162,7 @@ export class HMSSDK {
     let id = await HMSManager.build({
       trackSettings: params?.trackSettings,
       haltPreviewJoinForPermissionsRequest:
-        params?.haltPreviewJoinForPermissionsRequest, // required for Android Permissions, not required for iOS
+        params?.haltPreviewJoinForPermissionsRequestOnAndroid, // required for Android Permissions, not required for iOS
       appGroup: params?.appGroup, // required for iOS Screenshare, not required for Android
       preferredExtension: params?.preferredExtension, // required for iOS Screenshare, not required for Android
       frameworkInfo: {
@@ -1859,10 +1859,17 @@ export class HMSSDK {
     return HMSManager.setAlwaysScreenOn({ id: this.id, enabled });
   };
 
-  setPermissionsAccepted = async () => {
-    if (Platform.OS === 'ios') return;
-    logger?.verbose('#Function setPermissionsAccepted', { id: this.id });
-    return HMSManager.setPermissionsAccepted({ id: this.id });
+  setPermissionsAcceptedOnAndroid = async () => {
+    if (Platform.OS === 'ios') {
+      Promise.reject(
+        'setPermissionsAcceptedOnAndroid API not available for iOS'
+      );
+      return;
+    }
+    logger?.verbose('#Function setPermissionsAcceptedOnAndroid', {
+      id: this.id,
+    });
+    return await HMSManager.setPermissionsAccepted({ id: this.id });
   };
 
   /**

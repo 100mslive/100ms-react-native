@@ -75,7 +75,7 @@ const getTrackSettings = (
       ? HMSTrackSettingsInitState.MUTED
       : HMSTrackSettingsInitState.UNMUTED,
     cameraFacing: HMSCameraFacing.FRONT,
-    disableAutoResize: !joinConfig.autoResize,
+    disableAutoResize: joinConfig.autoResize,
     forceSoftwareDecoder: joinConfig.softwareDecoder,
     videoPlugin: videoPlugin || undefined,
   });
@@ -141,7 +141,7 @@ const getHmsInstance = async (
   const hmsInstance = await HMSSDK.build({
     logSettings,
     trackSettings,
-    haltPreviewJoinForPermissionsRequest: true,
+    haltPreviewJoinForPermissionsRequestOnAndroid: true,
     appGroup,
     preferredExtension,
     isPrebuilt: true,
