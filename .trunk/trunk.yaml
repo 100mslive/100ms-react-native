@@ -8,14 +8,15 @@ plugins:
       uri: https://github.com/trunk-io/plugins
 lint:
   disabled:
+    - vale
     - osv-scanner
   enabled:
     - dotenv-linter@3.3.0
     - actionlint@1.7.1
     - prettier@3.3.3
     - swiftlint@0.54.0
-    - checkov@3.2.213
-    - trivy@0.53.0
+    - checkov@3.2.216
+    - trivy@0.54.0
     - trufflehog@3.80.3
     - oxipng@9.1.2
     - yamllint@1.35.1
