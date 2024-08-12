@@ -1763,15 +1763,26 @@ export class HMSSDK {
   };
 
   /**
-   * - This function is used to raise hand for the local peer
+   * Raises the hand for the local peer.
+   *
+   * This asynchronous function sends a request to raise the hand for the local peer in the room.
+   *
+   * @async
+   * @function raiseLocalPeerHand
    * @memberof HMSSDK
+   * @returns {Promise<boolean>} A promise that resolves to `true` if the operation is successful.
+   * @throws {Error} Throws an error if the operation fails.
+   *
+   * @example
+   * // Raise hand for the local peer
+   * await hmsInstance.raiseLocalPeerHand();
    */
-  raiseLocalPeerHand = async () => {
+  raiseLocalPeerHand = async (): Promise<boolean> => {
     const data = {
       id: this.id,
     };
     logger?.verbose('#Function raiseLocalPeerHand', data);
-    return HMSManager.raiseLocalPeerHand(data);
+    return await HMSManager.raiseLocalPeerHand(data);
   };
 
   /**
@@ -1783,7 +1794,7 @@ export class HMSSDK {
       id: this.id,
     };
     logger?.verbose('#Function lowerLocalPeerHand', data);
-    return HMSManager.lowerLocalPeerHand(data);
+    return await HMSManager.lowerLocalPeerHand(data);
   };
 
   /**
