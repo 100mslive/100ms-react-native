@@ -23,14 +23,14 @@
     UIView *rootView = self.window.rootViewController.view;
     
     rootView.backgroundColor = [UIColor blackColor]; // change with your desired backgroundColor
- 
+    
     Dynamic *t = [Dynamic new];
-    UIView *animationUIView = (UIView *)[t createAnimationViewWithRootView:rootView lottieName:@"Donuts-[remix].json"]; // change lottieName to your lottie files name
+    UIView *animationUIView = (UIView *)[t createAnimationViewWithRootView:rootView lottieName:@"Donuts-[remix].json"];
  
     // register LottieSplashScreen to RNSplashScreen
     [RNSplashScreen showLottieSplash:animationUIView inRootView:rootView];
     // casting UIView type to AnimationView type
-    AnimationView *animationView = (AnimationView *) animationUIView;
+    LottieAnimationView *animationView = (LottieAnimationView *) animationUIView;
     // play
     [t playWithAnimationView:animationView];
     // If you want the animation layout to be forced to remove when hide is called, use this code
