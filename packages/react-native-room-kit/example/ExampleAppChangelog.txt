@@ -1,6 +1,6 @@
 Board: https://app.devrev.ai/100ms/vistas/vista-254
 
-- Support for long running sessions
+- Support for long-running sessions
 https://app.devrev.ai/100ms/works/ISS-23133
 
 Room Kit: 1.2.3
