@@ -90,6 +90,16 @@
     "@jridgewell/trace-mapping" "^0.3.25"
     jsesc "^2.5.1"
 
+"@babel/generator@^7.25.4":
+  version "7.25.5"
+  resolved "https://registry.yarnpkg.com/@babel/generator/-/generator-7.25.5.tgz#b31cf05b3fe8c32d206b6dad03bb0aacbde73450"
+  integrity sha512-abd43wyLfbWoxC6ahM8xTkqLpGB2iWBVyuKC9/srhFunCd1SDNrV1s72bBpK4hLj8KLzHBBcOblvLQZBNw9r3w==
+  dependencies:
+    "@babel/types" "^7.25.4"
+    "@jridgewell/gen-mapping" "^0.3.5"
+    "@jridgewell/trace-mapping" "^0.3.25"
+    jsesc "^2.5.1"
+
 "@babel/helper-annotate-as-pure@^7.24.7":
   version "7.24.7"
   resolved "https://registry.npmjs.org/@babel/helper-annotate-as-pure/-/helper-annotate-as-pure-7.24.7.tgz"
@@ -258,6 +268,11 @@
   resolved "https://registry.npmjs.org/@babel/helper-string-parser/-/helper-string-parser-7.24.7.tgz"
   integrity sha512-7MbVt6xrwFQbunH2DNQsAP5sTGxfqQtErvBIvIMi6EQnbgUOuVYanvREcmFrOPhoXBrTtjhhP+lW+o5UfK+tDg==
 
+"@babel/helper-string-parser@^7.24.8":
+  version "7.24.8"
+  resolved "https://registry.yarnpkg.com/@babel/helper-string-parser/-/helper-string-parser-7.24.8.tgz#5b3329c9a58803d5df425e5785865881a81ca48d"
+  integrity sha512-pO9KhhRcuUyGnJWwyEgnRJTSIZHiT+vMD0kPeD+so0l7mxkMT19g3pjY9GTnHySck/hDzq+dtW/4VgnMkippsQ==
+
 "@babel/helper-validator-identifier@^7.24.7":
   version "7.24.7"
   resolved "https://registry.npmjs.org/@babel/helper-validator-identifier/-/helper-validator-identifier-7.24.7.tgz"
@@ -300,6 +315,13 @@
   version "7.24.7"
   resolved "https://registry.npmjs.org/@babel/parser/-/parser-7.24.7.tgz"
   integrity sha512-9uUYRm6OqQrCqQdG1iCBwBPZgN8ciDBro2nIOFaiRz1/BCxaI7CNvQbDHvsArAC7Tw9Hda/B3U+6ui9u4HWXPw==
+
+"@babel/parser@^7.25.0", "@babel/parser@^7.25.4":
+  version "7.25.4"
+  resolved "https://registry.yarnpkg.com/@babel/parser/-/parser-7.25.4.tgz#af4f2df7d02440286b7de57b1c21acfb2a6f257a"
+  integrity sha512-nq+eWrOgdtu3jG5Os4TQP3x3cLA8hR8TvJNjD8vnPa20WGycimcparWnLK4jJhElTK6SDyuJo1weMKO/5LpmLA==
+  dependencies:
+    "@babel/types" "^7.25.4"
 
 "@babel/plugin-bugfix-firefox-class-in-computed-class-key@^7.24.7":
   version "7.24.7"
@@ -1167,19 +1189,25 @@
     "@babel/parser" "^7.24.7"
     "@babel/types" "^7.24.7"
 
-"@babel/traverse@^7.20.0", "@babel/traverse@^7.24.7":
-  version "7.24.7"
-  resolved "https://registry.npmjs.org/@babel/traverse/-/traverse-7.24.7.tgz"
-  integrity sha512-yb65Ed5S/QAcewNPh0nZczy9JdYXkkAbIsEo+P7BE7yO3txAY30Y/oPa3QkQ5It3xVG2kpKMg9MsdxZaO31uKA==
+"@babel/template@^7.25.0":
+  version "7.25.0"
+  resolved "https://registry.yarnpkg.com/@babel/template/-/template-7.25.0.tgz#e733dc3134b4fede528c15bc95e89cb98c52592a"
+  integrity sha512-aOOgh1/5XzKvg1jvVz7AVrx2piJ2XBi227DHmbY6y+bM9H2FlN+IfecYu4Xl0cNiiVejlsCri89LUsbj8vJD9Q==
   dependencies:
     "@babel/code-frame" "^7.24.7"
-    "@babel/generator" "^7.24.7"
-    "@babel/helper-environment-visitor" "^7.24.7"
-    "@babel/helper-function-name" "^7.24.7"
-    "@babel/helper-hoist-variables" "^7.24.7"
-    "@babel/helper-split-export-declaration" "^7.24.7"
-    "@babel/parser" "^7.24.7"
-    "@babel/types" "^7.24.7"
+    "@babel/parser" "^7.25.0"
+    "@babel/types" "^7.25.0"
+
+"@babel/traverse@^7.20.0", "@babel/traverse@^7.24.7":
+  version "7.25.4"
+  resolved "https://registry.yarnpkg.com/@babel/traverse/-/traverse-7.25.4.tgz#648678046990f2957407e3086e97044f13c3e18e"
+  integrity sha512-VJ4XsrD+nOvlXyLzmLzUs/0qjFS4sK30te5yEFlvbbUNEgKaVb2BHZUpAL+ttLPQAHNrsI3zZisbfha5Cvr8vg==
+  dependencies:
+    "@babel/code-frame" "^7.24.7"
+    "@babel/generator" "^7.25.4"
+    "@babel/parser" "^7.25.4"
+    "@babel/template" "^7.25.0"
+    "@babel/types" "^7.25.4"
     debug "^4.3.1"
     globals "^11.1.0"
 
@@ -1189,6 +1217,15 @@
   integrity sha512-XEFXSlxiG5td2EJRe8vOmRbaXVgfcBlszKujvVmWIK/UpywWljQCfzAv3RQCGujWQ1RD4YYWEAqDXfuJiy8f5Q==
   dependencies:
     "@babel/helper-string-parser" "^7.24.7"
+    "@babel/helper-validator-identifier" "^7.24.7"
+    to-fast-properties "^2.0.0"
+
+"@babel/types@^7.25.0", "@babel/types@^7.25.4":
+  version "7.25.4"
+  resolved "https://registry.yarnpkg.com/@babel/types/-/types-7.25.4.tgz#6bcb46c72fdf1012a209d016c07f769e10adcb5f"
+  integrity sha512-zQ1ijeeCXVEh+aNL0RlmkPkG8HUiDcU2pzQQFjtbntgAczRASFzj4H+6+bV+dy1ntKR14I/DypeuRG1uma98iQ==
+  dependencies:
+    "@babel/helper-string-parser" "^7.24.8"
     "@babel/helper-validator-identifier" "^7.24.7"
     to-fast-properties "^2.0.0"
 
@@ -3524,9 +3561,9 @@ fast-levenshtein@^2.0.6:
   integrity sha512-DCXu6Ifhqcks7TZKY3Hxp3y6qphY5SJZmrWMDrKcERSOXWQdMhU9Ig/PYrzyw/ul9jOIyh0N4M0tbC5hodg8dw==
 
 fast-xml-parser@^4.0.12, fast-xml-parser@^4.2.4:
-  version "4.4.0"
-  resolved "https://registry.npmjs.org/fast-xml-parser/-/fast-xml-parser-4.4.0.tgz"
-  integrity sha512-kLY3jFlwIYwBNDojclKsNAC12sfD6NwW74QB2CoNGPvtVxjliYehVunB3HYyNi+n4Tt1dAcgwYvmKF/Z18flqg==
+  version "4.4.1"
+  resolved "https://registry.yarnpkg.com/fast-xml-parser/-/fast-xml-parser-4.4.1.tgz#86dbf3f18edf8739326447bcaac31b4ae7f6514f"
+  integrity sha512-xkjOecfnKGkSsOwtZ5Pz7Us/T6mrbPQrq0nh+aCO5V9nk5NLWmasAHumTKjiPJPWANe+kAZ84Jc8ooJkzZ88Sw==
   dependencies:
     strnum "^1.0.5"
 
@@ -5133,9 +5170,9 @@ metro@0.80.9, metro@^0.80.3:
     yargs "^17.6.2"
 
 micromatch@^4.0.4:
-  version "4.0.7"
-  resolved "https://registry.npmjs.org/micromatch/-/micromatch-4.0.7.tgz"
-  integrity sha512-LPP/3KorzCwBxfeUuZmaR6bG2kdeHSbe0P2tY3FLRU4vYrjYz5hI4QZwV0njUx3jeuKe67YukQ1LSPZBKDqO/Q==
+  version "4.0.8"
+  resolved "https://registry.yarnpkg.com/micromatch/-/micromatch-4.0.8.tgz#d66fa18f3a47076789320b9b1af32bd86d9fa202"
+  integrity sha512-PXwfBhYu0hBCPw8Dn0E+WDYb7af3dSLVWKi3HGv84IdF4TyFoC0ysxFd0Goxw7nSv4T/PzEJQxsYsEiFCKo2BA==
   dependencies:
     braces "^3.0.3"
     picomatch "^2.3.1"
