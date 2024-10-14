@@ -1,7 +1,7 @@
 {
-  "ios": "1.16.0",
+  "ios": "1.16.3",
   "iOSBroadcastExtension": "0.0.9",
   "iOSHMSHLSPlayer": "0.0.2",
   "iOSNoiseCancellationModels": "1.0.0",
-  "android": "2.9.65"
+  "android": "2.9.68"
 }
