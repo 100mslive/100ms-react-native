@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
-import { Platform, Text, View } from 'react-native';
+import React, { useCallback, useMemo } from 'react';
+import { Text } from 'react-native';
 import {
   NavigationProp,
   RouteProp,
