@@ -147,6 +147,10 @@ export const PollAndQuizVoting: React.FC<PollAndQuizVotingProps> = ({
     dismissModal();
   };
 
+  const createdBy = selectedPoll?.createdBy?.name
+    ? selectedPoll.createdBy.name
+    : 'Participant';
+
   return (
     <View style={[styles.fullView, hmsRoomStyles.container]}>
       {/* Header */}
@@ -209,7 +213,7 @@ export const PollAndQuizVoting: React.FC<PollAndQuizVotingProps> = ({
           </React.Fragment>
         ) : (
           <Text style={[styles.normalText, hmsRoomStyles.semiBoldMediumText]}>
-            {selectedPoll?.createdBy?.name} started a{' '}
+            {createdBy} started a{' '}
             {selectedPoll?.type === HMSPollType.quiz ? 'quiz' : 'poll'}
           </Text>
         )}
