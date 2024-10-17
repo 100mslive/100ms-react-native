@@ -139,7 +139,7 @@ export const PollQuestion: React.FC<PollQuestionProps> = ({
 
   const saveButtonDisabled =
     // Disable save button if:
-    !pollQuestion.title || // title is not vaild, OR
+    !pollQuestion.title || // title is not valid, OR
     !pollQuestion.pointWeightage || // pointWeightage is not valid, OR
     ((pollQuestion.type === HMSPollQuestionType.singleChoice ||
       pollQuestion.type === HMSPollQuestionType.multipleChoice) && // If question type is singleChoice or multipleChoice, AND
