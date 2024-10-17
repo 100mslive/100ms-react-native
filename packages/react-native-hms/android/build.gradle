@@ -49,6 +49,7 @@ def safeExtGet(prop, fallback) {
 }
 
 android {
+    namespace 'com.reactnativehmssdk'
     compileSdkVersion safeExtGet('Hmssdk_compileSdkVersion', 31)
     defaultConfig {
         minSdkVersion safeExtGet('Hmssdk_minSdkVersion', 21)
