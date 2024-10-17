@@ -73,7 +73,7 @@ export interface HMSPollQuestion {
   myResponses: HMSPollQuestionResponse[];
 }
 
-// Web Inteface -
+// Web Interface -
 // export interface HMSPollQuestion {
 //   index: number;
 //   text: string;
