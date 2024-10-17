@@ -3,7 +3,10 @@ Board: https://app.devrev.ai/100ms/vistas/vista-254
 - Support for long-running sessions
 https://app.devrev.ai/100ms/works/ISS-23133
 
+- Native Android crash fixes
+https://app.devrev.ai/100ms/works/ISS-23550
+
 Room Kit: 1.2.3
 React Native SDK: 1.11.0
-Android SDK: 2.9.65
-iOS SDK: 1.16.0
+Android SDK: 2.9.68
+iOS SDK: 1.16.3
