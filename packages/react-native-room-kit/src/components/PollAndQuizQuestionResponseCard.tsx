@@ -285,6 +285,9 @@ export const PollAndQuizQuestionResponseCard: React.FC<
                         (acc, curr) => acc + curr.voteCount,
                         0
                       )}
+                      myResponse={pollQuestion.myResponses.find(
+                        (response) => response.option === option.index
+                      )}
                     />
                   );
                 })}

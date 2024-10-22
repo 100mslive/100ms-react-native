@@ -1,5 +1,8 @@
 import * as React from 'react';
-import type { HMSPollQuestionOption } from '@100mslive/react-native-hms';
+import type {
+  HMSPollQuestionOption,
+  HMSPollQuestionResponse,
+} from '@100mslive/react-native-hms';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { useHMSRoomStyleSheet } from '../hooks-util';
@@ -7,11 +10,12 @@ import { useHMSRoomStyleSheet } from '../hooks-util';
 interface PollResponseProgressViewProps {
   option: HMSPollQuestionOption;
   totalVotes: number;
+  myResponse?: HMSPollQuestionResponse;
 }
 
 export const PollResponseProgressView: React.FC<
   PollResponseProgressViewProps
-> = ({ option, totalVotes }) => {
+> = ({ option, totalVotes, myResponse }) => {
   const hmsRoomStyles = useHMSRoomStyleSheet((theme, typography) => ({
     surfaceHighRegularText: {
       color: theme.palette.on_surface_high,
@@ -24,6 +28,17 @@ export const PollResponseProgressView: React.FC<
       backgroundColor: theme.palette.primary_default,
     },
   }));
+
+  const voteCount =
+    option.voteCount || myResponse !== undefined
+      ? option.voteCount > 1
+        ? option.voteCount
+        : 1
+      : undefined;
+  const voteText = voteCount
+    ? `${voteCount} vote${voteCount > 1 ? 's' : ''}`
+    : undefined;
+  totalVotes = myResponse !== undefined ? totalVotes + 1 : totalVotes;
 
   return (
     <View style={styles.container}>
@@ -38,9 +53,13 @@ export const PollResponseProgressView: React.FC<
           {option.text}
         </Text>
 
-        <Text style={[styles.smallText, hmsRoomStyles.surfaceHighRegularText]}>
-          {option.voteCount} {option.voteCount > 1 ? 'votes' : 'vote'}
-        </Text>
+        {option.voteCount > 0 && (
+          <Text
+            style={[styles.smallText, hmsRoomStyles.surfaceHighRegularText]}
+          >
+            {voteText}
+          </Text>
+        )}
       </View>
 
       <View style={[hmsRoomStyles.progressContainer, styles.progressContainer]}>
@@ -48,7 +67,7 @@ export const PollResponseProgressView: React.FC<
           style={[
             hmsRoomStyles.progress,
             styles.progress,
-            { width: `${(option.voteCount / totalVotes) * 100}%` },
+            { width: `${((voteCount ? voteCount : 0) / totalVotes) * 100}%` },
           ]}
         />
       </View>
