@@ -147,9 +147,7 @@ export const JoinSettingsModalContent: React.FC<
           ) : null}
         </View>
 
-        {/* <View style={styles.flexSpace} /> */}
-
-        {debugMode ? (
+        <>
           <>
             <View style={styles.divider} />
 
@@ -191,7 +189,7 @@ export const JoinSettingsModalContent: React.FC<
 
             <View style={styles.divider} />
           </>
-        ) : null}
+        </>
 
         <Text style={styles.footer}>Made with ❤️ by 100ms</Text>
       </ScrollView>
