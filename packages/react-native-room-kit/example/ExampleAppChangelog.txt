@@ -3,6 +3,9 @@ Board: https://app.devrev.ai/100ms/vistas/vista-254
 - SugarFit: Add support for Android 14 on React Native Android SDK
 https://app.devrev.ai/100ms/works/ISS-23560
 
+- Satvic Movement: Poll creator should not be able to vote again on rejoining
+https://app.devrev.ai/100ms/works/ISS-23561
+
 - Remove Foreground Notification Service from Android app
 https://app.devrev.ai/100ms/works/ISS-23562
 
