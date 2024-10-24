@@ -1093,6 +1093,7 @@ class HMSManager(
       activity.setPictureInPictureParams(pipParams)
       return true
     } catch (e: Exception) {
+      Log.e("HMSManager", "Error setting PictureInPictureParams: ${e.message}")
       return false
     }
   }
