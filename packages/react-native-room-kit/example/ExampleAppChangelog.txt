@@ -6,10 +6,13 @@ https://app.devrev.ai/100ms/works/ISS-23560
 - Remove Foreground Notification Service from Android app
 https://app.devrev.ai/100ms/works/ISS-23562
 
+- Fix: Screen freezing due to entering PIP mode
+https://app.devrev.ai/100ms/works/ISS-23563
+
 - Native Android crash fixes
 https://app.devrev.ai/100ms/works/ISS-23550
 
 Room Kit: 1.2.3
 React Native SDK: 1.11.0
 Android SDK: 2.9.68
-iOS SDK: 1.16.4
+iOS SDK: 1.16.5
