@@ -14,5 +14,5 @@ https://app.devrev.ai/100ms/works/ISS-23550
 
 Room Kit: 1.2.3
 React Native SDK: 1.11.0
-Android SDK: 2.9.68
+Android SDK: 2.9.69
 iOS SDK: 1.16.5
