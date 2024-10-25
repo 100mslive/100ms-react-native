@@ -1,13 +1,12 @@
 name: 🐛 Bug Report
 description: Report a reproducible bug or regression in 100ms React Native Package
-title: '🐛 '
-labels: ['Needs Triage 🔍']
+title: "🐛 "
+labels: ["Needs Triage 🔍"]
 body:
   - type: markdown
     attributes:
       value: |
         Please provide all the information requested. Issues that do not follow this format are likely to stall.
-        You can ask your questions on 100ms Discord as well: https://100ms.live/discord
   - type: textarea
     id: description
     attributes:
