@@ -112,7 +112,7 @@ export const RoomSettingsModalContent: React.FC<
 
   const enterPipMode = async () => {
     if (isPipModeUnavailable) {
-      return console.log('PIP mode unavailable on Deice!');
+      return console.log('PIP mode unavailable on Device!');
     }
 
     closeRoomSettingsModal();
@@ -124,9 +124,9 @@ export const RoomSettingsModalContent: React.FC<
         videoButton: true,
         audioButton: true,
       });
-      if (isEnabled === true) {
-        dispatch(changePipModeStatus(PipModes.ACTIVE));
-      }
+      dispatch(
+        changePipModeStatus(isEnabled ? PipModes.ACTIVE : PipModes.INACTIVE),
+      );
     } catch (error) {
       console.log(error);
     }
