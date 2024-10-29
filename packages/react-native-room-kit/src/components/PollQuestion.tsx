@@ -363,7 +363,7 @@ export const PollQuestion: React.FC<PollQuestionProps> = ({
         value={pollQuestion.title}
         autoFocus={false}
         autoCapitalize="none"
-        autoCompleteType="off"
+        autoComplete="off"
         onChangeText={(value) =>
           onQuestionFieldChange(currentQuestionIndex, 'title', value)
         }
@@ -419,7 +419,7 @@ export const PollQuestion: React.FC<PollQuestionProps> = ({
                     style={hmsRoomStyles.optionText}
                     value={option[1]}
                     autoCapitalize="none"
-                    autoCompleteType="off"
+                    autoComplete="off"
                     autoFocus={false}
                     onChangeText={(value) =>
                       onEditPollQuestionOption(currentQuestionIndex, idx, value)
@@ -503,7 +503,7 @@ export const PollQuestion: React.FC<PollQuestionProps> = ({
             value={pollQuestion.pointWeightage}
             autoFocus={false}
             autoCapitalize="none"
-            autoCompleteType="off"
+            autoComplete="off"
             keyboardType={Platform.OS === 'android' ? 'numeric' : 'number-pad'}
             onChangeText={(value) =>
               onQuestionFieldChange(

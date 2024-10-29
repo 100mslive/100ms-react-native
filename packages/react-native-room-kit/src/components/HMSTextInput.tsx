@@ -123,7 +123,7 @@ export const HMSTextInput: React.FC<HMSTextInputProps> = ({
       onChangeText={onChangeText}
       placeholder={resetProps.placeholder ?? 'Enter Name...'}
       autoCapitalize={resetProps.autoCapitalize ?? 'words'}
-      autoCompleteType={resetProps.autoCompleteType ?? 'name'}
+      autoComplete={resetProps.autoComplete ?? 'name'}
       placeholderTextColor={
         resetProps.placeholderTextColor ?? onSurfaceMediumColor
       }

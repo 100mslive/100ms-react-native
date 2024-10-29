@@ -45,7 +45,9 @@ export const HMSBaseButton: React.FC<HMSBaseButtonProps> = ({
   wrapWithGestureDetector,
   useTouchableOpacity,
 }) => {
-  const Touchable = useTouchableOpacity ? TouchableOpacity : TouchableHighlight;
+  const Touchable = (
+    useTouchableOpacity ? TouchableOpacity : TouchableHighlight
+  ) as React.ElementType;
 
   const button = (
     <Touchable
