@@ -32,7 +32,7 @@ export const HMSSendMessageInput: React.FC<HMSSendMessageInputProps> = ({
       onChangeText={setMessage}
       placeholder="Send a message..."
       autoCapitalize="sentences"
-      autoCompleteType="off"
+      autoComplete="off"
       containerStyle={[
         styles.inputContainer,
         hmsRoomStyles.containerStyle,

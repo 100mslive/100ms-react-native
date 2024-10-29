@@ -9,7 +9,6 @@ assignees: ""
 # 🚀 Feature Request
 
 <!-- Do read the 100ms Docs: https://www.100ms.live/docs -->
-<!-- You can request for features on 100ms Discord as well: https://100ms.live/discord -->
 
 ## Is your feature request related to a problem? Please describe
 

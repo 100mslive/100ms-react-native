@@ -76,7 +76,13 @@ class HMSManager(
       ) {
         reactAppContext?.currentActivity?.window?.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
         emitPipEvent(true)
-        reactAppContext?.currentActivity?.enterPictureInPictureMode(pipParams)
+        val success = reactAppContext?.currentActivity?.enterPictureInPictureMode(pipParams)
+        success?.let {
+          if (!it) {
+            reactAppContext?.currentActivity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+            emitPipEvent(false)
+          }
+        }
       }
     }
   }
@@ -1093,6 +1099,7 @@ class HMSManager(
       activity.setPictureInPictureParams(pipParams)
       return true
     } catch (e: Exception) {
+      Log.e("HMSManager", "Error setting PictureInPictureParams: ${e.message}")
       return false
     }
   }

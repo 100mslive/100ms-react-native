@@ -152,7 +152,7 @@ function computeTileWidthAndHeight(
 ): {
   width?: ViewStyle['width'];
   height?: ViewStyle['height'];
-  aspectRatio?: ViewStyle['aspectRatio'];
+  aspectRatio?: number | undefined;
 } {
   const { type, isLandscapeOrientation } = config || {
     type: 'default',

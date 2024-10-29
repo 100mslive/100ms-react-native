@@ -83,14 +83,14 @@ PODS:
   - HMSHLSPlayerSDK (0.0.2):
     - HMSAnalyticsSDK (= 0.0.2)
   - HMSNoiseCancellationModels (1.0.0)
-  - HMSSDK (1.15.0):
+  - HMSSDK (1.16.5):
     - HMSAnalyticsSDK (= 0.0.2)
-    - HMSWebRTC (= 1.0.6170)
-  - HMSWebRTC (1.0.6170)
+    - HMSWebRTC (= 1.0.6172)
+  - HMSWebRTC (1.0.6172)
   - libevent (2.1.12)
-  - lottie-ios (3.4.4)
-  - lottie-react-native (5.1.6):
-    - lottie-ios (~> 3.4.0)
+  - lottie-ios (4.4.1)
+  - lottie-react-native (6.7.2):
+    - lottie-ios (= 4.4.1)
     - React-Core
   - OpenSSL-Universal (1.1.1100)
   - Permission-Camera (3.4.0):
@@ -359,11 +359,11 @@ PODS:
     - React-Core
   - react-native-camera/RN (4.2.1):
     - React-Core
-  - react-native-hms (1.10.9):
+  - react-native-hms (1.11.0):
     - HMSBroadcastExtensionSDK (= 0.0.9)
     - HMSHLSPlayerSDK (= 0.0.2)
     - HMSNoiseCancellationModels (= 1.0.0)
-    - HMSSDK (= 1.15.0)
+    - HMSSDK (= 1.16.5)
     - React-Core
   - react-native-image-picker (7.1.2):
     - RCT-Folly (= 2021.07.22.00)
@@ -468,7 +468,7 @@ PODS:
     - React-Core
   - RNDeviceInfo (11.1.0):
     - React-Core
-  - RNFlashList (1.7.0):
+  - RNFlashList (1.7.1):
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
   - RNGestureHandler (2.15.0):
@@ -755,11 +755,11 @@ SPEC CHECKSUMS:
   HMSBroadcastExtensionSDK: d80fe325f6c928bd8e5176290b5a4b7ae15d6fbb
   HMSHLSPlayerSDK: 6a54ad4d12f3dc2270d1ecd24019d71282a4f6a3
   HMSNoiseCancellationModels: a3bda1405a16015632f4bcabd46ce48f35103b02
-  HMSSDK: fc3d2141c654e9fdca7f27c290c17b6b61b9dc92
-  HMSWebRTC: b5ffaf5d6133ae2a4c841beaf1e5e4fe06d0fb07
+  HMSSDK: 7c7a94498f66051e6de6f1f9d07e9ffa07299d17
+  HMSWebRTC: 4d656cc5d19732ae667d6bc1f6f5511f196ef0eb
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
-  lottie-ios: 8f97d3271e155c2d688875c29cd3c74908aef5f8
-  lottie-react-native: 8f9d4be452e23f6e5ca0fdc11669dc99ab52be81
+  lottie-ios: e047b1d2e6239b787cc5e9755b988869cf190494
+  lottie-react-native: 17547b2f3c7034e2ae8672833fdb63262164d18a
   OpenSSL-Universal: ebc357f1e6bc71fa463ccb2fe676756aff50e88c
   Permission-Camera: 40f43388fa8a648dc6ced73f145ef329ab3ff3fe
   Permission-Microphone: 62492e9e3026112dfaecd6fff87a245c3d7367b8
@@ -779,7 +779,7 @@ SPEC CHECKSUMS:
   React-logger: 70ddbe0e07179c8adb94c4bffc36c6abc952d3d4
   react-native-blur: 69ecfe61d81b32ee7baae10f5d17aeb4e2594b10
   react-native-camera: 3eae183c1d111103963f3dd913b65d01aef8110f
-  react-native-hms: 2335c4b5b4cc078341cd2915a749c81e80e743ed
+  react-native-hms: e5eb65e9c25f1256c3c6fa454a16e57214575919
   react-native-image-picker: 51fdb07f7ef722988c8a219e1416153760a25e4d
   react-native-lottie-splash-screen: 015423265bac5f46016dff2e31c97b9590808856
   react-native-safe-area-context: 61c8c484a3a9e7d1fda19f7b1794b35bbfd2262a
@@ -801,7 +801,7 @@ SPEC CHECKSUMS:
   RNCAsyncStorage: 8616bd5a58af409453ea4e1b246521bb76578d60
   RNCMaskedView: 949696f25ec596bfc697fc88e6f95cf0c79669b6
   RNDeviceInfo: b899ce37a403a4dea52b7cb85e16e49c04a5b88e
-  RNFlashList: a74c48e93cded2dd0b8a8b30e73c44afa8275c66
+  RNFlashList: fadf593d8e195ce2fe261980ac59e9f49808b68c
   RNGestureHandler: 7909c50383a18f0cb10ce1db7262b9a6da504c03
   RNPermissions: eac721f71748c4472d6e876038270b75397d6ee7
   RNReanimated: 49cdb63e767bb7e743ff4c12f7d85722c0d008f2

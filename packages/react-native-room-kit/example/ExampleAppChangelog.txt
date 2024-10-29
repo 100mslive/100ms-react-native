@@ -1,21 +1,18 @@
 Board: https://app.devrev.ai/100ms/vistas/vista-254
 
-- Add runtime permission flow on Android
-https://app.devrev.ai/100ms/works/ISS-22855
+- SugarFit: Add support for Android 14 on React Native Android SDK
+https://app.devrev.ai/100ms/works/ISS-23560
 
-- Resolve app not running on Android 14 issue
-https://app.devrev.ai/100ms/works/ISS-22860
+- Remove Foreground Notification Service from Android app
+https://app.devrev.ai/100ms/works/ISS-23562
 
-- Resolve warning about React State update
-https://app.devrev.ai/100ms/works/ISS-22807
+- Fix: Screen freezing due to entering PIP mode
+https://app.devrev.ai/100ms/works/ISS-23563
 
-- Added support for Noise Cancellation Default State
-https://app.devrev.ai/100ms/works/ISS-22853
+- Native Android crash fixes
+https://app.devrev.ai/100ms/works/ISS-23550
 
-- Added support for Switch Role on Prebuilt
-https://app.devrev.ai/100ms/works/ISS-22863
-
-Room Kit: 1.2.2
-React Native SDK: 1.10.9
-Android SDK: 2.9.64
-iOS SDK: 1.15.0
+Room Kit: 1.2.3
+React Native SDK: 1.11.0
+Android SDK: 2.9.69
+iOS SDK: 1.16.5
