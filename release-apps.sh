@@ -21,7 +21,7 @@ release_android() {
 
   bundle install --verbose
 
-  bundle exec fastlane distribute_app
+  fastlane distribute_app
 }
 
 release_iOS() {
@@ -31,7 +31,7 @@ release_iOS() {
 
   bundle install --verbose
 
-  bundle exec fastlane distribute_app
+  fastlane distribute_app
 }
 
 perform_git_actions() {

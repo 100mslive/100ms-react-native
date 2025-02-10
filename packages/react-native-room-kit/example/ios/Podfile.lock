@@ -285,7 +285,7 @@ PODS:
   - React-jsinspector (0.71.19)
   - React-logger (0.71.19):
     - glog
-  - react-native-blur (4.4.0):
+  - react-native-blur (4.4.1):
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
   - react-native-camera (4.2.1):
@@ -664,7 +664,7 @@ SPEC CHECKSUMS:
   React-jsiexecutor: ff40751c9fd087dc3dd2b18f5336081f2ee196e7
   React-jsinspector: e591d9ecb571456fc929ee10409d8847a442d6a7
   React-logger: e1edee51442163c77f9fdfb4b08c7169cfc22424
-  react-native-blur: 1416fe124f5715f0cce89d96e3149c52ac4ca06b
+  react-native-blur: 4541c56d40f9e4a980e9c10ff37b205c35d3767b
   react-native-camera: 079d80421f0572d6b4e836908114d614d0adb553
   react-native-hms: 759ba766f213069e727c3ef892bd3f6a65388f93
   react-native-image-picker: f02b573847436881b851f74b7afbf26a0b0107aa
