@@ -38,7 +38,8 @@
       android:theme="@style/AppTheme"
       android:allowTaskReparenting="false"
       android:taskAffinity=""
-      android:exported="true">
+      android:exported="true"
+      android:networkSecurityConfig="@xml/network_security_config">
       <activity
         android:exported="false"
         android:name="com.reactnativehmssdk.HmsScreenshareActivity"
