@@ -17,14 +17,14 @@ PODS:
     - hermes-engine/Pre-built (= 0.71.19)
   - hermes-engine/Pre-built (0.71.19)
   - HMSAnalyticsSDK (0.0.2)
-  - HMSBroadcastExtensionSDK (0.0.9)
+  - HMSBroadcastExtensionSDK (1.0.1)
   - HMSHLSPlayerSDK (0.0.2):
     - HMSAnalyticsSDK (= 0.0.2)
   - HMSNoiseCancellationModels (1.0.0)
-  - HMSSDK (1.16.5):
+  - HMSSDK (1.17.0):
     - HMSAnalyticsSDK (= 0.0.2)
-    - HMSWebRTC (= 1.0.6172)
-  - HMSWebRTC (1.0.6172)
+    - HMSWebRTC (= 1.0.6174)
+  - HMSWebRTC (1.0.6174)
   - libevent (2.1.12)
   - lottie-ios (4.4.1)
   - lottie-react-native (6.7.2):
@@ -297,10 +297,10 @@ PODS:
   - react-native-camera/RN (4.2.1):
     - React-Core
   - react-native-hms (1.11.1):
-    - HMSBroadcastExtensionSDK (= 0.0.9)
+    - HMSBroadcastExtensionSDK (= 1.0.1)
     - HMSHLSPlayerSDK (= 0.0.2)
     - HMSNoiseCancellationModels (= 1.0.0)
-    - HMSSDK (= 1.16.5)
+    - HMSSDK (= 1.17.0)
     - React-Core
   - react-native-image-picker (7.1.2):
     - RCT-Folly (= 2021.07.22.00)
@@ -640,11 +640,11 @@ SPEC CHECKSUMS:
   glog: 04b94705f318337d7ead9e6d17c019bd9b1f6b1b
   hermes-engine: 1468b458e81705fcd55ed6e29c32ff069f04b69c
   HMSAnalyticsSDK: 4d2a88a729b1eb42f3d25f217c28937ec318a5b7
-  HMSBroadcastExtensionSDK: d80fe325f6c928bd8e5176290b5a4b7ae15d6fbb
+  HMSBroadcastExtensionSDK: b32e14990cffd773fb5b5219a4dd56b05bef3b29
   HMSHLSPlayerSDK: 6a54ad4d12f3dc2270d1ecd24019d71282a4f6a3
   HMSNoiseCancellationModels: a3bda1405a16015632f4bcabd46ce48f35103b02
-  HMSSDK: 7c7a94498f66051e6de6f1f9d07e9ffa07299d17
-  HMSWebRTC: 4d656cc5d19732ae667d6bc1f6f5511f196ef0eb
+  HMSSDK: 949917ebecb66845558407f8e3b3bfeef5332b02
+  HMSWebRTC: 2a9db363e4bfb2d633ab688c04f47ec20767b4ac
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   lottie-ios: e047b1d2e6239b787cc5e9755b988869cf190494
   lottie-react-native: b9b043670db02c7ae76d3c3a9cc43e44bf711537
@@ -666,7 +666,7 @@ SPEC CHECKSUMS:
   React-logger: e1edee51442163c77f9fdfb4b08c7169cfc22424
   react-native-blur: 1416fe124f5715f0cce89d96e3149c52ac4ca06b
   react-native-camera: 079d80421f0572d6b4e836908114d614d0adb553
-  react-native-hms: 759ba766f213069e727c3ef892bd3f6a65388f93
+  react-native-hms: 26fb587b6a0b129e4ca970ddf5109ff1b76c35b5
   react-native-image-picker: f02b573847436881b851f74b7afbf26a0b0107aa
   react-native-lottie-splash-screen: e7820832f194c296ccdb177a82d8a3f3b7e362bf
   react-native-safe-area-context: 5b63bab608b8a56c6844a18f4986394b6aad8d97
