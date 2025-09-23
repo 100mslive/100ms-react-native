@@ -1,23 +1,90 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
+// Apply Kotlin compiler arguments globally before any compilation
+gradle.projectsEvaluated {
+    tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+        kotlinOptions {
+            freeCompilerArgs += ["-Xskip-metadata-version-check"]
+        }
+    }
+}
+
 buildscript {
     ext {
-        buildToolsVersion = "34.0.0"
+        buildToolsVersion = "35.0.0"
         minSdkVersion = 21
-        compileSdkVersion = 34
-        targetSdkVersion = 34
+        compileSdkVersion = 35
+        targetSdkVersion = 35
 
-        // We use NDK 23 which has both M1 support and is the side-by-side NDK version from AGP.
-        ndkVersion = "23.1.7779620"
+        ndkVersion = "26.1.10909125"
+
+        kotlinVersion = "2.0.0"
+        kotlinGradlePluginVersion = "2.0.0"
     }
     repositories {
         google()
         mavenCentral()
     }
     dependencies {
-        classpath("com.android.tools.build:gradle:7.4.2")
+        classpath("com.android.tools.build:gradle:8.5.2")
         classpath("com.facebook.react:react-native-gradle-plugin")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.0.0")
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
+    }
+}
+
+subprojects {
+    tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+        kotlinOptions {
+            freeCompilerArgs += ["-Xskip-metadata-version-check"]
+            jvmTarget = "17"
+            apiVersion = "2.0"
+            languageVersion = "2.0"
+        }
+    }
+}
+
+allprojects {
+    afterEvaluate { project ->
+        if (project.hasProperty("kotlin")) {
+            project.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+                kotlinOptions {
+                    freeCompilerArgs += ["-Xskip-metadata-version-check"]
+                    jvmTarget = "17"
+                    apiVersion = "2.0"
+                    languageVersion = "2.0"
+                }
+            }
+        }
+
+        // Enable buildConfig and set namespace for all Android modules in AGP 8.x
+        if (project.hasProperty("android")) {
+            project.android {
+                if (it.hasProperty("buildFeatures")) {
+                    buildFeatures {
+                        buildConfig = true
+                    }
+                }
+
+                // Set namespace if not already set
+                if (!it.namespace) {
+                    def manifestFile = project.file("src/main/AndroidManifest.xml")
+                    if (manifestFile.exists()) {
+                        def manifest = new groovy.xml.XmlParser().parse(manifestFile)
+                        def packageName = manifest.@package
+                        if (packageName) {
+                            it.namespace = packageName
+                        }
+                    }
+                }
+
+                // Set Java compatibility to match Kotlin JVM target
+                compileOptions {
+                    sourceCompatibility = JavaVersion.VERSION_17
+                    targetCompatibility = JavaVersion.VERSION_17
+                }
+            }
+        }
     }
 }

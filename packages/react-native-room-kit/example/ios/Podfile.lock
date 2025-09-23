@@ -302,8 +302,7 @@ PODS:
     - HMSNoiseCancellationModels (= 1.0.0)
     - HMSSDK (= 1.17.0)
     - React-Core
-  - react-native-image-picker (7.2.3):
-    - RCT-Folly (= 2021.07.22.00)
+  - react-native-image-picker (5.7.0):
     - React-Core
   - react-native-lottie-splash-screen (1.1.1):
     - React
@@ -408,7 +407,7 @@ PODS:
   - RNFlashList (1.8.3):
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
-  - RNGestureHandler (2.15.0):
+  - RNGestureHandler (2.28.0):
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
   - RNPermissions (3.4.0):
@@ -442,7 +441,8 @@ PODS:
     - React-RCTText
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNScreens (3.25.0):
+  - RNScreens (4.16.0):
+    - RCT-Folly (= 2021.07.22.00)
     - React-Core
     - React-RCTImage
   - Toast (4.0.0)
@@ -667,7 +667,7 @@ SPEC CHECKSUMS:
   react-native-blur: 4541c56d40f9e4a980e9c10ff37b205c35d3767b
   react-native-camera: 079d80421f0572d6b4e836908114d614d0adb553
   react-native-hms: 47a8ea72fff1e2744543c0c3025ad890219b95d0
-  react-native-image-picker: cba6dcdcae82084cf3865b871f3e5d161e6b0333
+  react-native-image-picker: b981b88b807605540b2de3245c76e9729f418b37
   react-native-lottie-splash-screen: e7820832f194c296ccdb177a82d8a3f3b7e362bf
   react-native-safe-area-context: 5b63bab608b8a56c6844a18f4986394b6aad8d97
   react-native-simple-toast: 80e940ed66e6522d19653bebaaa11949b6a2cd1e
@@ -689,13 +689,13 @@ SPEC CHECKSUMS:
   RNCMaskedView: 4b5b12efdee55966f1d68f32d4b3401c2acf05c2
   RNDeviceInfo: 900bd20e1fd3bfd894e7384cc4a83880c0341bd3
   RNFlashList: 3e34440d6aac0effeed715224bcf0ba055a826e0
-  RNGestureHandler: 69620f0c250b73a1e02e471256e5a147d51df69c
+  RNGestureHandler: de46786a4be4b43f1ecf212e297a68f7052d69ab
   RNPermissions: 79b0070729dfcfdee6cf2c766d65648ee420ece6
   RNReanimated: 3771718d611afc03072e7b41eac6a336c879844e
-  RNScreens: 4f2dbf88d1ba333a4455a29833e30510b21f14c5
+  RNScreens: b4eeec083e900ffc25276a89be58f4f48eb3cf3b
   Toast: 91b396c56ee72a5790816f40d3a94dd357abc196
   Yoga: d4f5b037672e6b68ba484c7cf7fe6790122df792
 
-PODFILE CHECKSUM: 1be0591c02a5d890af7695637a6f6b1bb484611d
+PODFILE CHECKSUM: 0ce08e8fe13ef4d4812f14f48ad13464007d67c9
 
 COCOAPODS: 1.16.2

@@ -152,7 +152,7 @@
     "react": "18.2.0",
     "react-native": "0.71.19",
     "react-native-builder-bob": "^0.21.2",
-    "react-native-image-picker": "^7.1.2",
+    "react-native-image-picker": "^8.2.1",
     "release-it": "^15.0.0",
     "typescript": "^5.0.2"
   },
@@ -164,7 +164,7 @@
     "lottie-react-native": "5.1.6",
     "react": "*",
     "react-native": "*",
-    "react-native-gesture-handler": "~2.28.0",
+    "react-native-gesture-handler": "^2.28.0",
     "react-native-linear-gradient": "^2.8.3",
     "react-native-modal": "^13.0.1",
     "react-native-reanimated": ">=2.17.0",
@@ -174,7 +174,7 @@
   },
   "additionalDependencies": {
     "@100mslive/react-native-video-plugin": "1.0.0",
-    "react-native-image-picker": "^7.2.3"
+    "react-native-image-picker": "^8.2.1"
   },
   "resolutions": {
     "@types/react": "17.0.21"
