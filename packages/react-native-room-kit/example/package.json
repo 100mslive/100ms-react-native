@@ -27,7 +27,6 @@
     "react-native-linear-gradient": "^2.8.3",
     "react-native-modal": "^14.0.0-rc.0",
     "react-native-permissions": "^5.4.2",
-    "react-native-qrcode-scanner": "1.5.5",
     "react-native-reanimated": "~3.16.7",
     "react-native-safe-area-context": "^5.6.1",
     "react-native-screens": "^4.16.0",
