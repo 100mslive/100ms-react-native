@@ -34,7 +34,7 @@ import {
 import { Constants } from '../../utils/types';
 import { RootState } from '../../redux';
 import { callService } from '../../utils/functions';
-import LottieSplashScreen from 'react-native-lottie-splash-screen';
+import LottieSplashScreen from '@attarchi/react-native-lottie-splash-screen';
 import { QRCodeIcon, ThreeDotsIcon } from '../../icons';
 
 type QRCodeScreenProp = NativeStackNavigationProp<
@@ -121,10 +121,10 @@ const QRCode = () => {
         setJoiningLink(url);
       }
     };
-    Linking.addEventListener('url', updateUrl);
+    const subscription = Linking.addEventListener('url', updateUrl);
 
     return () => {
-      Linking.removeEventListener('url', updateUrl);
+      subscription.remove();
     };
   }, []);
 
@@ -159,7 +159,11 @@ const QRCode = () => {
             paddingTop: 24 + top,
             paddingLeft: 24 + left,
             paddingRight: 24 + right,
-            paddingBottom: 24 + bottom,
+            paddingBottom:
+              Platform.OS === 'android'
+                ? Math.max(80, 24 + bottom)
+                : 24 + bottom,
+            justifyContent: Platform.OS === 'android' ? 'flex-start' : 'center',
           },
         ]}
         style={styles.container}

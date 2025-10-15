@@ -2,58 +2,23 @@ import groovy.json.JsonSlurper
 
 def sdkVersions = new JsonSlurper().parse file("../sdk-versions.json")
 
-buildscript {
+def safeExtGet(prop, fallback) {
+    rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
+}
 
-    ext.safeExtGet = { prop, fallback ->
-      rootProject.ext.has(prop) ? rootProject.ext.get (prop) : fallback
-    }
-
-    ext.getKotlinVersion = {
-      if (ext.has("kotlinVersion")) {
-        ext.kotlinVersion()
-      } else {
-        ext.safeExtGet("kotlinVersion", "1.7.20")
-      }
-    }
-    ext.getKotlinGradlePluginVersion = {
-      if (ext.has("kotlinGradlePluginVersion")) {
-        ext.kotlinGradlePluginVersion()
-      } else {
-        ext.safeExtGet("kotlinGradlePluginVersion", "1.8.0")
-      }
-    }
-    if (project == rootProject) {
-        repositories {
-            google()
-            mavenCentral()
-            gradlePluginPortal( )
-        }
-
-        dependencies {
-            classpath 'com.android.tools.build:gradle:3.5.3'
-        }
-    }
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${getKotlinGradlePluginVersion()}"
-    }
+def getKotlinVersion() {
+    return safeExtGet("kotlinVersion", "2.0.21")
 }
 
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
-def safeExtGet(prop, fallback) {
-    rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
-}
-
 android {
     namespace 'com.reactnativehmssdk'
-    compileSdkVersion safeExtGet('Hmssdk_compileSdkVersion', 31)
+    compileSdkVersion safeExtGet('compileSdkVersion', 35)
     defaultConfig {
-        minSdkVersion safeExtGet('Hmssdk_minSdkVersion', 21)
-        targetSdkVersion safeExtGet('Hmssdk_targetSdkVersion', 31)
+        minSdkVersion safeExtGet('minSdkVersion', 24)
+        targetSdkVersion safeExtGet('targetSdkVersion', 35)
         versionCode 1
         versionName "1.0"
     }
@@ -62,9 +27,11 @@ android {
         disable 'GradleCompatible'
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
+    // kotlinOptions removed - let Kotlin inherit JVM target from compileOptions
+    // This avoids languageVersion finalization conflict with React Native Gradle Plugin
 }
 
 repositories {

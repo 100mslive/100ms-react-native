@@ -164,7 +164,10 @@ export const Preview = ({
           <BackButton />
         </SafeAreaView>
 
-        <SafeAreaView edges={['left', 'right']} style={styles.footerWrapper}>
+        <SafeAreaView
+          edges={['left', 'right', 'bottom']}
+          style={styles.footerWrapper}
+        >
           <HMSPreviewNetworkQuality />
 
           <HMSKeyboardAvoidingView

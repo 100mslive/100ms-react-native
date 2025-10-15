@@ -2666,14 +2666,7 @@ export const useBackButtonPress = () => {
       );
 
       return () => {
-        if (typeof subscription.remove === 'function') {
-          subscription.remove();
-        } else {
-          BackHandler.removeEventListener(
-            'hardwareBackPress',
-            backPressHandler
-          );
-        }
+        subscription.remove();
       };
     }
   }, [handleBackPress, handleModalVisibleType]);

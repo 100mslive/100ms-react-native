@@ -57,7 +57,7 @@ export const HMSBaseButton: React.FC<HMSBaseButtonProps> = ({
       onPress={onPress}
       disabled={disabled}
     >
-      <>
+      <View style={styles.buttonInnerWrapper}>
         {loading ? (
           <ActivityIndicator
             size={'small'}
@@ -76,7 +76,7 @@ export const HMSBaseButton: React.FC<HMSBaseButtonProps> = ({
 
           <Text style={[styles.text, textStyle]}>{title}</Text>
         </View>
-      </>
+      </View>
     </Touchable>
   );
 
@@ -93,6 +93,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  buttonInnerWrapper: {
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
   },
