@@ -1,5 +1,6 @@
 apply plugin: "com.android.application"
 apply plugin: "com.facebook.react"
+apply plugin: "kotlin-android"
 
 import com.android.build.OutputFile
 
@@ -93,6 +94,15 @@ android {
 
     compileSdkVersion rootProject.ext.compileSdkVersion
 
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    buildFeatures {
+        buildConfig true
+    }
+
     namespace "live.hms.rn"
     defaultConfig {
         applicationId "live.hms.rn"
@@ -143,8 +153,10 @@ android {
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
     }
-    packagingOptions {
-        pickFirst '**/*.so'
+    packaging {
+        jniLibs {
+            pickFirst '**/*.so'
+        }
     }
     // applicationVariants are e.g. debug, release
     applicationVariants.all { variant ->
@@ -163,11 +175,24 @@ android {
     }
 }
 
+configurations.all {
+    resolutionStrategy {
+        force "androidx.activity:activity:1.9.3"
+        force "androidx.activity:activity-ktx:1.9.3"
+        force "androidx.core:core:1.15.0"
+        force "androidx.core:core-ktx:1.15.0"
+    }
+}
+
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
 
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+    implementation("androidx.activity:activity:1.9.3")
+    implementation("androidx.activity:activity-ktx:1.9.3")
+    implementation("androidx.core:core:1.15.0")
+    implementation("androidx.core:core-ktx:1.15.0")
 
     debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}")
     debugImplementation("com.facebook.flipper:flipper-network-plugin:${FLIPPER_VERSION}") {
@@ -177,10 +202,10 @@ dependencies {
     debugImplementation("com.facebook.flipper:flipper-fresco-plugin:${FLIPPER_VERSION}")
 
     constraints {
-        implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.0") {
+        implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.0.0") {
             because("kotlin-stdlib-jdk7 is now a part of kotlin-stdlib")
         }
-        implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.0") {
+        implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.0.0") {
             because("kotlin-stdlib-jdk8 is now a part of kotlin-stdlib")
         }
     }
