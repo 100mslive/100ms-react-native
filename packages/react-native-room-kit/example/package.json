@@ -10,7 +10,6 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
   },
   "dependencies": {
-    "@100mslive/react-native-video-plugin": "1.0.0",
     "@attarchi/react-native-lottie-splash-screen": "^3.0.0",
     "@react-native-async-storage/async-storage": "2.2.0",
     "@react-native-community/blur": "^4.4.1",
