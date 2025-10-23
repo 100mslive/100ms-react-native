@@ -7,8 +7,9 @@ buildscript {
         compileSdkVersion = 35
         targetSdkVersion = 35
 
-        // We use NDK 27 for 16KB page size support on Android 15+ devices
-        ndkVersion = "27.1.12297006"
+        // Using NDK 26 for React Native 0.73 compatibility
+        // NDK 27 will be used when we upgrade to React Native 0.77+
+        ndkVersion = "26.3.11579264"
 
         // Kotlin 2.0 for HMS SDK compatibility
         kotlinVersion = "2.0.0"
