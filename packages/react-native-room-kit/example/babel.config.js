@@ -4,7 +4,7 @@ const rnrkLibPackageJson = require('../package.json');
 const rnhmsLibPackageJson = require('../../react-native-hms/package.json');
 
 module.exports = {
-  presets: ['module:metro-react-native-babel-preset'],
+  presets: ['module:@react-native/babel-preset'],
   plugins: [
     [
       'module-resolver',
@@ -14,12 +14,12 @@ module.exports = {
           [rnrkLibPackageJson.name]: path.join(
             __dirname,
             '..',
-            rnrkLibPackageJson.source,
+            rnrkLibPackageJson.source
           ),
           [rnhmsLibPackageJson.name]: path.join(
             __dirname,
             '../../react-native-hms',
-            rnhmsLibPackageJson.source,
+            rnhmsLibPackageJson.source
           ),
         },
       },

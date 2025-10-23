@@ -9,7 +9,7 @@ import com.facebook.react.ReactActivityDelegate;
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint;
 import com.facebook.react.defaults.DefaultReactActivityDelegate;
 
-import org.devio.rn.splashscreen.SplashScreen;
+// import org.devio.rn.splashscreen.SplashScreen; // Temporarily disabled
 import com.reactnativehmssdk.HMSManager;
 
 // import live.hms.rn.R;
@@ -44,8 +44,10 @@ public class MainActivity extends ReactActivity {
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
-    SplashScreen.show(this, R.id.lottie); // here
-    SplashScreen.setAnimationFinished(true);
+    // Temporarily disabled splash screen to focus on React Native 0.78 build
+    // setTheme(R.style.AppTheme);
+    // SplashScreen.show(this, R.style.SplashScreen_SplashTheme, R.id.lottie, false);
+    // SplashScreen.setAnimationFinished(true);
     super.onCreate(savedInstanceState);
   }
 
@@ -62,7 +64,7 @@ public class MainActivity extends ReactActivity {
   }
 
   @Override
-  protected void onUserLeaveHint() {
+  public void onUserLeaveHint() {
     super.onUserLeaveHint();
     HMSManager.Companion.onUserLeaveHint();
   }

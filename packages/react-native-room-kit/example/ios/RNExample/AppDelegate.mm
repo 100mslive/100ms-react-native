@@ -1,7 +1,7 @@
 #import "AppDelegate.h"
 
 #import <React/RCTBundleURLProvider.h>
-#import "RNSplashScreen.h" // here
+// SplashScreen is imported via Swift module in RNExample-Swift.h
 
 #import "RNExample-Swift.h" // here
 
@@ -27,20 +27,21 @@
     Dynamic *t = [Dynamic new];
     UIView *animationUIView = (UIView *)[t createAnimationViewWithRootView:rootView lottieName:@"Donuts-[remix].json"];
  
-    // register LottieSplashScreen to RNSplashScreen
-    [RNSplashScreen showLottieSplash:animationUIView inRootView:rootView];
     // casting UIView type to AnimationView type
     LottieAnimationView *animationView = (LottieAnimationView *) animationUIView;
     // play
     [t playWithAnimationView:animationView];
-    // If you want the animation layout to be forced to remove when hide is called, use this code
-    [RNSplashScreen setAnimationFinished:true];
   }
 
   return success;
 }
 
 - (NSURL *)sourceURLForBridge:(RCTBridge *)bridge
+{
+  return [self bundleURL];
+}
+
+- (NSURL *)bundleURL
 {
 #if DEBUG
   return [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index"];

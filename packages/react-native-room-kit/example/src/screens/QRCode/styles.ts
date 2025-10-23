@@ -144,6 +144,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: COLORS.PRIMARY.DEFAULT,
     borderRadius: 8,
+    marginBottom: 16,
   },
   scanQRButtonIcon: {
     tintColor: COLORS.TEXT.HIGH_EMPHASIS_ACCENT,

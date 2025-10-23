@@ -2,22 +2,60 @@
 
 buildscript {
     ext {
-        buildToolsVersion = "34.0.0"
-        minSdkVersion = 21
-        compileSdkVersion = 34
-        targetSdkVersion = 34
+        buildToolsVersion = "35.0.0"
+        minSdkVersion = 24
+        compileSdkVersion = 35
+        targetSdkVersion = 35
 
-        // We use NDK 23 which has both M1 support and is the side-by-side NDK version from AGP.
-        ndkVersion = "23.1.7779620"
+        ndkVersion = "27.1.12297006"
+
+        kotlinVersion = "2.0.21"
+
+        // Disable Java version alignment to avoid languageVersion finalization conflict
+        // https://github.com/facebook/react-native/issues/41580
+        set("react.internal.disableJavaVersionAlignment", true)
     }
     repositories {
         google()
         mavenCentral()
     }
     dependencies {
-        classpath("com.android.tools.build:gradle:7.4.2")
-        classpath("com.facebook.react:react-native-gradle-plugin")
+        classpath("com.android.tools.build:gradle:8.7.2")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
+    }
+}
+
+subprojects {
+    afterEvaluate { project ->
+        // Enable buildConfig and set namespace for all Android modules in AGP 8.x
+        if (project.hasProperty("android")) {
+            project.android {
+                if (it.hasProperty("buildFeatures")) {
+                    buildFeatures {
+                        buildConfig = true
+                    }
+                }
+
+                // Set namespace if not already set
+                if (!it.namespace) {
+                    def manifestFile = project.file("src/main/AndroidManifest.xml")
+                    if (manifestFile.exists()) {
+                        def manifest = new groovy.xml.XmlParser().parse(manifestFile)
+                        def packageName = manifest.@package
+                        if (packageName) {
+                            it.namespace = packageName
+                        }
+                    }
+                }
+
+                // Force Java 17 for all modules to avoid JVM-target compatibility issues
+                compileOptions {
+                    sourceCompatibility JavaVersion.VERSION_17
+                    targetCompatibility JavaVersion.VERSION_17
+                }
+            }
+        }
     }
 }

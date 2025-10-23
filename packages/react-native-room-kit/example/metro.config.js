@@ -1,4 +1,5 @@
 const path = require('path');
+const { getDefaultConfig, mergeConfig } = require('@react-native/metro-config');
 const blacklist = require('metro-config/src/defaults/exclusionList');
 const escape = require('escape-string-regexp');
 
@@ -17,29 +18,31 @@ const rnhmsModules = Object.keys({
   ...rnhmsLibPackageJson.peerDependencies,
 });
 
-module.exports = {
+const defaultConfig = getDefaultConfig(__dirname);
+
+const customConfig = {
   projectRoot: __dirname,
   watchFolders: [rnrkLibRoot, rnhmsLibRoot],
 
   resolver: {
     blockList: blacklist([
       ...rnrkModules.map(
-        m =>
+        (m) =>
           new RegExp(
-            `^${escape(path.join(rnrkLibRoot, 'node_modules', m))}\\/.*$`,
-          ),
+            `^${escape(path.join(rnrkLibRoot, 'node_modules', m))}\\/.*$`
+          )
       ),
       ...rnhmsModules.map(
-        m =>
+        (m) =>
           new RegExp(
-            `^${escape(path.join(rnhmsLibRoot, 'node_modules', m))}\\/.*$`,
-          ),
+            `^${escape(path.join(rnhmsLibRoot, 'node_modules', m))}\\/.*$`
+          )
       ),
     ]),
 
     extraNodeModules: [
       ...new Set([
-        ...rnrkModules.filter(module => module !== rnhmsLibPackageJson.name),
+        ...rnrkModules.filter((module) => module !== rnhmsLibPackageJson.name),
         ...rnhmsModules,
       ]),
     ].reduce((acc, name) => {
@@ -57,3 +60,5 @@ module.exports = {
     }),
   },
 };
+
+module.exports = mergeConfig(defaultConfig, customConfig);

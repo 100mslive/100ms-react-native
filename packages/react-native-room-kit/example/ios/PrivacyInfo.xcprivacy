@@ -2,31 +2,24 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-  <key>NSPrivacyCollectedDataTypes</key>
-    <array>
-      <dict>
-        <key>NSPrivacyCollectedDataType</key>
-        <string>NSPrivacyCollectedDataTypeDeviceID</string>
-        <key>NSPrivacyCollectedDataTypeLinked</key>
-        <false/>
-        <key>NSPrivacyCollectedDataTypeTracking</key>
-        <false/>
-        <key>NSPrivacyCollectedDataTypePurposes</key>
-        <array>
-          <string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string>
-        </array>
-      </dict>
-    </array>
-    <key>NSPrivacyTracking</key>
-    <false/>
 	<key>NSPrivacyAccessedAPITypes</key>
 	<array>
+		<dict>
+			<key>NSPrivacyAccessedAPIType</key>
+			<string>NSPrivacyAccessedAPICategoryUserDefaults</string>
+			<key>NSPrivacyAccessedAPITypeReasons</key>
+			<array>
+				<string>CA92.1</string>
+			</array>
+		</dict>
 		<dict>
 			<key>NSPrivacyAccessedAPIType</key>
 			<string>NSPrivacyAccessedAPICategoryFileTimestamp</string>
 			<key>NSPrivacyAccessedAPITypeReasons</key>
 			<array>
+				<string>0A2A.1</string>
 				<string>3B52.1</string>
+				<string>C617.1</string>
 			</array>
 		</dict>
 		<dict>
@@ -35,6 +28,7 @@
 			<key>NSPrivacyAccessedAPITypeReasons</key>
 			<array>
 				<string>E174.1</string>
+				<string>85F4.1</string>
 			</array>
 		</dict>
 		<dict>
@@ -45,14 +39,23 @@
 				<string>35F9.1</string>
 			</array>
 		</dict>
+	</array>
+	<key>NSPrivacyCollectedDataTypes</key>
+	<array>
 		<dict>
-			<key>NSPrivacyAccessedAPIType</key>
-			<string>NSPrivacyAccessedAPICategoryUserDefaults</string>
-			<key>NSPrivacyAccessedAPITypeReasons</key>
+			<key>NSPrivacyCollectedDataType</key>
+			<string>NSPrivacyCollectedDataTypeDeviceID</string>
+			<key>NSPrivacyCollectedDataTypeLinked</key>
+			<false/>
+			<key>NSPrivacyCollectedDataTypePurposes</key>
 			<array>
-				<string>CA92.1</string>
+				<string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string>
 			</array>
+			<key>NSPrivacyCollectedDataTypeTracking</key>
+			<false/>
 		</dict>
 	</array>
+	<key>NSPrivacyTracking</key>
+	<false/>
 </dict>
 </plist>

@@ -1,6 +1,6 @@
 {
   "name": "RNHMSExample",
-  "version": "1.11.0",
+  "version": "1.12.0",
   "private": true,
   "scripts": {
     "preinstall": "cd ../ && npm install && cd ./example",
@@ -24,7 +24,7 @@
     "react-native-device-info": "^9.0.2",
     "react-native-document-picker": "^8.1.1",
     "react-native-fs": "^2.19.0",
-    "react-native-gesture-handler": "^1.10.3",
+    "react-native-gesture-handler": "^2.28.0",
     "react-native-modal": "^12.1.0",
     "react-native-permissions": "3.4.0",
     "react-native-qrcode-scanner": "^1.5.5",

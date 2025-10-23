@@ -61,6 +61,16 @@ const styles = StyleSheet.create({
   grow: {
     flex: 1,
   },
+  cameraContainer: {
+    flex: 1,
+    width: '100%',
+    overflow: 'hidden',
+    borderRadius: 16,
+    marginVertical: 16,
+  },
+  camera: {
+    flex: 1,
+  },
 });
 
 export { styles };
