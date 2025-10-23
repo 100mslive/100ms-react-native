@@ -16,7 +16,11 @@ Pod::Spec.new do |s|
 
   s.source_files = "ios/**/*.{h,m,mm,swift}"
 
-  s.dependency "React-Core"
+  # New Architecture support
+  # This will conditionally add React dependencies based on whether new architecture is enabled
+  install_modules_dependencies(s)
+
+  # HMS SDK dependencies
   s.dependency "HMSSDK", sdkVersions["ios"]
   s.dependency 'HMSBroadcastExtensionSDK', sdkVersions["iOSBroadcastExtension"]
   s.dependency 'HMSHLSPlayerSDK', sdkVersions["iOSHMSHLSPlayer"]

@@ -208,5 +208,14 @@
   },
   "dependencies": {
     "zustand": "^4.3.8"
+  },
+  "codegenConfig": {
+    "name": "RNHMSSpec",
+    "type": "all",
+    "jsSrcsDir": "src/specs",
+    "android": {
+      "javaPackageName": "com.reactnativehmssdk"
+    },
+    "ios": {}
   }
 }

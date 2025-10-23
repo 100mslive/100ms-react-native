@@ -1,5 +1,4 @@
 require_relative '../node_modules/react-native/scripts/react_native_pods'
-require_relative '../node_modules/expo/scripts/autolinking'
 
 platform :ios, '15.1'
 prepare_react_native_project!
@@ -29,8 +28,8 @@ target 'RNExample' do
     # Upcoming versions of React Native may rely on get_default_flags(), but
     # we make it explicit here to aid in the React Native upgrade process.
     :hermes_enabled => flags[:hermes_enabled],
-    :fabric_enabled => flags[:fabric_enabled],
-    # Flipper removed in RN 0.78
+    :fabric_enabled => true,
+    :new_arch_enabled => true,
     # An absolute path to your application root.
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )

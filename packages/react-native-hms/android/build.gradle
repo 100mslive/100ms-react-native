@@ -23,6 +23,10 @@ android {
         versionName "1.0"
     }
 
+    buildFeatures {
+        buildConfig = true
+    }
+
     lintOptions {
         disable 'GradleCompatible'
     }
@@ -32,6 +36,17 @@ android {
     }
     // kotlinOptions removed - let Kotlin inherit JVM target from compileOptions
     // This avoids languageVersion finalization conflict with React Native Gradle Plugin
+
+    // New Architecture: Add codegen source sets
+    sourceSets {
+        main {
+            if (project.ext.has("isNewArchitectureEnabled") && project.ext.isNewArchitectureEnabled) {
+                java.srcDirs += [
+                    "build/generated/source/codegen/java"
+                ]
+            }
+        }
+    }
 }
 
 repositories {

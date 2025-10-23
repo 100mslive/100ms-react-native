@@ -1,4 +1,4 @@
-import { requireNativeComponent, UIManager } from 'react-native';
+import { UIManager } from 'react-native';
 import type {
   StyleProp,
   NativeSyntheticEvent,
@@ -11,6 +11,7 @@ import type {
   HMSHLSPlayerStatsEvent,
   RequestedDataEvent,
 } from '../../types';
+import NativeHMSHLSPlayer from '../../specs/NativeHMSHLSPlayer';
 
 export type HmsHlsPlaybackEventHandler = (
   event: NativeSyntheticEvent<HMSHLSPlayerPlaybackEvent>
@@ -39,8 +40,8 @@ export type RCTHMSHLSPlayerProps = {
   onHlsPlayerCuesEvent?: HlsSPlayerCuesEventHandler;
 };
 
-export const RCTHMSHLSPlayer =
-  requireNativeComponent<RCTHMSHLSPlayerProps>('HMSHLSPlayer');
+// Use the Fabric-compatible native component from the spec file
+export const RCTHMSHLSPlayer = NativeHMSHLSPlayer;
 
 export type RCTHMSHLSPlayerRef = React.Component<RCTHMSHLSPlayerProps> &
   Readonly<NativeMethods>;

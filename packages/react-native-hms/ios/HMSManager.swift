@@ -4,7 +4,18 @@ import AVKit.AVRoutePickerView
 @objc(HMSManager)
 class HMSManager: RCTEventEmitter {
 
-    var hmsCollection = [String: HMSRNSDK]()
+    // Make collection static so Fabric ComponentViews can access it
+    static var sharedHmsCollection = [String: HMSRNSDK]()
+
+    // Objective-C accessible class method to get the shared collection
+    @objc class func getSharedHmsCollection() -> NSDictionary {
+        return sharedHmsCollection as NSDictionary
+    }
+
+    var hmsCollection: [String: HMSRNSDK] {
+        get { return HMSManager.sharedHmsCollection }
+        set { HMSManager.sharedHmsCollection = newValue }
+    }
 
     let ON_PREVIEW = "ON_PREVIEW"
     let ON_JOIN = "ON_JOIN"

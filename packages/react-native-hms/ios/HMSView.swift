@@ -1,36 +1,7 @@
 import HMSSDK
 import AVKit
 
-@objc(HMSView)
-class HMSView: RCTViewManager {
-
-    override func view() -> (HmssdkDisplayView) {
-        let view = HmssdkDisplayView()
-        let hms = getHmsFromBridge()
-
-        view.setHms(hms)
-
-        return view
-    }
-
-    func getHmsFromBridge() -> [String: HMSRNSDK] {
-        let collection = (bridge.module(for: HMSManager.classForCoder()) as? HMSManager)?.hmsCollection ?? [String: HMSRNSDK]()
-        return collection
-    }
-
-    override class func requiresMainQueueSetup() -> Bool {
-        true
-    }
-
-    @objc func capture(_ node: NSNumber, requestId: NSNumber) {
-        DispatchQueue.main.async {
-            if let component = self.bridge.uiManager.view(forReactTag: node) as? HmssdkDisplayView {
-                component.captureHmsView(requestId)
-            }
-        }
-    }
-}
-
+@objc(HmssdkDisplayView)
 class HmssdkDisplayView: UIView {
 
     lazy var videoView: HMSVideoView = {

@@ -377,12 +377,6 @@ const _HMSHLSPlayer: React.ForwardRefRenderFunction<
           style={styles.player}
           enableStats={enableStats}
           enableControls={enableControls}
-          onHmsHlsPlaybackEvent={handleHLSPlaybackEvent}
-          onHmsHlsStatsEvent={handleHLSStatsEvent}
-          onHlsPlayerCuesEvent={
-            Platform.OS === 'android' ? handleHLSPlayerCuesEvent : undefined
-          }
-          onDataReturned={handleRequestedDataReturned}
         />
       </View>
     </View>

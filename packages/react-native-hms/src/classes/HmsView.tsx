@@ -1,15 +1,10 @@
 import React, { useState, useImperativeHandle, useRef } from 'react';
-import {
-  findNodeHandle,
-  requireNativeComponent,
-  StyleSheet,
-  UIManager,
-  Platform,
-} from 'react-native';
+import { findNodeHandle, StyleSheet, UIManager, Platform } from 'react-native';
 import type { NativeSyntheticEvent, ViewStyle } from 'react-native';
 import { HMSConstants } from './HMSConstants';
 import { HMSVideoViewMode } from './HMSVideoViewMode';
 import { setHmsViewsResolutionsState } from '../hooks/hmsviews';
+import NativeHMSView from '../specs/NativeHMSView';
 
 /**
  * Interface defining the properties for the `HmsView` component.
@@ -47,9 +42,9 @@ interface HmsViewProps {
   onDataReturned: Function;
 }
 
-// Imports the `HmsView` component from the native side using the `requireNativeComponent` function.
-// This component is used to render video tracks in the application.
-const HmsView = requireNativeComponent<HmsViewProps>('HMSView');
+// Use the Fabric-compatible native component from the spec file
+// This properly connects to the Fabric ComponentView implementation
+const HmsView = NativeHMSView;
 let _nextRequestId = 1;
 let _requestMap = new Map();
 
@@ -97,7 +92,6 @@ export const HmsViewComponent = React.forwardRef<any, HmsComponentProps>(
       trackId,
       id,
       mirror,
-      scaleType,
     };
 
     /**
@@ -170,7 +164,6 @@ export const HmsViewComponent = React.forwardRef<any, HmsComponentProps>(
     return (
       <HmsView
         ref={hmsViewRef}
-        onChange={onChange}
         data={data}
         style={
           Platform.OS === 'android' ? (applyStyles_ANDROID ? style : {}) : style
@@ -178,7 +171,6 @@ export const HmsViewComponent = React.forwardRef<any, HmsComponentProps>(
         autoSimulcast={autoSimulcast}
         scaleType={scaleType}
         setZOrderMediaOverlay={setZOrderMediaOverlay}
-        onDataReturned={_onDataReturned}
       />
     );
   }
