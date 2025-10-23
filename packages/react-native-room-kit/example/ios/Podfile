@@ -1,8 +1,7 @@
 require_relative '../node_modules/react-native/scripts/react_native_pods'
 require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
 
-# platform :ios, '13.0'
-platform :ios, min_ios_version_supported
+platform :ios, '16.0'
 prepare_react_native_project!
 
 # If you are using a `react-native-flipper` your iOS build will fail when `NO_FLIPPER=1` is set.
@@ -64,7 +63,6 @@ target 'RNExample' do
       # necessary for Mac Catalyst builds
       :mac_catalyst_enabled => false
     )
-    __apply_Xcode_12_5_M1_post_install_workaround(installer)
     installer.pods_project.build_configurations.each do |config|
       config.build_settings['ENABLE_BITCODE'] = 'NO'
     end
