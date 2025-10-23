@@ -3,46 +3,27 @@ import groovy.json.JsonSlurper
 def sdkVersions = new JsonSlurper().parse file("../sdk-versions.json")
 
 buildscript {
-
-    ext.safeExtGet = { prop, fallback ->
-      rootProject.ext.has(prop) ? rootProject.ext.get (prop) : fallback
-    }
-
-    ext.getKotlinVersion = {
-      if (ext.has("kotlinVersion")) {
-        ext.kotlinVersion()
-      } else {
-        ext.safeExtGet("kotlinVersion", "1.7.20")
-      }
-    }
-    ext.getKotlinGradlePluginVersion = {
-      if (ext.has("kotlinGradlePluginVersion")) {
-        ext.kotlinGradlePluginVersion()
-      } else {
-        ext.safeExtGet("kotlinGradlePluginVersion", "1.8.0")
-      }
-    }
-    if (project == rootProject) {
-        repositories {
-            google()
-            mavenCentral()
-            gradlePluginPortal( )
-        }
-
-        dependencies {
-            classpath 'com.android.tools.build:gradle:3.5.3'
-        }
-    }
     repositories {
+        google()
         mavenCentral()
     }
     dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${getKotlinGradlePluginVersion()}"
+        classpath("com.android.tools.build:gradle:8.5.0")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.0.0")
     }
 }
 
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
+
+// Define helper functions for Kotlin version management
+def getKotlinVersion() {
+    return rootProject.ext.has("kotlinVersion") ? rootProject.ext.get("kotlinVersion") : "2.0.0"
+}
+
+def getKotlinGradlePluginVersion() {
+    return rootProject.ext.has("kotlinGradlePluginVersion") ? rootProject.ext.get("kotlinGradlePluginVersion") : "2.0.0"
+}
 
 def safeExtGet(prop, fallback) {
     rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
@@ -62,8 +43,11 @@ android {
         disable 'GradleCompatible'
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    kotlinOptions {
+        jvmTarget = "17"
     }
 }
 

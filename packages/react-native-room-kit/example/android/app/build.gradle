@@ -26,7 +26,7 @@ react {
 
   /* Bundling */
   //   A list containing the node command and its flags. Default is just 'node'.
-  nodeExecutableAndArgs = ["/usr/local/bin/node", "--openssl-legacy-provider"]
+  // nodeExecutableAndArgs = ["/usr/local/bin/node", "--openssl-legacy-provider"]
   //
   //   The command to run when bundling. By default is 'bundle'
   // bundleCommand = "ram-bundle"
@@ -101,6 +101,7 @@ android {
         versionCode 541
         versionName "2.4.91"
         missingDimensionStrategy 'react-native-camera', 'general'
+        multiDexEnabled true
     }
 
     splits {
@@ -168,6 +169,7 @@ dependencies {
     implementation("com.facebook.react:react-android")
 
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+    implementation("androidx.multidex:multidex:2.0.1")
 
     debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}")
     debugImplementation("com.facebook.flipper:flipper-network-plugin:${FLIPPER_VERSION}") {
@@ -175,15 +177,6 @@ dependencies {
     }
 
     debugImplementation("com.facebook.flipper:flipper-fresco-plugin:${FLIPPER_VERSION}")
-
-    constraints {
-        implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.0") {
-            because("kotlin-stdlib-jdk7 is now a part of kotlin-stdlib")
-        }
-        implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.0") {
-            because("kotlin-stdlib-jdk8 is now a part of kotlin-stdlib")
-        }
-    }
 
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")
