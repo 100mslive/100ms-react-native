@@ -146,10 +146,30 @@ android {
         }
     }
     packagingOptions {
-        pickFirst '**/*.so'
+        jniLibs {
+            // Be selective about which duplicate .so files to pick first
+            // Don't use pickFirsts for libc++_shared.so as it can cause symbol resolution issues
+            pickFirsts += [
+                '**/libfbjni.so',
+                '**/libjsi.so',
+                '**/libreactnativejni.so',
+                '**/libfolly_*.so',
+                '**/libglog.so'
+            ]
+            // Explicitly set 16KB alignment for all native libraries
+            useLegacyPackaging = false
+        }
         // Handle duplicate GestureHandlerStateManager from reanimated and gesture-handler
-        pickFirst '**/GestureHandlerStateManager.class'
+        resources {
+            pickFirsts += ['**/GestureHandlerStateManager.class']
+        }
     }
+
+    // Enable BuildConfig for 16KB page size compliance
+    buildFeatures {
+        buildConfig = true
+    }
+
     // applicationVariants are e.g. debug, release
     applicationVariants.all { variant ->
         variant.outputs.each { output ->

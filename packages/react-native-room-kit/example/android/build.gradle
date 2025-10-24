@@ -5,9 +5,9 @@ buildscript {
         buildToolsVersion = "35.0.0"
         minSdkVersion = 24
         compileSdkVersion = 35
-        targetSdkVersion = 34  // RN 0.77.3 default (avoids edge-to-edge requirements)
+        targetSdkVersion = 35
 
-        // NDK 27 for 16KB page size support (RN 0.77.3)
+        // NDK r27 for compatibility (r28 has libc++ ABI issues with VisionCamera)
         ndkVersion = "27.1.12297006"
 
         // Kotlin 2.0.21 for RN 0.77.3 compatibility
