@@ -9,20 +9,20 @@ buildscript {
     }
     dependencies {
         classpath("com.android.tools.build:gradle:8.5.0")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.0.0")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.0.21")
     }
 }
 
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
-// Define helper functions for Kotlin version management
+// Define helper functions for Kotlin version management (RN 0.77.3 requires 2.0.21)
 def getKotlinVersion() {
-    return rootProject.ext.has("kotlinVersion") ? rootProject.ext.get("kotlinVersion") : "2.0.0"
+    return rootProject.ext.has("kotlinVersion") ? rootProject.ext.get("kotlinVersion") : "2.0.21"
 }
 
 def getKotlinGradlePluginVersion() {
-    return rootProject.ext.has("kotlinGradlePluginVersion") ? rootProject.ext.get("kotlinGradlePluginVersion") : "2.0.0"
+    return rootProject.ext.has("kotlinGradlePluginVersion") ? rootProject.ext.get("kotlinGradlePluginVersion") : "2.0.21"
 }
 
 def safeExtGet(prop, fallback) {

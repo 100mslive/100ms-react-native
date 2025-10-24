@@ -62,7 +62,7 @@ public class MainActivity extends ReactActivity {
   }
 
   @Override
-  protected void onUserLeaveHint() {
+  public void onUserLeaveHint() {
     super.onUserLeaveHint();
     HMSManager.Companion.onUserLeaveHint();
   }

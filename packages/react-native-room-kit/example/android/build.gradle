@@ -5,26 +5,23 @@ buildscript {
         buildToolsVersion = "35.0.0"
         minSdkVersion = 24
         compileSdkVersion = 35
-        targetSdkVersion = 35
+        targetSdkVersion = 34  // RN 0.77.3 default (avoids edge-to-edge requirements)
 
-        // Using NDK 26 for React Native 0.73 compatibility
-        // NDK 27 will be used when we upgrade to React Native 0.77+
-        ndkVersion = "26.3.11579264"
+        // NDK 27 for 16KB page size support (RN 0.77.3)
+        ndkVersion = "27.1.12297006"
 
-        // Kotlin 2.0 for HMS SDK compatibility
-        kotlinVersion = "2.0.0"
-        kotlinGradlePluginVersion = "2.0.0"
+        // Kotlin 2.0.21 for RN 0.77.3 compatibility
+        kotlinVersion = "2.0.21"
     }
     repositories {
         google()
         mavenCentral()
     }
     dependencies {
-        classpath("com.android.tools.build:gradle:8.5.0")
+        // AGP version managed by React Native Gradle Plugin
+        classpath("com.android.tools.build:gradle")
         classpath("com.facebook.react:react-native-gradle-plugin")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.0.0")
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
     }
 }
 

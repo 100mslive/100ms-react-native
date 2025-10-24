@@ -1,9 +1,11 @@
 require_relative '../node_modules/react-native/scripts/react_native_pods'
-require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
 require_relative '../node_modules/react-native-permissions/scripts/setup'
 
 platform :ios, '16.0'
 prepare_react_native_project!
+
+# Explicitly disable New Architecture (react-native-hms and react-native-room-kit do not support it)
+ENV['RCT_NEW_ARCH_ENABLED'] = '0'
 
 linkage = ENV['USE_FRAMEWORKS']
 if linkage != nil
@@ -19,8 +21,6 @@ target 'RNExampleBroadcastUpload' do
 end
 
 target 'RNExample' do
-  config = use_native_modules!
-
   # Flags change depending on the env values.
   flags = get_default_flags()
 
@@ -30,19 +30,34 @@ target 'RNExample' do
   ])
 
   use_react_native!(
-    :path => config[:reactNativePath],
+    :path => '../node_modules/react-native',
     # Hermes is now enabled by default. Disable by setting this flag to false.
-    # Upcoming versions of React Native may rely on get_default_flags(), but
-    # we make it explicit here to aid in the React Native upgrade process.
     :hermes_enabled => flags[:hermes_enabled],
-    :fabric_enabled => flags[:fabric_enabled],
-    # Flipper is disabled to support 16KB page size devices
-    :flipper_configuration => FlipperConfiguration.disabled,
+    # New Architecture MUST be disabled (react-native-hms and react-native-room-kit do not support it)
+    :fabric_enabled => false,
     # An absolute path to your application root.
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
+  # Manually added pods for monorepo autolinking
   pod 'react-native-hms', :path => '../../../react-native-hms'
+  pod 'lottie-react-native', :path => '../node_modules/lottie-react-native'
+  pod 'react-native-lottie-splash-screen', :path => '../node_modules/react-native-lottie-splash-screen'
+  pod 'RNGestureHandler', :path => '../node_modules/react-native-gesture-handler'
+  pod 'RNCAsyncStorage', :path => '../node_modules/@react-native-async-storage/async-storage'
+  pod 'react-native-blur', :path => '../node_modules/@react-native-community/blur'
+  pod 'RNCMaskedView', :path => '../node_modules/@react-native-masked-view/masked-view'
+  pod 'RNFlashList', :path => '../node_modules/@shopify/flash-list'
+  pod 'BVLinearGradient', :path => '../node_modules/react-native-linear-gradient'
+  pod 'RNDeviceInfo', :path => '../node_modules/react-native-device-info'
+  pod 'react-native-image-picker', :path => '../node_modules/react-native-image-picker'
+  pod 'RNPermissions', :path => '../node_modules/react-native-permissions'
+  pod 'RNReanimated', :path => '../node_modules/react-native-reanimated'
+  pod 'react-native-safe-area-context', :path => '../node_modules/react-native-safe-area-context'
+  pod 'RNScreens', :path => '../node_modules/react-native-screens'
+  pod 'react-native-simple-toast', :path => '../node_modules/react-native-simple-toast'
+  pod 'VisionCamera', :path => '../node_modules/react-native-vision-camera'
+  pod 'react-native-webview', :path => '../node_modules/react-native-webview'
 
   post_install do |installer|
     react_native_post_install(

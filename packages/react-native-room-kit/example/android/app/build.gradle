@@ -1,5 +1,6 @@
 apply plugin: "com.android.application"
 apply plugin: "com.facebook.react"
+apply plugin: "kotlin-android"
 
 import com.android.build.OutputFile
 
@@ -89,6 +90,7 @@ def reactNativeArchitectures() {
 
 android {
     ndkVersion rootProject.ext.ndkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
 
     compileSdkVersion rootProject.ext.compileSdkVersion
 
@@ -145,6 +147,8 @@ android {
     }
     packagingOptions {
         pickFirst '**/*.so'
+        // Handle duplicate GestureHandlerStateManager from reanimated and gesture-handler
+        pickFirst '**/GestureHandlerStateManager.class'
     }
     // applicationVariants are e.g. debug, release
     applicationVariants.all { variant ->
@@ -176,9 +180,25 @@ dependencies {
         implementation jscFlavor
     }
 
+    // All native modules (manually added - RN 0.77.3 autolinking broken in monorepo)
+    implementation project(':_100mslive_react_native_video_plugin')
+    implementation project(':rnasyncstorage')
+    implementation project(':rnblurview')
+    implementation project(':_react_native_masked_view_masked_view')
+    implementation project(':rnflashlist')
+    implementation project(':lottiereactnative')
+    implementation project(':react_native_device_info')
+    implementation project(':rngesturehandler_codegen')
+    implementation project(':RNImagePickerSpec')
+    implementation project(':react_native_linear_gradient')
+    implementation project(':react_native_lottie_splash_screen')
+    implementation project(':RNPermissionsSpec')
+    implementation project(':react-native-reanimated')
+    implementation project(':safeareacontext')
+    implementation project(':rnscreens')
+    implementation project(':react_native_vision_camera')
+    implementation project(':RNCWebViewSpec')
+
+    // Local 100ms packages
     implementation project(':100mslive_react-native-hms')
-
-    implementation project(':react-native-lottie-splash-screen')
 }
-
-apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)

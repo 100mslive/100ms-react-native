@@ -121,10 +121,10 @@ const QRCode = () => {
         setJoiningLink(url);
       }
     };
-    Linking.addEventListener('url', updateUrl);
+    const subscription = Linking.addEventListener('url', updateUrl);
 
     return () => {
-      Linking.removeEventListener('url', updateUrl);
+      subscription.remove();
     };
   }, []);
 

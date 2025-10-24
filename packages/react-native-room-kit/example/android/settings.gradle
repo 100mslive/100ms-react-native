@@ -1,10 +1,56 @@
+pluginManagement {
+    includeBuild("../node_modules/@react-native/gradle-plugin")
+}
+
+plugins {
+    id("com.facebook.react.settings")
+}
+
+// Autolinking disabled - broken in RN 0.77.3 monorepo setup
+// extensions.configure(com.facebook.react.ReactSettingsExtension){ ex ->
+//     ex.autolinkLibrariesFromCommand()
+// }
+
 rootProject.name = 'RNExample'
-apply from: file("../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesSettingsGradle(settings)
 include ':app'
 includeBuild('../node_modules/@react-native/gradle-plugin')
 
+// Manual includes for all native modules (RN 0.77.3 autolinking broken in monorepo)
+include ':_100mslive_react_native_video_plugin'
+project(':_100mslive_react_native_video_plugin').projectDir = new File(rootProject.projectDir, '../node_modules/@100mslive/react-native-video-plugin/android')
+include ':rnasyncstorage'
+project(':rnasyncstorage').projectDir = new File(rootProject.projectDir, '../node_modules/@react-native-async-storage/async-storage/android')
+include ':rnblurview'
+project(':rnblurview').projectDir = new File(rootProject.projectDir, '../node_modules/@react-native-community/blur/android')
+include ':_react_native_masked_view_masked_view'
+project(':_react_native_masked_view_masked_view').projectDir = new File(rootProject.projectDir, '../node_modules/@react-native-masked-view/masked-view/android')
+include ':rnflashlist'
+project(':rnflashlist').projectDir = new File(rootProject.projectDir, '../node_modules/@shopify/flash-list/android')
+include ':lottiereactnative'
+project(':lottiereactnative').projectDir = new File(rootProject.projectDir, '../node_modules/lottie-react-native/android')
+include ':react_native_device_info'
+project(':react_native_device_info').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-device-info/android')
+include ':rngesturehandler_codegen'
+project(':rngesturehandler_codegen').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-gesture-handler/android')
+include ':RNImagePickerSpec'
+project(':RNImagePickerSpec').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-image-picker/android')
+include ':react_native_linear_gradient'
+project(':react_native_linear_gradient').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-linear-gradient/android')
+include ':react_native_lottie_splash_screen'
+project(':react_native_lottie_splash_screen').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-lottie-splash-screen/android')
+include ':RNPermissionsSpec'
+project(':RNPermissionsSpec').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-permissions/android')
+include ':react-native-reanimated'
+project(':react-native-reanimated').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-reanimated/android')
+include ':safeareacontext'
+project(':safeareacontext').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-safe-area-context/android')
+include ':rnscreens'
+project(':rnscreens').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-screens/android')
+include ':react_native_vision_camera'
+project(':react_native_vision_camera').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-vision-camera/android')
+include ':RNCWebViewSpec'
+project(':RNCWebViewSpec').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-webview/android')
+
+// Local 100ms packages
 include ':100mslive_react-native-hms'
 project(':100mslive_react-native-hms').projectDir = new File(rootProject.projectDir, '../../../react-native-hms/android')
-
-include ':react-native-lottie-splash-screen'
-project(':react-native-lottie-splash-screen').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-lottie-splash-screen/android')
