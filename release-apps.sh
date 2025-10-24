@@ -251,15 +251,69 @@ release_ios() {
     log_info "[DRY RUN] Would run: bundle install --verbose"
   fi
 
-  log_info "Running Fastlane distribute_app for iOS..."
+  log_info "Bumping iOS version..."
   if [ "$DRY_RUN" = false ]; then
-    bundle exec fastlane distribute_app || {
-      log_error "Fastlane distribute_app failed for iOS"
+    bundle exec fastlane bump_version || {
+      log_error "Fastlane bump_version failed for iOS"
       popd >/dev/null
       return 1
     }
   else
-    log_info "[DRY RUN] Would run: bundle exec fastlane distribute_app"
+    log_info "[DRY RUN] Would run: bundle exec fastlane bump_version"
+  fi
+
+  log_info "Starting parallel distribution to Firebase and TestFlight..."
+
+  local firebase_pid=""
+  local testflight_pid=""
+
+  if [ "$DRY_RUN" = false ]; then
+    # Start Firebase distribution in background
+    bundle exec fastlane distribute_firebase_only &
+    firebase_pid=$!
+    log_info "Firebase distribution started (PID: $firebase_pid)"
+
+    # Start TestFlight distribution in background
+    bundle exec fastlane distribute_testflight_only &
+    testflight_pid=$!
+    log_info "TestFlight distribution started (PID: $testflight_pid)"
+
+    # Wait for both to complete
+    local firebase_failed=false
+    local testflight_failed=false
+
+    if ! wait $firebase_pid; then
+      log_error "Firebase distribution failed"
+      firebase_failed=true
+    fi
+
+    if ! wait $testflight_pid; then
+      log_error "TestFlight distribution failed"
+      testflight_failed=true
+    fi
+
+    # Check results
+    if [ "$firebase_failed" = true ] && [ "$testflight_failed" = true ]; then
+      log_error "Both Firebase and TestFlight distributions failed"
+      popd >/dev/null
+      return 1
+    elif [ "$firebase_failed" = true ]; then
+      log_warn "Firebase distribution failed, but TestFlight succeeded"
+    elif [ "$testflight_failed" = true ]; then
+      log_warn "TestFlight distribution failed, but Firebase succeeded"
+    else
+      log_success "Both Firebase and TestFlight distributions completed successfully"
+    fi
+
+    # Post Slack notification
+    log_info "Posting Slack notification..."
+    bundle exec fastlane post_message_on_slack || {
+      log_warn "Slack notification failed (non-fatal)"
+    }
+  else
+    log_info "[DRY RUN] Would run: bundle exec fastlane distribute_firebase_only (background)"
+    log_info "[DRY RUN] Would run: bundle exec fastlane distribute_testflight_only (background)"
+    log_info "[DRY RUN] Would run: bundle exec fastlane post_message_on_slack"
   fi
 
   popd >/dev/null
