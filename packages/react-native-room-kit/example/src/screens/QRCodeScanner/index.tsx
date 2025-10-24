@@ -1,11 +1,14 @@
-import React from 'react';
-import { Alert, Text, TouchableOpacity, View } from 'react-native';
+import React, { useState } from 'react';
+import { Alert, Text, TouchableOpacity, View, StyleSheet } from 'react-native';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { BarCodeReadEvent, RNCamera } from 'react-native-camera';
-import QRScanner from 'react-native-qrcode-scanner';
+import {
+  Camera,
+  useCameraDevice,
+  useCodeScanner,
+} from 'react-native-vision-camera';
 import { useDispatch, useSelector } from 'react-redux';
 import Toast from 'react-native-simple-toast';
 
@@ -32,41 +35,66 @@ const QRCodeScanner = () => {
     (state: RootState) => state.app.joinConfig.staticUserId
   );
   const isFocused = useIsFocused();
+  const [hasPermission, setHasPermission] = useState(false);
+  const [isScanned, setIsScanned] = useState(false);
 
-  const onScanSuccess = (e: BarCodeReadEvent) => {
-    const joiningLink = e.data.replace('meeting', 'preview');
+  const device = useCameraDevice('back');
 
-    if (validateUrl(joiningLink) && joiningLink.includes('app.100ms.live/')) {
-      callService(
-        joiningLink,
-        (
-          roomCode: string,
-          userId: string,
-          tokenEndpoint: string | undefined,
-          initEndpoint: string | undefined,
-          layoutEndPoint: string | undefined
-        ) => {
-          // Saving Meeting Link to Async Storage for persisting it between app starts.
-          AsyncStorage.setItem(Constants.MEET_URL, joiningLink);
-          // @ts-ignore
-          navigate('HMSPrebuiltScreen', {
-            roomCode,
-            userId: staticUserId ? Constants.STATIC_USERID : userId,
-            initEndPoint: initEndpoint,
-            tokenEndPoint: tokenEndpoint,
-            layoutEndPoint: layoutEndPoint,
-            debugMode, // default is false, will deal with this later
-          });
-        },
-        (errorMsg: string) => {
-          Toast.showWithGravity(errorMsg, Toast.LONG, Toast.TOP);
+  const codeScanner = useCodeScanner({
+    codeTypes: ['qr'],
+    onCodeScanned: (codes) => {
+      if (isScanned || codes.length === 0) return;
+
+      setIsScanned(true);
+      const qrData = codes[0]?.value;
+
+      if (qrData) {
+        const joiningLink = qrData.replace('meeting', 'preview');
+
+        if (
+          validateUrl(joiningLink) &&
+          joiningLink.includes('app.100ms.live/')
+        ) {
+          callService(
+            joiningLink,
+            (
+              roomCode: string,
+              userId: string,
+              tokenEndpoint: string | undefined,
+              initEndpoint: string | undefined,
+              layoutEndPoint: string | undefined
+            ) => {
+              // Saving Meeting Link to Async Storage for persisting it between app starts.
+              AsyncStorage.setItem(Constants.MEET_URL, joiningLink);
+              // @ts-ignore
+              navigate('HMSPrebuiltScreen', {
+                roomCode,
+                userId: staticUserId ? Constants.STATIC_USERID : userId,
+                initEndPoint: initEndpoint,
+                tokenEndPoint: tokenEndpoint,
+                layoutEndPoint: layoutEndPoint,
+                debugMode,
+              });
+            },
+            (errorMsg: string) => {
+              Toast.showWithGravity(errorMsg, Toast.LONG, Toast.TOP);
+              setIsScanned(false);
+            }
+          );
+        } else {
+          goBack();
+          Alert.alert('Error', 'Invalid URL');
         }
-      );
-    } else {
-      goBack();
-      Alert.alert('Error', 'Invalid URL');
-    }
-  };
+      }
+    },
+  });
+
+  React.useEffect(() => {
+    (async () => {
+      const status = await Camera.requestCameraPermission();
+      setHasPermission(status === 'granted');
+    })();
+  }, []);
 
   return (
     <View
@@ -86,10 +114,12 @@ const QRCodeScanner = () => {
         </TouchableOpacity>
         <Text style={styles.headerText}>Scan QR Code</Text>
       </View>
-      {isFocused ? (
-        <QRScanner
-          onRead={onScanSuccess}
-          flashMode={RNCamera.Constants.FlashMode.auto}
+      {isFocused && device && hasPermission ? (
+        <Camera
+          style={StyleSheet.absoluteFill}
+          device={device}
+          isActive={true}
+          codeScanner={codeScanner}
         />
       ) : (
         <View style={styles.grow} />

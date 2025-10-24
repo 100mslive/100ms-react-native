@@ -90,10 +90,6 @@ PODS:
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
   - OpenSSL-Universal (1.1.1100)
-  - Permission-Camera (3.4.0):
-    - RNPermissions
-  - Permission-Microphone (3.4.0):
-    - RNPermissions
   - RCT-Folly (2022.05.16.00):
     - boost
     - DoubleConversion
@@ -965,17 +961,9 @@ PODS:
   - React-Mapbuffer (0.73.11):
     - glog
     - React-debug
-  - react-native-blur (4.4.0):
+  - react-native-blur (4.4.1):
     - glog
     - RCT-Folly (= 2022.05.16.00)
-    - React-Core
-  - react-native-camera (4.2.1):
-    - React-Core
-    - react-native-camera/RCT (= 4.2.1)
-    - react-native-camera/RN (= 4.2.1)
-  - react-native-camera/RCT (4.2.1):
-    - React-Core
-  - react-native-camera/RN (4.2.1):
     - React-Core
   - react-native-hms (1.12.0):
     - HMSBroadcastExtensionSDK (= 1.0.1)
@@ -983,7 +971,7 @@ PODS:
     - HMSNoiseCancellationModels (= 1.0.0)
     - HMSSDK (= 1.17.0)
     - React-Core
-  - react-native-image-picker (7.1.2):
+  - react-native-image-picker (7.2.3):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
@@ -994,7 +982,7 @@ PODS:
   - react-native-simple-toast (1.1.3):
     - React-Core
     - Toast (~> 4.0.0)
-  - react-native-webview (13.10.5):
+  - react-native-webview (13.16.0):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
@@ -1165,13 +1153,13 @@ PODS:
     - React-jsi (= 0.73.11)
     - React-logger (= 0.73.11)
     - React-perflogger (= 0.73.11)
-  - RNCAsyncStorage (1.17.11):
+  - RNCAsyncStorage (1.24.0):
     - React-Core
   - RNCMaskedView (0.2.9):
     - React-Core
-  - RNDeviceInfo (11.1.0):
+  - RNDeviceInfo (14.0.0):
     - React-Core
-  - RNFlashList (1.7.1):
+  - RNFlashList (1.8.3):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
@@ -1179,7 +1167,7 @@ PODS:
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
-  - RNPermissions (3.4.0):
+  - RNPermissions (4.1.5):
     - React-Core
   - RNReanimated (3.15.5):
     - glog
@@ -1205,6 +1193,12 @@ PODS:
     - React-RCTImage
   - SocketRocket (0.6.1)
   - Toast (4.0.0)
+  - VisionCamera (4.7.2):
+    - VisionCamera/Core (= 4.7.2)
+    - VisionCamera/React (= 4.7.2)
+  - VisionCamera/Core (4.7.2)
+  - VisionCamera/React (4.7.2):
+    - React-Core
   - Yoga (1.14.0)
 
 DEPENDENCIES:
@@ -1239,8 +1233,6 @@ DEPENDENCIES:
   - libevent (~> 2.1.12)
   - lottie-react-native (from `../node_modules/lottie-react-native`)
   - OpenSSL-Universal (= 1.1.1100)
-  - Permission-Camera (from `../node_modules/react-native-permissions/ios/Camera`)
-  - Permission-Microphone (from `../node_modules/react-native-permissions/ios/Microphone`)
   - RCT-Folly (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCT-Folly/Fabric (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCTRequired (from `../node_modules/react-native/Libraries/RCTRequired`)
@@ -1266,7 +1258,6 @@ DEPENDENCIES:
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - React-Mapbuffer (from `../node_modules/react-native/ReactCommon`)
   - "react-native-blur (from `../node_modules/@react-native-community/blur`)"
-  - react-native-camera (from `../node_modules/react-native-camera`)
   - react-native-hms (from `../../../react-native-hms`)
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - react-native-lottie-splash-screen (from `../node_modules/react-native-lottie-splash-screen`)
@@ -1301,6 +1292,7 @@ DEPENDENCIES:
   - RNPermissions (from `../node_modules/react-native-permissions`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
+  - VisionCamera (from `../node_modules/react-native-vision-camera`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -1345,10 +1337,6 @@ EXTERNAL SOURCES:
     :tag: hermes-2024-04-29-RNv0.73.8-644c8be78af1eae7c138fa4093fb87f0f4f8db85
   lottie-react-native:
     :path: "../node_modules/lottie-react-native"
-  Permission-Camera:
-    :path: "../node_modules/react-native-permissions/ios/Camera"
-  Permission-Microphone:
-    :path: "../node_modules/react-native-permissions/ios/Microphone"
   RCT-Folly:
     :podspec: "../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec"
   RCTRequired:
@@ -1393,8 +1381,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   react-native-blur:
     :path: "../node_modules/@react-native-community/blur"
-  react-native-camera:
-    :path: "../node_modules/react-native-camera"
   react-native-hms:
     :path: "../../../react-native-hms"
   react-native-image-picker:
@@ -1463,6 +1449,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-reanimated"
   RNScreens:
     :path: "../node_modules/react-native-screens"
+  VisionCamera:
+    :path: "../node_modules/react-native-vision-camera"
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
@@ -1494,8 +1482,6 @@ SPEC CHECKSUMS:
   lottie-ios: e047b1d2e6239b787cc5e9755b988869cf190494
   lottie-react-native: c59f7333949c6728053b50ec22c68cc97bc720b7
   OpenSSL-Universal: ebc357f1e6bc71fa463ccb2fe676756aff50e88c
-  Permission-Camera: a788be072aaa04c475954188e1ef4fdd5b4add95
-  Permission-Microphone: b095b370e421c67d7a566316fb46488c9be1c548
   RCT-Folly: cd21f1661364f975ae76b3308167ad66b09f53f5
   RCTRequired: 415e56f7c33799a6483e41e4dce607f3daf1e69b
   RCTTypeSafety: e984a88e713281c2d8c2309a1a6d2775af0107ae
@@ -1517,14 +1503,13 @@ SPEC CHECKSUMS:
   React-jsinspector: a98428936fb888cc15d857226a26d9ac0a668a0e
   React-logger: 6e4873d1f9c54cca30f6c91a6617f8c91b75ba4c
   React-Mapbuffer: 57bf49a458398d329dad2bf8bc660e3e35b96989
-  react-native-blur: 6944bf4ce4a12af7a4021aec5864bcbddd6269a3
-  react-native-camera: 079d80421f0572d6b4e836908114d614d0adb553
+  react-native-blur: 9a53b0cc99ebd9d2dcd48f30cb61d0e32392a17d
   react-native-hms: 1323e97fab083ac13528bea428fb60c744a559d2
-  react-native-image-picker: 16b817ac5df3f835fc9d187349e7d9ce8836a260
+  react-native-image-picker: 03e0207e0c3caf5d79e4a47b425156f37a9c7ab0
   react-native-lottie-splash-screen: e7820832f194c296ccdb177a82d8a3f3b7e362bf
   react-native-safe-area-context: 758e894ca5a9bd1868d2a9cfbca7326a2b6bf9dc
   react-native-simple-toast: 80e940ed66e6522d19653bebaaa11949b6a2cd1e
-  react-native-webview: c91a944b0a2fb0cae2dd01fdbca3f4398bef4f96
+  react-native-webview: b30882679aaf3fdf8702f71ffc78fdc6c017dbe9
   React-nativeconfig: 8fd29a35a3e4e8c37682d976667663d834ba6165
   React-NativeModulesApple: 83d7077877f8eda8e1b6055b3f8f16f7db8463b5
   React-perflogger: 3887a05940ccd34a83457fd153fdeda509b31737
@@ -1545,18 +1530,19 @@ SPEC CHECKSUMS:
   React-runtimescheduler: 398069b748d97567cc7585cc9a97284ad19d72fa
   React-utils: e8549669b504c18929b2e9aa4d87657e530a91a4
   ReactCommon: 9c38e8797dc2ac72edf63cd18cf450d918575666
-  RNCAsyncStorage: 357676e1dc19095208c80d4271066c407cd02ed1
+  RNCAsyncStorage: b6410dead2732b5c72a7fdb1ecb5651bbcf4674b
   RNCMaskedView: 4b5b12efdee55966f1d68f32d4b3401c2acf05c2
-  RNDeviceInfo: 900bd20e1fd3bfd894e7384cc4a83880c0341bd3
-  RNFlashList: 818cb6cff1f47cabe1acd6298c98af1a39b9b18c
+  RNDeviceInfo: f632df5f5d9262794c03eac265e4a0f6dbb14f0a
+  RNFlashList: 68cb720742b2cf516ba1dddd61c69df74ea09f20
   RNGestureHandler: 71902d798f4e1dc297f1041d33e717eaccd6af52
-  RNPermissions: 79b0070729dfcfdee6cf2c766d65648ee420ece6
+  RNPermissions: 8b84b820d31d3cf1574c79e85fa1badf3fce62ce
   RNReanimated: 7fdc3dc5bdf06ce359b54d16e911778c3b0b31b9
   RNScreens: 523d1da8b1c0b73dd804095a6c00de47c023b6ce
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
   Toast: 91b396c56ee72a5790816f40d3a94dd357abc196
+  VisionCamera: 30b358b807324c692064f78385e9a732ce1bebfe
   Yoga: a813a6d82538ccba91c54406404e3ed80b48a692
 
-PODFILE CHECKSUM: abf10d7422e0f779aa75d6143a2dd78f770f1026
+PODFILE CHECKSUM: 93842f059b36d5fb32ca0487f8f816fb50208e5f
 
 COCOAPODS: 1.16.2
