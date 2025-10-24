@@ -103,3 +103,4 @@ packages/react-native-room-kit/example/android/app/build
 
 *.hprof
 settings.local.json
+.xcode.env.local
