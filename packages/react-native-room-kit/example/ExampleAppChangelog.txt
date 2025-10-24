@@ -1,5 +1,3 @@
-## Version 2.5.0 (Build 543) - October 2025
-
 ### Major Updates
 
 - Upgraded to React Native 0.77.3 (from 0.71.19)
@@ -88,7 +86,7 @@ Major package updates:
 
 Current Version Info:
 Room Kit: 1.3.0
-Example App Version: 2.5.0 (543)
+Example App Version: 2.5.2 (545)
 React Native: 0.77.3
 React Native SDK: 1.12.0
 Android SDK: 2.9.78
