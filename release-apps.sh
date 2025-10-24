@@ -262,34 +262,28 @@ release_ios() {
     log_info "[DRY RUN] Would run: bundle exec fastlane bump_version"
   fi
 
-  log_info "Starting parallel distribution to Firebase and TestFlight..."
+  log_info "Starting iOS distribution to Firebase and TestFlight..."
 
-  local firebase_pid=""
-  local testflight_pid=""
+  local firebase_failed=false
+  local testflight_failed=false
 
   if [ "$DRY_RUN" = false ]; then
-    # Start Firebase distribution in background
-    bundle exec fastlane distribute_firebase_only &
-    firebase_pid=$!
-    log_info "Firebase distribution started (PID: $firebase_pid)"
-
-    # Start TestFlight distribution in background
-    bundle exec fastlane distribute_testflight_only &
-    testflight_pid=$!
-    log_info "TestFlight distribution started (PID: $testflight_pid)"
-
-    # Wait for both to complete
-    local firebase_failed=false
-    local testflight_failed=false
-
-    if ! wait $firebase_pid; then
+    # Run Firebase distribution first
+    log_info "Running Firebase distribution..."
+    if ! bundle exec fastlane distribute_firebase_only; then
       log_error "Firebase distribution failed"
       firebase_failed=true
+    else
+      log_success "Firebase distribution completed"
     fi
 
-    if ! wait $testflight_pid; then
+    # Run TestFlight distribution second
+    log_info "Running TestFlight distribution..."
+    if ! bundle exec fastlane distribute_testflight_only; then
       log_error "TestFlight distribution failed"
       testflight_failed=true
+    else
+      log_success "TestFlight distribution completed"
     fi
 
     # Check results
@@ -311,8 +305,8 @@ release_ios() {
       log_warn "Slack notification failed (non-fatal)"
     }
   else
-    log_info "[DRY RUN] Would run: bundle exec fastlane distribute_firebase_only (background)"
-    log_info "[DRY RUN] Would run: bundle exec fastlane distribute_testflight_only (background)"
+    log_info "[DRY RUN] Would run: bundle exec fastlane distribute_firebase_only"
+    log_info "[DRY RUN] Would run: bundle exec fastlane distribute_testflight_only"
     log_info "[DRY RUN] Would run: bundle exec fastlane post_message_on_slack"
   fi
 
