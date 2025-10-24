@@ -908,10 +908,12 @@ PODS:
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
   - react-native-hms (1.12.0):
+    - glog
     - HMSBroadcastExtensionSDK (= 1.0.1)
     - HMSHLSPlayerSDK (= 0.0.2)
     - HMSNoiseCancellationModels (= 1.0.0)
     - HMSSDK (= 1.17.0)
+    - RCT-Folly (= 2022.05.16.00)
     - React-Core
   - react-native-image-picker (7.2.3):
     - glog
@@ -1404,7 +1406,7 @@ SPEC CHECKSUMS:
   React-logger: 6e4873d1f9c54cca30f6c91a6617f8c91b75ba4c
   React-Mapbuffer: 57bf49a458398d329dad2bf8bc660e3e35b96989
   react-native-blur: 9a53b0cc99ebd9d2dcd48f30cb61d0e32392a17d
-  react-native-hms: 1323e97fab083ac13528bea428fb60c744a559d2
+  react-native-hms: 1a51ca97b91992de24a7563c5de1f55b90713918
   react-native-image-picker: 03e0207e0c3caf5d79e4a47b425156f37a9c7ab0
   react-native-lottie-splash-screen: e7820832f194c296ccdb177a82d8a3f3b7e362bf
   react-native-safe-area-context: 758e894ca5a9bd1868d2a9cfbca7326a2b6bf9dc
