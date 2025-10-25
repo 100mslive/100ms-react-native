@@ -133,18 +133,16 @@ jobs:
           cd ./packages/react-native-room-kit/example/ios
           pod install
 
-      - name: Build iOS App
-        uses: yukiarrr/ios-build-action@v1.11.1
-        with:
-          project-path: packages/react-native-room-kit/example/ios/RNExample.xcodeproj
-          p12-base64: ${{ secrets.IOS_P12_BASE64 }}
-          certificate-password: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
-          mobileprovision-base64: |
-            ${{ secrets.ADHOC_MOBILEPROVISION_BASE64 }}
-            ${{ secrets.ADHOCEXTENSION_MOBILEPROVISION_BASE64 }}
-          code-signing-identity: iPhone Distribution
-          team-id: ${{ secrets.IOS_TEAM_ID }}
-          workspace-path: packages/react-native-room-kit/example/ios/RNExample.xcworkspace
-          scheme: RNExample
-          export-method: ad-hoc
-          export-options: packages/react-native-room-kit/example/ios/ExportOptions.plist
+      - name: Build iOS App (unsigned for validation)
+        run: |
+          cd packages/react-native-room-kit/example/ios
+          set -o pipefail && xcodebuild -workspace RNExample.xcworkspace \
+                     -scheme RNExample \
+                     -configuration Release \
+                     -sdk iphonesimulator \
+                     -destination 'platform=iOS Simulator,name=iPhone 16' \
+                     -derivedDataPath build \
+                     CODE_SIGNING_REQUIRED=NO \
+                     CODE_SIGN_IDENTITY="" \
+                     CODE_SIGNING_ALLOWED=NO \
+                     clean build
