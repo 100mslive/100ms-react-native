@@ -66,8 +66,10 @@ jobs:
         run: |
           cd packages/react-native-hms/
           npm run prepack
+          npm link
           npm publish --dry-run
           cd ../react-native-room-kit/
+          npm link @100mslive/react-native-hms
           npm publish --dry-run
 
       - name: Make Gradlew Executable
