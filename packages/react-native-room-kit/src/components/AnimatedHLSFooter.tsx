@@ -4,13 +4,13 @@ import Animated, {
   interpolate,
   useAnimatedStyle,
 } from 'react-native-reanimated';
-import type { SharedValue } from 'react-native-reanimated';
+import type { SharedValue, AnimatedStyleProp } from 'react-native-reanimated';
 
 import { useFooterHeight } from './Footer';
 
 interface AnimatedHLSFooterProps {
   offset: SharedValue<number>;
-  style?: StyleProp<Animated.AnimateStyle<StyleProp<ViewStyle>>>;
+  style?: AnimatedStyleProp<ViewStyle>;
 }
 
 export const AnimatedHLSFooter: React.FC<AnimatedHLSFooterProps> = ({

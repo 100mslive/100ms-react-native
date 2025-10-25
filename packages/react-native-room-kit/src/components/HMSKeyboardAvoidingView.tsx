@@ -6,12 +6,12 @@ import Animated, {
   useAnimatedStyle,
   useDerivedValue,
 } from 'react-native-reanimated';
-import type { SharedValue } from 'react-native-reanimated';
+import type { SharedValue, AnimatedStyleProp } from 'react-native-reanimated';
 
 import { useKeyboardState } from '../hooks-util';
 
 export interface HMSKeyboardAvoidingViewProps {
-  style?: StyleProp<Animated.AnimateStyle<StyleProp<ViewStyle>>>;
+  style?: AnimatedStyleProp<ViewStyle>;
   styleWhenInactive?: ViewStyle;
   styleWhenActive?: ViewStyle;
   bottomOffset?: number | SharedValue<number>;
