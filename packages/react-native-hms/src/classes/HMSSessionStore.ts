@@ -168,16 +168,8 @@ export class HMSSessionStore {
 
     if (this._addedKeyChangeListenerCount <= 0) {
       this._addedKeyChangeListenerCount = 0;
-      if (
-        this._deviceEventEmitterSubscription &&
-        typeof this._deviceEventEmitterSubscription.remove === 'function'
-      ) {
+      if (this._deviceEventEmitterSubscription) {
         this._deviceEventEmitterSubscription.remove();
-      } else {
-        DeviceEventEmitter.removeListener(
-          HMSUpdateListenerActions.ON_SESSION_STORE_CHANGED,
-          this._deviceEventEmitterListener
-        );
       }
 
       this._deviceEventEmitterSubscription = undefined;

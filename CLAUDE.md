@@ -19,10 +19,13 @@ Project-specific guidance for Claude Code when working with the 100ms React Nati
 
 - **Node.js**: v22.20.0 (ENFORCED via .nvmrc - always use `nvm use`)
 - **npm**: v10.9.3 (comes with Node via nvm)
-- **React Native**: 0.73.11
+- **React Native**: 0.73.0+ (minimum), 0.77.3 (recommended)
+- **React**: 18.2.0+
 - **TypeScript**: 4.6.3 (react-native-hms), 5.0.2 (react-native-room-kit)
-- **Java**: Specified in `.java-version` file
+- **Java**: 17+ (specified in `.java-version` file)
 - **Ruby**: For Fastlane and CocoaPods
+- **iOS**: 16.0+ (minimum)
+- **Android**: API 24+ (Android 7.0)
 
 ### Required Tools
 
@@ -218,9 +221,9 @@ npx react-native run-ios
 ### iOS Development
 
 - **Native code**: `ios/` directory in each package
-- **Podspec**: Defines CocoaPods package
+- **Podspec**: Defines CocoaPods package (iOS 16.0+ required)
 - **Permissions**: Add to Info.plist (Camera, Microphone, Network)
-- **Minimum iOS**: 12.0 (Recommended: 16.0+)
+- **Minimum iOS**: 16.0
 - **Common issues**:
   - Run `pod install` after dependency changes
   - Clean build folder if facing cache issues
@@ -231,8 +234,9 @@ npx react-native run-ios
 - **Native code**: `android/` directory in each package
 - **Gradle files**: `build.gradle` (project and app level)
 - **Permissions**: Add to AndroidManifest.xml
-- **Minimum SDK**: 24 (Recommended: 33+)
-- **Architectures**: armeabi-v7a, arm64-v8a, x86, x86_64
+- **Minimum SDK**: 24 (Android 7.0)
+- **Target SDK**: 35 (recommended)
+- **Architectures**: arm64-v8a, x86_64 (64-bit only, 32-bit dropped)
 - **Common issues**:
   - Gradle sync after dependency changes
   - Clean build: `cd android && ./gradlew clean`

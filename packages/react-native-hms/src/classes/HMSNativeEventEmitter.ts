@@ -61,15 +61,9 @@ export class HMSNativeEventEmitter {
 
     return {
       remove: () => {
-        if (
-          subscription &&
-          Object.getOwnPropertyNames(subscription).includes('remove') &&
-          typeof subscription.remove === 'function'
-        ) {
+        if (subscription) {
           subscription.remove();
           subscription = null;
-        } else {
-          this._nativeEventEmitter.removeListener(eventType, listener);
         }
 
         // disable `eventType` on `HMSSDK`, if all listeners has been removed
