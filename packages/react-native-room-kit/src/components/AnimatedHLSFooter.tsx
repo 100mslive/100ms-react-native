@@ -10,7 +10,7 @@ import { useFooterHeight } from './Footer';
 
 interface AnimatedHLSFooterProps {
   offset: SharedValue<number>;
-  style?: AnimatedStyleProp<ViewStyle>;
+  style?: AnimatedStyleProp<ViewStyle> | StyleProp<ViewStyle>;
 }
 
 export const AnimatedHLSFooter: React.FC<AnimatedHLSFooterProps> = ({
