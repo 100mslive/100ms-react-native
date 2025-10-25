@@ -40,27 +40,27 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up JDK 15
+      - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
           distribution: zulu
-          java-version: 15.x
+          java-version: 17.x
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version-file: ".nvmrc"
 
       - name: Install dependencies
         run: |
           cd packages/react-native-hms/
-          npm install
+          npm install --legacy-peer-deps
           cd example/
-          npm install
+          npm install --legacy-peer-deps
           cd ../../react-native-room-kit/
-          npm install
+          npm install --legacy-peer-deps
           cd example/
-          npm install
+          npm install --legacy-peer-deps
 
       - name: Publish Dry Run
         run: |
@@ -84,16 +84,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up JDK 15
+      - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
           distribution: zulu
-          java-version: 15.x
+          java-version: 17.x
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version-file: ".nvmrc"
 
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
@@ -104,13 +104,13 @@ jobs:
       - name: Install dependencies
         run: |
           cd packages/react-native-hms/
-          npm install
+          npm install --legacy-peer-deps
           cd example/
-          npm install
+          npm install --legacy-peer-deps
           cd ../../react-native-room-kit/
-          npm install
+          npm install --legacy-peer-deps
           cd example/
-          npm install
+          npm install --legacy-peer-deps
 
       - name: Cache Pods
         id: cache-pods
