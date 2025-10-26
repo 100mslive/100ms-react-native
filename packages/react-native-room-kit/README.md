@@ -37,27 +37,28 @@ To get a better understanding of how the example app is structured, what to do o
 
 ## ☝️ Minimum Configuration
 
-- Support for React Native 0.64.4 or above
-- Support for Java 8 or above
+- Support for React Native 0.73.0 or above
+- Support for Java 17 or above
 - Support for Android API level 24 or above
-- Xcode 13 or above
-- Support for iOS 12 or above
+- Xcode 14 or above
+- Support for iOS 16 or above
+- Node.js 22 or above
 
 ## 🤝 Recommended Configuration
 
-- React Native 0.69.0 or above
-- Java 11 or above
-- Android API level 33 or above
-- Xcode 14 or above
+- React Native 0.77.3 or above
+- Java 17 or above
+- Android API level 35 or above
+- Xcode 15 or above
 - iOS 16 or above
+- Node.js 22 or above
 
 ## 📱 Supported Devices
 
-- The Android SDK supports Android API level 21 and higher. It is built for armeabi-v7a, arm64-v8a, x86, and x86_64 architectures.
+- The Android SDK supports Android API level 24 (Android 7.0) and higher. It is built for arm64-v8a and x86_64 architectures (64-bit only).
   Devices running Android OS 11 or above is recommended.
 
-- iPhone & iPads with iOS version 12 or above are supported.
-  Devices running iOS 16 or above is recommended.
+- iPhone & iPads with iOS version 16 or above are supported.
 
 ## Installation
 
@@ -140,7 +141,7 @@ Once you have the prerequisites, follow the steps below to create a React Native
    ​
 
 ```bash section=CreateRnApp
-npx react-native init PrebuiltSampleApp --version 0.68.5 --npm && cd ./PrebuiltSampleApp
+npx react-native init PrebuiltSampleApp --version 0.77.3 --npm && cd ./PrebuiltSampleApp
 ```
 
 3. Once the app is created, open it in VS code.
@@ -290,13 +291,13 @@ npm install @100mslive/react-native-hms
 
 #### For iOS
 
-Change ios target platform version to '13.0' in the `ios/Podfile` file
+Change ios target platform version to '16.0' in the `ios/Podfile` file
 
 ```json{4}
 require_relative '../node_modules/react-native/scripts/react_native_pods'
 require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
 
-platform :ios, '13.0'
+platform :ios, '16.0'
 install! 'cocoapods', :deterministic_uuids => false
 ```
 

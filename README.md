@@ -50,7 +50,7 @@ Troubleshooting Guide for resolving issues in running the Example app is [availa
 - Support for Android API level 24 or above
 - Xcode 14 or above
 - Support for iOS 16 or above
-- Node.js 18 or above
+- Node.js 22 or above
 
 ## 🤝 Recommended Configuration
 
