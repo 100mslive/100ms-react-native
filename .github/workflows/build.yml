@@ -33,116 +33,373 @@ jobs:
   build_android:
     name: Build Android App
     if: github.event.pull_request.draft == false
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Free up disk space
+        run: |
+          echo "Before cleanup:"
+          df -h
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /usr/local/share/boost
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          echo "After cleanup:"
+          df -h
+
       - name: Set up JDK 17
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: zulu
-          java-version: 17.x
+          java-version: "17"
+          cache: gradle
 
-      - name: Setup Node
+      - name: Validate Java version
+        run: |
+          java -version
+          echo "JAVA_HOME=$JAVA_HOME"
+
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22.x
+          node-version: "22.x"
+          cache: npm
+          cache-dependency-path: |
+            packages/react-native-hms/package-lock.json
+            packages/react-native-hms/example/package-lock.json
+            packages/react-native-room-kit/package-lock.json
+            packages/react-native-room-kit/example/package-lock.json
 
-      - name: Install dependencies
+      - name: Display environment info
         run: |
-          cd packages/react-native-hms/
-          npm install --legacy-peer-deps
-          cd example/
-          npm install --legacy-peer-deps
-          cd ../../react-native-room-kit/
-          npm install --legacy-peer-deps
-          cd example/
-          npm install --legacy-peer-deps
+          echo "Node: $(node --version)"
+          echo "npm: $(npm --version)"
+          echo "Java: $(java -version 2>&1 | head -1)"
+          echo "Gradle: $(gradle --version 2>/dev/null | head -1 || echo 'Will use wrapper')"
 
-      - name: Publish Dry Run
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Cache Gradle build cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            packages/react-native-room-kit/example/android/.gradle
+            packages/react-native-room-kit/example/android/app/build
+          key: ${{ runner.os }}-gradle-build-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-build-
+
+      - name: Cache Android NDK
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ env.ANDROID_HOME }}/ndk
+          key: ${{ runner.os }}-ndk-27.1.12297006
+          restore-keys: |
+            ${{ runner.os }}-ndk-
+
+      - name: Install dependencies (react-native-hms)
+        working-directory: packages/react-native-hms
         run: |
-          cd packages/react-native-hms/
+          npm ci --legacy-peer-deps || npm install --legacy-peer-deps
+        continue-on-error: false
+
+      - name: Install dependencies (react-native-hms/example)
+        working-directory: packages/react-native-hms/example
+        run: |
+          npm ci --legacy-peer-deps || npm install --legacy-peer-deps
+        continue-on-error: false
+
+      - name: Install dependencies (react-native-room-kit)
+        working-directory: packages/react-native-room-kit
+        run: |
+          npm ci --legacy-peer-deps || npm install --legacy-peer-deps
+        continue-on-error: false
+
+      - name: Install dependencies (react-native-room-kit/example)
+        working-directory: packages/react-native-room-kit/example
+        run: |
+          npm ci --legacy-peer-deps || npm install --legacy-peer-deps
+        continue-on-error: false
+
+      - name: Build and pack react-native-hms
+        working-directory: packages/react-native-hms
+        run: |
           npm run prepack
-          npm link
-          npm publish --dry-run
-          cd ../react-native-room-kit/
-          npm link @100mslive/react-native-hms
-          npm publish --dry-run
+          npm pack
+          echo "HMS_PACKAGE=$(ls -t *.tgz | head -1)" >> $GITHUB_ENV
+
+      - name: Link react-native-hms to room-kit
+        working-directory: packages/react-native-room-kit
+        run: |
+          npm install ../react-native-hms/${{ env.HMS_PACKAGE }}
+          npm run prepack
+
+      - name: Publish Dry Run (react-native-hms)
+        working-directory: packages/react-native-hms
+        run: npm publish --dry-run
+
+      - name: Publish Dry Run (react-native-room-kit)
+        working-directory: packages/react-native-room-kit
+        run: npm publish --dry-run
 
       - name: Make Gradlew Executable
-        run: cd packages/react-native-room-kit/example/android && chmod +x ./gradlew
+        working-directory: packages/react-native-room-kit/example/android
+        run: chmod +x ./gradlew
+
+      - name: Validate Gradle wrapper
+        working-directory: packages/react-native-room-kit/example/android
+        run: ./gradlew --version
 
       - name: Build Android App
+        working-directory: packages/react-native-room-kit/example/android
         run: |
-          cd packages/react-native-room-kit/example/android
-          ./gradlew assembleRelease --no-daemon
+          ./gradlew assembleRelease \
+            --no-daemon \
+            --stacktrace \
+            --info \
+            -Dorg.gradle.jvmargs="-Xmx4096m -XX:MaxMetaspaceSize=1024m" \
+            -Dorg.gradle.parallel=true \
+            -Dorg.gradle.caching=true
+
+      - name: Verify APK was built
+        working-directory: packages/react-native-room-kit/example/android
+        run: |
+          APK_PATH="app/build/outputs/apk/release/app-release.apk"
+          if [ -f "$APK_PATH" ]; then
+            echo "✅ APK built successfully"
+            ls -lh "$APK_PATH"
+            echo "APK size: $(du -h "$APK_PATH" | cut -f1)"
+          else
+            echo "❌ APK not found at $APK_PATH"
+            echo "Available files:"
+            find app/build/outputs -type f
+            exit 1
+          fi
+
+      - name: Upload APK artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk-${{ github.sha }}
+          path: packages/react-native-room-kit/example/android/app/build/outputs/apk/release/*.apk
+          retention-days: 7
+
+      - name: Upload build logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-build-logs-${{ github.sha }}
+          path: |
+            packages/react-native-room-kit/example/android/app/build/outputs/logs/
+            packages/react-native-room-kit/example/android/build/reports/
+          retention-days: 7
+          if-no-files-found: ignore
+
+      - name: Generate job summary
+        if: always()
+        run: |
+          echo "### Android Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Runner**: ubuntu-24.04" >> $GITHUB_STEP_SUMMARY
+          echo "- **Node**: $(node --version)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Java**: $(java -version 2>&1 | head -1)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Build Time**: ${{ steps.build.outputs.time || 'N/A' }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -f "packages/react-native-room-kit/example/android/app/build/outputs/apk/release/app-release.apk" ]; then
+            echo "✅ APK built successfully" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ APK build failed" >> $GITHUB_STEP_SUMMARY
+          fi
 
   build_ios:
     name: Build iOS App
     if: github.event.pull_request.draft == false
-    runs-on: macOS-latest
-    timeout-minutes: 45
+    runs-on: macos-14
+    timeout-minutes: 60
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Select Xcode version
+        run: |
+          # Use latest Xcode 16.x available on macos-14
+          sudo xcode-select -s /Applications/Xcode_16.0.app/Contents/Developer || \
+          sudo xcode-select -s /Applications/Xcode_16.1.app/Contents/Developer || \
+          sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer || \
+          sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+          xcodebuild -version
+          xcode-select -p
+
       - name: Set up JDK 17
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: zulu
-          java-version: 17.x
+          java-version: "17"
 
-      - name: Setup Node
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22.x
+          node-version: "22.x"
+          cache: npm
+          cache-dependency-path: |
+            packages/react-native-hms/package-lock.json
+            packages/react-native-hms/example/package-lock.json
+            packages/react-native-room-kit/package-lock.json
+            packages/react-native-room-kit/example/package-lock.json
 
-      - name: Setup Ruby
+      - name: Setup Ruby and Bundler
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 3.2
+          ruby-version: "3.2"
           bundler-cache: true
+          working-directory: packages/react-native-room-kit/example/ios
 
-      - name: Install dependencies
+      - name: Display environment info
         run: |
-          cd packages/react-native-hms/
-          npm install --legacy-peer-deps
-          cd example/
-          npm install --legacy-peer-deps
-          cd ../../react-native-room-kit/
-          npm install --legacy-peer-deps
-          cd example/
-          npm install --legacy-peer-deps
+          echo "Node: $(node --version)"
+          echo "npm: $(npm --version)"
+          echo "Ruby: $(ruby --version | cut -d' ' -f1-2)"
+          echo "Bundler: $(bundle --version)"
+          cd packages/react-native-room-kit/example/ios
+          echo "CocoaPods: $(bundle exec pod --version 2>/dev/null || echo 'Will be installed')"
 
-      - name: Cache Pods
+      - name: Cache CocoaPods
         id: cache-pods
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: packages/react-native-room-kit/example/ios/Pods
-          key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
+          key: ${{ runner.os }}-pods-${{ hashFiles('packages/react-native-room-kit/example/ios/Podfile.lock') }}
           restore-keys: |
             ${{ runner.os }}-pods-
 
-      - name: Install Pods if Cache Missed
-        if: steps.cache-pods.outputs.cache-hit != 'true'
+      - name: Cache iOS Derived Data
+        uses: actions/cache@v4
+        with:
+          path: packages/react-native-room-kit/example/ios/build
+          key: ${{ runner.os }}-ios-derived-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-ios-derived-
+
+      - name: Install dependencies (react-native-hms)
+        working-directory: packages/react-native-hms
         run: |
-          sudo gem install cocoapods
-          cd ./packages/react-native-room-kit/example/ios
-          pod install
+          npm ci --legacy-peer-deps || npm install --legacy-peer-deps
+
+      - name: Install dependencies (react-native-hms/example)
+        working-directory: packages/react-native-hms/example
+        run: |
+          npm ci --legacy-peer-deps || npm install --legacy-peer-deps
+
+      - name: Install dependencies (react-native-room-kit)
+        working-directory: packages/react-native-room-kit
+        run: |
+          npm ci --legacy-peer-deps || npm install --legacy-peer-deps
+
+      - name: Install dependencies (react-native-room-kit/example)
+        working-directory: packages/react-native-room-kit/example
+        run: |
+          npm ci --legacy-peer-deps || npm install --legacy-peer-deps
+
+      - name: Build and pack react-native-hms
+        working-directory: packages/react-native-hms
+        run: |
+          npm run prepack
+          npm pack
+          echo "HMS_PACKAGE=$(ls -t *.tgz | head -1)" >> $GITHUB_ENV
+
+      - name: Link react-native-hms to room-kit
+        working-directory: packages/react-native-room-kit
+        run: |
+          npm install ../react-native-hms/${{ env.HMS_PACKAGE }}
+          npm run prepack
+
+      - name: Install CocoaPods dependencies
+        if: steps.cache-pods.outputs.cache-hit != 'true'
+        working-directory: packages/react-native-room-kit/example/ios
+        run: |
+          bundle exec pod install --repo-update || bundle exec pod install --repo-update
+        continue-on-error: false
+
+      - name: Verify Pods installation
+        working-directory: packages/react-native-room-kit/example/ios
+        run: |
+          if [ -d "Pods" ]; then
+            echo "✅ Pods installed successfully"
+            echo "Pods directory size: $(du -sh Pods | cut -f1)"
+          else
+            echo "❌ Pods directory not found"
+            exit 1
+          fi
 
       - name: Build iOS App (unsigned for validation)
+        id: ios-build
+        working-directory: packages/react-native-room-kit/example/ios
         run: |
-          cd packages/react-native-room-kit/example/ios
-          set -o pipefail && xcodebuild -workspace RNExample.xcworkspace \
-                     -scheme RNExample \
-                     -configuration Release \
-                     -sdk iphonesimulator \
-                     -destination 'platform=iOS Simulator,name=iPhone 16' \
-                     -derivedDataPath build \
-                     CODE_SIGNING_REQUIRED=NO \
-                     CODE_SIGN_IDENTITY="" \
-                     CODE_SIGNING_ALLOWED=NO \
-                     clean build
+          set -o pipefail
+          xcodebuild -workspace RNExample.xcworkspace \
+            -scheme RNExample \
+            -configuration Release \
+            -sdk iphonesimulator \
+            -destination 'platform=iOS Simulator,name=iPhone 16' \
+            -derivedDataPath build \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_ALLOWED=NO \
+            clean build | tee xcodebuild.log
+
+      - name: Verify iOS build output
+        working-directory: packages/react-native-room-kit/example/ios
+        run: |
+          if [ -d "build/Build/Products/Release-iphonesimulator/RNExample.app" ]; then
+            echo "✅ iOS app built successfully"
+            ls -lh build/Build/Products/Release-iphonesimulator/
+          else
+            echo "❌ iOS app not found"
+            echo "Available files:"
+            find build/Build/Products -type d -name "*.app" || echo "No .app found"
+            exit 1
+          fi
+
+      - name: Upload build logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-build-logs-${{ github.sha }}
+          path: |
+            packages/react-native-room-kit/example/ios/xcodebuild.log
+            packages/react-native-room-kit/example/ios/build/Logs/
+          retention-days: 7
+          if-no-files-found: ignore
+
+      - name: Generate job summary
+        if: always()
+        run: |
+          echo "### iOS Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Runner**: macos-14 (Apple Silicon)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Xcode**: $(xcodebuild -version | head -1)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Node**: $(node --version)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Ruby**: $(ruby --version | cut -d' ' -f1-2)" >> $GITHUB_STEP_SUMMARY
+          echo "- **CocoaPods**: $(pod --version 2>/dev/null || echo 'N/A')" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -d "packages/react-native-room-kit/example/ios/build/Build/Products/Release-iphonesimulator/RNExample.app" ]; then
+            echo "✅ iOS app built successfully" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ iOS app build failed" >> $GITHUB_STEP_SUMMARY
+          fi
