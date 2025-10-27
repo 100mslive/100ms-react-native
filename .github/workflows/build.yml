@@ -262,12 +262,26 @@ jobs:
             packages/react-native-room-kit/package-lock.json
             packages/react-native-room-kit/example/package-lock.json
 
-      - name: Setup Ruby and Bundler
+      - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: "3.2"
-          bundler-cache: true
-          working-directory: packages/react-native-room-kit/example/ios
+          bundler-cache: false
+
+      - name: Cache Ruby Gems
+        uses: actions/cache@v4
+        with:
+          path: packages/react-native-room-kit/example/ios/vendor/bundle
+          key: ${{ runner.os }}-gems-${{ hashFiles('packages/react-native-room-kit/example/ios/Gemfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-gems-
+
+      - name: Install Bundler dependencies
+        working-directory: packages/react-native-room-kit/example/ios
+        run: |
+          bundle config set --local path 'vendor/bundle'
+          bundle config set --local deployment 'false'
+          bundle install --jobs 4 --retry 3
 
       - name: Display environment info
         run: |
@@ -276,7 +290,7 @@ jobs:
           echo "Ruby: $(ruby --version | cut -d' ' -f1-2)"
           echo "Bundler: $(bundle --version)"
           cd packages/react-native-room-kit/example/ios
-          echo "CocoaPods: $(bundle exec pod --version 2>/dev/null || echo 'Will be installed')"
+          echo "CocoaPods: $(bundle exec pod --version)"
 
       - name: Cache CocoaPods
         id: cache-pods
