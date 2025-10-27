@@ -1,18 +1,93 @@
-Board: https://app.devrev.ai/100ms/vistas/vista-254
+### Major Updates
 
-- SugarFit: Add support for Android 14 on React Native Android SDK
-https://app.devrev.ai/100ms/works/ISS-23560
+- Upgraded to React Native 0.77.3 (from 0.71.19)
+  Major version upgrade with improved performance and stability
 
-- Remove Foreground Notification Service from Android app
-https://app.devrev.ai/100ms/works/ISS-23562
+- Added Android 16KB Page Size Compliance
+  Full support for Android 15+ devices with 16KB page size requirement
+  Enabled android.experimental.ndk.16kPageSize.support flag
+  Upgraded to NDK r27 (27.1.12297006)
 
-- Fix: Screen freezing due to entering PIP mode
-https://app.devrev.ai/100ms/works/ISS-23563
+- Migrated QR Code Scanner to VisionCamera
+  Replaced react-native-camera with react-native-vision-camera 4.7.2
+  Using ML Kit code scanner for better performance and maintainability
 
-- Native Android crash fixes
-https://app.devrev.ai/100ms/works/ISS-23550
+- Removed Flipper Support
+  Removed deprecated Flipper debugging tool from Android and iOS
+  Reduces app size and eliminates Flipper-related build issues
 
-Room Kit: 1.2.3
-React Native SDK: 1.11.0
-Android SDK: 2.9.69
-iOS SDK: 1.16.5
+### Android Improvements
+
+- Modernized Build System
+  Android Gradle Plugin: 8.7.2 (managed by RN)
+  Gradle: 8.11.1
+  Kotlin: 2.0.21
+  Java: 17
+  Build Tools: 35.0.0
+  Compile SDK: 35
+  Target SDK: 35
+
+- 64-bit Only Architecture
+  Removed 32-bit support (armeabi-v7a, x86)
+  Now supports only arm64-v8a and x86_64
+  Required for 16KB page size compliance
+
+- Build Performance Optimizations
+  Enabled Gradle parallel builds and caching
+  Increased JVM memory: 4GB heap, 1GB metaspace
+  Added ProGuard rules for MediaPipe and Protobuf
+
+- Updated Minimum SDK
+  Min SDK: 24 (Android 7.0) - dropped Android 5.0/6.0 support
+
+### iOS Improvements
+
+- Updated Minimum iOS Version
+  Minimum iOS: 16.0 (from 13.0)
+
+- Fixed Monorepo Autolinking
+  Added manual pod linking for all dependencies
+  Updated Podfile for React Native 0.77.3 compatibility
+
+- Disabled New Architecture
+  Explicitly disabled Fabric (not yet supported by 100ms SDKs)
+
+### Dependency Updates
+
+Major package updates:
+- react: 18.2.0 → 18.3.1
+- react-native-reanimated: 3.4.2 → 3.16.7
+- react-native-screens: 3.25.0 → 4.18.0
+- react-native-gesture-handler: 2.15.0 → 2.22.0
+- react-native-safe-area-context: 3.3.0 → 5.6.1
+- react-native-permissions: 3.4.0 → 4.1.5
+- lottie-react-native: 6.7.2 → 7.3.4
+- react-native-device-info: 11.1.0 → 14.0.0
+- @shopify/flash-list: 1.4.3 → 1.7.1
+- Added zustand: 5.0.8 for state management
+- Added patch-package: 8.0.1 for dependency management
+
+### Breaking Changes
+
+- Minimum Android version now requires Android 7.0 (API 24) instead of Android 5.0 (API 21)
+- 32-bit Android devices no longer supported (only 64-bit: arm64-v8a, x86_64)
+- Minimum iOS version now requires iOS 16.0 instead of iOS 13.0
+- react-native-camera removed - QR scanning now uses VisionCamera API
+
+### Technical Details
+
+- Changed package namespace: com.rnexample → live.hms.rn
+- Migrated MainApplication from Java to Kotlin
+- Applied 5 critical dependency patches for RN 0.77.3 compatibility
+- Improved Android packaging with proper JNI library conflict resolution
+- Added comprehensive 16KB page size compliance documentation
+
+---
+
+Current Version Info:
+Room Kit: 1.3.0
+Example App Version: 2.5.4 (547)
+React Native: 0.77.3
+React Native SDK: 1.12.0
+Android SDK: 2.9.78
+iOS SDK: 1.17.0

@@ -1,5 +1,6 @@
 apply plugin: "com.android.application"
 apply plugin: "com.facebook.react"
+apply plugin: "kotlin-android"
 
 import com.android.build.OutputFile
 
@@ -26,7 +27,6 @@ react {
 
   /* Bundling */
   //   A list containing the node command and its flags. Default is just 'node'.
-  nodeExecutableAndArgs = ["/usr/local/bin/node", "--openssl-legacy-provider"]
   //
   //   The command to run when bundling. By default is 'bundle'
   // bundleCommand = "ram-bundle"
@@ -90,6 +90,7 @@ def reactNativeArchitectures() {
 
 android {
     ndkVersion rootProject.ext.ndkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
 
     compileSdkVersion rootProject.ext.compileSdkVersion
 
@@ -98,9 +99,10 @@ android {
         applicationId "live.hms.rn"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 541
-        versionName "2.4.91"
+        versionCode 547
+        versionName "2.5.4"
         missingDimensionStrategy 'react-native-camera', 'general'
+        multiDexEnabled true
     }
 
     splits {
@@ -144,8 +146,30 @@ android {
         }
     }
     packagingOptions {
-        pickFirst '**/*.so'
+        jniLibs {
+            // Be selective about which duplicate .so files to pick first
+            // Don't use pickFirsts for libc++_shared.so as it can cause symbol resolution issues
+            pickFirsts += [
+                '**/libfbjni.so',
+                '**/libjsi.so',
+                '**/libreactnativejni.so',
+                '**/libfolly_*.so',
+                '**/libglog.so'
+            ]
+            // Explicitly set 16KB alignment for all native libraries
+            useLegacyPackaging = false
+        }
+        // Handle duplicate GestureHandlerStateManager from reanimated and gesture-handler
+        resources {
+            pickFirsts += ['**/GestureHandlerStateManager.class']
+        }
     }
+
+    // Enable BuildConfig for 16KB page size compliance
+    buildFeatures {
+        buildConfig = true
+    }
+
     // applicationVariants are e.g. debug, release
     applicationVariants.all { variant ->
         variant.outputs.each { output ->
@@ -168,22 +192,7 @@ dependencies {
     implementation("com.facebook.react:react-android")
 
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
-
-    debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}")
-    debugImplementation("com.facebook.flipper:flipper-network-plugin:${FLIPPER_VERSION}") {
-        exclude group:'com.squareup.okhttp3', module:'okhttp'
-    }
-
-    debugImplementation("com.facebook.flipper:flipper-fresco-plugin:${FLIPPER_VERSION}")
-
-    constraints {
-        implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.0") {
-            because("kotlin-stdlib-jdk7 is now a part of kotlin-stdlib")
-        }
-        implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.0") {
-            because("kotlin-stdlib-jdk8 is now a part of kotlin-stdlib")
-        }
-    }
+    implementation("androidx.multidex:multidex:2.0.1")
 
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")
@@ -191,9 +200,25 @@ dependencies {
         implementation jscFlavor
     }
 
+    // All native modules (manually added - RN 0.77.3 autolinking broken in monorepo)
+    implementation project(':_100mslive_react_native_video_plugin')
+    implementation project(':rnasyncstorage')
+    implementation project(':rnblurview')
+    implementation project(':_react_native_masked_view_masked_view')
+    implementation project(':rnflashlist')
+    implementation project(':lottiereactnative')
+    implementation project(':react_native_device_info')
+    implementation project(':rngesturehandler_codegen')
+    implementation project(':RNImagePickerSpec')
+    implementation project(':react_native_linear_gradient')
+    implementation project(':react_native_lottie_splash_screen')
+    implementation project(':RNPermissionsSpec')
+    implementation project(':react-native-reanimated')
+    implementation project(':safeareacontext')
+    implementation project(':rnscreens')
+    implementation project(':react_native_vision_camera')
+    implementation project(':RNCWebViewSpec')
+
+    // Local 100ms packages
     implementation project(':100mslive_react-native-hms')
-
-    implementation project(':react-native-lottie-splash-screen')
 }
-
-apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)

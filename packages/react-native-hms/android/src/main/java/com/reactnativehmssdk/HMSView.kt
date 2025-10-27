@@ -12,11 +12,11 @@ import com.facebook.react.bridge.ReactContext
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.WritableMap
 import com.facebook.react.uimanager.events.RCTEventEmitter
+import hms.webrtc.RendererCommon
 import live.hms.video.media.tracks.HMSVideoTrack
 import live.hms.video.utils.HmsUtilities
 import live.hms.videoview.HMSVideoView
 import live.hms.videoview.VideoViewStateChangeListener
-import org.webrtc.RendererCommon
 
 @SuppressLint("ViewConstructor")
 class HMSView(

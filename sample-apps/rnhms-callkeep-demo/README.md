@@ -6,9 +6,27 @@ with [100ms React Native SDK](https://github.com/100mslive/react-native-hms).
 The app has implemented basic video call conferencing using `v1.6.2` of the `100mslive/react-native-hms` library. It uses
 [Room Code](https://www.100ms.live/docs/react-native/v2/quickstart/token#get-room-code-from-100ms-dashboard) for generating 100ms Auth Token.
 
-
 > Important Note: React Native Callkeep library and Firebase support are added only for Android. Therefore, the iOS build can only be made on the `main` branch.
 
+## Requirements
+
+### Minimum Configuration
+
+- React Native 0.73.0 or above
+- Java 17 or above
+- Android API level 24 or above
+- Xcode 14 or above
+- iOS 16 or above
+- Node.js 22 or above
+
+### Recommended Configuration
+
+- React Native 0.77.3 or above
+- Java 17 or above
+- Android API level 35 or above
+- Xcode 15 or above
+- iOS 16 or above
+- Node.js 22 or above
 
 ## Showcase Video of the App
 
@@ -18,7 +36,6 @@ https://github.com/stanwolverine/rnhms-callkeep-demo/assets/45194090/23f06e6c-20
 
 We will implement a basic feature in which the App can receive an incoming call and can answer it. When the user answers the incoming call, it should
 be able to successfully do conferencing calls with the caller.
-
 
 ### 1. Implement 100ms React Native SDK in your app
 

@@ -12,3 +12,11 @@
 -keep class com.facebook.jni.** { *; }
 -keep class com.swmansion.reanimated.** { *; }
 -keep class com.facebook.react.turbomodule.** { *; }
+
+# MediaPipe classes
+-keep class com.google.mediapipe.** { *; }
+-dontwarn com.google.mediapipe.**
+
+# Protobuf classes
+-keep class com.google.protobuf.** { *; }
+-dontwarn com.google.protobuf.**

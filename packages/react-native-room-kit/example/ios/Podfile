@@ -1,20 +1,11 @@
 require_relative '../node_modules/react-native/scripts/react_native_pods'
-require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
+require_relative '../node_modules/react-native-permissions/scripts/setup'
 
-# platform :ios, '13.0'
-platform :ios, min_ios_version_supported
+platform :ios, '16.0'
 prepare_react_native_project!
 
-# If you are using a `react-native-flipper` your iOS build will fail when `NO_FLIPPER=1` is set.
-# because `react-native-flipper` depends on (FlipperKit,...) that will be excluded
-#
-# To fix this you can also exclude `react-native-flipper` using a `react-native.config.js`
-# ```js
-# module.exports = {
-#   dependencies: {
-#     ...(process.env.NO_FLIPPER ? { 'react-native-flipper': { platforms: { ios: null } } } : {}),
-# ```
-flipper_config = ENV['NO_FLIPPER'] == "1" ? FlipperConfiguration.disabled : FlipperConfiguration.enabled
+# Explicitly disable New Architecture (react-native-hms and react-native-room-kit do not support it)
+ENV['RCT_NEW_ARCH_ENABLED'] = '0'
 
 linkage = ENV['USE_FRAMEWORKS']
 if linkage != nil
@@ -30,32 +21,43 @@ target 'RNExampleBroadcastUpload' do
 end
 
 target 'RNExample' do
-  config = use_native_modules!
-
   # Flags change depending on the env values.
   flags = get_default_flags()
 
-  permissions_path = '../node_modules/react-native-permissions/ios'
+  setup_permissions([
+    'Camera',
+    'Microphone',
+  ])
 
   use_react_native!(
-    :path => config[:reactNativePath],
+    :path => '../node_modules/react-native',
     # Hermes is now enabled by default. Disable by setting this flag to false.
-    # Upcoming versions of React Native may rely on get_default_flags(), but
-    # we make it explicit here to aid in the React Native upgrade process.
     :hermes_enabled => flags[:hermes_enabled],
-    :fabric_enabled => flags[:fabric_enabled],
-    # Enables Flipper.
-    #
-    # Note that if you have use_frameworks! enabled, Flipper will not work and
-    # you should disable the next line.
-    :flipper_configuration => flipper_config,
+    # New Architecture MUST be disabled (react-native-hms and react-native-room-kit do not support it)
+    :fabric_enabled => false,
     # An absolute path to your application root.
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
+  # Manually added pods for monorepo autolinking
   pod 'react-native-hms', :path => '../../../react-native-hms'
-  pod 'Permission-Camera', :path => "#{permissions_path}/Camera"
-  pod 'Permission-Microphone', :path => "#{permissions_path}/Microphone"
+  pod 'lottie-react-native', :path => '../node_modules/lottie-react-native'
+  pod 'react-native-lottie-splash-screen', :path => '../node_modules/react-native-lottie-splash-screen'
+  pod 'RNGestureHandler', :path => '../node_modules/react-native-gesture-handler'
+  pod 'RNCAsyncStorage', :path => '../node_modules/@react-native-async-storage/async-storage'
+  pod 'react-native-blur', :path => '../node_modules/@react-native-community/blur'
+  pod 'RNCMaskedView', :path => '../node_modules/@react-native-masked-view/masked-view'
+  pod 'RNFlashList', :path => '../node_modules/@shopify/flash-list'
+  pod 'BVLinearGradient', :path => '../node_modules/react-native-linear-gradient'
+  pod 'RNDeviceInfo', :path => '../node_modules/react-native-device-info'
+  pod 'react-native-image-picker', :path => '../node_modules/react-native-image-picker'
+  pod 'RNPermissions', :path => '../node_modules/react-native-permissions'
+  pod 'RNReanimated', :path => '../node_modules/react-native-reanimated'
+  pod 'react-native-safe-area-context', :path => '../node_modules/react-native-safe-area-context'
+  pod 'RNScreens', :path => '../node_modules/react-native-screens'
+  pod 'react-native-simple-toast', :path => '../node_modules/react-native-simple-toast'
+  pod 'VisionCamera', :path => '../node_modules/react-native-vision-camera'
+  pod 'react-native-webview', :path => '../node_modules/react-native-webview'
 
   post_install do |installer|
     react_native_post_install(
@@ -64,7 +66,6 @@ target 'RNExample' do
       # necessary for Mac Catalyst builds
       :mac_catalyst_enabled => false
     )
-    __apply_Xcode_12_5_M1_post_install_workaround(installer)
     installer.pods_project.build_configurations.each do |config|
       config.build_settings['ENABLE_BITCODE'] = 'NO'
     end

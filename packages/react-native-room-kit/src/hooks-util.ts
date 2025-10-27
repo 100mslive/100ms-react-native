@@ -2666,14 +2666,7 @@ export const useBackButtonPress = () => {
       );
 
       return () => {
-        if (typeof subscription.remove === 'function') {
-          subscription.remove();
-        } else {
-          BackHandler.removeEventListener(
-            'hardwareBackPress',
-            backPressHandler
-          );
-        }
+        subscription.remove();
       };
     }
   }, [handleBackPress, handleModalVisibleType]);
@@ -3030,16 +3023,8 @@ export const useKeyboardState = () => {
       if (didHideTimeoutId !== null) {
         clearTimeout(didHideTimeoutId);
       }
-      if ('remove' in didShowSubscription) {
-        didShowSubscription.remove();
-      } else {
-        Keyboard.removeSubscription(didShowSubscription);
-      }
-      if ('remove' in didHideSubscription) {
-        didHideSubscription.remove();
-      } else {
-        Keyboard.removeSubscription(didHideSubscription);
-      }
+      didShowSubscription.remove();
+      didHideSubscription.remove();
     };
   }, []);
 

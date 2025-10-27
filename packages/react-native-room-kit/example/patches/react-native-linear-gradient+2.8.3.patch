@@ -1,0 +1,14 @@
+diff --git a/node_modules/react-native-linear-gradient/android/build.gradle b/node_modules/react-native-linear-gradient/android/build.gradle
+index e3aacde..cbaaa02 100644
+--- a/node_modules/react-native-linear-gradient/android/build.gradle
++++ b/node_modules/react-native-linear-gradient/android/build.gradle
+@@ -21,6 +21,9 @@ apply plugin: 'com.android.library'
+ 
+ android {
+     compileSdkVersion safeExtGet('compileSdkVersion', 31).toInteger()
++
++    namespace "com.BV.LinearGradient"
++
+     defaultConfig {
+         minSdkVersion safeExtGet('minSdkVersion', 21)
+         targetSdkVersion safeExtGet('targetSdkVersion', 31)

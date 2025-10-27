@@ -1,8 +1,8 @@
-//  HyperMoney-Bridging-Header.h
+//  RNExample-Bridging-Header.h
 
-#ifndef HyperMoney_Bridging_Header_h
-#define HyperMoney_Bridging_Header_h
+#ifndef RNExample_Bridging_Header_h
+#define RNExample_Bridging_Header_h
 
-#import "RNSplashScreen.h" // here
+#import "RNSplashScreen.h"
 
-#endif /* HyperMoney_Bridging_Header_h */
+#endif /* RNExample_Bridging_Header_h */
