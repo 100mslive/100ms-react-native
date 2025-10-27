@@ -2343,14 +2343,39 @@ class HMSRNSDK: NSObject, HMSUpdateListener, HMSPreviewListener {
                     reject?("6004", errorMessage, nil)
                     return
                 }
-                DispatchQueue.main.async {
-                    guard let image = RCTConvert.uiImage(imageSource) else {
-                        let errorMessage = "\(#function) Unable to create `UIImage` from given background `source` object!"
-                        reject?("6004", errorMessage, nil)
-                        return
+
+                // Check if it's a remote URL
+                if let uriString = imageSource.value(forKey: "uri") as? String,
+                   (uriString.hasPrefix("http://") || uriString.hasPrefix("https://")),
+                   let url = URL(string: uriString) {
+                    // Download remote image
+                    URLSession.shared.dataTask(with: url) { data, response, error in
+                        DispatchQueue.main.async {
+                            if let error = error {
+                                let errorMessage = "\(#function) Failed to download image: \(error.localizedDescription)"
+                                reject?("6004", errorMessage, nil)
+                                return
+                            }
+                            guard let data = data, let image = UIImage(data: data) else {
+                                let errorMessage = "\(#function) Unable to create `UIImage` from downloaded data!"
+                                reject?("6004", errorMessage, nil)
+                                return
+                            }
+                            virtualBackgroundPlugin.backgroundImage = image
+                            resolve?(true)
+                        }
+                    }.resume()
+                } else {
+                    // Use RCTConvert for local files and bundled resources
+                    DispatchQueue.main.async {
+                        guard let image = RCTConvert.uiImage(imageSource) else {
+                            let errorMessage = "\(#function) Unable to create `UIImage` from given background `source` object!"
+                            reject?("6004", errorMessage, nil)
+                            return
+                        }
+                        virtualBackgroundPlugin.backgroundImage = image
+                        resolve?(true)
                     }
-                    virtualBackgroundPlugin.backgroundImage = image
-                    resolve?(true)
                 }
             default:
                 let errorMessage = "\(#function) Unknown background `type` passed!"
