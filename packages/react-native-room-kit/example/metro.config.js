@@ -6,7 +6,6 @@ const config = {
   watchFolders: [
     path.resolve(__dirname, '..'),
     path.resolve(__dirname, '../../react-native-hms'),
-    path.resolve(__dirname, '../../../../react-native-video-plugin'),
   ],
 
   resolver: {
@@ -15,7 +14,6 @@ const config = {
     blockList: [
       /.*\/react-native-room-kit\/node_modules\/.*/,
       /.*\/react-native-hms\/node_modules\/.*/,
-      /.*\/react-native-video-plugin\/node_modules\/.*/,
     ],
 
     // Ensure all packages use dependencies from example/node_modules
