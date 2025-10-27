@@ -269,19 +269,37 @@ jobs:
           bundler-cache: false
 
       - name: Cache Ruby Gems
+        id: cache-gems
         uses: actions/cache@v4
         with:
           path: packages/react-native-room-kit/example/ios/vendor/bundle
-          key: ${{ runner.os }}-gems-${{ hashFiles('packages/react-native-room-kit/example/ios/Gemfile.lock') }}
+          key: ${{ runner.os }}-gems-v2-${{ hashFiles('packages/react-native-room-kit/example/ios/Gemfile.lock') }}
           restore-keys: |
-            ${{ runner.os }}-gems-
+            ${{ runner.os }}-gems-v2-
 
       - name: Install Bundler dependencies
         working-directory: packages/react-native-room-kit/example/ios
         run: |
+          # Configure bundler
           bundle config set --local path 'vendor/bundle'
           bundle config set --local deployment 'false'
+          bundle config set --local without ''
+
+          # Show what we're working with
+          echo "Cache hit: ${{ steps.cache-gems.outputs.cache-hit }}"
+          ls -la vendor/ 2>/dev/null || echo "No vendor directory yet"
+
+          # Install gems (will use cache if available)
           bundle install --jobs 4 --retry 3
+
+          # Verify critical gems are installed
+          echo "Verifying installation..."
+          bundle exec pod --version || {
+            echo "❌ CocoaPods not found, listing all gems:"
+            bundle list
+            exit 1
+          }
+          echo "✅ Bundler dependencies installed and verified"
 
       - name: Display environment info
         run: |
