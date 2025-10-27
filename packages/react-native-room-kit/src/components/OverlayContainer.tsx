@@ -4,7 +4,9 @@ import type { StyleProp, ViewStyle } from 'react-native';
 import type { AnimatedStyle } from 'react-native-reanimated';
 import Animated from 'react-native-reanimated';
 
-type OverlayContainerProps = {};
+type OverlayContainerProps = {
+  children?: React.ReactNode;
+};
 
 export const OverlayContainer: React.FC<OverlayContainerProps> & {
   Overlay: typeof Overlay;
@@ -14,6 +16,7 @@ export const OverlayContainer: React.FC<OverlayContainerProps> & {
 
 export type OverlayProps = {
   animatedStyle?: StyleProp<AnimatedStyle<StyleProp<ViewStyle>>>;
+  children?: React.ReactNode;
 };
 
 const Overlay: React.FC<OverlayProps> = ({ children, animatedStyle }) => {

@@ -35,7 +35,7 @@ const PeerRTCStatsView: React.FC<PeerRTCStatsViewProps> = ({
   return (
     <View>
       {videoTrackStats && 'layer' in videoTrackStats ? (
-        <Text style={styles.statsTitle}>{videoTrackStats.layer}</Text>
+        <Text style={styles.statsTitle}>{String(videoTrackStats.layer)}</Text>
       ) : null}
 
       <Text style={styles.statsText}>

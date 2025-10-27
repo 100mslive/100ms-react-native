@@ -8,6 +8,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 export interface HMSPinchGestureProps {
+  children?: React.ReactNode;
   style?: StyleProp<ViewStyle>;
 }
 

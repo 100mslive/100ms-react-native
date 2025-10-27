@@ -11,6 +11,7 @@ import { useFooterHeight } from './Footer';
 interface AnimatedHLSFooterProps {
   offset: SharedValue<number>;
   style?: StyleProp<AnimatedStyle<ViewStyle>>;
+  children?: React.ReactNode;
 }
 
 export const AnimatedHLSFooter: React.FC<AnimatedHLSFooterProps> = ({

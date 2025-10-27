@@ -11,6 +11,7 @@ import { CloseIcon } from '../Icons';
 import { useIsLandscapeOrientation } from '../utils/dimension';
 
 export interface DefaultModalProps {
+  children?: React.ReactNode;
   modalVisible: boolean;
   setModalVisible: any;
   animationIn?: SupportedAnimation;

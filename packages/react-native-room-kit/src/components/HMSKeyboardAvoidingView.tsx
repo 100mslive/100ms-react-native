@@ -11,6 +11,7 @@ import type { SharedValue, AnimatedStyle } from 'react-native-reanimated';
 import { useKeyboardState } from '../hooks-util';
 
 export interface HMSKeyboardAvoidingViewProps {
+  children?: React.ReactNode;
   style?: StyleProp<AnimatedStyle<ViewStyle>>;
   styleWhenInactive?: ViewStyle;
   styleWhenActive?: ViewStyle;

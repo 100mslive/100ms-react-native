@@ -11,6 +11,7 @@ export interface HLSAnimatedDescriptionPaneProps {
   sharedValue: SharedValue<number>;
   height: number;
   style?: StyleProp<AnimatedStyle<StyleProp<ViewStyle>>>;
+  children?: React.ReactNode;
 }
 
 export const HLSAnimatedDescriptionPane: React.FC<
