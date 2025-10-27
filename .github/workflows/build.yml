@@ -268,47 +268,21 @@ jobs:
           ruby-version: "3.2"
           bundler-cache: false
 
-      - name: Cache Ruby Gems
-        id: cache-gems
-        uses: actions/cache@v4
-        with:
-          path: packages/react-native-room-kit/example/ios/vendor/bundle
-          key: ${{ runner.os }}-gems-v2-${{ hashFiles('packages/react-native-room-kit/example/ios/Gemfile.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-gems-v2-
-
-      - name: Install Bundler dependencies
-        working-directory: packages/react-native-room-kit/example/ios
+      - name: Install CocoaPods
         run: |
-          # Configure bundler
-          bundle config set --local path 'vendor/bundle'
-          bundle config set --local deployment 'false'
-          bundle config set --local without ''
+          # Install CocoaPods globally to avoid bundler conflicts with eval_gemfile
+          gem install cocoapods -v '~> 1.15'
 
-          # Show what we're working with
-          echo "Cache hit: ${{ steps.cache-gems.outputs.cache-hit }}"
-          ls -la vendor/ 2>/dev/null || echo "No vendor directory yet"
-
-          # Install gems (will use cache if available)
-          bundle install --jobs 4 --retry 3
-
-          # Verify critical gems are installed
-          echo "Verifying installation..."
-          bundle exec pod --version || {
-            echo "❌ CocoaPods not found, listing all gems:"
-            bundle list
-            exit 1
-          }
-          echo "✅ Bundler dependencies installed and verified"
+          # Verify installation
+          pod --version
+          echo "✅ CocoaPods installed"
 
       - name: Display environment info
         run: |
           echo "Node: $(node --version)"
           echo "npm: $(npm --version)"
           echo "Ruby: $(ruby --version | cut -d' ' -f1-2)"
-          echo "Bundler: $(bundle --version)"
-          cd packages/react-native-room-kit/example/ios
-          echo "CocoaPods: $(bundle exec pod --version)"
+          echo "CocoaPods: $(pod --version)"
 
       - name: Cache CocoaPods
         id: cache-pods
@@ -364,7 +338,8 @@ jobs:
         if: steps.cache-pods.outputs.cache-hit != 'true'
         working-directory: packages/react-native-room-kit/example/ios
         run: |
-          bundle exec pod install --repo-update || bundle exec pod install --repo-update
+          # Install pods using globally installed CocoaPods
+          pod install --repo-update || pod install --repo-update
         continue-on-error: false
 
       - name: Verify Pods installation
