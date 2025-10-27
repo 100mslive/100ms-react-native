@@ -111,7 +111,10 @@
     "teams",
     "ai"
   ],
-  "repository": "https://github.com/100mslive/100ms-react-native",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/100mslive/100ms-react-native.git"
+  },
   "author": "Yogesh <yogesh@100ms.live> (https://www.100ms.live/)",
   "license": "MIT",
   "bugs": {
