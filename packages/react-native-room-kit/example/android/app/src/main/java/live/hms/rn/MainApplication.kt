@@ -1,7 +1,6 @@
 package live.hms.rn
 
 import androidx.multidex.MultiDexApplication
-import com.facebook.react.PackageList
 import com.facebook.react.ReactApplication
 import com.facebook.react.ReactNativeHost
 import com.facebook.react.ReactPackage
@@ -17,9 +16,10 @@ class MainApplication :
   override val reactNativeHost: ReactNativeHost =
     object : DefaultReactNativeHost(this) {
       override fun getPackages(): List<ReactPackage> {
-        val packages = PackageList(this).packages.toMutableList()
-        packages.add(HmssdkPackage())
-        return packages
+        // Manual package list since autolinking is disabled for monorepo compatibility
+        return listOf(
+          HmssdkPackage(),
+        )
       }
 
       override fun getJSMainModuleName(): String = "index"
