@@ -222,3 +222,12 @@ dependencies {
     // Local 100ms packages
     implementation project(':100mslive_react-native-hms')
 }
+
+// Disable autolinking tasks since we're using manual linking (RN 0.77.3 monorepo fix)
+afterEvaluate {
+    tasks.configureEach { task ->
+        if (task.name.contains("Autolinking") || task.name.contains("autolinking")) {
+            task.enabled = false
+        }
+    }
+}

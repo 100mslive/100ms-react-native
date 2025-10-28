@@ -10,6 +10,7 @@ import { useFooterHeight } from './Footer';
 
 interface AnimatedFooterProps {
   offset: SharedValue<number>;
+  children?: React.ReactNode;
 }
 
 export const AnimatedFooter: React.FC<AnimatedFooterProps> = ({

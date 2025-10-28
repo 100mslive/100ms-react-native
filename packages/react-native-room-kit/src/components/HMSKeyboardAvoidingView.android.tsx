@@ -4,6 +4,7 @@ import Animated from 'react-native-reanimated'; // useDerivedValue, // useAnimat
 import type { AnimatedStyle } from 'react-native-reanimated';
 
 export interface HMSKeyboardAvoidingViewProps {
+  children?: React.ReactNode;
   style?: StyleProp<AnimatedStyle<ViewStyle>>;
   bottomOffset?: number;
 }

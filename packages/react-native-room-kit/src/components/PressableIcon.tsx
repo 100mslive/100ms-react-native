@@ -6,7 +6,7 @@ import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import { useHMSRoomStyleSheet, useIsHLSViewer } from '../hooks-util';
 
 interface PressableIconProps extends Omit<TouchableOpacityProps, 'children'> {
-  children: Pick<TouchableOpacityProps, 'children'>;
+  children?: React.ReactNode;
   active?: boolean;
   rounded?: boolean;
   border?: boolean;

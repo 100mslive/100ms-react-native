@@ -227,7 +227,10 @@ const RegularTiles = React.forwardRef<
 
   const isLandscapeOrientation = useIsLandscapeOrientation();
 
-  const _keyExtractor = React.useCallback((item) => item[0]?.id, []);
+  const _keyExtractor = React.useCallback(
+    (item: PeerTrackNode[]) => item[0]?.id || '',
+    []
+  );
 
   const _handleViewableItemsChanged = React.useCallback(
     (info: { viewableItems: ViewToken[]; changed: ViewToken[] }) => {
@@ -244,7 +247,7 @@ const RegularTiles = React.forwardRef<
   );
 
   const _renderItem = React.useCallback(
-    ({ item }) => {
+    ({ item }: { item: PeerTrackNode[] }) => {
       return (
         <TilesContainer
           onPeerTileMorePress={onPeerTileMorePress}
@@ -310,7 +313,7 @@ const ScreenshareTiles = React.forwardRef<
     (state: RootState) => state.app.screensharePeerTrackNodes
   );
 
-  const _keyExtractor = React.useCallback((item) => item.id, []);
+  const _keyExtractor = React.useCallback((item: PeerTrackNode) => item.id, []);
 
   const _handleViewableItemsChanged = React.useCallback(
     (info: { viewableItems: ViewToken[]; changed: ViewToken[] }) => {
@@ -328,7 +331,7 @@ const ScreenshareTiles = React.forwardRef<
   const tileWidth = safeWidth;
 
   const _renderItem = React.useCallback(
-    ({ item }) => {
+    ({ item }: { item: PeerTrackNode }) => {
       return (
         <Tile
           height={'100%'}

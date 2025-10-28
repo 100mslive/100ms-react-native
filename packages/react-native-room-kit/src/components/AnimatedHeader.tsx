@@ -11,6 +11,7 @@ import { useHeaderHeight } from './Header';
 
 export interface AnimatedHeaderProps {
   offset: SharedValue<number>;
+  children?: React.ReactNode;
 }
 
 export const AnimatedHeader: React.FC<AnimatedHeaderProps> = ({

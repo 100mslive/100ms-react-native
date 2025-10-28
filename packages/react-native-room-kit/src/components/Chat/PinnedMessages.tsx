@@ -286,7 +286,7 @@ export const _PinnedMessages: React.FC<PinnedMessagesProps> = ({
   const _keyExtractor = React.useCallback((item: PinnedMessage) => item.id, []);
 
   const _onContentSizeChange = React.useCallback(
-    (_w, _h) => {
+    (_w: number, _h: number) => {
       listRef.current?.scrollToOffset({
         offset: listHeight * selectedPinnedMessageIndexRef.current,
         animated: false,

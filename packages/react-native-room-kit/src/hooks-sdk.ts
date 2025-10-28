@@ -44,7 +44,7 @@ export const useHMSActions = () => {
   const store = useStore();
 
   const setLocalAudioEnabled = useCallback(async (enable: boolean) => {
-    const state: RootState = store.getState();
+    const state = store.getState() as RootState;
     const localPeer = state.hmsStates.localPeer;
 
     if (!localPeer) {
@@ -66,7 +66,7 @@ export const useHMSActions = () => {
   }, []);
 
   const setLocalVideoEnabled = useCallback(async (enable: boolean) => {
-    const state: RootState = store.getState();
+    const state = store.getState() as RootState;
     const localPeer = state.hmsStates.localPeer;
 
     if (!localPeer) {
@@ -88,7 +88,7 @@ export const useHMSActions = () => {
   }, []);
 
   const switchCamera = useCallback(async () => {
-    const state: RootState = store.getState();
+    const state = store.getState() as RootState;
     const localPeer = state.hmsStates.localPeer;
 
     if (!localPeer) {
@@ -105,7 +105,7 @@ export const useHMSActions = () => {
   }, []);
 
   const setScreenShareEnabled = useCallback(async (enable: boolean) => {
-    const state: RootState = store.getState();
+    const state = store.getState() as RootState;
     const hmsInstance = state.user.hmsInstance;
 
     if (!hmsInstance) {
@@ -133,7 +133,7 @@ export const useHMSActions = () => {
   }, []);
 
   const changeMetadata = useCallback(async (metadata: string | object) => {
-    const state: RootState = store.getState();
+    const state = store.getState() as RootState;
     const hmsInstance = state.user.hmsInstance;
 
     if (!hmsInstance) {
@@ -152,7 +152,7 @@ export const useHMSActions = () => {
   }, []);
 
   const changeName = useCallback(async (name: string): Promise<void> => {
-    const state: RootState = store.getState();
+    const state = store.getState() as RootState;
     const hmsInstance = state.user.hmsInstance;
 
     if (!hmsInstance) {
@@ -169,7 +169,7 @@ export const useHMSActions = () => {
   }, []);
 
   const raiseLocalPeerHand = useCallback(async (): Promise<void> => {
-    const state: RootState = store.getState();
+    const state = store.getState() as RootState;
     const hmsInstance = state.user.hmsInstance;
 
     if (!hmsInstance) {
@@ -186,7 +186,7 @@ export const useHMSActions = () => {
   }, []);
 
   const lowerLocalPeerHand = useCallback(async (): Promise<void> => {
-    const state: RootState = store.getState();
+    const state = store.getState() as RootState;
     const hmsInstance = state.user.hmsInstance;
 
     if (!hmsInstance) {
@@ -204,7 +204,7 @@ export const useHMSActions = () => {
 
   const lowerRemotePeerHand = useCallback(
     async (peer: HMSPeer): Promise<void> => {
-      const state: RootState = store.getState();
+      const state = store.getState() as RootState;
       const hmsInstance = state.user.hmsInstance;
 
       if (!hmsInstance) {
@@ -224,7 +224,7 @@ export const useHMSActions = () => {
 
   const setRoomMuteLocally = useCallback(
     async (mute: boolean): Promise<void> => {
-      const state: RootState = store.getState();
+      const state = store.getState() as RootState;
       const hmsInstance = state.user.hmsInstance;
 
       if (!hmsInstance) {
