@@ -22,17 +22,21 @@ class HMSSDKViewManager : SimpleViewManager<HMSView>() {
   }
 
   override fun getExportedCustomBubblingEventTypeConstants(): MutableMap<String, Any>? =
-    MapBuilder
-      .builder<String, Any>()
-      .put(
-        "topChange",
-        MapBuilder.of("phasedRegistrationNames", MapBuilder.of("bubbled", "onChange")),
-      ).build()
+    HashMap(
+      MapBuilder
+        .builder<String, Any>()
+        .put(
+          "topChange",
+          MapBuilder.of("phasedRegistrationNames", MapBuilder.of("bubbled", "onChange")),
+        ).build(),
+    )
 
   override fun getExportedCustomDirectEventTypeConstants(): MutableMap<String, Any>? =
-    MapBuilder.of(
-      "captureFrame",
-      MapBuilder.of("registrationName", "onDataReturned"),
+    HashMap(
+      MapBuilder.of(
+        "captureFrame",
+        MapBuilder.of("registrationName", "onDataReturned"),
+      ),
     )
 
   @RequiresApi(Build.VERSION_CODES.N)

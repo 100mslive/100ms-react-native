@@ -24,15 +24,18 @@ class HMSHLSPlayerManager : SimpleViewManager<HMSHLSPlayer>() {
   override fun getExportedCustomDirectEventTypeConstants(): MutableMap<String, Any>? {
     super.getExportedCustomDirectEventTypeConstants()
 
-    return MapBuilder.of(
-      HMSHLSPlayerConstants.HMS_HLS_PLAYBACK_EVENT,
-      MapBuilder.of("registrationName", "onHmsHlsPlaybackEvent"),
-      HMSHLSPlayerConstants.HMS_HLS_STATS_EVENT,
-      MapBuilder.of("registrationName", "onHmsHlsStatsEvent"),
-      HMSHLSPlayerConstants.HLS_DATA_REQUEST_EVENT,
-      MapBuilder.of("registrationName", "onDataReturned"),
-      HMSHLSPlayerConstants.HLS_PLAYER_CUES_EVENT,
-      MapBuilder.of("registrationName", "onHlsPlayerCuesEvent"),
+    // MapBuilder returns a Java Map; wrap it into a MutableMap to satisfy RN 0.81 signature
+    return HashMap(
+      MapBuilder.of(
+        HMSHLSPlayerConstants.HMS_HLS_PLAYBACK_EVENT,
+        MapBuilder.of("registrationName", "onHmsHlsPlaybackEvent"),
+        HMSHLSPlayerConstants.HMS_HLS_STATS_EVENT,
+        MapBuilder.of("registrationName", "onHmsHlsStatsEvent"),
+        HMSHLSPlayerConstants.HLS_DATA_REQUEST_EVENT,
+        MapBuilder.of("registrationName", "onDataReturned"),
+        HMSHLSPlayerConstants.HLS_PLAYER_CUES_EVENT,
+        MapBuilder.of("registrationName", "onHlsPlayerCuesEvent"),
+      ),
     )
   }
 
@@ -97,22 +100,24 @@ class HMSHLSPlayerManager : SimpleViewManager<HMSHLSPlayer>() {
   }
 
   override fun getCommandsMap(): MutableMap<String, Int>? =
-    MapBuilder
-      .builder<String, Int>()
-      .put("play", 10)
-      .put("stop", 20)
-      .put("pause", 30)
-      .put("resume", 40)
-      .put("seekToLivePosition", 50)
-      .put("seekForward", 60)
-      .put("seekBackward", 70)
-      .put("setVolume", 80)
-      .put("areClosedCaptionSupported", 90)
-      .put("isClosedCaptionEnabled", 100)
-      .put("enableClosedCaption", 110)
-      .put("disableClosedCaption", 120)
-      .put("getPlayerDurationDetails", 130)
-      .build()
+    HashMap(
+      MapBuilder
+        .builder<String, Int>()
+        .put("play", 10)
+        .put("stop", 20)
+        .put("pause", 30)
+        .put("resume", 40)
+        .put("seekToLivePosition", 50)
+        .put("seekForward", 60)
+        .put("seekBackward", 70)
+        .put("setVolume", 80)
+        .put("areClosedCaptionSupported", 90)
+        .put("isClosedCaptionEnabled", 100)
+        .put("enableClosedCaption", 110)
+        .put("disableClosedCaption", 120)
+        .put("getPlayerDurationDetails", 130)
+        .build(),
+    )
 
   @ReactProp(name = "url")
   fun setStreamURL(

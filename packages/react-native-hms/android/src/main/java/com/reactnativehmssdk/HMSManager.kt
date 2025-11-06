@@ -96,7 +96,7 @@ class HMSManager(
       reactAppContext = reactApplicationContext
 
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        currentActivity?.let {
+        reactApplicationContext.currentActivity?.let {
           pipReceiver?.register(it)
         }
       }
@@ -438,7 +438,7 @@ class HMSManager(
     data: ReadableMap,
     callback: Promise?,
   ) {
-    currentActivity?.application?.registerActivityLifecycleCallbacks(this)
+  reactApplicationContext.currentActivity?.application?.registerActivityLifecycleCallbacks(this)
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.startScreenshare(callback)
@@ -461,7 +461,7 @@ class HMSManager(
   ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
-    currentActivity?.application?.unregisterActivityLifecycleCallbacks(this)
+  reactApplicationContext.currentActivity?.application?.unregisterActivityLifecycleCallbacks(this)
     hms?.stopScreenshare(callback)
   }
 
@@ -470,7 +470,7 @@ class HMSManager(
     data: ReadableMap,
     callback: Promise?,
   ) {
-    currentActivity?.application?.registerActivityLifecycleCallbacks(this)
+  reactApplicationContext.currentActivity?.application?.registerActivityLifecycleCallbacks(this)
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.startAudioshare(data, callback)
@@ -493,7 +493,7 @@ class HMSManager(
   ) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
-    currentActivity?.application?.unregisterActivityLifecycleCallbacks(this)
+  reactApplicationContext.currentActivity?.application?.unregisterActivityLifecycleCallbacks(this)
     hms?.stopAudioshare(callback)
   }
 
@@ -784,7 +784,7 @@ class HMSManager(
       return
     }
 
-    val activity = currentActivity
+  val activity = reactApplicationContext.currentActivity
 
     if (activity !== null) {
       val hmssdk = getHmsInstance()[PipActionReceiver.sdkIdForPIP!!]?.hmsSDK
@@ -1085,7 +1085,7 @@ class HMSManager(
         throw Throwable(message = "PIP Mode is not supported!")
       }
 
-      val activity = currentActivity ?: return false
+  val activity = reactApplicationContext.currentActivity ?: return false
       val pipParamConfig = readableMapToPipParamConfig(data) ?: return false
       val pipParams = buildPipParams(pipParamConfig) ?: return false
 
@@ -1122,7 +1122,7 @@ class HMSManager(
         throw Throwable(message = "PIP Mode is not supported!")
       }
 
-      val activity = currentActivity ?: return false
+  val activity = reactApplicationContext.currentActivity ?: return false
       val pipParamConfig = readableMapToPipParamConfig(data) ?: return false
       val pipParams = buildPipParams(pipParamConfig) ?: return false
 
@@ -1713,7 +1713,7 @@ class HMSManager(
             hmsCollection[key]?.leave(null)
           }
         }
-        currentActivity?.application?.unregisterActivityLifecycleCallbacks(this)
+  reactApplicationContext.currentActivity?.application?.unregisterActivityLifecycleCallbacks(this)
         hmsCollection = mutableMapOf()
         // unregistering pip actions on activity destroy.
         if (pipReceiver !== null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
