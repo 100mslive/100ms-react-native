@@ -34,5 +34,8 @@
     "@babel/core": "^7.20.0",
     "expo-build-properties": "~0.11.1"
   },
+  "overrides": {
+    "tar": ">=7.5.7"
+  },
   "private": true
 }
