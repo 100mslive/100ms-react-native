@@ -335,10 +335,9 @@ jobs:
           npm run prepack
 
       - name: Install CocoaPods dependencies
-        if: steps.cache-pods.outputs.cache-hit != 'true'
         working-directory: packages/react-native-room-kit/example/ios
         run: |
-          # Install pods using globally installed CocoaPods
+          # Always run pod install to keep sandbox in sync with node_modules changes
           pod install --repo-update || pod install --repo-update
         continue-on-error: false
 
