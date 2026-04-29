@@ -69,5 +69,15 @@ target 'RNExample' do
     installer.pods_project.build_configurations.each do |config|
       config.build_settings['ENABLE_BITCODE'] = 'NO'
     end
+    # fmt 11 uses consteval for FMT_STRING which Clang 26 (Xcode 26) rejects.
+    # Compiling fmt with C++17 makes FMT_CPLUSPLUS < 202002L so FMT_CONSTEVAL
+    # resolves to constexpr, sidestepping the consteval constant-expression rules.
+    installer.pods_project.targets.each do |target|
+      if target.name == 'fmt'
+        target.build_configurations.each do |config|
+          config.build_settings['CLANG_CXX_LANGUAGE_STANDARD'] = 'c++17'
+        end
+      end
+    end
   end
 end
