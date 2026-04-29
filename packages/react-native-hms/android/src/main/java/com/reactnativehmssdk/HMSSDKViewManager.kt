@@ -21,7 +21,7 @@ class HMSSDKViewManager : SimpleViewManager<HMSView>() {
     return HMSView(reactContext)
   }
 
-  override fun getExportedCustomBubblingEventTypeConstants(): MutableMap<String, Any>? =
+  override fun getExportedCustomBubblingEventTypeConstants(): Map<String, Any>? =
     MapBuilder
       .builder<String, Any>()
       .put(
@@ -29,7 +29,7 @@ class HMSSDKViewManager : SimpleViewManager<HMSView>() {
         MapBuilder.of("phasedRegistrationNames", MapBuilder.of("bubbled", "onChange")),
       ).build()
 
-  override fun getExportedCustomDirectEventTypeConstants(): MutableMap<String, Any>? =
+  override fun getExportedCustomDirectEventTypeConstants(): Map<String, Any>? =
     MapBuilder.of(
       "captureFrame",
       MapBuilder.of("registrationName", "onDataReturned"),

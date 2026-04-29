@@ -21,7 +21,7 @@ class HMSHLSPlayerManager : SimpleViewManager<HMSHLSPlayer>() {
     view.cleanup()
   }
 
-  override fun getExportedCustomDirectEventTypeConstants(): MutableMap<String, Any>? {
+  override fun getExportedCustomDirectEventTypeConstants(): Map<String, Any>? {
     super.getExportedCustomDirectEventTypeConstants()
 
     return MapBuilder.of(
@@ -96,7 +96,7 @@ class HMSHLSPlayerManager : SimpleViewManager<HMSHLSPlayer>() {
     }
   }
 
-  override fun getCommandsMap(): MutableMap<String, Int>? =
+  override fun getCommandsMap(): Map<String, Int>? =
     MapBuilder
       .builder<String, Int>()
       .put("play", 10)
