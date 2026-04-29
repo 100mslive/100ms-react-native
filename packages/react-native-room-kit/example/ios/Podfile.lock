@@ -15,10 +15,10 @@ PODS:
   - HMSHLSPlayerSDK (0.0.2):
     - HMSAnalyticsSDK (= 0.0.2)
   - HMSNoiseCancellationModels (1.0.0)
-  - HMSSDK (1.17.0):
+  - HMSSDK (1.17.1):
     - HMSAnalyticsSDK (= 0.0.2)
-    - HMSWebRTC (= 1.0.6174)
-  - HMSWebRTC (1.0.6174)
+    - HMSWebRTC (= 1.0.6175)
+  - HMSWebRTC (1.0.6175)
   - lottie-ios (4.5.0)
   - lottie-react-native (7.3.4):
     - DoubleConversion
@@ -1265,14 +1265,14 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-hms (1.12.0):
+  - react-native-hms (1.12.1):
     - DoubleConversion
     - glog
     - hermes-engine
     - HMSBroadcastExtensionSDK (= 1.0.1)
     - HMSHLSPlayerSDK (= 0.0.2)
     - HMSNoiseCancellationModels (= 1.0.0)
-    - HMSSDK (= 1.17.0)
+    - HMSSDK (= 1.17.1)
     - RCT-Folly (= 2024.11.18.00)
     - RCTRequired
     - RCTTypeSafety
@@ -2101,8 +2101,8 @@ SPEC CHECKSUMS:
   HMSBroadcastExtensionSDK: b32e14990cffd773fb5b5219a4dd56b05bef3b29
   HMSHLSPlayerSDK: 6a54ad4d12f3dc2270d1ecd24019d71282a4f6a3
   HMSNoiseCancellationModels: a3bda1405a16015632f4bcabd46ce48f35103b02
-  HMSSDK: 949917ebecb66845558407f8e3b3bfeef5332b02
-  HMSWebRTC: 2a9db363e4bfb2d633ab688c04f47ec20767b4ac
+  HMSSDK: 8742f7d4a8efdbf5c088e171535a5ba789846fd5
+  HMSWebRTC: 98691ef86b1e51c78edde539132c0bca50849500
   lottie-ios: a881093fab623c467d3bce374367755c272bdd59
   lottie-react-native: 0fdfbaa934fc6d3acbffbac5fb4d73d48e37fdf5
   RCT-Folly: e78785aa9ba2ed998ea4151e314036f6c49e6d82
@@ -2135,7 +2135,7 @@ SPEC CHECKSUMS:
   React-Mapbuffer: 1864935968d15b9b73d8e413d29c780f0ab50038
   React-microtasksnativemodule: 3b784cf40f7c3c9500b9a5f9e4eec5c9bbfbef8f
   react-native-blur: b06c3fe88680beac622d8d13b8c36ec15c50383b
-  react-native-hms: a56359002bff27326ad1e88225b34c7ddb3381d6
+  react-native-hms: 3240ef9e08ad9d7ff14ade76bde7a54f9b775705
   react-native-image-picker: 8c8f120521f283d7a069c51d519fbd654e8de8e3
   react-native-lottie-splash-screen: e7820832f194c296ccdb177a82d8a3f3b7e362bf
   react-native-safe-area-context: 2243039f43d10cb1ea30ec5ac57fc6d1448413f4
@@ -2183,6 +2183,6 @@ SPEC CHECKSUMS:
   VisionCamera: 30b358b807324c692064f78385e9a732ce1bebfe
   Yoga: 92f3bb322c40a86b7233b815854730442e01b8c4
 
-PODFILE CHECKSUM: 725cff8f0f0daa76a6e737c8c869813a0c0c238c
+PODFILE CHECKSUM: 0d2518cf1237ab0db3c9d231f7e2864445347a6c
 
 COCOAPODS: 1.16.2
