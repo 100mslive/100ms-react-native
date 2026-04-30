@@ -56,10 +56,13 @@ Add `--ios-broadcast`, `--ios-hls`, `--ios-noise-cancel` when the user has provi
 2. Bumps `packages/react-native-hms/package.json` and its example.
 3. Bumps `packages/react-native-room-kit/package.json` and its example.
 4. **Always** sets `peerDependencies['@100mslive/react-native-hms']` in room-kit's `package.json` to the resolved hms version (auto-corrects drift, even when `--hms-bump=skip`).
-5. Runs `npm install` in the four affected directories in parallel to refresh lock files.
-6. Runs `node scripts/update-changelog-versions.js` to refresh the version block at the bottom of `ExampleAppChangelog.txt`.
-7. Prints a suggested conventional-commit message.
-8. Reminds you to `pod install` if any iOS native version changed (Podfile.lock isn't touched by `npm install`).
+5. **Validates iOS native versions** by HEAD-checking each pod (`HMSSDK`, `HMSBroadcastExtensionSDK`, `HMSHLSPlayerSDK`, `HMSNoiseCancellationModels`) against the CocoaPods CDN (only if any iOS native field changed). If a version doesn't exist, the script exits non-zero with a clear error.
+6. **Validates the Android native version** by HEAD-checking the `live.100ms:android-sdk`, `:video-view`, and `:hls-player` artifacts on Maven Central (only if `--android-sdk` changed).
+7. After validation passes, runs `npm install --legacy-peer-deps` in 4 dirs to refresh lock files (the `--legacy-peer-deps` flag tolerates a known monorepo peer-dep drift between react-native-video-plugin and react-native-hms).
+8. Runs `pod install --repo-update` in both iOS example dirs and `./gradlew :app:dependencies --refresh-dependencies` in both Android example dirs (side-effect refresh; HTTP HEAD above is the actual validator since pod install reuses Podfile.lock).
+9. All native validation/refresh is skipped by `--no-install`. On validation failure the script aborts; revert with `git checkout .`.
+10. Runs `node scripts/update-changelog-versions.js` to refresh the version block at the bottom of `ExampleAppChangelog.txt`.
+11. Prints a suggested conventional-commit message.
 
 ## After the script completes
 
