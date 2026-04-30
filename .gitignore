@@ -104,3 +104,11 @@ packages/react-native-room-kit/example/android/app/build
 *.hprof
 settings.local.json
 .xcode.env.local
+
+## Claude Code project config
+# Re-include .claude/ (overrides any global '.claude' rule in user's
+# ~/.gitignore_global) so team-shared skills/agents/commands are tracked.
+# Per-machine personal files inside .claude/ are still excluded below.
+!.claude/
+.claude/settings.local.json
+.claude/.cache/
