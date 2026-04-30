@@ -1,0 +1,170 @@
+name: Bump SDK Versions
+
+# Manually-triggered workflow to bump 100ms native SDK versions and React
+# Native package versions in lock-step, then open a PR with the changes
+# (including refreshed package-lock.json files).
+#
+# See scripts/update-sdk-versions.js for the script behaviour and flag list.
+
+on:
+  workflow_dispatch:
+    inputs:
+      ios_sdk:
+        description: "iOS HMSSDK version (leave blank to keep current)"
+        required: false
+        type: string
+      android_sdk:
+        description: "Android HMSSDK version (leave blank to keep current)"
+        required: false
+        type: string
+      ios_broadcast:
+        description: "iOSBroadcastExtension version (blank = keep)"
+        required: false
+        type: string
+      ios_hls:
+        description: "iOSHMSHLSPlayer version (blank = keep)"
+        required: false
+        type: string
+      ios_noise_cancel:
+        description: "iOSNoiseCancellationModels version (blank = keep)"
+        required: false
+        type: string
+      hms_bump:
+        description: "Bump @100mslive/react-native-hms"
+        required: true
+        type: choice
+        default: skip
+        options: [skip, patch, minor, major]
+      room_kit_bump:
+        description: "Bump @100mslive/react-native-room-kit"
+        required: true
+        type: choice
+        default: skip
+        options: [skip, patch, minor, major]
+
+concurrency:
+  group: bump-sdk-versions
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Run update-sdk-versions.js
+        run: |
+          set -euo pipefail
+          ARGS=(--hms-bump "${{ inputs.hms_bump }}" --room-kit-bump "${{ inputs.room_kit_bump }}" --yes --no-install)
+          [ -n "${{ inputs.ios_sdk }}" ]          && ARGS+=(--ios-sdk "${{ inputs.ios_sdk }}")
+          [ -n "${{ inputs.android_sdk }}" ]      && ARGS+=(--android-sdk "${{ inputs.android_sdk }}")
+          [ -n "${{ inputs.ios_broadcast }}" ]    && ARGS+=(--ios-broadcast "${{ inputs.ios_broadcast }}")
+          [ -n "${{ inputs.ios_hls }}" ]          && ARGS+=(--ios-hls "${{ inputs.ios_hls }}")
+          [ -n "${{ inputs.ios_noise_cancel }}" ] && ARGS+=(--ios-noise-cancel "${{ inputs.ios_noise_cancel }}")
+          echo "Running: node scripts/update-sdk-versions.js ${ARGS[*]}"
+          node scripts/update-sdk-versions.js "${ARGS[@]}"
+
+      - name: Refresh package-lock.json files (parallel)
+        run: |
+          set -euo pipefail
+          (cd packages/react-native-hms             && npm install --no-audit --no-fund) &
+          (cd packages/react-native-hms/example     && npm install --no-audit --no-fund) &
+          (cd packages/react-native-room-kit        && npm install --no-audit --no-fund) &
+          (cd packages/react-native-room-kit/example && npm install --no-audit --no-fund) &
+          wait
+
+      - name: Validate native versions exist on registries
+        # The script's --no-install flag skipped HTTP validation in the bump
+        # step above (so we could control parallelism). Re-run validation
+        # explicitly here against the now-written sdk-versions.json values.
+        run: |
+          set -euo pipefail
+          node - <<'EOF'
+          const fs = require('fs');
+          const crypto = require('crypto');
+          const sdk = JSON.parse(fs.readFileSync('packages/react-native-hms/sdk-versions.json', 'utf8'));
+          async function head(url) {
+            const c = new AbortController();
+            const t = setTimeout(() => c.abort(), 15000);
+            try { const r = await fetch(url, { method: 'HEAD', redirect: 'follow', signal: c.signal }); return r.ok; }
+            finally { clearTimeout(t); }
+          }
+          function podUrl(n, v) {
+            const m = crypto.createHash('md5').update(n).digest('hex');
+            return `https://cdn.cocoapods.org/Specs/${m[0]}/${m[1]}/${m[2]}/${n}/${v}/${n}.podspec.json`;
+          }
+          (async () => {
+            const checks = [
+              ['HMSSDK', sdk.ios],
+              ['HMSBroadcastExtensionSDK', sdk.iOSBroadcastExtension],
+              ['HMSHLSPlayerSDK', sdk.iOSHMSHLSPlayer],
+              ['HMSNoiseCancellationModels', sdk.iOSNoiseCancellationModels],
+            ];
+            let bad = false;
+            for (const [n, v] of checks) {
+              const ok = await head(podUrl(n, v));
+              console.log(`  ${ok ? '✓' : '✗'} ${n} ${v}`);
+              if (!ok) bad = true;
+            }
+            for (const a of ['android-sdk', 'video-view', 'hls-player']) {
+              const url = `https://repo1.maven.org/maven2/live/100ms/${a}/${sdk.android}/${a}-${sdk.android}.pom`;
+              const ok = await head(url);
+              console.log(`  ${ok ? '✓' : '✗'} live.100ms:${a}:${sdk.android}`);
+              if (!ok) bad = true;
+            }
+            if (bad) { console.error('Native version validation failed.'); process.exit(1); }
+          })();
+          EOF
+
+      - name: Show diff summary
+        run: |
+          echo "### Diff summary"
+          git diff --stat
+          echo
+          echo "### Changed files"
+          git diff --name-only
+
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: chore/sdk-version-bump
+          delete-branch: true
+          commit-message: "chore: bump native SDK versions and React Native packages"
+          title: "chore: bump native SDK versions and React Native packages"
+          body: |
+            Automated SDK version bump triggered via `workflow_dispatch`.
+
+            ### Inputs
+            - iOS HMSSDK: `${{ inputs.ios_sdk }}` (blank = unchanged)
+            - Android HMSSDK: `${{ inputs.android_sdk }}` (blank = unchanged)
+            - iOSBroadcastExtension: `${{ inputs.ios_broadcast }}`
+            - iOSHMSHLSPlayer: `${{ inputs.ios_hls }}`
+            - iOSNoiseCancellationModels: `${{ inputs.ios_noise_cancel }}`
+            - @100mslive/react-native-hms bump: `${{ inputs.hms_bump }}`
+            - @100mslive/react-native-room-kit bump: `${{ inputs.room_kit_bump }}`
+
+            ### What changed
+            - `packages/react-native-hms/sdk-versions.json` (native SDK versions; iOS Podspec + Android build.gradle read this programmatically)
+            - `packages/react-native-hms/package.json` + `example/package.json`
+            - `packages/react-native-room-kit/package.json` (incl. peerDep auto-sync) + `example/package.json`
+            - 4 × `package-lock.json` files refreshed by `npm install`
+            - `packages/react-native-room-kit/example/ExampleAppChangelog.txt` "Current Version Info" block
+
+            ### Reviewer checklist
+            - [ ] Verify versions match the intended 100ms SDK release
+            - [ ] If iOS native versions changed, the consumer of this PR should run `pod install` under both `packages/react-native-hms/example/ios` and `packages/react-native-room-kit/example/ios` after pulling
+            - [ ] CI build passes
+
+            🤖 Generated by [`scripts/update-sdk-versions.js`](../blob/main/scripts/update-sdk-versions.js)

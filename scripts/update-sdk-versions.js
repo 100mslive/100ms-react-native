@@ -70,10 +70,22 @@ Behavior:
 Side-effects:
   - room-kit's peerDependencies['@100mslive/react-native-hms'] is always
     synced to the resolved hms version (auto-corrects drift).
-  - After writes, runs npm install in 4 dirs (parallel) to refresh lock files.
+  - Validates iOS native versions by HEAD-checking each pod against the
+    CocoaPods CDN; aborts on any 404 (only when iOS native fields changed).
+  - Validates the Android native version by HEAD-checking the live.100ms
+    artifacts on Maven Central (only when --android-sdk changed).
+  - After validation passes, runs npm install in 4 dirs (parallel) to
+    refresh lock files. Uses --legacy-peer-deps to tolerate pre-existing
+    peer-dep mismatches in the monorepo.
+  - Then runs 'pod install --repo-update' in both iOS example dirs and
+    './gradlew :app:dependencies --refresh-dependencies' in both Android
+    example dirs to refresh lock files. These are side-effect refreshes;
+    the HTTP HEAD checks above are the actual validators.
+  - All native validation/refresh skipped with --no-install. On validation
+    failure the script aborts; revert with 'git checkout .' since the
+    dirty-tree guard ensures the working tree was clean on entry.
   - Then runs scripts/update-changelog-versions.js to refresh the version
     block at the bottom of ExampleAppChangelog.txt.
-  - Reminds you to 'pod install' if iOS native versions changed.
 `);
 }
 
@@ -157,7 +169,11 @@ function npmInstallParallel(dirs) {
   const procs = dirs.map((dir) => {
     const cwd = path.join(ROOT, dir);
     return new Promise((resolve, reject) => {
-      const child = spawn('npm', ['install', '--no-audit', '--no-fund'], {
+      // --legacy-peer-deps tolerates the pre-existing peer-dep mismatches in
+      // this monorepo (e.g. react-native-video-plugin pinning an older
+      // react-native-hms peer). Without it, every bump that touches the peer
+      // dep auto-correction would fail npm install on otherwise-fine state.
+      const child = spawn('npm', ['install', '--no-audit', '--no-fund', '--legacy-peer-deps'], {
         cwd,
         stdio: ['ignore', 'pipe', 'pipe'],
       });
@@ -176,6 +192,154 @@ function npmInstallParallel(dirs) {
     });
   });
   return Promise.all(procs);
+}
+
+// ----------------------------------------------------------------------------
+// NATIVE VERSION VALIDATION
+// ----------------------------------------------------------------------------
+//
+// Two stages when iOS or Android native fields change:
+//
+// 1. PRIMARY VALIDATOR: registry-existence check via HTTPS HEAD against the
+//    CocoaPods CDN / Maven Central. Fast (~200ms each) and catches the
+//    most common failure mode: a typo'd version that doesn't exist (e.g.
+//    1.17.2 when the latest published is 1.17.1).
+//
+//    Why not just rely on `pod install`? `pod install` reuses Podfile.lock
+//    when the lockfile is satisfiable, so a Podspec change pointing at a
+//    non-existent version can be silently swallowed. The HTTP HEAD check
+//    is the source of truth.
+//
+// 2. SIDE-EFFECT REFRESH: after the HTTP check passes, run
+//    `pod install --repo-update` and `./gradlew :app:dependencies
+//    --refresh-dependencies`. These don't reliably re-validate the
+//    HMSSDK version (see (1)) but they DO refresh other lock entries
+//    (Firebase, transitive deps).
+//
+// Both stages are skipped entirely with --no-install. Validation runs
+// BEFORE npm install in the main flow so a wrong version aborts in
+// ~200ms instead of waiting for pkg manager resolution.
+
+async function httpExists(url) {
+  try {
+    const controller = new AbortController();
+    const t = setTimeout(() => controller.abort(), 15000);
+    try {
+      const res = await fetch(url, { method: 'HEAD', redirect: 'follow', signal: controller.signal });
+      return res.ok;
+    } finally {
+      clearTimeout(t);
+    }
+  } catch {
+    return false;
+  }
+}
+
+function cocoapodsCdnUrl(podName, version) {
+  const md5hex = require('crypto').createHash('md5').update(podName).digest('hex');
+  const a = md5hex[0], b = md5hex[1], c = md5hex[2];
+  return `https://cdn.cocoapods.org/Specs/${a}/${b}/${c}/${podName}/${version}/${podName}.podspec.json`;
+}
+
+function mavenCentralPomUrl(groupPath, artifact, version) {
+  return `https://repo1.maven.org/maven2/${groupPath}/${artifact}/${version}/${artifact}-${version}.pom`;
+}
+
+async function validateIosNativeVersions(targets) {
+  const pods = [
+    ['HMSSDK', targets.ios],
+    ['HMSBroadcastExtensionSDK', targets.iOSBroadcastExtension],
+    ['HMSHLSPlayerSDK', targets.iOSHMSHLSPlayer],
+    ['HMSNoiseCancellationModels', targets.iOSNoiseCancellationModels],
+  ];
+  console.log('\nVerifying iOS native versions exist on CocoaPods CDN...');
+  const results = await Promise.all(
+    pods.map(async ([name, version]) => ({
+      name, version, ok: await httpExists(cocoapodsCdnUrl(name, version)),
+    }))
+  );
+  let failed = false;
+  for (const r of results) {
+    if (r.ok) console.log(`  ✓ ${r.name} ${r.version}`);
+    else { console.log(`  ✗ ${r.name} ${r.version} — not found on CocoaPods CDN`); failed = true; }
+  }
+  if (failed) {
+    throw new Error(
+      'One or more iOS native versions don\'t exist on CocoaPods. ' +
+      'Check the latest available versions on https://cocoapods.org'
+    );
+  }
+}
+
+async function validateAndroidNativeVersion(targets) {
+  const artifacts = ['android-sdk', 'video-view', 'hls-player'];
+  console.log('\nVerifying Android native version exists on Maven Central...');
+  const results = await Promise.all(
+    artifacts.map(async (a) => ({
+      a, ok: await httpExists(mavenCentralPomUrl('live/100ms', a, targets.android)),
+    }))
+  );
+  let failed = false;
+  for (const r of results) {
+    if (r.ok) console.log(`  ✓ live.100ms:${r.a}:${targets.android}`);
+    else { console.log(`  ✗ live.100ms:${r.a}:${targets.android} — not found on Maven Central`); failed = true; }
+  }
+  if (failed) {
+    throw new Error(
+      'One or more Android native artifacts don\'t exist on Maven Central. ' +
+      'Check https://central.sonatype.com/artifact/live.100ms/android-sdk'
+    );
+  }
+}
+
+// Side-effect lock-file refresh (NOT a validator — see big comment above).
+async function refreshPodLockfiles(iosDirs) {
+  for (const rel of iosDirs) {
+    const cwd = path.join(ROOT, rel);
+    if (!fs.existsSync(cwd)) {
+      console.log(`  (skip) ${rel} — directory missing`);
+      continue;
+    }
+    console.log(`\nRefreshing Podfile.lock in ${rel} via pod install --repo-update (this can take a few minutes)...`);
+    await new Promise((resolve) => {
+      const child = spawn('pod', ['install', '--repo-update'], { cwd, stdio: ['ignore', 'pipe', 'pipe'] });
+      child.stdout.on('data', () => {});
+      let stderr = '';
+      child.stderr.on('data', (d) => (stderr += d.toString()));
+      child.on('close', (code) => {
+        if (code === 0) console.log(`  ✓ ${rel}`);
+        else { console.warn(`  ⚠ pod install in ${rel} exited ${code}; review manually.`); if (stderr) console.warn(stderr.slice(-500)); }
+        resolve();
+      });
+      child.on('error', (e) => { console.warn(`  ⚠ pod CLI not available or failed: ${e.message}`); resolve(); });
+    });
+  }
+}
+
+async function refreshGradleDependencies(androidDirs) {
+  for (const rel of androidDirs) {
+    const cwd = path.join(ROOT, rel);
+    const gradlew = path.join(cwd, 'gradlew');
+    if (!fs.existsSync(cwd) || !fs.existsSync(gradlew)) {
+      console.log(`  (skip) ${rel} — directory or gradlew missing`);
+      continue;
+    }
+    console.log(`\nRefreshing Android dependencies in ${rel} via gradle (this can take a few minutes)...`);
+    await new Promise((resolve) => {
+      const child = spawn('./gradlew', [':app:dependencies', '--refresh-dependencies', '--quiet'], {
+        cwd, stdio: ['ignore', 'pipe', 'pipe'],
+      });
+      child.stdout.on('data', () => {});
+      let stderr = '';
+      child.stderr.on('data', (d) => (stderr += d.toString()));
+      child.on('close', (code) => {
+        if (code === 0) console.log(`  ✓ ${rel}`);
+        else { console.warn(`  ⚠ gradle :app:dependencies in ${rel} exited ${code}; review manually.`); if (stderr) console.warn(stderr.slice(-500)); }
+        resolve();
+      });
+      child.on('error', (e) => { console.warn(`  ⚠ gradlew not executable or failed: ${e.message}`); resolve(); });
+    });
+  }
 }
 
 async function main() {
@@ -356,10 +520,41 @@ async function main() {
     console.log(`✓ wrote ${path.relative(ROOT, PATHS.roomKitExamplePkg)}`);
   }
 
+  // Native version validation runs BEFORE npm install so a wrong version
+  // aborts in ~200ms instead of waiting for the (potentially slow / flaky)
+  // npm peer-dep resolution. Skipped entirely with --no-install.
+  const iosNativeChanged =
+    !!sdkDiff.ios ||
+    !!sdkDiff.iOSBroadcastExtension ||
+    !!sdkDiff.iOSHMSHLSPlayer ||
+    !!sdkDiff.iOSNoiseCancellationModels;
+  const androidNativeChanged = !!sdkDiff.android;
+
+  if (!args.bool['no-install'] && iosNativeChanged) {
+    await validateIosNativeVersions(targetSdk);
+  }
+  if (!args.bool['no-install'] && androidNativeChanged) {
+    await validateAndroidNativeVersion(targetSdk);
+  }
+
   if (!args.bool['no-install']) {
     await npmInstallParallel(INSTALL_DIRS);
   } else {
     console.log('\n(skipped npm install — lock files not refreshed)');
+  }
+
+  // Side-effect lock refresh (after HTTP validation has already passed).
+  if (!args.bool['no-install'] && iosNativeChanged) {
+    await refreshPodLockfiles([
+      'packages/react-native-hms/example/ios',
+      'packages/react-native-room-kit/example/ios',
+    ]);
+  }
+  if (!args.bool['no-install'] && androidNativeChanged) {
+    await refreshGradleDependencies([
+      'packages/react-native-hms/example/android',
+      'packages/react-native-room-kit/example/android',
+    ]);
   }
 
   console.log('\nUpdating ExampleAppChangelog.txt version block...');
