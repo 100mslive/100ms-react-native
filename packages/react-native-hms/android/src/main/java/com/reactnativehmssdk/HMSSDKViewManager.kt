@@ -99,7 +99,11 @@ class HMSSDKViewManager : SimpleViewManager<HMSView>() {
     data?.let { view.updateAutoSimulcast(it) }
   }
 
-  private fun getHms(): MutableMap<String, HMSRNSDK>? = reactContext?.getNativeModule(HMSManager::class.java)?.getHmsInstance()
+  // Route through reactApplicationContext so the lookup works under both old arch and
+  // the New Architecture Interop Layer. ThemedReactContext.getNativeModule() is unreliable
+  // under interop / bridgeless; the application-level context has proper TurboModule routing.
+  private fun getHms(): MutableMap<String, HMSRNSDK>? =
+    reactContext?.reactApplicationContext?.getNativeModule(HMSManager::class.java)?.getHmsInstance()
 
   companion object {
     const val REACT_CLASS = "HMSView"
