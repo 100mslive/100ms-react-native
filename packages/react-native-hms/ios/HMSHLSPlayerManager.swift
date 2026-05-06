@@ -16,8 +16,7 @@ class HMSHLSPlayerManager: RCTViewManager {
     }
 
     func getHmsFromBridge() -> [String: HMSRNSDK] {
-        let collection = (bridge.module(for: HMSManager.classForCoder()) as? HMSManager)?.hmsCollection ?? [String: HMSRNSDK]()
-        return collection
+        return HMSManager.shared?.hmsCollection ?? [String: HMSRNSDK]()
     }
 
     override class func requiresMainQueueSetup() -> Bool {

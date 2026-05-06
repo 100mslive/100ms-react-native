@@ -14,6 +14,7 @@ import com.facebook.react.bridge.ReactContext
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.WritableMap
+import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.events.RCTEventEmitter
 import live.hms.hls_player.*
 import live.hms.stats.PlayerStatsListener
@@ -25,7 +26,7 @@ import java.util.concurrent.TimeUnit
 
 @SuppressLint("ViewConstructor")
 class HMSHLSPlayer(
-  context: ReactContext,
+  context: ThemedReactContext,
 ) : FrameLayout(context) {
   private var playerView: PlayerView? = null // Exoplayer View
   private var hmsHlsPlayer: HmsHlsPlayer? = null // 100ms HLS Player
@@ -124,7 +125,8 @@ class HMSHLSPlayer(
     localPlayerView.useController = false
     localPlayerView.subtitleView?.visibility = View.GONE
 
-    val hmssdkCollection = context.getNativeModule(HMSManager::class.java)?.getHmsInstance()
+    // Route through reactApplicationContext for new arch interop compatibility.
+    val hmssdkCollection = context.reactApplicationContext.getNativeModule(HMSManager::class.java)?.getHmsInstance()
     hmssdkInstance = hmssdkCollection?.get("12345")?.hmsSDK
 
     // creating 100ms HLS Player

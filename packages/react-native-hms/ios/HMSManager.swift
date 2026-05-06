@@ -4,6 +4,11 @@ import AVKit.AVRoutePickerView
 @objc(HMSManager)
 class HMSManager: RCTEventEmitter {
 
+    // Singleton holder used by HMSView / HMSHLSPlayerManager to access
+    // hmsCollection without going through `bridge.module(for:)`, which is
+    // unreliable under the New Architecture Interop Layer.
+    @objc static weak var shared: HMSManager?
+
     var hmsCollection = [String: HMSRNSDK]()
 
     let ON_PREVIEW = "ON_PREVIEW"
@@ -30,6 +35,7 @@ class HMSManager: RCTEventEmitter {
 
     override init() {
         super.init()
+        HMSManager.shared = self
     }
 
     override class func requiresMainQueueSetup() -> Bool {
