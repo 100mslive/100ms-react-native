@@ -1265,7 +1265,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-hms (1.12.0):
+  - react-native-hms (1.12.1):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -2135,7 +2135,7 @@ SPEC CHECKSUMS:
   React-Mapbuffer: 1864935968d15b9b73d8e413d29c780f0ab50038
   React-microtasksnativemodule: 3b784cf40f7c3c9500b9a5f9e4eec5c9bbfbef8f
   react-native-blur: b06c3fe88680beac622d8d13b8c36ec15c50383b
-  react-native-hms: a56359002bff27326ad1e88225b34c7ddb3381d6
+  react-native-hms: 826f3f449eca013fc81df40fe1eff92d261ecb7d
   react-native-image-picker: 8c8f120521f283d7a069c51d519fbd654e8de8e3
   react-native-lottie-splash-screen: e7820832f194c296ccdb177a82d8a3f3b7e362bf
   react-native-safe-area-context: 2243039f43d10cb1ea30ec5ac57fc6d1448413f4
