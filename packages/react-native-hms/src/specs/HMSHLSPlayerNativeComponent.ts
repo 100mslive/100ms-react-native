@@ -112,10 +112,7 @@ interface NativeProps extends ViewProps {
 
 interface NativeCommands {
   /** Start playing. Pass `''` (empty string) to reuse the URL prop. */
-  play: (
-    viewRef: ElementRef<HostComponent<NativeProps>>,
-    url: string
-  ) => void;
+  play: (viewRef: ElementRef<HostComponent<NativeProps>>, url: string) => void;
 
   /** Stop playback (releases the player). */
   stop: (viewRef: ElementRef<HostComponent<NativeProps>>) => void;
@@ -127,9 +124,7 @@ interface NativeCommands {
   resume: (viewRef: ElementRef<HostComponent<NativeProps>>) => void;
 
   /** Jump to the live edge (DVR HLS only). */
-  seekToLivePosition: (
-    viewRef: ElementRef<HostComponent<NativeProps>>
-  ) => void;
+  seekToLivePosition: (viewRef: ElementRef<HostComponent<NativeProps>>) => void;
 
   /** Seek `seconds` ahead from current position. */
   seekForward: (
