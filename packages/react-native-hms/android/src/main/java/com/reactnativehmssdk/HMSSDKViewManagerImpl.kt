@@ -1,0 +1,101 @@
+package com.reactnativehmssdk
+
+import com.facebook.react.bridge.ReadableArray
+import com.facebook.react.bridge.ReadableMap
+import com.facebook.react.common.MapBuilder
+import com.facebook.react.uimanager.ThemedReactContext
+
+/**
+ * HMSSDKViewManagerImpl — shared view-manager logic for `<HMSView />`.
+ *
+ * Phase 1 / 1C-3 of the New Architecture migration. View-manager
+ * responsibilities (creating the view, prop dispatch, command handling,
+ * event-type registration) live here as static helpers. Arch-specific
+ * wrappers live at:
+ *   - android/src/oldarch/.../HMSSDKViewManager.kt
+ *     (extends SimpleViewManager — paper)
+ *   - android/src/newarch/.../HMSSDKViewManager.kt
+ *     (extends SimpleViewManager + implements the Codegen-generated
+ *     HMSViewManagerInterface — Fabric)
+ *
+ * Both wrappers delegate every call here, so the actual logic stays
+ * in one place.
+ */
+class HMSSDKViewManagerImpl {
+  companion object {
+    const val REACT_CLASS = "HMSView"
+
+    fun createViewInstance(reactContext: ThemedReactContext): HMSView = HMSView(reactContext)
+
+    /**
+     * Set the `data` prop. Resolves the active SDK instance via the
+     * passed-in `reactContext` (route through `reactApplicationContext`
+     * for new-arch interop / bridgeless safety).
+     */
+    fun setData(
+      view: HMSView,
+      data: ReadableMap,
+      reactContext: ThemedReactContext?,
+    ) {
+      val trackId = data.getString("trackId")
+      val id = data.getString("id")
+      val mirror = data.getBoolean("mirror")
+      val scaleType = data.getString("scaleType")
+      val hmsCollection = getHmsCollection(reactContext) ?: return
+      view.setData(id, trackId, hmsCollection, mirror, scaleType)
+    }
+
+    fun setScaleType(
+      view: HMSView,
+      data: String?,
+    ) = view.updateScaleType(data)
+
+    fun setZOrderMediaOverlay(
+      view: HMSView,
+      data: Boolean?,
+    ) = view.updateZOrderMediaOverlay(data)
+
+    fun setAutoSimulcast(
+      view: HMSView,
+      data: Boolean?,
+    ) {
+      data?.let { view.updateAutoSimulcast(it) }
+    }
+
+    /** Imperative `capture` command. */
+    fun capture(
+      view: HMSView,
+      args: ReadableArray?,
+    ) = view.captureHmsView(args)
+
+    fun getCommandsMap(): Map<String, Int> = MapBuilder.of("capture", 1)
+
+    /** `topChange` is the native-side event name; JS receives it as `onChange`. */
+    fun getExportedCustomBubblingEventTypeConstants(): Map<String, Any> =
+      MapBuilder
+        .builder<String, Any>()
+        .put(
+          "topChange",
+          MapBuilder.of("phasedRegistrationNames", MapBuilder.of("bubbled", "onChange")),
+        ).build()
+
+    /** `captureFrame` is fired when the `capture` command completes; JS receives it as `onDataReturned`. */
+    fun getExportedCustomDirectEventTypeConstants(): Map<String, Any> =
+      MapBuilder.of(
+        "captureFrame",
+        MapBuilder.of("registrationName", "onDataReturned"),
+      )
+
+    /**
+     * Look up the active SDK instances map. Routes through
+     * `reactApplicationContext` rather than `themedContext.getNativeModule`
+     * directly — the themed-context lookup is unreliable under the New
+     * Architecture Interop Layer / bridgeless mode.
+     */
+    fun getHmsCollection(reactContext: ThemedReactContext?): MutableMap<String, HMSRNSDK>? =
+      reactContext
+        ?.reactApplicationContext
+        ?.getNativeModule(HMSManager::class.java)
+        ?.getHmsInstance()
+  }
+}
