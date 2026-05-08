@@ -654,7 +654,7 @@ object HMSHelper {
               .receiveEvent(id, "captureFrame", output)
           } else {
             Log.e("captureSurfaceView", "copyResult: $copyResult")
-            HMSManager.hmsCollection[sdkId]?.emitHMSError(
+            HMSManagerImpl.hmsCollection[sdkId]?.emitHMSError(
               HMSException(
                 103,
                 copyResult.toString(),
@@ -673,7 +673,7 @@ object HMSHelper {
       )
     } catch (e: Exception) {
       Log.e("captureSurfaceView", "error: $e")
-      HMSManager.hmsCollection[sdkId]?.emitHMSError(e as HMSException)
+      HMSManagerImpl.hmsCollection[sdkId]?.emitHMSError(e as HMSException)
       output.putString("error", e.message)
       reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "captureFrame", output)
     }

@@ -24,11 +24,22 @@ import live.hms.video.factories.noisecancellation.AvailabilityStatus
 import live.hms.video.sdk.HMSActionResultListener
 import java.util.UUID
 
-@ReactModule(name = REACT_CLASS)
-class HMSManager(
-  reactContext: ReactApplicationContext,
-) : ReactContextBaseJavaModule(reactContext),
-  Application.ActivityLifecycleCallbacks {
+/**
+ * HMSManagerImpl — shared SDK business logic for the HMSManager native module.
+ *
+ * Phase 1 / 1C-2 of the New Architecture migration. This class holds all
+ * the actual SDK code; arch-specific wrappers live at:
+ *   - android/src/oldarch/.../HMSManager.kt — extends ReactContextBaseJavaModule
+ *   - android/src/newarch/.../HMSManager.kt — extends NativeHMSManagerSpec
+ * Both wrappers instantiate this Impl and forward every method call to it.
+ *
+ * Note on `reactApplicationContext`: previously inherited from
+ * ReactContextBaseJavaModule. Now stored as a constructor property with the
+ * same name so the existing 1,728-line method bodies don't need rewriting.
+ */
+class HMSManagerImpl(
+  val reactApplicationContext: ReactApplicationContext,
+) : Application.ActivityLifecycleCallbacks {
   companion object {
     const val REACT_CLASS = "HMSManager"
     var hmsCollection = mutableMapOf<String, HMSRNSDK>()
@@ -87,7 +98,6 @@ class HMSManager(
     }
   }
 
-  override fun getName(): String = "HMSManager"
 
   fun getHmsInstance(): MutableMap<String, HMSRNSDK> = hmsCollection
 
@@ -109,7 +119,6 @@ class HMSManager(
 
   // Example method
   // See https://reactnative.dev/docs/native-modules-android
-  @ReactMethod
   fun build(
     data: ReadableMap?,
     callback: Promise?,
@@ -137,42 +146,36 @@ class HMSManager(
     }
   }
 
-  @ReactMethod
   fun preview(credentials: ReadableMap) {
     val hms = HMSHelper.getHms(credentials, hmsCollection)
 
     hms?.preview(credentials)
   }
 
-  @ReactMethod
   fun join(credentials: ReadableMap) {
     val hms = HMSHelper.getHms(credentials, hmsCollection)
 
     hms?.join(credentials)
   }
 
-  @ReactMethod
   fun setLocalMute(data: ReadableMap) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.setLocalMute(data)
   }
 
-  @ReactMethod
   fun setLocalVideoMute(data: ReadableMap) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.setLocalVideoMute(data)
   }
 
-  @ReactMethod
   fun switchCamera(data: ReadableMap) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.switchCamera()
   }
 
-  @ReactMethod
   fun leave(
     data: ReadableMap,
     callback: Promise?,
@@ -182,7 +185,6 @@ class HMSManager(
     hms?.leave(callback)
   }
 
-  @ReactMethod
   fun sendBroadcastMessage(
     data: ReadableMap,
     callback: Promise?,
@@ -192,7 +194,6 @@ class HMSManager(
     hms?.sendBroadcastMessage(data, callback)
   }
 
-  @ReactMethod
   fun sendGroupMessage(
     data: ReadableMap,
     callback: Promise?,
@@ -202,7 +203,6 @@ class HMSManager(
     hms?.sendGroupMessage(data, callback)
   }
 
-  @ReactMethod
   fun sendDirectMessage(
     data: ReadableMap,
     callback: Promise?,
@@ -213,7 +213,6 @@ class HMSManager(
   }
 
   @kotlin.Deprecated("Use #Function changeRoleOfPeer instead")
-  @ReactMethod
   fun changeRole(
     data: ReadableMap,
     callback: Promise?,
@@ -223,7 +222,6 @@ class HMSManager(
     hms?.changeRole(data, callback)
   }
 
-  @ReactMethod
   fun changeRoleOfPeer(
     data: ReadableMap,
     promise: Promise?,
@@ -233,7 +231,6 @@ class HMSManager(
     hms?.changeRoleOfPeer(data, promise)
   }
 
-  @ReactMethod
   fun changeRoleOfPeersWithRoles(
     data: ReadableMap,
     promise: Promise?,
@@ -243,7 +240,6 @@ class HMSManager(
     hms?.changeRoleOfPeersWithRoles(data, promise)
   }
 
-  @ReactMethod
   fun changeTrackState(
     data: ReadableMap,
     callback: Promise?,
@@ -253,7 +249,6 @@ class HMSManager(
     hms?.changeTrackState(data, callback)
   }
 
-  @ReactMethod
   fun changeTrackStateForRoles(
     data: ReadableMap,
     callback: Promise?,
@@ -263,7 +258,6 @@ class HMSManager(
     hms?.changeTrackStateForRoles(data, callback)
   }
 
-  @ReactMethod
   fun isMute(
     data: ReadableMap,
     callback: Promise?,
@@ -273,7 +267,6 @@ class HMSManager(
     hms?.isMute(data, callback)
   }
 
-  @ReactMethod
   fun removePeer(
     data: ReadableMap,
     callback: Promise?,
@@ -283,7 +276,6 @@ class HMSManager(
     hms?.removePeer(data, callback)
   }
 
-  @ReactMethod
   fun isPlaybackAllowed(
     data: ReadableMap,
     callback: Promise?,
@@ -293,7 +285,6 @@ class HMSManager(
     hms?.isPlaybackAllowed(data, callback)
   }
 
-  @ReactMethod
   fun getRoom(
     data: ReadableMap,
     callback: Promise?,
@@ -303,7 +294,6 @@ class HMSManager(
     hms?.getRoom(callback)
   }
 
-  @ReactMethod
   fun getLocalPeer(
     data: ReadableMap,
     callback: Promise?,
@@ -313,7 +303,6 @@ class HMSManager(
     hms?.getLocalPeer(callback)
   }
 
-  @ReactMethod
   fun getRemotePeers(
     data: ReadableMap,
     callback: Promise?,
@@ -323,7 +312,6 @@ class HMSManager(
     hms?.getRemotePeers(callback)
   }
 
-  @ReactMethod
   fun getRoles(
     data: ReadableMap,
     callback: Promise?,
@@ -333,7 +321,6 @@ class HMSManager(
     hms?.getRoles(callback)
   }
 
-  @ReactMethod
   fun setPlaybackAllowed(
     data: ReadableMap,
     callback: Promise?,
@@ -343,7 +330,6 @@ class HMSManager(
     hms?.setPlaybackAllowed(data, callback)
   }
 
-  @ReactMethod
   fun endRoom(
     data: ReadableMap,
     callback: Promise?,
@@ -353,7 +339,6 @@ class HMSManager(
     hms?.endRoom(data, callback)
   }
 
-  @ReactMethod
   fun previewForRole(
     data: ReadableMap,
     callback: Promise?,
@@ -363,7 +348,6 @@ class HMSManager(
     hms?.previewForRole(data, callback)
   }
 
-  @ReactMethod
   fun cancelPreview(
     data: ReadableMap,
     callback: Promise?,
@@ -373,7 +357,6 @@ class HMSManager(
     hms?.cancelPreview(callback)
   }
 
-  @ReactMethod
   fun acceptRoleChange(
     data: ReadableMap,
     callback: Promise?,
@@ -383,7 +366,6 @@ class HMSManager(
     hms?.acceptRoleChange(callback)
   }
 
-  @ReactMethod
   fun setVolume(
     data: ReadableMap,
     callback: Promise?,
@@ -393,7 +375,6 @@ class HMSManager(
     hms?.setVolume(data, callback)
   }
 
-  @ReactMethod
   fun getVolume(
     data: ReadableMap,
     callback: Promise?,
@@ -403,7 +384,6 @@ class HMSManager(
     hms?.getVolume(data, callback)
   }
 
-  @ReactMethod
   fun setPlaybackForAllAudio(
     data: ReadableMap,
     callback: Promise?,
@@ -413,7 +393,6 @@ class HMSManager(
     hms?.setPlaybackForAllAudio(data, callback)
   }
 
-  @ReactMethod
   fun remoteMuteAllAudio(
     data: ReadableMap,
     callback: Promise?,
@@ -423,7 +402,6 @@ class HMSManager(
     hms?.remoteMuteAllAudio(callback)
   }
 
-  @ReactMethod
   fun changeMetadata(
     data: ReadableMap,
     callback: Promise?,
@@ -433,7 +411,6 @@ class HMSManager(
     hms?.changeMetadata(data, callback)
   }
 
-  @ReactMethod
   fun startScreenshare(
     data: ReadableMap,
     callback: Promise?,
@@ -444,7 +421,6 @@ class HMSManager(
     hms?.startScreenshare(callback)
   }
 
-  @ReactMethod
   fun isScreenShared(
     data: ReadableMap,
     callback: Promise?,
@@ -454,7 +430,6 @@ class HMSManager(
     hms?.isScreenShared(callback)
   }
 
-  @ReactMethod
   fun stopScreenshare(
     data: ReadableMap,
     callback: Promise?,
@@ -465,7 +440,6 @@ class HMSManager(
     hms?.stopScreenshare(callback)
   }
 
-  @ReactMethod
   fun startAudioshare(
     data: ReadableMap,
     callback: Promise?,
@@ -476,7 +450,6 @@ class HMSManager(
     hms?.startAudioshare(data, callback)
   }
 
-  @ReactMethod
   fun isAudioShared(
     data: ReadableMap,
     callback: Promise?,
@@ -486,7 +459,6 @@ class HMSManager(
     hms?.isAudioShared(callback)
   }
 
-  @ReactMethod
   fun stopAudioshare(
     data: ReadableMap,
     callback: Promise?,
@@ -497,7 +469,6 @@ class HMSManager(
     hms?.stopAudioshare(callback)
   }
 
-  @ReactMethod
   fun getAudioMixingMode(
     data: ReadableMap,
     callback: Promise?,
@@ -507,7 +478,6 @@ class HMSManager(
     callback?.resolve(hms?.getAudioMixingMode()?.name)
   }
 
-  @ReactMethod
   fun setAudioMixingMode(
     data: ReadableMap,
     callback: Promise?,
@@ -517,7 +487,6 @@ class HMSManager(
     hms?.setAudioMixingMode(data, callback)
   }
 
-  @ReactMethod
   fun startRTMPOrRecording(
     data: ReadableMap,
     callback: Promise?,
@@ -527,7 +496,6 @@ class HMSManager(
     hms?.startRTMPOrRecording(data, callback)
   }
 
-  @ReactMethod
   fun stopRtmpAndRecording(
     data: ReadableMap,
     callback: Promise?,
@@ -539,7 +507,6 @@ class HMSManager(
 
   // region - HLS Streaming
 
-  @ReactMethod
   fun startHLSStreaming(
     data: ReadableMap,
     callback: Promise?,
@@ -549,7 +516,6 @@ class HMSManager(
     hms?.startHLSStreaming(data, callback)
   }
 
-  @ReactMethod
   fun stopHLSStreaming(
     data: ReadableMap,
     callback: Promise?,
@@ -559,7 +525,6 @@ class HMSManager(
     hms?.stopHLSStreaming(callback)
   }
 
-  @ReactMethod
   fun sendHLSTimedMetadata(
     data: ReadableMap,
     callback: Promise?,
@@ -577,7 +542,6 @@ class HMSManager(
 
   // endregion
 
-  @ReactMethod
   fun changeName(
     data: ReadableMap,
     callback: Promise?,
@@ -587,7 +551,6 @@ class HMSManager(
     hms?.changeName(data, callback)
   }
 
-  @ReactMethod
   fun destroy(
     data: ReadableMap,
     callback: Promise?,
@@ -600,21 +563,18 @@ class HMSManager(
     callback?.resolve(result)
   }
 
-  @ReactMethod
   fun enableNetworkQualityUpdates(data: ReadableMap) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.enableNetworkQualityUpdates()
   }
 
-  @ReactMethod
   fun disableNetworkQualityUpdates(data: ReadableMap) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.disableNetworkQualityUpdates()
   }
 
-  @ReactMethod
   fun getAudioDevicesList(
     data: ReadableMap,
     callback: Promise?,
@@ -624,7 +584,6 @@ class HMSManager(
     hms?.getAudioDevicesList(callback)
   }
 
-  @ReactMethod
   fun getAudioOutputRouteType(
     data: ReadableMap,
     callback: Promise?,
@@ -634,7 +593,6 @@ class HMSManager(
     hms?.getAudioOutputRouteType(callback)
   }
 
-  @ReactMethod
   fun switchAudioOutput(
     data: ReadableMap,
     callback: Promise?,
@@ -644,7 +602,6 @@ class HMSManager(
     hms?.switchAudioOutput(data, callback)
   }
 
-  @ReactMethod
   fun setAudioMode(
     data: ReadableMap,
     callback: Promise?,
@@ -654,28 +611,24 @@ class HMSManager(
     hms?.setAudioMode(data, callback)
   }
 
-  @ReactMethod
   fun setAudioDeviceChangeListener(data: ReadableMap) {
     val hms = HMSHelper.getHms(data, hmsCollection)
 
     hms?.setAudioDeviceChangeListener()
   }
 
-  @ReactMethod(isBlockingSynchronousMethod = true)
   fun getPeerProperty(data: ReadableMap): WritableMap? {
     val hms = HMSHelper.getHms(data, hmsCollection) ?: return null
 
     return hms.getPeerProperty(data)
   }
 
-  @ReactMethod(isBlockingSynchronousMethod = true)
   fun getRoomProperty(data: ReadableMap): WritableMap? {
     val hms = HMSHelper.getHms(data, hmsCollection) ?: return null
 
     return hms.getRoomProperty(data)
   }
 
-  @ReactMethod
   fun enableEvent(
     data: ReadableMap,
     promise: Promise?,
@@ -685,7 +638,6 @@ class HMSManager(
     hms?.enableEvent(data, promise)
   }
 
-  @ReactMethod
   fun disableEvent(
     data: ReadableMap,
     promise: Promise?,
@@ -695,7 +647,6 @@ class HMSManager(
     hms?.disableEvent(data, promise)
   }
 
-  @ReactMethod()
   fun restrictData(
     data: ReadableMap,
     promise: Promise?,
@@ -705,7 +656,6 @@ class HMSManager(
     hms?.restrictData(data, promise)
   }
 
-  @ReactMethod()
   fun getAuthTokenByRoomCode(
     data: ReadableMap,
     promise: Promise,
@@ -863,7 +813,6 @@ class HMSManager(
     val showAudioButton: Boolean,
   )
 
-  @ReactMethod
   fun handlePipActions(
     action: String,
     data: ReadableMap,
@@ -1139,7 +1088,6 @@ class HMSManager(
     }
   }
 
-  @ReactMethod
   fun getRemoteVideoTrackFromTrackId(
     data: ReadableMap,
     promise: Promise,
@@ -1149,7 +1097,6 @@ class HMSManager(
     hms?.getRemoteVideoTrackFromTrackId(data, promise)
   }
 
-  @ReactMethod
   fun getRemoteAudioTrackFromTrackId(
     data: ReadableMap,
     promise: Promise,
@@ -1159,7 +1106,6 @@ class HMSManager(
     hms?.getRemoteAudioTrackFromTrackId(data, promise)
   }
 
-  @ReactMethod
   fun getVideoTrackLayer(
     data: ReadableMap,
     promise: Promise,
@@ -1169,7 +1115,6 @@ class HMSManager(
     hms?.getVideoTrackLayer(data, promise)
   }
 
-  @ReactMethod
   fun getVideoTrackLayerDefinition(
     data: ReadableMap,
     promise: Promise,
@@ -1179,7 +1124,6 @@ class HMSManager(
     hms?.getVideoTrackLayerDefinition(data, promise)
   }
 
-  @ReactMethod
   fun setVideoTrackLayer(
     data: ReadableMap,
     promise: Promise?,
@@ -1189,7 +1133,6 @@ class HMSManager(
     hms?.setVideoTrackLayer(data, promise)
   }
 
-  @ReactMethod
   fun captureImageAtMaxSupportedResolution(
     data: ReadableMap,
     promise: Promise?,
@@ -1199,7 +1142,6 @@ class HMSManager(
     hms?.captureImageAtMaxSupportedResolution(data, promise)
   }
 
-  @ReactMethod
   fun setSessionMetadataForKey(
     data: ReadableMap,
     promise: Promise?,
@@ -1209,7 +1151,6 @@ class HMSManager(
     hms?.setSessionMetadataForKey(data, promise)
   }
 
-  @ReactMethod
   fun getSessionMetadataForKey(
     data: ReadableMap,
     promise: Promise?,
@@ -1219,7 +1160,6 @@ class HMSManager(
     hms?.getSessionMetadataForKey(data, promise)
   }
 
-  @ReactMethod
   fun addKeyChangeListener(
     data: ReadableMap,
     promise: Promise?,
@@ -1229,7 +1169,6 @@ class HMSManager(
     hms?.addKeyChangeListener(data, promise)
   }
 
-  @ReactMethod
   fun removeKeyChangeListener(
     data: ReadableMap,
     promise: Promise?,
@@ -1239,7 +1178,6 @@ class HMSManager(
     hms?.removeKeyChangeListener(data, promise)
   }
 
-  @ReactMethod
   fun getRoomLayout(
     data: ReadableMap,
     promise: Promise?,
@@ -1249,7 +1187,6 @@ class HMSManager(
     hms?.getRoomLayout(data, promise)
   }
 
-  @ReactMethod
   fun raiseLocalPeerHand(
     data: ReadableMap,
     promise: Promise?,
@@ -1258,7 +1195,6 @@ class HMSManager(
     hms?.raiseLocalPeerHand(data, promise)
   }
 
-  @ReactMethod
   fun lowerLocalPeerHand(
     data: ReadableMap,
     promise: Promise?,
@@ -1267,7 +1203,6 @@ class HMSManager(
     hms?.lowerLocalPeerHand(data, promise)
   }
 
-  @ReactMethod
   fun lowerRemotePeerHand(
     data: ReadableMap,
     promise: Promise?,
@@ -1276,13 +1211,11 @@ class HMSManager(
     hms?.lowerRemotePeerHand(data, promise)
   }
 
-  @ReactMethod(isBlockingSynchronousMethod = true)
   fun getPeerListIterator(data: ReadableMap): WritableMap? {
     val hms = HMSHelper.getHms(data, hmsCollection) ?: return null
     return hms.getPeerListIterator(data)
   }
 
-  @ReactMethod
   fun peerListIteratorHasNext(
     data: ReadableMap,
     promise: Promise?,
@@ -1291,7 +1224,6 @@ class HMSManager(
     hms?.peerListIteratorHasNext(data, promise)
   }
 
-  @ReactMethod
   fun peerListIteratorNext(
     data: ReadableMap,
     promise: Promise?,
@@ -1300,7 +1232,6 @@ class HMSManager(
     hms?.peerListIteratorNext(data, promise)
   }
 
-  @ReactMethod
   fun checkNotifications(promise: Promise?) {
     val reactApplicationContext = reactApplicationContext
 
@@ -1318,7 +1249,6 @@ class HMSManager(
     promise?.resolve(data)
   }
 
-  @ReactMethod(isBlockingSynchronousMethod = true)
   fun setSoftInputMode(inputMode: Int): Int {
     val window = reactApplicationContext?.currentActivity?.window ?: return -1
     UiThreadUtil.runOnUiThread {
@@ -1327,13 +1257,11 @@ class HMSManager(
     return 0
   }
 
-  @ReactMethod(isBlockingSynchronousMethod = true)
   fun getSoftInputMode(): Int {
     val attributes = reactApplicationContext?.currentActivity?.window?.attributes ?: return -1
     return attributes.softInputMode
   }
 
-  @ReactMethod
   fun hideSystemBars() {
     val window = reactApplicationContext?.currentActivity?.window
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && window != null) {
@@ -1348,7 +1276,6 @@ class HMSManager(
     }
   }
 
-  @ReactMethod
   fun showSystemBars() {
     val window = reactApplicationContext?.currentActivity?.window
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && window != null) {
@@ -1362,7 +1289,6 @@ class HMSManager(
     }
   }
 
-  @ReactMethod
   fun setAlwaysScreenOn(
     data: ReadableMap,
     promise: Promise?,
@@ -1392,7 +1318,6 @@ class HMSManager(
   }
 
   // region Polls
-  @ReactMethod
   fun quickStartPoll(
     data: ReadableMap,
     promise: Promise?,
@@ -1410,7 +1335,6 @@ class HMSManager(
     )
   }
 
-  @ReactMethod
   fun addResponseOnPollQuestion(
     data: ReadableMap,
     promise: Promise?,
@@ -1428,7 +1352,6 @@ class HMSManager(
     )
   }
 
-  @ReactMethod
   fun stopPoll(
     data: ReadableMap,
     promise: Promise?,
@@ -1446,7 +1369,6 @@ class HMSManager(
     )
   }
 
-  @ReactMethod
   fun fetchLeaderboard(
     data: ReadableMap,
     promise: Promise?,
@@ -1466,7 +1388,6 @@ class HMSManager(
   // endregion
 
   //region Whiteboard
-  @ReactMethod
   fun startWhiteboard(
     data: ReadableMap,
     promise: Promise?,
@@ -1484,7 +1405,6 @@ class HMSManager(
     )
   }
 
-  @ReactMethod
   fun stopWhiteboard(
     data: ReadableMap,
     promise: Promise?,
@@ -1504,7 +1424,6 @@ class HMSManager(
   //endregion
 
   // region Noise Cancellation Plugin
-  @ReactMethod
   fun enableNoiseCancellationPlugin(
     data: ReadableMap,
     promise: Promise?,
@@ -1540,7 +1459,6 @@ class HMSManager(
     )
   }
 
-  @ReactMethod
   fun disableNoiseCancellationPlugin(
     data: ReadableMap,
     promise: Promise?,
@@ -1575,7 +1493,6 @@ class HMSManager(
     )
   }
 
-  @ReactMethod
   fun isNoiseCancellationPluginEnabled(
     data: ReadableMap,
     promise: Promise?,
@@ -1600,7 +1517,6 @@ class HMSManager(
     promise?.resolve(isEnabled)
   }
 
-  @ReactMethod
   fun isNoiseCancellationPluginAvailable(
     data: ReadableMap,
     promise: Promise?,
@@ -1636,7 +1552,6 @@ class HMSManager(
   // endregion
 
   // region Webrtc Transcriptions
-  @ReactMethod
   fun handleRealTimeTranscription(
     data: ReadableMap,
     promise: Promise?,
@@ -1653,7 +1568,6 @@ class HMSManager(
   }
   // endregion
 
-  @ReactMethod
   fun setPermissionsAccepted(
     data: ReadableMap,
     promise: Promise?,
@@ -1671,13 +1585,11 @@ class HMSManager(
   }
 
   // region Warning on JS side
-  @ReactMethod
   fun addListener(eventName: String) {
     // Keep: Required for RN built in Event Emitter Calls.
     // Fixes Warning - `new NativeEventEmitter()` was called with a non-null argument without the required `addListener` method.
   }
 
-  @ReactMethod
   fun removeListeners(count: Int) {
     // Keep: Required for RN built in Event Emitter Calls.
     // Fixes Warning - `new NativeEventEmitter()` was called with a non-null argument without the required `removeListeners` method.
