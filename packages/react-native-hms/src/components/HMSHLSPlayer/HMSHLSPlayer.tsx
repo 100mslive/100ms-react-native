@@ -1,11 +1,5 @@
 import React, { useEffect, useImperativeHandle, useMemo, useRef } from 'react';
-import {
-  View,
-  StyleSheet,
-  UIManager,
-  findNodeHandle,
-  Platform,
-} from 'react-native';
+import { View, StyleSheet, Platform } from 'react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
 
 import {
@@ -17,10 +11,7 @@ import {
   setHMSHLSPlayerStatsError,
   setHMSHLSPlayerSubtitles,
 } from './hooks';
-import {
-  RCTHMSHLSPlayer,
-  RCTHMSHLSPlayerViewManagerConfig,
-} from './RCTHMSHLSPlayer';
+import { RCTHMSHLSPlayer, RCTHMSHLSPlayerCommands } from './RCTHMSHLSPlayer';
 import type {
   HlsSPlayerCuesEventHandler,
   HmsHlsPlaybackEventHandler,
@@ -88,51 +79,23 @@ const _HMSHLSPlayer: React.ForwardRefRenderFunction<
     ref,
     () => ({
       play: (url?: string) => {
-        if (
-          hmsHlsPlayerRef.current &&
-          RCTHMSHLSPlayerViewManagerConfig.Commands.play
-        ) {
-          UIManager.dispatchViewManagerCommand(
-            findNodeHandle(hmsHlsPlayerRef.current),
-            RCTHMSHLSPlayerViewManagerConfig.Commands.play,
-            url ? [url] : ['']
-          );
+        if (hmsHlsPlayerRef.current) {
+          RCTHMSHLSPlayerCommands.play(hmsHlsPlayerRef.current, url ?? '');
         }
       },
       stop: () => {
-        if (
-          hmsHlsPlayerRef.current &&
-          RCTHMSHLSPlayerViewManagerConfig.Commands.stop
-        ) {
-          UIManager.dispatchViewManagerCommand(
-            findNodeHandle(hmsHlsPlayerRef.current),
-            RCTHMSHLSPlayerViewManagerConfig.Commands.stop,
-            undefined
-          );
+        if (hmsHlsPlayerRef.current) {
+          RCTHMSHLSPlayerCommands.stop(hmsHlsPlayerRef.current);
         }
       },
       pause: () => {
-        if (
-          hmsHlsPlayerRef.current &&
-          RCTHMSHLSPlayerViewManagerConfig.Commands.pause
-        ) {
-          UIManager.dispatchViewManagerCommand(
-            findNodeHandle(hmsHlsPlayerRef.current),
-            RCTHMSHLSPlayerViewManagerConfig.Commands.pause,
-            undefined
-          );
+        if (hmsHlsPlayerRef.current) {
+          RCTHMSHLSPlayerCommands.pause(hmsHlsPlayerRef.current);
         }
       },
       resume: () => {
-        if (
-          hmsHlsPlayerRef.current &&
-          RCTHMSHLSPlayerViewManagerConfig.Commands.resume
-        ) {
-          UIManager.dispatchViewManagerCommand(
-            findNodeHandle(hmsHlsPlayerRef.current),
-            RCTHMSHLSPlayerViewManagerConfig.Commands.resume,
-            undefined
-          );
+        if (hmsHlsPlayerRef.current) {
+          RCTHMSHLSPlayerCommands.resume(hmsHlsPlayerRef.current);
         }
       },
       seekForward: (seconds: number) => {
@@ -144,15 +107,8 @@ const _HMSHLSPlayer: React.ForwardRefRenderFunction<
           );
         }
 
-        if (
-          hmsHlsPlayerRef.current &&
-          RCTHMSHLSPlayerViewManagerConfig.Commands.seekForward
-        ) {
-          UIManager.dispatchViewManagerCommand(
-            findNodeHandle(hmsHlsPlayerRef.current),
-            RCTHMSHLSPlayerViewManagerConfig.Commands.seekForward,
-            [seconds]
-          );
+        if (hmsHlsPlayerRef.current) {
+          RCTHMSHLSPlayerCommands.seekForward(hmsHlsPlayerRef.current, seconds);
         }
       },
       seekBackward: (seconds: number) => {
@@ -164,27 +120,16 @@ const _HMSHLSPlayer: React.ForwardRefRenderFunction<
           );
         }
 
-        if (
-          hmsHlsPlayerRef.current &&
-          RCTHMSHLSPlayerViewManagerConfig.Commands.seekBackward
-        ) {
-          UIManager.dispatchViewManagerCommand(
-            findNodeHandle(hmsHlsPlayerRef.current),
-            RCTHMSHLSPlayerViewManagerConfig.Commands.seekBackward,
-            [seconds]
+        if (hmsHlsPlayerRef.current) {
+          RCTHMSHLSPlayerCommands.seekBackward(
+            hmsHlsPlayerRef.current,
+            seconds
           );
         }
       },
       seekToLivePosition: () => {
-        if (
-          hmsHlsPlayerRef.current &&
-          RCTHMSHLSPlayerViewManagerConfig.Commands.seekToLivePosition
-        ) {
-          UIManager.dispatchViewManagerCommand(
-            findNodeHandle(hmsHlsPlayerRef.current),
-            RCTHMSHLSPlayerViewManagerConfig.Commands.seekToLivePosition,
-            undefined
-          );
+        if (hmsHlsPlayerRef.current) {
+          RCTHMSHLSPlayerCommands.seekToLivePosition(hmsHlsPlayerRef.current);
         }
       },
       setVolume: (level: number) => {
@@ -194,84 +139,52 @@ const _HMSHLSPlayer: React.ForwardRefRenderFunction<
           );
         }
 
-        if (
-          hmsHlsPlayerRef.current &&
-          RCTHMSHLSPlayerViewManagerConfig.Commands.setVolume
-        ) {
-          UIManager.dispatchViewManagerCommand(
-            findNodeHandle(hmsHlsPlayerRef.current),
-            RCTHMSHLSPlayerViewManagerConfig.Commands.setVolume,
-            [level]
-          );
+        if (hmsHlsPlayerRef.current) {
+          RCTHMSHLSPlayerCommands.setVolume(hmsHlsPlayerRef.current, level);
         }
       },
       isClosedCaptionSupported: () => {
-        if (
-          hmsHlsPlayerRef.current &&
-          RCTHMSHLSPlayerViewManagerConfig.Commands.areClosedCaptionSupported
-        ) {
+        if (hmsHlsPlayerRef.current) {
           const requestId = currentRequestId.current++;
           const promise = new Promise<boolean>((resolve, reject) => {
             promiseAndIdsMap.set(requestId, { resolve, reject });
           });
 
-          UIManager.dispatchViewManagerCommand(
-            findNodeHandle(hmsHlsPlayerRef.current),
-            RCTHMSHLSPlayerViewManagerConfig.Commands.areClosedCaptionSupported,
-            [requestId]
+          RCTHMSHLSPlayerCommands.areClosedCaptionSupported(
+            hmsHlsPlayerRef.current,
+            requestId
           );
           return promise;
         }
         return Promise.resolve(false);
       },
       isClosedCaptionEnabled: () => {
-        if (
-          hmsHlsPlayerRef.current &&
-          RCTHMSHLSPlayerViewManagerConfig.Commands.isClosedCaptionEnabled
-        ) {
+        if (hmsHlsPlayerRef.current) {
           const requestId = currentRequestId.current++;
           const promise = new Promise<boolean>((resolve, reject) => {
             promiseAndIdsMap.set(requestId, { resolve, reject });
           });
 
-          UIManager.dispatchViewManagerCommand(
-            findNodeHandle(hmsHlsPlayerRef.current),
-            RCTHMSHLSPlayerViewManagerConfig.Commands.isClosedCaptionEnabled,
-            [requestId]
+          RCTHMSHLSPlayerCommands.isClosedCaptionEnabled(
+            hmsHlsPlayerRef.current,
+            requestId
           );
           return promise;
         }
         return Promise.resolve(false);
       },
       enableClosedCaption: () => {
-        if (
-          hmsHlsPlayerRef.current &&
-          RCTHMSHLSPlayerViewManagerConfig.Commands.enableClosedCaption
-        ) {
-          UIManager.dispatchViewManagerCommand(
-            findNodeHandle(hmsHlsPlayerRef.current),
-            RCTHMSHLSPlayerViewManagerConfig.Commands.enableClosedCaption,
-            undefined
-          );
+        if (hmsHlsPlayerRef.current) {
+          RCTHMSHLSPlayerCommands.enableClosedCaption(hmsHlsPlayerRef.current);
         }
       },
       disableClosedCaption: () => {
-        if (
-          hmsHlsPlayerRef.current &&
-          RCTHMSHLSPlayerViewManagerConfig.Commands.disableClosedCaption
-        ) {
-          UIManager.dispatchViewManagerCommand(
-            findNodeHandle(hmsHlsPlayerRef.current),
-            RCTHMSHLSPlayerViewManagerConfig.Commands.disableClosedCaption,
-            undefined
-          );
+        if (hmsHlsPlayerRef.current) {
+          RCTHMSHLSPlayerCommands.disableClosedCaption(hmsHlsPlayerRef.current);
         }
       },
       getPlayerDurationDetails: () => {
-        if (
-          hmsHlsPlayerRef.current &&
-          RCTHMSHLSPlayerViewManagerConfig.Commands.getPlayerDurationDetails
-        ) {
+        if (hmsHlsPlayerRef.current) {
           const requestId = currentRequestId.current++;
           const promise = new Promise<HLSPlayerDurationDetails>(
             (resolve, reject) => {
@@ -279,10 +192,9 @@ const _HMSHLSPlayer: React.ForwardRefRenderFunction<
             }
           );
 
-          UIManager.dispatchViewManagerCommand(
-            findNodeHandle(hmsHlsPlayerRef.current),
-            RCTHMSHLSPlayerViewManagerConfig.Commands.getPlayerDurationDetails,
-            [requestId]
+          RCTHMSHLSPlayerCommands.getPlayerDurationDetails(
+            hmsHlsPlayerRef.current,
+            requestId
           );
           return promise;
         }
@@ -377,12 +289,14 @@ const _HMSHLSPlayer: React.ForwardRefRenderFunction<
           style={styles.player}
           enableStats={enableStats}
           enableControls={enableControls}
-          onHmsHlsPlaybackEvent={handleHLSPlaybackEvent}
-          onHmsHlsStatsEvent={handleHLSStatsEvent}
+          onHmsHlsPlaybackEvent={handleHLSPlaybackEvent as any}
+          onHmsHlsStatsEvent={handleHLSStatsEvent as any}
           onHlsPlayerCuesEvent={
-            Platform.OS === 'android' ? handleHLSPlayerCuesEvent : undefined
+            Platform.OS === 'android'
+              ? (handleHLSPlayerCuesEvent as any)
+              : undefined
           }
-          onDataReturned={handleRequestedDataReturned}
+          onDataReturned={handleRequestedDataReturned as any}
         />
       </View>
     </View>

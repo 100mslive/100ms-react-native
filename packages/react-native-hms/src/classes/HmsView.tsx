@@ -1,55 +1,11 @@
 import React, { useState, useImperativeHandle, useRef } from 'react';
-import {
-  findNodeHandle,
-  requireNativeComponent,
-  StyleSheet,
-  UIManager,
-  Platform,
-} from 'react-native';
+import { StyleSheet, Platform } from 'react-native';
 import type { NativeSyntheticEvent, ViewStyle } from 'react-native';
+import HmsView, { Commands } from '../specs/HMSViewNativeComponent';
 import { HMSConstants } from './HMSConstants';
 import { HMSVideoViewMode } from './HMSVideoViewMode';
 import { setHmsViewsResolutionsState } from '../hooks/hmsviews';
 
-/**
- * Interface defining the properties for the `HmsView` component.
- *
- * This interface specifies the structure of the props that the `HmsView` component expects. It includes
- * properties for configuring the video track display, such as the track ID, mirroring options,
- * and scale type. It also includes properties for handling events and customizing the component's style.
- *
- * @interface HmsViewProps
- * @property {Object} data - An object containing the track ID, instance ID, mirroring option, and scale type for the video or audio track.
- * @property {string} data.trackId - The unique identifier for the track to be displayed.
- * @property {string} data.id - The identifier for the `HmsViewComponent` instance.
- * @property {boolean} data.mirror - Indicates whether the video should be mirrored. This is commonly used for local video tracks.
- * @property {HMSVideoViewMode} data.scaleType - Determines how the video fits within the bounds of the view (e.g., aspect fill, aspect fit).
- * @property {boolean} autoSimulcast - Enables automatic simulcast layer switching based on network conditions, if supported.
- * @property {boolean} setZOrderMediaOverlay - When true, the video view will be rendered above the regular view hierarchy.
- * @property {ViewStyle} style - Custom styles to apply to the view.
- * @property {Function} onChange - A callback function that is invoked when the `HmsView` component emits a change event.
- * @property {Function} onDataReturned - A callback function that is invoked when the `HmsView` component returns data in response to a capture frame event.
- *
- * @see {https://www.100ms.live/docs/react-native/v2/how-to-guides/set-up-video-conferencing/render-video/overview}
- */
-interface HmsViewProps {
-  data: {
-    trackId: string;
-    id: string;
-    mirror: boolean;
-    scaleType: HMSVideoViewMode;
-  };
-  autoSimulcast: boolean;
-  setZOrderMediaOverlay: boolean;
-  scaleType: HMSVideoViewMode;
-  style: ViewStyle;
-  onChange: Function;
-  onDataReturned: Function;
-}
-
-// Imports the `HmsView` component from the native side using the `requireNativeComponent` function.
-// This component is used to render video tracks in the application.
-const HmsView = requireNativeComponent<HmsViewProps>('HMSView');
 let _nextRequestId = 1;
 let _requestMap = new Map();
 
@@ -142,8 +98,6 @@ export const HmsViewComponent = React.forwardRef<any, HmsComponentProps>(
     };
 
     const capture = async () => {
-      const viewManagerConfig = UIManager.getViewManagerConfig('HMSView');
-
       let requestId = _nextRequestId++;
       let requestMap = _requestMap;
 
@@ -153,11 +107,9 @@ export const HmsViewComponent = React.forwardRef<any, HmsComponentProps>(
         requestMap.set(requestId, { resolve, reject });
       });
 
-      UIManager.dispatchViewManagerCommand(
-        findNodeHandle(hmsViewRef.current),
-        viewManagerConfig.Commands.capture,
-        [requestId]
-      );
+      if (hmsViewRef.current) {
+        Commands.capture(hmsViewRef.current, requestId);
+      }
       return promise;
     };
 
@@ -170,7 +122,7 @@ export const HmsViewComponent = React.forwardRef<any, HmsComponentProps>(
     return (
       <HmsView
         ref={hmsViewRef}
-        onChange={onChange}
+        onChange={onChange as any}
         data={data}
         style={
           Platform.OS === 'android' ? (applyStyles_ANDROID ? style : {}) : style
@@ -178,7 +130,7 @@ export const HmsViewComponent = React.forwardRef<any, HmsComponentProps>(
         autoSimulcast={autoSimulcast}
         scaleType={scaleType}
         setZOrderMediaOverlay={setZOrderMediaOverlay}
-        onDataReturned={_onDataReturned}
+        onDataReturned={_onDataReturned as any}
       />
     );
   }
