@@ -16,6 +16,23 @@ buildscript {
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
+// Phase 1 of the New Architecture migration. The `react` Gradle plugin
+// is what runs Codegen against `src/specs/*.ts` at consumer build time.
+// Apply it BEFORE the `react { ... }` block below configures it.
+// Reference: https://github.com/reactwg/react-native-new-architecture/blob/main/docs/turbo-modules.md
+apply plugin: 'com.facebook.react'
+
+// Helper that mirrors the consumer-app `newArchEnabled` Gradle property.
+// Used by the source-set switch below: when new arch is on, the build
+// pulls in `src/newarch/` Kotlin (TurboModule wrapper extending the
+// generated NativeHMSManagerSpec). When off, it pulls in `src/oldarch/`
+// (legacy wrapper extending ReactContextBaseJavaModule). Either way,
+// `src/main/` always provides the shared HMSManagerImpl with the
+// actual SDK logic.
+def isNewArchitectureEnabled() {
+    return project.hasProperty("newArchEnabled") && project.newArchEnabled == "true"
+}
+
 // Define helper functions for Kotlin version management (RN 0.77.3 requires 2.0.21)
 def getKotlinVersion() {
     return rootProject.ext.has("kotlinVersion") ? rootProject.ext.get("kotlinVersion") : "2.0.21"
@@ -38,6 +55,38 @@ android {
         targetSdkVersion safeExtGet('Hmssdk_targetSdkVersion', 35)
         versionCode 1
         versionName "1.0"
+
+        // Build flag exposed to Kotlin/Java via BuildConfig so runtime
+        // code can branch on the active arch if needed (rare — most
+        // arch-specific behavior is resolved at compile time via the
+        // sourceSets switch below).
+        buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()
+    }
+
+    buildFeatures {
+        buildConfig = true
+    }
+
+    // Source-set switch — chooses the arch-specific wrapper classes.
+    // Both `src/newarch/` and `src/oldarch/` contain the same package
+    // and class names (HMSManager, HMSSDKViewManager, HMSHLSPlayerManager);
+    // only one is compiled per build, picked here based on the consumer
+    // app's `newArchEnabled` Gradle property.
+    //
+    // The actual SDK business logic lives in `src/main/` as `HMSManagerImpl`,
+    // `HMSSDKViewManagerImpl`, etc. Both arch wrappers delegate to it.
+    //
+    // This pattern is the canonical RN community approach for
+    // backward-compatible TurboModules — see:
+    // https://github.com/reactwg/react-native-new-architecture/blob/main/docs/backwards-compat-turbo-modules.md
+    sourceSets {
+        main {
+            if (isNewArchitectureEnabled()) {
+                java.srcDirs += ['src/newarch']
+            } else {
+                java.srcDirs += ['src/oldarch']
+            }
+        }
     }
 
     lint {
@@ -50,6 +99,19 @@ android {
     kotlinOptions {
         jvmTarget = "17"
     }
+}
+
+// Codegen configuration. Consumer's build picks up the TS specs in
+// `src/specs/` and generates:
+//   - Java abstract class `NativeHMSManagerSpec` (and others) under
+//     the package below, which our `src/newarch/` wrapper extends.
+//   - C++ Fabric component descriptors / event emitters / props under
+//     `react/renderer/components/RNHmsSpec/...` for iOS-side
+//     `*ComponentView.mm` files (see `react-native-hms.podspec`).
+react {
+    jsRootDir = file("../src/specs/")
+    libraryName = "RNHmsSpec"
+    codegenJavaPackageName = "com.reactnativehmssdk"
 }
 
 repositories {
