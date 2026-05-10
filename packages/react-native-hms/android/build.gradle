@@ -1,21 +1,15 @@
 import groovy.json.JsonSlurper
 
-buildscript {
-    repositories {
-        google()
-        mavenCentral()
-    }
-    dependencies {
-        classpath("com.android.tools.build:gradle:8.5.0")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.0.21")
-    }
-}
-
-// Use the `plugins {}` DSL block so the React Native gradle plugin resolves
-// in both legacy consumers (root buildscript classpath) AND modern RN 0.71+
-// consumers (pluginManagement.includeBuild in settings.gradle). The legacy
-// `apply plugin: 'com.facebook.react'` form only works against legacy classpath
-// setups, breaking vanilla RN 0.71+ templates.
+// AGP, Kotlin, and the React Native gradle plugin all come from the consumer
+// app's classloader (root buildscript classpath in legacy consumers, or
+// pluginManagement.includeBuild in modern RN 0.71+ consumers). We deliberately
+// do NOT declare our own `buildscript { dependencies { classpath(...) } }`
+// block: that creates a separate buildscript classloader for this subproject,
+// which causes the React plugin to be loaded twice when another lib in the
+// same build also applies it ("Cannot add extension with name 'privateReact'"
+// — different Class<PrivateReactExtension> objects per classloader fail
+// findByType lookups). Inheriting plugins from the consumer's classpath
+// guarantees a single load.
 plugins {
     id 'com.android.library'
     id 'kotlin-android'
