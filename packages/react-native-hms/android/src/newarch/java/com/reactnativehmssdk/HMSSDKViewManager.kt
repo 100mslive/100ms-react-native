@@ -66,6 +66,12 @@ class HMSSDKViewManager :
   @Nullable
   override fun getCommandsMap(): Map<String, Int>? = HMSSDKViewManagerImpl.getCommandsMap()
 
+  /** Codegen-interface typed `capture` command — Fabric dispatches here. */
+  override fun capture(
+    view: HMSView,
+    requestId: Int,
+  ) = HMSSDKViewManagerImpl.capture(view, requestId)
+
   // ─────────────────────────────────────────────────────────────────
   // Codegen-interface methods (typed prop setters dispatched by Fabric)
   // ─────────────────────────────────────────────────────────────────

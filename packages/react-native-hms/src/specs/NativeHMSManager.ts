@@ -25,8 +25,21 @@
 
 import type { TurboModule } from 'react-native';
 import { TurboModuleRegistry } from 'react-native';
+import type { Int32 } from 'react-native/Libraries/Types/CodegenTypes';
 
 export interface Spec extends TurboModule {
+  // ─────────────────────────────────────────────────────────────────────
+  // 0. NativeEventEmitter convention methods
+  //
+  // RN's NativeEventEmitter on the JS side calls these on the native module
+  // when listeners are added/removed. Required by the eventing infrastructure
+  // even though our impl uses them as no-ops (we route events via a separate
+  // DeviceEventManagerModule.RCTDeviceEventEmitter).
+  // ─────────────────────────────────────────────────────────────────────
+
+  addListener(eventName: string): void;
+  removeListeners(count: Int32): void;
+
   // ─────────────────────────────────────────────────────────────────────
   // 1. Lifecycle
   // ─────────────────────────────────────────────────────────────────────
@@ -44,8 +57,8 @@ export interface Spec extends TurboModule {
   // 2. Track operations
   // ─────────────────────────────────────────────────────────────────────
 
-  setLocalMute(data: Object): Promise<Object>;
-  setLocalVideoMute(data: Object): Promise<Object>;
+  setLocalMute(data: Object): void; // fire-and-forget (impl is sync)
+  setLocalVideoMute(data: Object): void; // fire-and-forget (impl is sync)
   switchCamera(data: Object): void; // fire-and-forget
   isMute(data: Object): Promise<Object>;
   changeTrackState(data: Object): Promise<Object>;
@@ -286,4 +299,9 @@ export interface Spec extends TurboModule {
   // ─────────────────────────────────────────────────────────────────────
 }
 
+// DO NOT DELETE this default export even if it appears unused at JS runtime.
+// React Native's Codegen statically parses this exact call shape at build time
+// to extract the module name ('HMSManager') and emit the matching native
+// abstract class (NativeHMSManagerSpec). Removing it fails Codegen with
+// `UnusedModuleInterfaceParserError`.
 export default TurboModuleRegistry.getEnforcing<Spec>('HMSManager');

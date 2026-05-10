@@ -1,5 +1,6 @@
 package com.reactnativehmssdk
 
+import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.common.MapBuilder
@@ -62,11 +63,20 @@ class HMSSDKViewManagerImpl {
       data?.let { view.updateAutoSimulcast(it) }
     }
 
-    /** Imperative `capture` command. */
+    /** Imperative `capture` command (paper — args is a numeric-array). */
     fun capture(
       view: HMSView,
       args: ReadableArray?,
     ) = view.captureHmsView(args)
+
+    /** Imperative `capture` command (Fabric — typed `requestId`). */
+    fun capture(
+      view: HMSView,
+      requestId: Int,
+    ) {
+      val args = Arguments.createArray().apply { pushInt(requestId) }
+      view.captureHmsView(args)
+    }
 
     fun getCommandsMap(): Map<String, Int> = MapBuilder.of("capture", 1)
 

@@ -61,7 +61,7 @@ class HMSManager(
 
   override fun addKeyChangeListener(data: ReadableMap, promise: Promise) = impl.addKeyChangeListener(data, promise)
 
-  override fun addListener(data: ReadableMap, promise: Promise) = impl.addListener(data, promise)
+  override fun addListener(eventName: String) = impl.addListener(eventName)
 
   override fun addResponseOnPollQuestion(data: ReadableMap, promise: Promise) = impl.addResponseOnPollQuestion(data, promise)
 
@@ -229,7 +229,7 @@ class HMSManager(
 
   override fun removeKeyChangeListener(data: ReadableMap, promise: Promise) = impl.removeKeyChangeListener(data, promise)
 
-  override fun removeListeners(data: ReadableMap, promise: Promise) = impl.removeListeners(data, promise)
+  override fun removeListeners(count: Double) = impl.removeListeners(count.toInt())
 
   override fun removePeer(data: ReadableMap, promise: Promise) = impl.removePeer(data, promise)
 
@@ -263,9 +263,9 @@ class HMSManager(
     promise.reject("NotImplemented", "setAudioShareVolume is iOS-only", null)
   }
 
-  override fun setLocalMute(data: ReadableMap, promise: Promise) = impl.setLocalMute(data, promise)
+  override fun setLocalMute(data: ReadableMap) = impl.setLocalMute(data)
 
-  override fun setLocalVideoMute(data: ReadableMap, promise: Promise) = impl.setLocalVideoMute(data, promise)
+  override fun setLocalVideoMute(data: ReadableMap) = impl.setLocalVideoMute(data)
 
   override fun setPermissionsAccepted(data: ReadableMap, promise: Promise) = impl.setPermissionsAccepted(data, promise)
 
