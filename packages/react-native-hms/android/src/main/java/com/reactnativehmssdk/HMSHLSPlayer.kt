@@ -15,7 +15,7 @@ import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.WritableMap
 import com.facebook.react.uimanager.ThemedReactContext
-import com.facebook.react.uimanager.events.RCTEventEmitter
+import com.facebook.react.uimanager.UIManagerHelper
 import live.hms.hls_player.*
 import live.hms.stats.PlayerStatsListener
 import live.hms.stats.model.PlayerStatsModel
@@ -300,6 +300,17 @@ class HMSHLSPlayer(
     statsMonitorAttached = false
   }
 
+  private fun dispatchViewEvent(
+    eventName: String,
+    payload: WritableMap,
+  ) {
+    val reactContext = context as ReactContext
+    val surfaceId = UIManagerHelper.getSurfaceId(this)
+    UIManagerHelper
+      .getEventDispatcherForReactTag(reactContext, id)
+      ?.dispatchEvent(HMSReactNativeEvent(surfaceId, id, eventName, payload))
+  }
+
   private fun sendHLSPlaybackEventToJS(
     eventName: String,
     data: WritableMap,
@@ -308,8 +319,7 @@ class HMSHLSPlayer(
     event.putString("event", eventName)
     event.putMap("data", data)
 
-    val reactContext = context as ReactContext
-    reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, HMSHLSPlayerConstants.HMS_HLS_PLAYBACK_EVENT, event)
+    dispatchViewEvent(HMSHLSPlayerConstants.HMS_HLS_PLAYBACK_EVENT, event)
   }
 
   private fun sendHLSStatsEventToJS(
@@ -320,8 +330,7 @@ class HMSHLSPlayer(
     event.putString("event", eventName)
     event.putMap("data", data)
 
-    val reactContext = context as ReactContext
-    reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, HMSHLSPlayerConstants.HMS_HLS_STATS_EVENT, event)
+    dispatchViewEvent(HMSHLSPlayerConstants.HMS_HLS_STATS_EVENT, event)
   }
 
   private fun sendHLSDataRequestEventToJS(
@@ -347,8 +356,7 @@ class HMSHLSPlayer(
       event.putNull("data")
     }
 
-    val reactContext = context as ReactContext
-    reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, HMSHLSPlayerConstants.HLS_DATA_REQUEST_EVENT, event)
+    dispatchViewEvent(HMSHLSPlayerConstants.HLS_DATA_REQUEST_EVENT, event)
   }
 
   private fun sendHLSPlayerCuesEventToJS(ccText: String?) {
@@ -360,8 +368,7 @@ class HMSHLSPlayer(
     } else {
       event.putNull("data")
     }
-    val reactContext = context as ReactContext
-    reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, HMSHLSPlayerConstants.HLS_PLAYER_CUES_EVENT, event)
+    dispatchViewEvent(HMSHLSPlayerConstants.HLS_PLAYER_CUES_EVENT, event)
   }
 }
 

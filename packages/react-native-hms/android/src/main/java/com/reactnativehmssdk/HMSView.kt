@@ -11,7 +11,7 @@ import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReactContext
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.WritableMap
-import com.facebook.react.uimanager.events.RCTEventEmitter
+import com.facebook.react.uimanager.UIManagerHelper
 import hms.webrtc.RendererCommon
 import live.hms.video.media.tracks.HMSVideoTrack
 import live.hms.video.utils.HmsUtilities
@@ -72,7 +72,10 @@ class HMSView(
     event.putMap("data", data)
 
     val reactContext = context as ReactContext
-    reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "topChange", event)
+    val surfaceId = UIManagerHelper.getSurfaceId(this)
+    UIManagerHelper
+      .getEventDispatcherForReactTag(reactContext, id)
+      ?.dispatchEvent(HMSReactNativeEvent(surfaceId, id, "topChange", event))
   }
 
   @RequiresApi(Build.VERSION_CODES.N)

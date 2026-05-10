@@ -10,7 +10,7 @@ import android.view.PixelCopy
 import android.webkit.URLUtil
 import androidx.annotation.RequiresApi
 import com.facebook.react.bridge.*
-import com.facebook.react.uimanager.events.RCTEventEmitter
+import com.facebook.react.uimanager.UIManagerHelper
 import hms.webrtc.SurfaceViewRenderer
 import live.hms.video.audio.HMSAudioManager
 import live.hms.video.error.HMSException
@@ -634,6 +634,7 @@ object HMSHelper {
       output.putInt("requestId", -1)
     }
     val reactContext = context as ReactContext
+    val surfaceId = UIManagerHelper.getSurfaceId(reactContext)
     try {
       val bitmap: Bitmap =
         Bitmap.createBitmap(surfaceView.width, surfaceView.height, Bitmap.Config.ARGB_8888)
@@ -649,9 +650,9 @@ object HMSHelper {
             val encoded: String = Base64.encodeToString(byteArray, Base64.DEFAULT)
             Log.d("captureSurfaceView", "Base64: $encoded")
             output.putString("result", encoded)
-            reactContext
-              .getJSModule(RCTEventEmitter::class.java)
-              .receiveEvent(id, "captureFrame", output)
+            UIManagerHelper
+              .getEventDispatcherForReactTag(reactContext, id)
+              ?.dispatchEvent(HMSReactNativeEvent(surfaceId, id, "captureFrame", output))
           } else {
             Log.e("captureSurfaceView", "copyResult: $copyResult")
             HMSManagerImpl.hmsCollection[sdkId]?.emitHMSError(
@@ -664,9 +665,9 @@ object HMSHelper {
               ),
             )
             output.putString("error", copyResult.toString())
-            reactContext
-              .getJSModule(RCTEventEmitter::class.java)
-              .receiveEvent(id, "captureFrame", output)
+            UIManagerHelper
+              .getEventDispatcherForReactTag(reactContext, id)
+              ?.dispatchEvent(HMSReactNativeEvent(surfaceId, id, "captureFrame", output))
           }
         },
         Handler(),
@@ -675,7 +676,9 @@ object HMSHelper {
       Log.e("captureSurfaceView", "error: $e")
       HMSManagerImpl.hmsCollection[sdkId]?.emitHMSError(e as HMSException)
       output.putString("error", e.message)
-      reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "captureFrame", output)
+      UIManagerHelper
+        .getEventDispatcherForReactTag(reactContext, id)
+        ?.dispatchEvent(HMSReactNativeEvent(surfaceId, id, "captureFrame", output))
     }
   }
 
