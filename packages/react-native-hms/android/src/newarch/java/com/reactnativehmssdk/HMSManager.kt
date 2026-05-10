@@ -47,6 +47,11 @@ class HMSManager(
 
     @JvmStatic
     fun onUserLeaveHint() = HMSManagerImpl.onUserLeaveHint()
+
+    /** Backward-compat: external packages (e.g. react-native-video-plugin) read this map. */
+    @JvmStatic
+    val hmsCollection: MutableMap<String, HMSRNSDK>
+      get() = HMSManagerImpl.hmsCollection
   }
 
   /** Used by view managers to look up the active SDK instances map. */

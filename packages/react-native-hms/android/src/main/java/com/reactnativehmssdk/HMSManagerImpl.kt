@@ -18,7 +18,6 @@ import androidx.core.view.WindowInsetsCompat
 import com.facebook.react.bridge.*
 import com.facebook.react.module.annotations.ReactModule
 import com.facebook.react.modules.core.DeviceEventManagerModule
-import com.reactnativehmssdk.HMSManager.Companion.REACT_CLASS
 import live.hms.video.error.HMSException
 import live.hms.video.factories.noisecancellation.AvailabilityStatus
 import live.hms.video.sdk.HMSActionResultListener
@@ -1042,8 +1041,8 @@ class HMSManagerImpl(
         return false
       }
 
-      HMSManager.pipParamConfig = pipParamConfig
-      HMSManager.pipParamsUntyped = pipParams
+      Companion.pipParamConfig = pipParamConfig
+      Companion.pipParamsUntyped = pipParams
 
       activity.setPictureInPictureParams(pipParams)
       return true
@@ -1079,8 +1078,8 @@ class HMSManagerImpl(
         return false
       }
 
-      HMSManager.pipParamConfig = pipParamConfig
-      HMSManager.pipParamsUntyped = pipParams
+      Companion.pipParamConfig = pipParamConfig
+      Companion.pipParamsUntyped = pipParams
 
       return activity.enterPictureInPictureMode(pipParams)
     } catch (e: Exception) {

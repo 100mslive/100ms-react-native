@@ -19,7 +19,7 @@
  * capture command responses).
  */
 
-import type { ElementRef } from 'react';
+import type * as React from 'react';
 import type { ViewProps, HostComponent } from 'react-native';
 import type {
   DirectEventHandler,
@@ -103,7 +103,7 @@ interface NativeCommands {
    * matched to this call by `requestId`.
    */
   capture: (
-    viewRef: ElementRef<HostComponent<NativeProps>>,
+    viewRef: React.ElementRef<HostComponent<NativeProps>>,
     requestId: Int32
   ) => void;
 }

@@ -17,7 +17,7 @@
  * rest loose. Phase 2 tightens.
  */
 
-import type { ElementRef } from 'react';
+import type * as React from 'react';
 import type { ViewProps, HostComponent } from 'react-native';
 import type {
   DirectEventHandler,
@@ -112,35 +112,35 @@ interface NativeProps extends ViewProps {
 
 interface NativeCommands {
   /** Start playing. Pass `''` (empty string) to reuse the URL prop. */
-  play: (viewRef: ElementRef<HostComponent<NativeProps>>, url: string) => void;
+  play: (viewRef: React.ElementRef<HostComponent<NativeProps>>, url: string) => void;
 
   /** Stop playback (releases the player). */
-  stop: (viewRef: ElementRef<HostComponent<NativeProps>>) => void;
+  stop: (viewRef: React.ElementRef<HostComponent<NativeProps>>) => void;
 
   /** Pause playback (player remains allocated). */
-  pause: (viewRef: ElementRef<HostComponent<NativeProps>>) => void;
+  pause: (viewRef: React.ElementRef<HostComponent<NativeProps>>) => void;
 
   /** Resume from paused state. */
-  resume: (viewRef: ElementRef<HostComponent<NativeProps>>) => void;
+  resume: (viewRef: React.ElementRef<HostComponent<NativeProps>>) => void;
 
   /** Jump to the live edge (DVR HLS only). */
-  seekToLivePosition: (viewRef: ElementRef<HostComponent<NativeProps>>) => void;
+  seekToLivePosition: (viewRef: React.ElementRef<HostComponent<NativeProps>>) => void;
 
   /** Seek `seconds` ahead from current position. */
   seekForward: (
-    viewRef: ElementRef<HostComponent<NativeProps>>,
+    viewRef: React.ElementRef<HostComponent<NativeProps>>,
     seconds: Double
   ) => void;
 
   /** Seek `seconds` back from current position. */
   seekBackward: (
-    viewRef: ElementRef<HostComponent<NativeProps>>,
+    viewRef: React.ElementRef<HostComponent<NativeProps>>,
     seconds: Double
   ) => void;
 
   /** Set volume `0–100` (integer). */
   setVolume: (
-    viewRef: ElementRef<HostComponent<NativeProps>>,
+    viewRef: React.ElementRef<HostComponent<NativeProps>>,
     level: Int32
   ) => void;
 
@@ -149,7 +149,7 @@ interface NativeCommands {
    * `onDataReturned` matched by `requestId`.
    */
   areClosedCaptionSupported: (
-    viewRef: ElementRef<HostComponent<NativeProps>>,
+    viewRef: React.ElementRef<HostComponent<NativeProps>>,
     requestId: Int32
   ) => void;
 
@@ -158,18 +158,18 @@ interface NativeCommands {
    * `onDataReturned` matched by `requestId`.
    */
   isClosedCaptionEnabled: (
-    viewRef: ElementRef<HostComponent<NativeProps>>,
+    viewRef: React.ElementRef<HostComponent<NativeProps>>,
     requestId: Int32
   ) => void;
 
   /** Enable closed captions display. */
   enableClosedCaption: (
-    viewRef: ElementRef<HostComponent<NativeProps>>
+    viewRef: React.ElementRef<HostComponent<NativeProps>>
   ) => void;
 
   /** Disable closed captions display. */
   disableClosedCaption: (
-    viewRef: ElementRef<HostComponent<NativeProps>>
+    viewRef: React.ElementRef<HostComponent<NativeProps>>
   ) => void;
 
   /**
@@ -177,7 +177,7 @@ interface NativeCommands {
    * Response via `onDataReturned` matched by `requestId`.
    */
   getPlayerDurationDetails: (
-    viewRef: ElementRef<HostComponent<NativeProps>>,
+    viewRef: React.ElementRef<HostComponent<NativeProps>>,
     requestId: Int32
   ) => void;
 }
