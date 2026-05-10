@@ -1,7 +1,5 @@
 import groovy.json.JsonSlurper
 
-def sdkVersions = new JsonSlurper().parse file("../sdk-versions.json")
-
 buildscript {
     repositories {
         google()
@@ -13,14 +11,18 @@ buildscript {
     }
 }
 
-apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
+// Use the `plugins {}` DSL block so the React Native gradle plugin resolves
+// in both legacy consumers (root buildscript classpath) AND modern RN 0.71+
+// consumers (pluginManagement.includeBuild in settings.gradle). The legacy
+// `apply plugin: 'com.facebook.react'` form only works against legacy classpath
+// setups, breaking vanilla RN 0.71+ templates.
+plugins {
+    id 'com.android.library'
+    id 'kotlin-android'
+    id 'com.facebook.react'
+}
 
-// Phase 1 of the New Architecture migration. The `react` Gradle plugin
-// is what runs Codegen against `src/specs/*.ts` at consumer build time.
-// Apply it BEFORE the `react { ... }` block below configures it.
-// Reference: https://github.com/reactwg/react-native-new-architecture/blob/main/docs/turbo-modules.md
-apply plugin: 'com.facebook.react'
+def sdkVersions = new JsonSlurper().parse file("../sdk-versions.json")
 
 // Helper that mirrors the consumer-app `newArchEnabled` Gradle property.
 // Used by the source-set switch below: when new arch is on, the build
