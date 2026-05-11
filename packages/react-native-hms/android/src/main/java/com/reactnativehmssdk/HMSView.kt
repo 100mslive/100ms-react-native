@@ -75,7 +75,7 @@ class HMSView(
     val surfaceId = UIManagerHelper.getSurfaceId(this)
     UIManagerHelper
       .getEventDispatcherForReactTag(reactContext, id)
-      ?.dispatchEvent(HMSReactNativeEvent(surfaceId, id, "topChange", event))
+      ?.dispatchEvent(HMSReactNativeEvent(surfaceId, id, "topResolutionChange", event))
   }
 
   @RequiresApi(Build.VERSION_CODES.N)

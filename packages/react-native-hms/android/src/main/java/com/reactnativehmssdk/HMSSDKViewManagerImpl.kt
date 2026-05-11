@@ -80,21 +80,22 @@ class HMSSDKViewManagerImpl {
 
     fun getCommandsMap(): Map<String, Int> = MapBuilder.of("capture", 1)
 
-    /** `topChange` is the native-side event name; JS receives it as `onChange`. */
-    fun getExportedCustomBubblingEventTypeConstants(): Map<String, Any> =
+    /**
+     * Both events are DIRECT, matching the Codegen spec which declares both as
+     * `DirectEventHandler<...>`. The names are deliberately unique (not the
+     * default `topChange`) to avoid colliding with RN's built-in `topChange`
+     * (which RN registers as bubbling on every RCTView), which would trigger
+     * "Event cannot be both direct and bubbling" at runtime.
+     *
+     * - `topResolutionChange` → JS receives as `onResolutionChange`.
+     * - `captureFrame`        → JS receives as `onDataReturned`.
+     */
+    fun getExportedCustomDirectEventTypeConstants(): Map<String, Any> =
       MapBuilder
         .builder<String, Any>()
-        .put(
-          "topChange",
-          MapBuilder.of("phasedRegistrationNames", MapBuilder.of("bubbled", "onChange")),
-        ).build()
-
-    /** `captureFrame` is fired when the `capture` command completes; JS receives it as `onDataReturned`. */
-    fun getExportedCustomDirectEventTypeConstants(): Map<String, Any> =
-      MapBuilder.of(
-        "captureFrame",
-        MapBuilder.of("registrationName", "onDataReturned"),
-      )
+        .put("topResolutionChange", MapBuilder.of("registrationName", "onResolutionChange"))
+        .put("captureFrame", MapBuilder.of("registrationName", "onDataReturned"))
+        .build()
 
     /**
      * Look up the active SDK instances map. Routes through

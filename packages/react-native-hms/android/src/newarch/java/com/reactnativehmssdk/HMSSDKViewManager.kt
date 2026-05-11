@@ -46,9 +46,6 @@ class HMSSDKViewManager :
     return HMSSDKViewManagerImpl.createViewInstance(reactContext)
   }
 
-  override fun getExportedCustomBubblingEventTypeConstants(): Map<String, Any> =
-    HMSSDKViewManagerImpl.getExportedCustomBubblingEventTypeConstants()
-
   override fun getExportedCustomDirectEventTypeConstants(): Map<String, Any> =
     HMSSDKViewManagerImpl.getExportedCustomDirectEventTypeConstants()
 

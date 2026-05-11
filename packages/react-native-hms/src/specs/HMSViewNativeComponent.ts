@@ -86,8 +86,12 @@ interface NativeProps extends ViewProps {
    */
   setZOrderMediaOverlay?: WithDefault<boolean, false>;
 
-  /** Resolution-change events. */
-  onChange?: DirectEventHandler<OnChangeEvent>;
+  /**
+   * Resolution-change events. Renamed from `onChange` to avoid colliding with
+   * RN's built-in `topChange` internal event (registered as bubbling on every
+   * RCTView), which triggers "Event cannot be both direct and bubbling".
+   */
+  onResolutionChange?: DirectEventHandler<OnChangeEvent>;
 
   /** Capture command response (success or error). */
   onDataReturned?: DirectEventHandler<OnDataReturnedEvent>;

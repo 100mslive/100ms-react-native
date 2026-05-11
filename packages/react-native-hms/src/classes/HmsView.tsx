@@ -122,7 +122,7 @@ export const HmsViewComponent = React.forwardRef<any, HmsComponentProps>(
     return (
       <HmsView
         ref={hmsViewRef}
-        onChange={onChange as any}
+        onResolutionChange={onChange as any}
         data={data}
         style={
           Platform.OS === 'android' ? (applyStyles_ANDROID ? style : {}) : style
