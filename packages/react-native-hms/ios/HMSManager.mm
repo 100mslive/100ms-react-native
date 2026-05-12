@@ -39,9 +39,19 @@
 #import <React/RCTBridgeModule.h>
 #import <React/RCTEventEmitter.h>
 
-// Auto-generated Swift bridging header. Path may need adjustment
-// based on CocoaPods' module-name normalization.
+// Auto-generated Swift bridging header. CocoaPods normalizes the pod name
+// `react-native-hms` to a module name with different conventions across
+// CocoaPods versions (framework-style angle-brackets, quoted, or underscored).
+// __has_include lets us try each form and use whichever the active toolchain
+// produced. Caught by CI: a single hard-coded path fails on some CocoaPods
+// versions because the actual generated header lives at a different location.
+#if __has_include(<react_native_hms/react_native_hms-Swift.h>)
+#import <react_native_hms/react_native_hms-Swift.h>
+#elif __has_include("react_native_hms-Swift.h")
 #import "react_native_hms-Swift.h"
+#elif __has_include("react_native_hms_Swift.h")
+#import "react_native_hms_Swift.h"
+#endif
 
 @interface HMSManager (TurboModuleConformance) <NativeHMSManagerSpec>
 @end
