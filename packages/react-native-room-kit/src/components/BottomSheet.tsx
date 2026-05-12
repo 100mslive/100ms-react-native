@@ -76,7 +76,7 @@ export const BottomSheet: React.FC<BottomSheetProps> & {
       useNativeDriver={resetProps.useNativeDriver ?? true}
       useNativeDriverForBackdrop={resetProps.useNativeDriverForBackdrop ?? true}
       hideModalContentWhileAnimating={
-        resetProps.hideModalContentWhileAnimating ?? true
+        resetProps.hideModalContentWhileAnimating ?? false
       }
       style={[styles.modal, style]}
       onModalHide={resetProps.onModalHide ?? handleModalHideAction}
