@@ -275,6 +275,17 @@ jobs:
           pod --version
           echo "✅ CocoaPods installed"
 
+      # New-arch iOS builds compile generated Fabric C++ via CMake. macos-14
+      # runners ship CMake but without a default make program set, so the build
+      # fails with "CMAKE_MAKE_PROGRAM is not set" before xcodebuild can start.
+      # Install ninja (a faster generator anyway) and set CMAKE_MAKE_PROGRAM.
+      - name: Install CMake build tools (Ninja)
+        run: |
+          brew install ninja
+          echo "CMAKE_MAKE_PROGRAM=$(which ninja)" >> $GITHUB_ENV
+          echo "CMAKE_GENERATOR=Ninja" >> $GITHUB_ENV
+          echo "✅ Ninja installed at $(which ninja)"
+
       - name: Display environment info
         run: |
           echo "Node: $(node --version)"
