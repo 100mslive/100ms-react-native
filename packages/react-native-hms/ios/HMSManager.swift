@@ -44,7 +44,7 @@ public class HMSManager: RCTEventEmitter {
         HMSManager.shared = self
     }
 
-    override class func requiresMainQueueSetup() -> Bool {
+    public override class func requiresMainQueueSetup() -> Bool {
         true
     }
 

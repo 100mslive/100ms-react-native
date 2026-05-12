@@ -13,11 +13,11 @@ public class HMSView: RCTViewManager {
         return view
     }
 
-    public func getHmsFromBridge() -> [String: HMSRNSDK] {
+    func getHmsFromBridge() -> [String: HMSRNSDK] {
         return HMSManager.shared?.hmsCollection ?? [String: HMSRNSDK]()
     }
 
-    override class func requiresMainQueueSetup() -> Bool {
+    public override class func requiresMainQueueSetup() -> Bool {
         true
     }
 
@@ -52,7 +52,7 @@ public class HmssdkDisplayView: UIView {
 
     var hmsCollection = [String: HMSRNSDK]()
 
-    public func setHms(_ hmsInstance: [String: HMSRNSDK]) {
+    func setHms(_ hmsInstance: [String: HMSRNSDK]) {
         hmsCollection = hmsInstance
     }
 
