@@ -18,13 +18,19 @@ target 'RNExampleBroadcastUpload' do
 end
 
 target 'RNExample' do
+  # Autolinking for RN community libraries (lottie, gesture handler, screens,
+  # vision-camera, etc.). `use_react_native!` does NOT call this for you on
+  # RN 0.78 — without it, only React core + explicitly-listed pods install,
+  # and the example app fails to compile against Lottie / RNSplashScreen.
+  config = use_native_modules!
+
   setup_permissions([
     'Camera',
     'Microphone',
   ])
 
   use_react_native!(
-    :path => '../node_modules/react-native',
+    :path => config[:reactNativePath],
     :hermes_enabled => true,
     # Default OFF. Toggle for a single build via:
     #   RCT_NEW_ARCH_ENABLED=1 pod install
@@ -33,8 +39,10 @@ target 'RNExample' do
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
-  # File-linked HMS SDK (sibling repo, not in node_modules).
-  pod 'react-native-hms', :path => '../../../react-native-hms'
+  # react-native-hms is autolinked via `use_native_modules!` above — the
+  # `file:../../react-native-hms` dep in package.json symlinks it into
+  # node_modules, so autolinking discovers it the same way as any other
+  # community library.
 
   post_install do |installer|
     react_native_post_install(
