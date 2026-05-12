@@ -42,18 +42,32 @@
 #import <React/RCTBridgeModule.h>
 #import <React/RCTEventEmitter.h>
 
-// Auto-generated Swift bridging header. CocoaPods normalizes the pod name
-// `react-native-hms` to a module name with different conventions across
-// CocoaPods versions (framework-style angle-brackets, quoted, or underscored).
-// __has_include lets us try each form and use whichever the active toolchain
-// produced. Caught by CI: a single hard-coded path fails on some CocoaPods
-// versions because the actual generated header lives at a different location.
+// TEMP DEBUG: probe which Swift bridging header path CocoaPods actually
+// generated. Each successful __has_include emits a #warning so the CI log
+// tells us the working name. #error at the end if none matched.
 #if __has_include(<react_native_hms/react_native_hms-Swift.h>)
+#warning "[hms-probe] MATCH: <react_native_hms/react_native_hms-Swift.h>"
 #import <react_native_hms/react_native_hms-Swift.h>
 #elif __has_include("react_native_hms-Swift.h")
+#warning "[hms-probe] MATCH: react_native_hms-Swift.h"
 #import "react_native_hms-Swift.h"
 #elif __has_include("react_native_hms_Swift.h")
+#warning "[hms-probe] MATCH: react_native_hms_Swift.h"
 #import "react_native_hms_Swift.h"
+#elif __has_include(<react-native-hms/react-native-hms-Swift.h>)
+#warning "[hms-probe] MATCH: <react-native-hms/react-native-hms-Swift.h>"
+#import <react-native-hms/react-native-hms-Swift.h>
+#elif __has_include("react-native-hms-Swift.h")
+#warning "[hms-probe] MATCH: react-native-hms-Swift.h"
+#import "react-native-hms-Swift.h"
+#elif __has_include(<ReactNativeHms/ReactNativeHms-Swift.h>)
+#warning "[hms-probe] MATCH: <ReactNativeHms/ReactNativeHms-Swift.h>"
+#import <ReactNativeHms/ReactNativeHms-Swift.h>
+#elif __has_include("ReactNativeHms-Swift.h")
+#warning "[hms-probe] MATCH: ReactNativeHms-Swift.h"
+#import "ReactNativeHms-Swift.h"
+#else
+#error "[hms-probe] NO Swift bridging header found via any of the tested paths. Inspect CI build directory for the actual generated *-Swift.h filename and add it above."
 #endif
 
 @interface HMSManager (TurboModuleConformance) <NativeHMSManagerSpec>

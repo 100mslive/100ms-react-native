@@ -387,6 +387,19 @@ jobs:
             exit 1
           fi
 
+      # Always run — even on build failure — so we can see the actual generated
+      # Swift bridging header path. Pod-side debugging shortcut.
+      - name: List generated Swift bridging headers (diagnostic)
+        if: always()
+        working-directory: packages/react-native-room-kit/example/ios
+        run: |
+          echo "=== Searching build/ for *-Swift.h ==="
+          find build -name "*-Swift.h" -type f 2>/dev/null | sort | head -50 || echo "(none found)"
+          echo "=== Searching for hms-related Swift artifacts ==="
+          find build -iname "*hms*-Swift.h" -type f 2>/dev/null | head -20 || echo "(none found)"
+          echo "=== Probe markers from HMSManager.mm compile log ==="
+          grep -E "\[hms-probe\]" xcodebuild.log 2>/dev/null | head -10 || echo "(no probe markers in log)"
+
       - name: Upload build logs on failure
         if: failure()
         uses: actions/upload-artifact@v4
