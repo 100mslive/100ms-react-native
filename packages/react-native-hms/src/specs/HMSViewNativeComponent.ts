@@ -63,7 +63,7 @@ type OnDataReturnedEvent = Readonly<{
   error?: string;
 }>;
 
-interface NativeProps extends ViewProps {
+export interface NativeProps extends ViewProps {
   /** Track identifier bag. See {@link DataProp}. */
   data?: DataProp;
 
@@ -100,7 +100,7 @@ interface NativeProps extends ViewProps {
 /**
  * Imperative commands callable on a `<HMSView />` ref.
  */
-interface NativeCommands {
+export interface NativeCommands {
   /**
    * Capture a snapshot of the current video frame. The result (or
    * error) is delivered asynchronously via the `onDataReturned` event,

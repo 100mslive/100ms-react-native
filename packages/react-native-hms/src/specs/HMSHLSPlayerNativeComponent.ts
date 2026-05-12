@@ -77,7 +77,7 @@ type OnHlsPlayerCuesEventPayload = Readonly<{
 // Props
 // ─────────────────────────────────────────────────────────────────────────
 
-interface NativeProps extends ViewProps {
+export interface NativeProps extends ViewProps {
   /** HLS stream URL to play. */
   url?: string;
 
@@ -110,7 +110,7 @@ interface NativeProps extends ViewProps {
 // keeps that pattern.
 // ─────────────────────────────────────────────────────────────────────────
 
-interface NativeCommands {
+export interface NativeCommands {
   /** Start playing. Pass `''` (empty string) to reuse the URL prop. */
   play: (viewRef: React.ElementRef<HostComponent<NativeProps>>, url: string) => void;
 
