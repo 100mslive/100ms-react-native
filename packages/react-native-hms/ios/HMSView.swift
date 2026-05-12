@@ -2,9 +2,9 @@ import HMSSDK
 import AVKit
 
 @objc(HMSView)
-class HMSView: RCTViewManager {
+public class HMSView: RCTViewManager {
 
-    override func view() -> (HmssdkDisplayView) {
+    override public func view() -> (HmssdkDisplayView) {
         let view = HmssdkDisplayView()
         let hms = getHmsFromBridge()
 
@@ -13,7 +13,7 @@ class HMSView: RCTViewManager {
         return view
     }
 
-    func getHmsFromBridge() -> [String: HMSRNSDK] {
+    public func getHmsFromBridge() -> [String: HMSRNSDK] {
         return HMSManager.shared?.hmsCollection ?? [String: HMSRNSDK]()
     }
 
@@ -21,7 +21,7 @@ class HMSView: RCTViewManager {
         true
     }
 
-    @objc func capture(_ node: NSNumber, requestId: NSNumber) {
+    @objc public func capture(_ node: NSNumber, requestId: NSNumber) {
         DispatchQueue.main.async {
             // Under the New Architecture's Fabric path, the `capture`
             // imperative is dispatched directly to `HMSViewComponentView`
@@ -40,7 +40,7 @@ class HMSView: RCTViewManager {
     }
 }
 
-class HmssdkDisplayView: UIView {
+public class HmssdkDisplayView: UIView {
 
     lazy var videoView: HMSVideoView = {
         let videoView = HMSVideoView()
@@ -52,19 +52,19 @@ class HmssdkDisplayView: UIView {
 
     var hmsCollection = [String: HMSRNSDK]()
 
-    func setHms(_ hmsInstance: [String: HMSRNSDK]) {
+    public func setHms(_ hmsInstance: [String: HMSRNSDK]) {
         hmsCollection = hmsInstance
     }
 
-    @objc var onDataReturned: RCTDirectEventBlock?
+    @objc public var onDataReturned: RCTDirectEventBlock?
 
-    @objc var autoSimulcast: Bool = true {
+    @objc public var autoSimulcast: Bool = true {
         didSet {
             videoView.disableAutoSimulcastLayerSelect = !autoSimulcast
         }
     }
 
-    @objc var scaleType: String = "ASPECT_FILL" {
+    @objc public var scaleType: String = "ASPECT_FILL" {
         didSet {
             switch scaleType {
                 case "ASPECT_FIT":
@@ -83,7 +83,7 @@ class HmssdkDisplayView: UIView {
         }
     }
 
-    @objc var data: NSDictionary = [:] {
+    @objc public var data: NSDictionary = [:] {
         didSet {
 
             if let mirror = data.value(forKey: "mirror") as? Bool {
@@ -124,7 +124,7 @@ class HmssdkDisplayView: UIView {
         return nil
     }
 
-    @objc func captureHmsView( _ requestId: NSNumber) {
+    @objc public func captureHmsView( _ requestId: NSNumber) {
         guard let onDataReturnedUnwrapped = onDataReturned else {
             print(#function, "Can't send any data to JS side, `onDataReturned` is nil!")
             return

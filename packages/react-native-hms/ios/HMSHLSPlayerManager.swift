@@ -5,8 +5,8 @@ import AVKit.AVPlayerViewController
 typealias HmsHlsPlayer = HMSHLSPlayerSDK.HMSHLSPlayer
 
 @objc(HMSHLSPlayerManager)
-class HMSHLSPlayerManager: RCTViewManager {
-    override func view() -> (HMSHLSPlayer) {
+public class HMSHLSPlayerManager: RCTViewManager {
+    override public func view() -> (HMSHLSPlayer) {
         let view = HMSHLSPlayer()
         let hms = getHmsFromBridge()
 
@@ -15,7 +15,7 @@ class HMSHLSPlayerManager: RCTViewManager {
         return view
     }
 
-    func getHmsFromBridge() -> [String: HMSRNSDK] {
+    public func getHmsFromBridge() -> [String: HMSRNSDK] {
         return HMSManager.shared?.hmsCollection ?? [String: HMSRNSDK]()
     }
 
@@ -23,7 +23,7 @@ class HMSHLSPlayerManager: RCTViewManager {
         true
     }
 
-    @objc func play(_ node: NSNumber, url: String? = nil) {
+    @objc public func play(_ node: NSNumber, url: String? = nil) {
         DispatchQueue.main.async {
             // self.bridge is nil under bridgeless. See the comment on
             // `HMSView.swift`'s `capture()` method for the full rationale; same
@@ -35,7 +35,7 @@ class HMSHLSPlayerManager: RCTViewManager {
         }
     }
 
-    @objc func stop(_ node: NSNumber) {
+    @objc public func stop(_ node: NSNumber) {
         DispatchQueue.main.async {
             // self.bridge is nil under bridgeless. See the comment on
             // `HMSView.swift`'s `capture()` method for the full rationale; same
@@ -47,7 +47,7 @@ class HMSHLSPlayerManager: RCTViewManager {
         }
     }
 
-    @objc func pause(_ node: NSNumber) {
+    @objc public func pause(_ node: NSNumber) {
         DispatchQueue.main.async {
             // self.bridge is nil under bridgeless. See the comment on
             // `HMSView.swift`'s `capture()` method for the full rationale; same
@@ -59,7 +59,7 @@ class HMSHLSPlayerManager: RCTViewManager {
         }
     }
 
-    @objc func resume(_ node: NSNumber) {
+    @objc public func resume(_ node: NSNumber) {
         DispatchQueue.main.async {
             // self.bridge is nil under bridgeless. See the comment on
             // `HMSView.swift`'s `capture()` method for the full rationale; same
@@ -71,7 +71,7 @@ class HMSHLSPlayerManager: RCTViewManager {
         }
     }
 
-    @objc func seekToLivePosition(_ node: NSNumber) {
+    @objc public func seekToLivePosition(_ node: NSNumber) {
         DispatchQueue.main.async {
             // self.bridge is nil under bridgeless. See the comment on
             // `HMSView.swift`'s `capture()` method for the full rationale; same
@@ -83,7 +83,7 @@ class HMSHLSPlayerManager: RCTViewManager {
         }
     }
 
-    @objc func seekForward(_ node: NSNumber, seconds: NSNumber) {
+    @objc public func seekForward(_ node: NSNumber, seconds: NSNumber) {
         DispatchQueue.main.async {
             // self.bridge is nil under bridgeless. See the comment on
             // `HMSView.swift`'s `capture()` method for the full rationale; same
@@ -95,7 +95,7 @@ class HMSHLSPlayerManager: RCTViewManager {
         }
     }
 
-    @objc func seekBackward(_ node: NSNumber, seconds: NSNumber) {
+    @objc public func seekBackward(_ node: NSNumber, seconds: NSNumber) {
         DispatchQueue.main.async {
             // self.bridge is nil under bridgeless. See the comment on
             // `HMSView.swift`'s `capture()` method for the full rationale; same
@@ -107,7 +107,7 @@ class HMSHLSPlayerManager: RCTViewManager {
         }
     }
 
-    @objc func setVolume(_ node: NSNumber, level: NSNumber) {
+    @objc public func setVolume(_ node: NSNumber, level: NSNumber) {
         DispatchQueue.main.async {
             // self.bridge is nil under bridgeless. See the comment on
             // `HMSView.swift`'s `capture()` method for the full rationale; same
@@ -119,7 +119,7 @@ class HMSHLSPlayerManager: RCTViewManager {
         }
     }
 
-    @objc func areClosedCaptionSupported(_ node: NSNumber, requestId: NSNumber) {
+    @objc public func areClosedCaptionSupported(_ node: NSNumber, requestId: NSNumber) {
         DispatchQueue.main.async {
             // self.bridge is nil under bridgeless. See the comment on
             // `HMSView.swift`'s `capture()` method for the full rationale; same
@@ -131,7 +131,7 @@ class HMSHLSPlayerManager: RCTViewManager {
         }
     }
 
-    @objc func isClosedCaptionEnabled(_ node: NSNumber, requestId: NSNumber) {
+    @objc public func isClosedCaptionEnabled(_ node: NSNumber, requestId: NSNumber) {
         DispatchQueue.main.async {
             // self.bridge is nil under bridgeless. See the comment on
             // `HMSView.swift`'s `capture()` method for the full rationale; same
@@ -143,7 +143,7 @@ class HMSHLSPlayerManager: RCTViewManager {
         }
     }
 
-    @objc func enableClosedCaption(_ node: NSNumber) {
+    @objc public func enableClosedCaption(_ node: NSNumber) {
         DispatchQueue.main.async {
             // self.bridge is nil under bridgeless. See the comment on
             // `HMSView.swift`'s `capture()` method for the full rationale; same
@@ -155,7 +155,7 @@ class HMSHLSPlayerManager: RCTViewManager {
         }
     }
 
-    @objc func disableClosedCaption(_ node: NSNumber) {
+    @objc public func disableClosedCaption(_ node: NSNumber) {
         DispatchQueue.main.async {
             // self.bridge is nil under bridgeless. See the comment on
             // `HMSView.swift`'s `capture()` method for the full rationale; same
@@ -167,7 +167,7 @@ class HMSHLSPlayerManager: RCTViewManager {
         }
     }
 
-    @objc func getPlayerDurationDetails(_ node: NSNumber, requestId: NSNumber) {
+    @objc public func getPlayerDurationDetails(_ node: NSNumber, requestId: NSNumber) {
         DispatchQueue.main.async {
             // self.bridge is nil under bridgeless. See the comment on
             // `HMSView.swift`'s `capture()` method for the full rationale; same
@@ -180,7 +180,7 @@ class HMSHLSPlayerManager: RCTViewManager {
     }
 }
 
-class HMSHLSPlayer: UIView {
+public class HMSHLSPlayer: UIView {
     // MARK: class instance properties
     var hlsStatsTimerRef: Timer?
     var eventController: HLSPlaybackEventController?
@@ -190,25 +190,25 @@ class HMSHLSPlayer: UIView {
     // MARK: Handle HMSRNSDK Instance in HMSHLSPlayer instance
     var hmsCollection = [String: HMSRNSDK]()
 
-    func setHms(_ hmsInstance: [String: HMSRNSDK]) {
+    public func setHms(_ hmsInstance: [String: HMSRNSDK]) {
         hmsCollection = hmsInstance
     }
 
     // MARK: Handle HMSHLSPlayer RN Component props
 
-    @objc var onDataReturned: RCTDirectEventBlock?
+    @objc public var onDataReturned: RCTDirectEventBlock?
 
-    @objc var onHmsHlsPlaybackEvent: RCTDirectEventBlock?
+    @objc public var onHmsHlsPlaybackEvent: RCTDirectEventBlock?
 
-    @objc var onHmsHlsStatsEvent: RCTDirectEventBlock?
+    @objc public var onHmsHlsStatsEvent: RCTDirectEventBlock?
 
-    @objc var url: String? {
+    @objc public var url: String? {
         didSet {
             play(url)
         }
     }
 
-    @objc var enableStats: Bool = false {
+    @objc public var enableStats: Bool = false {
         didSet {
             if enableStats == true {
                 attachHLSPlayerStatsListener()
@@ -222,7 +222,7 @@ class HMSHLSPlayer: UIView {
         }
     }
 
-    @objc var enableControls: Bool = true {
+    @objc public var enableControls: Bool = true {
         didSet {
             hmsHLSPlayerViewController?.showsPlaybackControls = enableControls
         }
@@ -230,7 +230,7 @@ class HMSHLSPlayer: UIView {
 
     // MARK: Handle HMSHLSPlayer RN Component methods
 
-    @objc func play(_ url: String?) {
+    @objc public func play(_ url: String?) {
         if let validURLString = url, !validURLString.isEmpty {
             if let urlInstance = URL(string: validURLString) {
                 hmsHLSPlayer.play(urlInstance)
@@ -247,7 +247,7 @@ class HMSHLSPlayer: UIView {
         }
     }
 
-    @objc func stop() {
+    @objc public func stop() {
         hmsHLSPlayer.stop()
     }
 
@@ -275,19 +275,19 @@ class HMSHLSPlayer: UIView {
         return selectedOption != nil
     }
 
-    @objc func areClosedCaptionSupported(requestId: UInt) {
+    @objc public func areClosedCaptionSupported(requestId: UInt) {
         let supported = isCCSupported()
 
         sendRequestedDataToJS(requestId, supported)
     }
 
-    @objc func isClosedCaptionEnabled(requestId: UInt) {
+    @objc public func isClosedCaptionEnabled(requestId: UInt) {
         let enabled = isCCEnabled()
 
         sendRequestedDataToJS(requestId, enabled)
     }
 
-    @objc func enableClosedCaption() {
+    @objc public func enableClosedCaption() {
         if !isCCSupported() {
             print("#func Closed Caption is not supported")
             return
@@ -308,7 +308,7 @@ class HMSHLSPlayer: UIView {
         playerItem.select(firstSubtitleTrack, in: subtitle)
     }
 
-    @objc func disableClosedCaption() {
+    @objc public func disableClosedCaption() {
         if !isCCSupported() {
             print("#func Closed Caption is not supported")
             return
@@ -326,7 +326,7 @@ class HMSHLSPlayer: UIView {
         playerItem.select(nil, in: subtitle)
     }
 
-    @objc func getPlayerDurationDetails(requestId: UInt) {
+    @objc public func getPlayerDurationDetails(requestId: UInt) {
         var map = [String: Any?]()
         guard let playerItem = hmsHLSPlayer._nativePlayer.currentItem else {
           sendRequestedDataToJS(requestId, map)
@@ -342,27 +342,27 @@ class HMSHLSPlayer: UIView {
         sendRequestedDataToJS(requestId, map)
     }
 
-    @objc func pause() {
+    @objc public func pause() {
         hmsHLSPlayer.pause()
     }
 
-    @objc func resume() {
+    @objc public func resume() {
         hmsHLSPlayer.resume()
     }
 
-    @objc func seekForward(_ seconds: Double) {
+    @objc public func seekForward(_ seconds: Double) {
         hmsHLSPlayer.seekForward(seconds: seconds)
     }
 
-    @objc func seekBackward(_ seconds: Double) {
+    @objc public func seekBackward(_ seconds: Double) {
         hmsHLSPlayer.seekBackward(seconds: seconds)
     }
 
-    @objc func seekToLivePosition() {
+    @objc public func seekToLivePosition() {
         hmsHLSPlayer.seekToLivePosition()
     }
 
-    @objc func setVolume(_ level: Int) {
+    @objc public func setVolume(_ level: Int) {
         hmsHLSPlayer.volume = level
     }
 
@@ -405,7 +405,7 @@ class HMSHLSPlayer: UIView {
     }
 
     // MARK: Utility functions
-    func cleanup() {
+    public func cleanup() {
         hmsHLSPlayer.stop()
 
         // Remove HLS player playback events
@@ -540,19 +540,19 @@ class HLSPlaybackEventController: HMSHLSPlayerDelegate {
         self.hmsHlsPlayerDelegate = hmsPlayerDelegate
     }
 
-    func onPlaybackStateChanged(state: HMSHLSPlaybackState) {
+    public func onPlaybackStateChanged(state: HMSHLSPlaybackState) {
         hmsHlsPlayerDelegate?.onPlaybackStateChanged(state: state)
     }
 
-    func onCue(cue: HMSHLSCue) {
+    public func onCue(cue: HMSHLSCue) {
         hmsHlsPlayerDelegate?.onCue(cue: cue)
     }
 
-    func onPlaybackFailure(error: Error) {
+    public func onPlaybackFailure(error: Error) {
         hmsHlsPlayerDelegate?.onPlaybackFailure(error: error)
     }
 
-    func onResolutionChanged(videoSize: CGSize) {
+    public func onResolutionChanged(videoSize: CGSize) {
         hmsHlsPlayerDelegate?.onResolutionChanged(videoSize: videoSize)
     }
 }
