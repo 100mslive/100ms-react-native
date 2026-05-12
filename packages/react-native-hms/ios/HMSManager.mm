@@ -33,7 +33,10 @@
 //      Obj-C dispatcher considers them distinct methods.
 //
 
-#ifdef RCT_NEW_ARCH_ENABLED
+// Value-based check (not #ifdef): RN's Podfile + use_react_native! defines
+// RCT_NEW_ARCH_ENABLED unconditionally as 0 or 1 depending on the build mode.
+// `#ifdef` fires for both values; `#if` only when truthy.
+#if RCT_NEW_ARCH_ENABLED
 
 #import "RNHmsSpec/RNHmsSpec.h"
 #import <React/RCTBridgeModule.h>
