@@ -26,12 +26,12 @@ class HMSView: RCTViewManager {
             // Under the New Architecture's Fabric path, the `capture`
             // imperative is dispatched directly to `HMSViewComponentView`
             // (see ios/HMSViewComponentView.mm) and this method is not
-            // called. Under old arch and interop, we use RCTBridge.current()
+            // called. Under old arch and interop, we use self.bridge
             // (which is nil under bridgeless) to safely look up the view
-            // by react tag. Under bridgeless mode, RCTBridge.current() is
+            // by react tag. Under bridgeless mode, self.bridge is
             // nil and this code path is unreachable anyway because the
             // Fabric path is in use.
-            guard let bridge = RCTBridge.current(),
+            guard let bridge = self.bridge,
                   let component = bridge.uiManager.view(forReactTag: node) as? HmssdkDisplayView else {
                 return
             }

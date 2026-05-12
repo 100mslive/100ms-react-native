@@ -25,10 +25,10 @@ class HMSHLSPlayerManager: RCTViewManager {
 
     @objc func play(_ node: NSNumber, url: String? = nil) {
         DispatchQueue.main.async {
-            // RCTBridge.current() is nil under bridgeless. See the comment on
+            // self.bridge is nil under bridgeless. See the comment on
             // `HMSView.swift`'s `capture()` method for the full rationale; same
             // pattern applies to all 13 commands in this file.
-            if let bridge = RCTBridge.current(),
+            if let bridge = self.bridge,
                let component = bridge.uiManager.view(forReactTag: node) as? HMSHLSPlayer {
                 component.play(url)
             }
@@ -37,10 +37,10 @@ class HMSHLSPlayerManager: RCTViewManager {
 
     @objc func stop(_ node: NSNumber) {
         DispatchQueue.main.async {
-            // RCTBridge.current() is nil under bridgeless. See the comment on
+            // self.bridge is nil under bridgeless. See the comment on
             // `HMSView.swift`'s `capture()` method for the full rationale; same
             // pattern applies to all 13 commands in this file.
-            if let bridge = RCTBridge.current(),
+            if let bridge = self.bridge,
                let component = bridge.uiManager.view(forReactTag: node) as? HMSHLSPlayer {
                 component.stop()
             }
@@ -49,10 +49,10 @@ class HMSHLSPlayerManager: RCTViewManager {
 
     @objc func pause(_ node: NSNumber) {
         DispatchQueue.main.async {
-            // RCTBridge.current() is nil under bridgeless. See the comment on
+            // self.bridge is nil under bridgeless. See the comment on
             // `HMSView.swift`'s `capture()` method for the full rationale; same
             // pattern applies to all 13 commands in this file.
-            if let bridge = RCTBridge.current(),
+            if let bridge = self.bridge,
                let component = bridge.uiManager.view(forReactTag: node) as? HMSHLSPlayer {
                 component.pause()
             }
@@ -61,10 +61,10 @@ class HMSHLSPlayerManager: RCTViewManager {
 
     @objc func resume(_ node: NSNumber) {
         DispatchQueue.main.async {
-            // RCTBridge.current() is nil under bridgeless. See the comment on
+            // self.bridge is nil under bridgeless. See the comment on
             // `HMSView.swift`'s `capture()` method for the full rationale; same
             // pattern applies to all 13 commands in this file.
-            if let bridge = RCTBridge.current(),
+            if let bridge = self.bridge,
                let component = bridge.uiManager.view(forReactTag: node) as? HMSHLSPlayer {
                 component.resume()
             }
@@ -73,10 +73,10 @@ class HMSHLSPlayerManager: RCTViewManager {
 
     @objc func seekToLivePosition(_ node: NSNumber) {
         DispatchQueue.main.async {
-            // RCTBridge.current() is nil under bridgeless. See the comment on
+            // self.bridge is nil under bridgeless. See the comment on
             // `HMSView.swift`'s `capture()` method for the full rationale; same
             // pattern applies to all 13 commands in this file.
-            if let bridge = RCTBridge.current(),
+            if let bridge = self.bridge,
                let component = bridge.uiManager.view(forReactTag: node) as? HMSHLSPlayer {
                 component.seekToLivePosition()
             }
@@ -85,10 +85,10 @@ class HMSHLSPlayerManager: RCTViewManager {
 
     @objc func seekForward(_ node: NSNumber, seconds: NSNumber) {
         DispatchQueue.main.async {
-            // RCTBridge.current() is nil under bridgeless. See the comment on
+            // self.bridge is nil under bridgeless. See the comment on
             // `HMSView.swift`'s `capture()` method for the full rationale; same
             // pattern applies to all 13 commands in this file.
-            if let bridge = RCTBridge.current(),
+            if let bridge = self.bridge,
                let component = bridge.uiManager.view(forReactTag: node) as? HMSHLSPlayer {
                 component.seekForward(Double(truncating: seconds))
             }
@@ -97,10 +97,10 @@ class HMSHLSPlayerManager: RCTViewManager {
 
     @objc func seekBackward(_ node: NSNumber, seconds: NSNumber) {
         DispatchQueue.main.async {
-            // RCTBridge.current() is nil under bridgeless. See the comment on
+            // self.bridge is nil under bridgeless. See the comment on
             // `HMSView.swift`'s `capture()` method for the full rationale; same
             // pattern applies to all 13 commands in this file.
-            if let bridge = RCTBridge.current(),
+            if let bridge = self.bridge,
                let component = bridge.uiManager.view(forReactTag: node) as? HMSHLSPlayer {
                 component.seekBackward(Double(truncating: seconds))
             }
@@ -109,10 +109,10 @@ class HMSHLSPlayerManager: RCTViewManager {
 
     @objc func setVolume(_ node: NSNumber, level: NSNumber) {
         DispatchQueue.main.async {
-            // RCTBridge.current() is nil under bridgeless. See the comment on
+            // self.bridge is nil under bridgeless. See the comment on
             // `HMSView.swift`'s `capture()` method for the full rationale; same
             // pattern applies to all 13 commands in this file.
-            if let bridge = RCTBridge.current(),
+            if let bridge = self.bridge,
                let component = bridge.uiManager.view(forReactTag: node) as? HMSHLSPlayer {
                 component.setVolume(Int(truncating: level))
             }
@@ -121,10 +121,10 @@ class HMSHLSPlayerManager: RCTViewManager {
 
     @objc func areClosedCaptionSupported(_ node: NSNumber, requestId: NSNumber) {
         DispatchQueue.main.async {
-            // RCTBridge.current() is nil under bridgeless. See the comment on
+            // self.bridge is nil under bridgeless. See the comment on
             // `HMSView.swift`'s `capture()` method for the full rationale; same
             // pattern applies to all 13 commands in this file.
-            if let bridge = RCTBridge.current(),
+            if let bridge = self.bridge,
                let component = bridge.uiManager.view(forReactTag: node) as? HMSHLSPlayer {
                 component.areClosedCaptionSupported(requestId: UInt(truncating: requestId))
             }
@@ -133,10 +133,10 @@ class HMSHLSPlayerManager: RCTViewManager {
 
     @objc func isClosedCaptionEnabled(_ node: NSNumber, requestId: NSNumber) {
         DispatchQueue.main.async {
-            // RCTBridge.current() is nil under bridgeless. See the comment on
+            // self.bridge is nil under bridgeless. See the comment on
             // `HMSView.swift`'s `capture()` method for the full rationale; same
             // pattern applies to all 13 commands in this file.
-            if let bridge = RCTBridge.current(),
+            if let bridge = self.bridge,
                let component = bridge.uiManager.view(forReactTag: node) as? HMSHLSPlayer {
                 component.isClosedCaptionEnabled(requestId: UInt(truncating: requestId))
             }
@@ -145,10 +145,10 @@ class HMSHLSPlayerManager: RCTViewManager {
 
     @objc func enableClosedCaption(_ node: NSNumber) {
         DispatchQueue.main.async {
-            // RCTBridge.current() is nil under bridgeless. See the comment on
+            // self.bridge is nil under bridgeless. See the comment on
             // `HMSView.swift`'s `capture()` method for the full rationale; same
             // pattern applies to all 13 commands in this file.
-            if let bridge = RCTBridge.current(),
+            if let bridge = self.bridge,
                let component = bridge.uiManager.view(forReactTag: node) as? HMSHLSPlayer {
                 component.enableClosedCaption()
             }
@@ -157,10 +157,10 @@ class HMSHLSPlayerManager: RCTViewManager {
 
     @objc func disableClosedCaption(_ node: NSNumber) {
         DispatchQueue.main.async {
-            // RCTBridge.current() is nil under bridgeless. See the comment on
+            // self.bridge is nil under bridgeless. See the comment on
             // `HMSView.swift`'s `capture()` method for the full rationale; same
             // pattern applies to all 13 commands in this file.
-            if let bridge = RCTBridge.current(),
+            if let bridge = self.bridge,
                let component = bridge.uiManager.view(forReactTag: node) as? HMSHLSPlayer {
                 component.disableClosedCaption()
             }
@@ -169,10 +169,10 @@ class HMSHLSPlayerManager: RCTViewManager {
 
     @objc func getPlayerDurationDetails(_ node: NSNumber, requestId: NSNumber) {
         DispatchQueue.main.async {
-            // RCTBridge.current() is nil under bridgeless. See the comment on
+            // self.bridge is nil under bridgeless. See the comment on
             // `HMSView.swift`'s `capture()` method for the full rationale; same
             // pattern applies to all 13 commands in this file.
-            if let bridge = RCTBridge.current(),
+            if let bridge = self.bridge,
                let component = bridge.uiManager.view(forReactTag: node) as? HMSHLSPlayer {
                 component.getPlayerDurationDetails(requestId: UInt(truncating: requestId))
             }
