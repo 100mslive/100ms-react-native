@@ -22,6 +22,7 @@ import live.hms.video.error.HMSException
 import live.hms.video.factories.noisecancellation.AvailabilityStatus
 import live.hms.video.sdk.HMSActionResultListener
 import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * HMSManagerImpl — shared SDK business logic for the HMSManager native module.
@@ -41,7 +42,12 @@ class HMSManagerImpl(
 ) : Application.ActivityLifecycleCallbacks {
   companion object {
     const val REACT_CLASS = "HMSManager"
-    var hmsCollection = mutableMapOf<String, HMSRNSDK>()
+    // ConcurrentHashMap so concurrent reads/writes from the JS thread,
+    // UI thread (view managers / lifecycle callbacks), and any background
+    // SDK callbacks don't race. The previous `mutableMapOf` was a plain
+    // HashMap and would throw ConcurrentModificationException under
+    // concurrent iteration + write.
+    var hmsCollection: MutableMap<String, HMSRNSDK> = ConcurrentHashMap()
 
     var startingScreenShare = false
     private var isInPIPMode = false

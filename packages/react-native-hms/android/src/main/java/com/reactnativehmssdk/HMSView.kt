@@ -92,9 +92,15 @@ class HMSView(
 
     val reactContext = context as ReactContext
     val surfaceId = UIManagerHelper.getSurfaceId(this)
-    UIManagerHelper
-      .getEventDispatcherForReactTag(reactContext, id)
-      ?.dispatchEvent(HMSReactNativeEvent(surfaceId, id, "topResolutionChange", event))
+    val dispatcher = UIManagerHelper.getEventDispatcherForReactTag(reactContext, id)
+    if (dispatcher != null) {
+      dispatcher.dispatchEvent(HMSReactNativeEvent(surfaceId, id, "topResolutionChange", event))
+    } else {
+      // Bridgeless mode: dispatcher can be null if the view is detaching or
+      // the React tag is no longer valid. Log instead of silently dropping
+      // so the event loss is debuggable. Same pattern as HMSHLSPlayer.kt.
+      Log.w("HMSView", "Event 'topResolutionChange' dropped — dispatcher null for tag $id")
+    }
   }
 
   @RequiresApi(Build.VERSION_CODES.N)
