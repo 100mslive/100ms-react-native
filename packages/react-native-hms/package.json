@@ -154,6 +154,12 @@
     "android": {
       "javaPackageName": "com.reactnativehmssdk"
     },
+    "ios": {
+      "componentProvider": {
+        "HMSView": "HMSViewComponentView",
+        "HMSHLSPlayer": "HMSHLSPlayerComponentView"
+      }
+    },
     "includesGeneratedCode": false
   },
   "jest": {

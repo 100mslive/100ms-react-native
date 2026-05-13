@@ -91,8 +91,17 @@ FORWARD_PROMISE(leave)
 FORWARD_PROMISE(endRoom)
 
 // Track operations
-FORWARD_PROMISE(setLocalMute)
-FORWARD_PROMISE(setLocalVideoMute)
+// `setLocalMute` / `setLocalVideoMute` are declared as `void` in the TS spec
+// (fire-and-forget — the Swift impl is sync). The protocol expects a 1-arg
+// selector but the existing Swift method has 3 positional args (data, resolve,
+// reject). Forward 1-arg → 3-arg with nil resolve/reject so the Swift impl
+// still runs and any rejection is silently dropped (matching `void` semantics).
+- (void)setLocalMute:(NSDictionary *)data {
+  [self setLocalMute:data :nil :nil];
+}
+- (void)setLocalVideoMute:(NSDictionary *)data {
+  [self setLocalVideoMute:data :nil :nil];
+}
 FORWARD_PROMISE(isMute)
 FORWARD_PROMISE(changeTrackState)
 FORWARD_PROMISE(changeTrackStateForRoles)

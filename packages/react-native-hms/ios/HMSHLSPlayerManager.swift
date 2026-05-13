@@ -137,10 +137,21 @@ public class HMSHLSPlayer: UIView {
     lazy var hmsHLSPlayer = HmsHlsPlayer()
 
     // MARK: Handle HMSRNSDK Instance in HMSHLSPlayer instance
-    var hmsCollection = [String: HMSRNSDK]()
+    // Read live from HMSManager.shared on every access. Previously this was a
+    // stored snapshot taken at view creation time (via `setHms`), which left
+    // the view holding references to destroyed HMSRNSDK instances after a
+    // leave → rejoin cycle (the SDK destroys & recreates instances; the
+    // snapshot stayed stale → HLS streaming state lookup returned nil →
+    // playback broken on rejoin). Same fix as `HmssdkDisplayView`.
+    var hmsCollection: [String: HMSRNSDK] {
+        return HMSManager.shared?.hmsCollection ?? [String: HMSRNSDK]()
+    }
 
+    // Kept as a no-op for backward compatibility with the paper view
+    // manager's `view()` factory, which still calls this. The actual lookup
+    // is now live via the computed `hmsCollection` above.
     func setHms(_ hmsInstance: [String: HMSRNSDK]) {
-        hmsCollection = hmsInstance
+        // Intentionally empty — hmsCollection is now computed.
     }
 
     // MARK: Handle HMSHLSPlayer RN Component props

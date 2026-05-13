@@ -58,10 +58,22 @@ public class HmssdkDisplayView: UIView {
         return videoView
     }()
 
-    var hmsCollection = [String: HMSRNSDK]()
+    // Read live from HMSManager.shared on every access. Previously this
+    // was a stored property snapshotted at view creation, which left the
+    // view holding references to destroyed HMSRNSDK instances after a
+    // leave → rejoin cycle (the SDK destroys & recreates instances; the
+    // view's snapshot stayed stale → track lookup returned nil → black
+    // screen). Reading live keeps the view in sync with whatever HMS
+    // instance is currently active. Works for both old arch and Fabric.
+    var hmsCollection: [String: HMSRNSDK] {
+        return HMSManager.shared?.hmsCollection ?? [String: HMSRNSDK]()
+    }
 
+    // Kept as a no-op for backward compatibility with the paper view
+    // manager's `view()` factory, which still calls this. The actual
+    // lookup is now live via the computed `hmsCollection` above.
     func setHms(_ hmsInstance: [String: HMSRNSDK]) {
-        hmsCollection = hmsInstance
+        // Intentionally empty — hmsCollection is now computed.
     }
 
     @objc public var onDataReturned: RCTDirectEventBlock?

@@ -83,9 +83,11 @@ using namespace facebook::react;
     static const auto defaultProps = std::make_shared<const HMSViewProps>();
     _props = defaultProps;
 
-    // Instantiate the Swift view that does the actual rendering and
-    // host it as our contentView. The Swift view's lifecycle is now
-    // tied to ours.
+    // Instantiate the Swift view directly. `HmssdkDisplayView.hmsCollection`
+    // is now a *computed* property that reads live from `HMSManager.shared`
+    // on every access, so no explicit wiring is needed — the lookup
+    // automatically reflects the currently-active HMS instance even after
+    // leave → rejoin cycles.
     _view = [[HmssdkDisplayView alloc] init];
     self.contentView = _view;
 
@@ -175,19 +177,24 @@ using namespace facebook::react;
   // does not implement it on iOS. Silently ignore changes.
 
   // data (struct of trackId, id, mirror, scaleType)
-  // Swift expects an NSDictionary so reconstruct one when any field
-  // in the struct changes.
-  const auto &oldData = oldViewProps.data;
+  // Swift expects an NSDictionary, so reconstruct one and assign it on
+  // every updateProps call — NOT only when the struct values differ.
+  //
+  // Why: HmssdkDisplayView.data is a `didSet` setter that, among other
+  // things, looks up the HMSVideoTrack by trackId in the active room.
+  // For remote peers, the track isn't in the room at first mount —
+  // it arrives later via SDK peer/track update events. Paper called
+  // setData: on every render, so the lookup retried until the track
+  // appeared; an equality-based optimization here would re-create the
+  // bug where remote video never appears even though the same trackId
+  // becomes valid on a later render.
   const auto &newData = newViewProps.data;
-  if (oldData.trackId != newData.trackId || oldData.id != newData.id ||
-      oldData.mirror != newData.mirror || oldData.scaleType != newData.scaleType) {
-    _view.data = @{
-      @"trackId" : RCTNSStringFromString(newData.trackId),
-      @"id" : RCTNSStringFromString(newData.id),
-      @"mirror" : @(newData.mirror),
-      @"scaleType" : RCTNSStringFromString(newData.scaleType),
-    };
-  }
+  _view.data = @{
+    @"trackId" : RCTNSStringFromString(newData.trackId),
+    @"id" : RCTNSStringFromString(newData.id),
+    @"mirror" : @(newData.mirror),
+    @"scaleType" : RCTNSStringFromString(newData.scaleType),
+  };
 
   [super updateProps:props oldProps:oldProps];
 }
