@@ -75,6 +75,11 @@ export const BottomSheet: React.FC<BottomSheetProps> & {
       onBackdropPress={resetProps.onBackdropPress ?? dismissModal}
       useNativeDriver={resetProps.useNativeDriver ?? true}
       useNativeDriverForBackdrop={resetProps.useNativeDriverForBackdrop ?? true}
+      // Default changed from `true` to `false` for Fabric compatibility.
+      // Under Paper, hiding content during animation prevents a visible
+      // pre-position flash; under Fabric, the same flag causes the modal
+      // content to be unmounted during the slide-up transition, which
+      // leaves the bottom sheet rendering as an empty container.
       hideModalContentWhileAnimating={
         resetProps.hideModalContentWhileAnimating ?? false
       }

@@ -31,8 +31,16 @@ public class HMSView: RCTViewManager {
             // by react tag. Under bridgeless mode, self.bridge is
             // nil and this code path is unreachable anyway because the
             // Fabric path is in use.
-            guard let bridge = self.bridge,
-                  let component = bridge.uiManager.view(forReactTag: node) as? HmssdkDisplayView else {
+            guard let bridge = self.bridge else {
+                // Bridgeless mode: self.bridge is nil and the Fabric path
+                // (HMSViewComponentView.mm) handles `capture` directly. If
+                // this old-arch fallback fires under bridgeless, something
+                // has misregistered the command — log so it isn't silent.
+                NSLog("[HMSView] capture: bridge is nil — Fabric path expected to handle this")
+                return
+            }
+            guard let component = bridge.uiManager.view(forReactTag: node) as? HmssdkDisplayView else {
+                NSLog("[HMSView] capture: no HmssdkDisplayView found for reactTag=\(node)")
                 return
             }
             component.captureHmsView(requestId)

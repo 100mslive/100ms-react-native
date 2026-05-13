@@ -2,6 +2,7 @@ package com.reactnativehmssdk
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.FrameLayout
@@ -306,9 +307,15 @@ class HMSHLSPlayer(
   ) {
     val reactContext = context as ReactContext
     val surfaceId = UIManagerHelper.getSurfaceId(this)
-    UIManagerHelper
-      .getEventDispatcherForReactTag(reactContext, id)
-      ?.dispatchEvent(HMSReactNativeEvent(surfaceId, id, eventName, payload))
+    val dispatcher = UIManagerHelper.getEventDispatcherForReactTag(reactContext, id)
+    if (dispatcher != null) {
+      dispatcher.dispatchEvent(HMSReactNativeEvent(surfaceId, id, eventName, payload))
+    } else {
+      // Bridgeless mode: dispatcher can be null if the view is detaching or
+      // the React tag is no longer valid. Log instead of silently dropping
+      // so the event loss is debuggable.
+      Log.w("HMSHLSPlayer", "Event '$eventName' dropped — dispatcher null for tag $id")
+    }
   }
 
   private fun sendHLSPlaybackEventToJS(
