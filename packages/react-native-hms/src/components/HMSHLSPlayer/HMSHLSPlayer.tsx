@@ -78,6 +78,12 @@ const _HMSHLSPlayer: React.ForwardRefRenderFunction<
   useImperativeHandle(
     ref,
     () => ({
+      // `url` is optional at the JS API level: omit it (or pass undefined)
+      // to play the URL currently configured on the player; pass a string
+      // to switch to a new stream. The Codegen `play` command signature is
+      // `(viewRef, url: string)` (non-optional), so we pass `''` to mean
+      // "no override" — the native side treats empty-string as the
+      // "use existing url" sentinel.
       play: (url?: string) => {
         if (hmsHlsPlayerRef.current) {
           RCTHMSHLSPlayerCommands.play(hmsHlsPlayerRef.current, url ?? '');

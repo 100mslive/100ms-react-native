@@ -57,12 +57,14 @@ export const HmsViewComponent = React.forwardRef<any, HmsComponentProps>(
 
     const hmsViewRef: any = useRef();
     const [applyStyles_ANDROID, setApplyStyles_ANDROID] = useState(false);
-    const data = {
-      trackId,
-      id,
-      mirror,
-      scaleType,
-    };
+    // Memoized so the object reference is stable across renders unless one
+    // of the inputs actually changes. Fabric diffs view props by reference
+    // before doing a deep compare — a fresh `{...}` on every render would
+    // trigger redundant native prop updates.
+    const data = useMemo(
+      () => ({ trackId, id, mirror, scaleType }),
+      [trackId, id, mirror, scaleType]
+    );
 
     // Per-instance request/response state for the `capture` imperative.
     // Each `<HmsView />` gets its own counter + pending-promise map so:
