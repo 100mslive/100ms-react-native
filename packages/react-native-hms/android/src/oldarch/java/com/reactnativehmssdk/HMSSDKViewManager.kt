@@ -28,6 +28,11 @@ class HMSSDKViewManager : SimpleViewManager<HMSView>() {
     return HMSSDKViewManagerImpl.createViewInstance(reactContext)
   }
 
+  override fun onDropViewInstance(view: HMSView) {
+    super.onDropViewInstance(view)
+    HMSSDKViewManagerImpl.onDropViewInstance(view)
+  }
+
   override fun getExportedCustomDirectEventTypeConstants(): Map<String, Any> =
     HMSSDKViewManagerImpl.getExportedCustomDirectEventTypeConstants()
 

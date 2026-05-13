@@ -28,6 +28,12 @@ class HMSView(
   private var disableAutoSimulcastLayerSelect = false
   private var jsCanApplyStyles = false
 
+  // Held so `cleanup()` can clear the listener from `HMSVideoView` on view
+  // drop. The anonymous VideoViewStateChangeListener captures `this`, so
+  // leaking it across mount/unmount cycles prevents GC of HMSView instances.
+  // Mirrors the same fix applied to HMSHLSPlayer's Player.Listener.
+  private var videoViewStateChangeListener: VideoViewStateChangeListener? = null
+
   init {
     val inflater = getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
     val view = inflater.inflate(R.layout.hms_view, this)
@@ -38,7 +44,7 @@ class HMSView(
     hmsVideoView?.setMirror(false)
     hmsVideoView?.disableAutoSimulcastLayerSelect(disableAutoSimulcastLayerSelect)
 
-    hmsVideoView?.addVideoViewStateChangeListener(
+    val listener =
       object : VideoViewStateChangeListener {
         override fun onResolutionChange(
           newWidth: Int,
@@ -59,8 +65,21 @@ class HMSView(
             }
           }
         }
-      },
-    )
+      }
+    videoViewStateChangeListener = listener
+    hmsVideoView?.addVideoViewStateChangeListener(listener)
+  }
+
+  /**
+   * Called from `HMSSDKViewManager.onDropViewInstance` when RN destroys the
+   * view. Clears the VideoViewStateChangeListener registered in `init` so
+   * the anonymous listener doesn't retain `this` across mount/unmount.
+   */
+  fun cleanup() {
+    if (videoViewStateChangeListener != null) {
+      hmsVideoView?.addVideoViewStateChangeListener(null)
+      videoViewStateChangeListener = null
+    }
   }
 
   private fun sendEventToJS(

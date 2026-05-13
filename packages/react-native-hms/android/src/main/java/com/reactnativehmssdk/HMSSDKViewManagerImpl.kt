@@ -81,6 +81,13 @@ class HMSSDKViewManagerImpl {
     fun getCommandsMap(): Map<String, Int> = MapBuilder.of("capture", 1)
 
     /**
+     * Called from both arch wrappers' `onDropViewInstance` override.
+     * Forwards to `HMSView.cleanup()` to release the listener registered
+     * in `init`, avoiding a memory leak across mount/unmount cycles.
+     */
+    fun onDropViewInstance(view: HMSView) = view.cleanup()
+
+    /**
      * Both events are DIRECT, matching the Codegen spec which declares both as
      * `DirectEventHandler<...>`. The names are deliberately unique (not the
      * default `topChange`) to avoid colliding with RN's built-in `topChange`

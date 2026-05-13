@@ -231,7 +231,7 @@ FORWARD_PROMISE(setAlwaysScreenOn)
 - (void)setupPIP:(NSDictionary *)data
          resolve:(RCTPromiseResolveBlock)resolve
           reject:(RCTPromiseRejectBlock)reject {
-  reject(@"NotImplemented", @"setupPIP is not implemented on iOS", nil);
+  reject(@"HMS_PLATFORM_UNSUPPORTED", @"setupPIP is not implemented on iOS", nil);
 }
 
 #pragma mark - Methods with matching selectors (no forwarder needed)
@@ -258,71 +258,71 @@ FORWARD_PROMISE(setAlwaysScreenOn)
 //
 // These methods are declared in the cross-platform spec but are not
 // implemented on iOS. Calls from JS without a `Platform.OS === 'android'`
-// guard will reject with a 'NotImplemented' error.
+// guard will reject with a 'HMS_PLATFORM_UNSUPPORTED' error.
 
 - (void)checkNotifications:(RCTPromiseResolveBlock)resolve
                     reject:(RCTPromiseRejectBlock)reject {
-  reject(@"NotImplemented", @"checkNotifications is Android-only", nil);
+  reject(@"HMS_PLATFORM_UNSUPPORTED", @"checkNotifications is Android-only", nil);
 }
 
 - (void)getAudioDevicesList:(NSDictionary *)data
                     resolve:(RCTPromiseResolveBlock)resolve
                      reject:(RCTPromiseRejectBlock)reject {
-  reject(@"NotImplemented", @"getAudioDevicesList is Android-only", nil);
+  reject(@"HMS_PLATFORM_UNSUPPORTED", @"getAudioDevicesList is Android-only", nil);
 }
 
 - (void)getAudioOutputRouteType:(NSDictionary *)data
                         resolve:(RCTPromiseResolveBlock)resolve
                          reject:(RCTPromiseRejectBlock)reject {
-  reject(@"NotImplemented", @"getAudioOutputRouteType is Android-only", nil);
+  reject(@"HMS_PLATFORM_UNSUPPORTED", @"getAudioOutputRouteType is Android-only", nil);
 }
 
 - (void)setAudioMode:(NSDictionary *)data
              resolve:(RCTPromiseResolveBlock)resolve
               reject:(RCTPromiseRejectBlock)reject {
-  reject(@"NotImplemented", @"setAudioMode is Android-only", nil);
+  reject(@"HMS_PLATFORM_UNSUPPORTED", @"setAudioMode is Android-only", nil);
 }
 
 - (void)setAudioMixingMode:(NSDictionary *)data
                    resolve:(RCTPromiseResolveBlock)resolve
                     reject:(RCTPromiseRejectBlock)reject {
-  reject(@"NotImplemented", @"setAudioMixingMode is Android-only", nil);
+  reject(@"HMS_PLATFORM_UNSUPPORTED", @"setAudioMixingMode is Android-only", nil);
 }
 
 - (void)getAudioMixingMode:(NSDictionary *)data
                    resolve:(RCTPromiseResolveBlock)resolve
                     reject:(RCTPromiseRejectBlock)reject {
-  reject(@"NotImplemented", @"getAudioMixingMode is Android-only", nil);
+  reject(@"HMS_PLATFORM_UNSUPPORTED", @"getAudioMixingMode is Android-only", nil);
 }
 
 - (void)getVolume:(NSDictionary *)data
           resolve:(RCTPromiseResolveBlock)resolve
            reject:(RCTPromiseRejectBlock)reject {
-  reject(@"NotImplemented", @"getVolume is Android-only", nil);
+  reject(@"HMS_PLATFORM_UNSUPPORTED", @"getVolume is Android-only", nil);
 }
 
 - (void)setPermissionsAccepted:(NSDictionary *)data
                        resolve:(RCTPromiseResolveBlock)resolve
                         reject:(RCTPromiseRejectBlock)reject {
-  reject(@"NotImplemented", @"setPermissionsAccepted is Android-only", nil);
+  reject(@"HMS_PLATFORM_UNSUPPORTED", @"setPermissionsAccepted is Android-only", nil);
 }
 
 - (void)startAudioshare:(NSDictionary *)data
                 resolve:(RCTPromiseResolveBlock)resolve
                  reject:(RCTPromiseRejectBlock)reject {
-  reject(@"NotImplemented", @"startAudioshare is Android-only", nil);
+  reject(@"HMS_PLATFORM_UNSUPPORTED", @"startAudioshare is Android-only", nil);
 }
 
 - (void)stopAudioshare:(NSDictionary *)data
                resolve:(RCTPromiseResolveBlock)resolve
                 reject:(RCTPromiseRejectBlock)reject {
-  reject(@"NotImplemented", @"stopAudioshare is Android-only", nil);
+  reject(@"HMS_PLATFORM_UNSUPPORTED", @"stopAudioshare is Android-only", nil);
 }
 
 - (void)isAudioShared:(NSDictionary *)data
               resolve:(RCTPromiseResolveBlock)resolve
                reject:(RCTPromiseRejectBlock)reject {
-  reject(@"NotImplemented", @"isAudioShared is Android-only", nil);
+  reject(@"HMS_PLATFORM_UNSUPPORTED", @"isAudioShared is Android-only", nil);
 }
 
 #pragma mark - Android-only void methods (no-op stubs)
