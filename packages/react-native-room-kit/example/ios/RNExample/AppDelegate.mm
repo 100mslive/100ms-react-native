@@ -40,7 +40,11 @@
   return success;
 }
 
-- (NSURL *)sourceURLForBridge:(RCTBridge *)bridge
+// RN 0.78 renamed the override from `sourceURLForBridge:` to `bundleURL`
+// (no args). The factory-based delegate (`RCTReactNativeFactory`) reads
+// `bundleURL` instead; without this override the default impl throws
+// "RCTAppDelegate::bundleURL not implemented" at launch.
+- (NSURL *)bundleURL
 {
 #if DEBUG
   return [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index"];
