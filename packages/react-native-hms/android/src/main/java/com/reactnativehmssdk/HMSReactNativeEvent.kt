@@ -17,10 +17,13 @@ import com.facebook.react.uimanager.events.Event
 class HMSReactNativeEvent(
   surfaceId: Int,
   viewId: Int,
-  private val eventName: String,
+  // Renamed from `eventName` to `name` because RN 0.82's `Event<T>` introduced
+  // a same-named member on the supertype; Kotlin 2.x (default in Gradle 8.13)
+  // promotes the hides-supertype-member warning to an error.
+  private val name: String,
   private val payload: WritableMap?,
 ) : Event<HMSReactNativeEvent>(surfaceId, viewId) {
-  override fun getEventName(): String = eventName
+  override fun getEventName(): String = name
 
   override fun getEventData(): WritableMap? = payload
 }
