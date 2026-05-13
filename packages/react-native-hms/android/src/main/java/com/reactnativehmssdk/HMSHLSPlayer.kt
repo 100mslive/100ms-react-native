@@ -34,6 +34,11 @@ class HMSHLSPlayer(
   private var hmssdkInstance: HMSSDK? = null
   private var statsMonitorAttached = false
   private var shouldSendCaptionsToJS = false
+
+  // Held so `cleanup()` can remove the listener from ExoPlayer on unmount.
+  // The anonymous Player.Listener captures `this`, so leaking it across
+  // mount/unmount cycles prevents GC of HMSHLSPlayer view instances.
+  private var playerListener: Player.Listener? = null
   private val hmsHlsPlaybackEventsObject =
     object : HmsHlsPlaybackEvents {
       override fun onCue(cue: HmsHlsCue) {
@@ -140,7 +145,7 @@ class HMSHLSPlayer(
     // setting 100ms HLS Player on Exoplayer
     localPlayerView.player = localHmsHlsPlayer.getNativePlayer()
 
-    localPlayerView?.player?.addListener(
+    val listener =
       object : Player.Listener {
         override fun onVideoSizeChanged(videoSize: VideoSize) {
           super.onVideoSizeChanged(videoSize)
@@ -166,14 +171,21 @@ class HMSHLSPlayer(
               ?.toString()
           sendHLSPlayerCuesEventToJS(ccText)
         }
-      },
-    )
+      }
+    playerListener = listener
+    localPlayerView?.player?.addListener(listener)
   }
 
   fun cleanup() {
     hmsHlsPlayer?.stop()
     hmsHlsPlayer?.addPlayerEventListener(null)
     hmsHlsPlayer?.setStatsMonitor(null)
+    // Remove the ExoPlayer Player.Listener registered in init. Without
+    // this, the anonymous listener (which captures `this`) leaks across
+    // mount/unmount cycles — visible in long-running video conferencing
+    // sessions where users repeatedly join and leave rooms.
+    playerListener?.let { listener -> playerView?.player?.removeListener(listener) }
+    playerListener = null
   }
 
   fun play(url: String?) {
