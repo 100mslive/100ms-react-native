@@ -1,0 +1,22 @@
+diff --git a/node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios/ReactCommon/RCTTurboModule.mm b/node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios/ReactCommon/RCTTurboModule.mm
+index cb70f35..5f82d3b 100644
+--- a/node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios/ReactCommon/RCTTurboModule.mm
++++ b/node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios/ReactCommon/RCTTurboModule.mm
+@@ -470,7 +470,16 @@ TraceSection s(
+     @try {
+       [inv invokeWithTarget:strongModule];
+     } @catch (NSException *exception) {
+-      throw convertNSExceptionToJSError(runtime, exception, std::string{moduleName}, methodNameStr);
++      // PATCH: void-method NSExceptions can't be re-thrown safely from a
++      // background dispatch queue — `throw convertNSExceptionToJSError(...)`
++      // either corrupts the Hermes heap (iOS 26) or terminates the app on
++      // the TurboModule manager queue (any iOS) because the JSError has
++      // nowhere to land. Log instead. Tracked upstream as RN #53960 / #54859.
++      RCTLogError(
++          @"[TurboModule] Exception in %s.%s: %@",
++          moduleName,
++          methodNameStr.c_str(),
++          exception.reason ?: exception.name);
+     } @finally {
+       [retainedObjectsForInvocation removeAllObjects];
+     }

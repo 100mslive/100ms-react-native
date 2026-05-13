@@ -1,6 +1,7 @@
 #import "AppDelegate.h"
 
 #import <React/RCTBundleURLProvider.h>
+#import <ReactAppDependencyProvider/RCTAppDependencyProvider.h>
 #import "RNSplashScreen.h" // here
 
 #import "RNExample-Swift.h" // here
@@ -13,6 +14,13 @@
   // You can add your custom initial props in the dictionary below.
   // They will be passed down to the ViewController used by React Native.
   self.initialProps = @{};
+
+  // RN 0.82+ requires an explicit dependency provider so the
+  // `RCTReactNativeFactory` can resolve third-party Fabric components
+  // and TurboModules. Without this the factory falls back to an empty
+  // `thirdPartyFabricComponents` map → JS-side renders crash with
+  // "Unimplemented component: <RNSScreenStack>" etc.
+  self.dependencyProvider = [RCTAppDependencyProvider new];
 
   // return [super application:application didFinishLaunchingWithOptions:launchOptions]; //This will be assigned as success instead
  

@@ -43,6 +43,8 @@
 	<string>Example App wants to use your microphone</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Example app wants access to photo library to save screenshots from the Video call or picking images for virtual background</string>
+	<key>RCTNewArchEnabled</key>
+	<true/>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Inter-Bold.ttf</string>
