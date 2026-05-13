@@ -1,4 +1,10 @@
-import React, { useState, useImperativeHandle, useRef } from 'react';
+import React, {
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { StyleSheet, Platform } from 'react-native';
 import type { NativeSyntheticEvent, ViewStyle } from 'react-native';
 import HmsView, { Commands } from '../specs/HMSViewNativeComponent';
@@ -6,8 +12,10 @@ import { HMSConstants } from './HMSConstants';
 import { HMSVideoViewMode } from './HMSVideoViewMode';
 import { setHmsViewsResolutionsState } from '../hooks/hmsviews';
 
-let _nextRequestId = 1;
-let _requestMap = new Map();
+type CapturePromiseMethods = {
+  resolve: (value: unknown) => void;
+  reject: (reason?: unknown) => void;
+};
 
 /**
  * Defines the properties for the `HmsViewComponent`.
@@ -56,6 +64,17 @@ export const HmsViewComponent = React.forwardRef<any, HmsComponentProps>(
       scaleType,
     };
 
+    // Per-instance request/response state for the `capture` imperative.
+    // Each `<HmsView />` gets its own counter + pending-promise map so:
+    //   - requestIds can't collide across multiple HmsView instances
+    //   - pending promises are scoped to this view and cleaned up when
+    //     it unmounts (see the useEffect below)
+    const nextRequestId = useRef(1);
+    const requestMap = useMemo(
+      () => new Map<number, CapturePromiseMethods>(),
+      []
+    );
+
     /**
      * This method is passed to `onChange` prop of `HmsView` Native Component.
      * It is invoked when `HmsView` emits 'topChange' event.
@@ -82,28 +101,24 @@ export const HmsViewComponent = React.forwardRef<any, HmsComponentProps>(
     const _onDataReturned = (event: {
       nativeEvent: { requestId: any; result: any; error: any };
     }) => {
-      // We grab the relevant data out of our event.
-      let { requestId, result, error } = event.nativeEvent;
-      // Then we get the promise we saved earlier for the given request ID.
-      let promise = _requestMap.get(requestId);
+      const { requestId, result, error } = event.nativeEvent;
+      const promise = requestMap.get(requestId);
+      if (!promise) {
+        // No pending request — typically a late event after unmount/cleanup
+        // rejected it, or a stale requestId from a previous mount.
+        return;
+      }
       if (result) {
-        // If it was successful, we resolve the promise.
         promise.resolve(result);
       } else {
-        // Otherwise, we reject it.
         promise.reject(error);
       }
-      // Finally, we clean up our request map.
-      _requestMap.delete(requestId);
+      requestMap.delete(requestId);
     };
 
     const capture = async () => {
-      let requestId = _nextRequestId++;
-      let requestMap = _requestMap;
-
-      // We create a promise here that will be resolved once `_onRequestDone` is
-      // called.
-      let promise = new Promise(function (resolve, reject) {
+      const requestId = nextRequestId.current++;
+      const promise = new Promise((resolve, reject) => {
         requestMap.set(requestId, { resolve, reject });
       });
 
@@ -118,6 +133,19 @@ export const HmsViewComponent = React.forwardRef<any, HmsComponentProps>(
         capture,
       };
     });
+
+    // Reject any in-flight capture promises on unmount. Under bridgeless
+    // mode the native side may not be able to deliver the captureFrame
+    // event back (event dispatcher returns null when the React tag is
+    // gone), which would leave promises hanging in the map forever.
+    useEffect(() => {
+      return () => {
+        requestMap.forEach(({ reject }) => {
+          reject(new Error('HmsView unmounted before capture completed'));
+        });
+        requestMap.clear();
+      };
+    }, [requestMap]);
 
     return (
       <HmsView

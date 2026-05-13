@@ -271,13 +271,27 @@ const _HMSHLSPlayer: React.ForwardRefRenderFunction<
       return;
     }
     promiseMethods.resolve(data);
+    // Remove the entry so the map doesn't grow unboundedly across the
+    // lifetime of the player view.
+    promiseAndIdsMap.delete(requestId);
   };
 
   useEffect(() => {
     return () => {
       useHMSStore.getState().resetPlaybackSlice();
       useHMSHLSPlayerStatsStore.getState().reset();
+      // Reject any in-flight command promises that didn't get a response
+      // before unmount. Under bridgeless mode the native side may not be
+      // able to deliver `onDataReturned` events back if the React tag is
+      // gone — left unrejected, those promises would hang forever.
+      promiseAndIdsMap.forEach(({ reject }) => {
+        reject(
+          new Error('HMSHLSPlayer unmounted before command response arrived')
+        );
+      });
+      promiseAndIdsMap.clear();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
