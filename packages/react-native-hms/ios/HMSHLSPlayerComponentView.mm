@@ -121,10 +121,14 @@ using namespace facebook::react;
     // straight through as a JSON-stringified blob (Phase 1 Object-typed
     // convention — Phase 2 will narrow).
     if (body[@"data"]) {
+      NSError *jsonError = nil;
       NSData *jsonData =
           [NSJSONSerialization dataWithJSONObject:body[@"data"]
                                           options:0
-                                            error:nil];
+                                            error:&jsonError];
+      if (jsonError) {
+        RCTLogWarn(@"[HMSHLSPlayer] Failed to serialize event data: %@", jsonError);
+      }
       if (jsonData) {
         NSString *jsonString = [[NSString alloc] initWithData:jsonData
                                                      encoding:NSUTF8StringEncoding];
@@ -156,10 +160,14 @@ using namespace facebook::react;
       event.event = [body[@"event"] UTF8String];
     }
     if (body[@"data"]) {
+      NSError *jsonError = nil;
       NSData *jsonData =
           [NSJSONSerialization dataWithJSONObject:body[@"data"]
                                           options:0
-                                            error:nil];
+                                            error:&jsonError];
+      if (jsonError) {
+        RCTLogWarn(@"[HMSHLSPlayer] Failed to serialize event data: %@", jsonError);
+      }
       if (jsonData) {
         NSString *jsonString = [[NSString alloc] initWithData:jsonData
                                                      encoding:NSUTF8StringEncoding];
@@ -190,10 +198,14 @@ using namespace facebook::react;
       event.event = [body[@"event"] UTF8String];
     }
     if (body[@"data"]) {
+      NSError *jsonError = nil;
       NSData *jsonData =
           [NSJSONSerialization dataWithJSONObject:body[@"data"]
                                           options:0
-                                            error:nil];
+                                            error:&jsonError];
+      if (jsonError) {
+        RCTLogWarn(@"[HMSHLSPlayer] Failed to serialize event data: %@", jsonError);
+      }
       if (jsonData) {
         NSString *jsonString = [[NSString alloc] initWithData:jsonData
                                                      encoding:NSUTF8StringEncoding];
