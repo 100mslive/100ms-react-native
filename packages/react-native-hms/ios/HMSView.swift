@@ -2,9 +2,9 @@ import HMSSDK
 import AVKit
 
 @objc(HMSView)
-class HMSView: RCTViewManager {
+public class HMSView: RCTViewManager {
 
-    override func view() -> (HmssdkDisplayView) {
+    override public func view() -> (HmssdkDisplayView) {
         let view = HmssdkDisplayView()
         let hms = getHmsFromBridge()
 
@@ -17,20 +17,38 @@ class HMSView: RCTViewManager {
         return HMSManager.shared?.hmsCollection ?? [String: HMSRNSDK]()
     }
 
-    override class func requiresMainQueueSetup() -> Bool {
+    public override class func requiresMainQueueSetup() -> Bool {
         true
     }
 
-    @objc func capture(_ node: NSNumber, requestId: NSNumber) {
+    @objc public func capture(_ node: NSNumber, requestId: NSNumber) {
         DispatchQueue.main.async {
-            if let component = self.bridge.uiManager.view(forReactTag: node) as? HmssdkDisplayView {
-                component.captureHmsView(requestId)
+            // Under the New Architecture's Fabric path, the `capture`
+            // imperative is dispatched directly to `HMSViewComponentView`
+            // (see ios/HMSViewComponentView.mm) and this method is not
+            // called. Under old arch and interop, we use self.bridge
+            // (which is nil under bridgeless) to safely look up the view
+            // by react tag. Under bridgeless mode, self.bridge is
+            // nil and this code path is unreachable anyway because the
+            // Fabric path is in use.
+            guard let bridge = self.bridge else {
+                // Bridgeless mode: self.bridge is nil and the Fabric path
+                // (HMSViewComponentView.mm) handles `capture` directly. If
+                // this old-arch fallback fires under bridgeless, something
+                // has misregistered the command — log so it isn't silent.
+                NSLog("[HMSView] capture: bridge is nil — Fabric path expected to handle this")
+                return
             }
+            guard let component = bridge.uiManager.view(forReactTag: node) as? HmssdkDisplayView else {
+                NSLog("[HMSView] capture: no HmssdkDisplayView found for reactTag=\(node)")
+                return
+            }
+            component.captureHmsView(requestId)
         }
     }
 }
 
-class HmssdkDisplayView: UIView {
+public class HmssdkDisplayView: UIView {
 
     lazy var videoView: HMSVideoView = {
         let videoView = HMSVideoView()
@@ -40,21 +58,33 @@ class HmssdkDisplayView: UIView {
         return videoView
     }()
 
-    var hmsCollection = [String: HMSRNSDK]()
-
-    func setHms(_ hmsInstance: [String: HMSRNSDK]) {
-        hmsCollection = hmsInstance
+    // Read live from HMSManager.shared on every access. Previously this
+    // was a stored property snapshotted at view creation, which left the
+    // view holding references to destroyed HMSRNSDK instances after a
+    // leave → rejoin cycle (the SDK destroys & recreates instances; the
+    // view's snapshot stayed stale → track lookup returned nil → black
+    // screen). Reading live keeps the view in sync with whatever HMS
+    // instance is currently active. Works for both old arch and Fabric.
+    var hmsCollection: [String: HMSRNSDK] {
+        return HMSManager.shared?.hmsCollection ?? [String: HMSRNSDK]()
     }
 
-    @objc var onDataReturned: RCTDirectEventBlock?
+    // Kept as a no-op for backward compatibility with the paper view
+    // manager's `view()` factory, which still calls this. The actual
+    // lookup is now live via the computed `hmsCollection` above.
+    func setHms(_ hmsInstance: [String: HMSRNSDK]) {
+        // Intentionally empty — hmsCollection is now computed.
+    }
 
-    @objc var autoSimulcast: Bool = true {
+    @objc public var onDataReturned: RCTDirectEventBlock?
+
+    @objc public var autoSimulcast: Bool = true {
         didSet {
             videoView.disableAutoSimulcastLayerSelect = !autoSimulcast
         }
     }
 
-    @objc var scaleType: String = "ASPECT_FILL" {
+    @objc public var scaleType: String = "ASPECT_FILL" {
         didSet {
             switch scaleType {
                 case "ASPECT_FIT":
@@ -73,7 +103,7 @@ class HmssdkDisplayView: UIView {
         }
     }
 
-    @objc var data: NSDictionary = [:] {
+    @objc public var data: NSDictionary = [:] {
         didSet {
 
             if let mirror = data.value(forKey: "mirror") as? Bool {
@@ -114,7 +144,7 @@ class HmssdkDisplayView: UIView {
         return nil
     }
 
-    @objc func captureHmsView( _ requestId: NSNumber) {
+    @objc public func captureHmsView( _ requestId: NSNumber) {
         guard let onDataReturnedUnwrapped = onDataReturned else {
             print(#function, "Can't send any data to JS side, `onDataReturned` is nil!")
             return

@@ -2,9 +2,13 @@
 
 buildscript {
     ext {
-        buildToolsVersion = "35.0.0"
+        buildToolsVersion = "36.0.0"
         minSdkVersion = 24
-        compileSdkVersion = 35
+        // compileSdkVersion bumped to 36 because RN 0.82's transitive dep
+        // `androidx.core:core:1.17.0` requires compile against API 36+.
+        // targetSdk intentionally left at 35 — bumping it changes runtime
+        // permission / layout behavior, deferred to a separate focused PR.
+        compileSdkVersion = 36
         targetSdkVersion = 35
 
         // NDK r27 for compatibility (r28 has libc++ ABI issues with VisionCamera)

@@ -31,7 +31,7 @@ import java.util.Date
 
 class HMSRNSDK(
   data: ReadableMap?,
-  HmsDelegate: HMSManager,
+  HmsDelegate: HMSManagerImpl,
   sdkId: String,
   reactApplicationContext: ReactApplicationContext,
 ) {
@@ -39,7 +39,7 @@ class HMSRNSDK(
   var screenshareCallback: Promise? = null
   var audioshareCallback: Promise? = null
   var isAudioSharing: Boolean = false
-  var delegate: HMSManager = HmsDelegate
+  var delegate: HMSManagerImpl = HmsDelegate
   var previewForRoleVideoTrack: HMSLocalVideoTrack? = null
   var previewForRoleAudioTrack: HMSLocalAudioTrack? = null
   private var recentRoleChangeRequest: HMSRoleChangeRequest? = null
@@ -1596,7 +1596,7 @@ class HMSRNSDK(
 
   fun startScreenshare(callback: Promise?) {
     screenshareCallback = callback
-    HMSManager.startingScreenShare = true
+    HMSManagerImpl.startingScreenShare = true
     runOnUiThread {
       val intent = Intent(context, HmsScreenshareActivity::class.java)
       intent.flags = FLAG_ACTIVITY_NEW_TASK

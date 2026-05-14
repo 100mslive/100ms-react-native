@@ -5,8 +5,8 @@ import AVKit.AVPlayerViewController
 typealias HmsHlsPlayer = HMSHLSPlayerSDK.HMSHLSPlayer
 
 @objc(HMSHLSPlayerManager)
-class HMSHLSPlayerManager: RCTViewManager {
-    override func view() -> (HMSHLSPlayer) {
+public class HMSHLSPlayerManager: RCTViewManager {
+    override public func view() -> (HMSHLSPlayer) {
         let view = HMSHLSPlayer()
         let hms = getHmsFromBridge()
 
@@ -19,116 +19,117 @@ class HMSHLSPlayerManager: RCTViewManager {
         return HMSManager.shared?.hmsCollection ?? [String: HMSRNSDK]()
     }
 
-    override class func requiresMainQueueSetup() -> Bool {
+    public override class func requiresMainQueueSetup() -> Bool {
         true
     }
 
-    @objc func play(_ node: NSNumber, url: String? = nil) {
+    /// Look up the `HMSHLSPlayer` view for a given React tag and dispatch a
+    /// command to it. Logs (instead of silently failing) when:
+    ///   - `self.bridge` is nil — happens under bridgeless mode where the
+    ///     Fabric path (HMSHLSPlayerComponentView) handles commands directly.
+    ///     This old-arch fallback path firing under bridgeless indicates a
+    ///     misregistration worth surfacing.
+    ///   - No `HMSHLSPlayer` is found for the given React tag — the view may
+    ///     have been detached, or the tag is invalid.
+    /// Must be called on the main queue.
+    private func withComponent(for node: NSNumber, command: String, _ block: (HMSHLSPlayer) -> Void) {
+        guard let bridge = self.bridge else {
+            NSLog("[HMSHLSPlayerManager] \(command): bridge is nil — Fabric path expected to handle this")
+            return
+        }
+        guard let component = bridge.uiManager.view(forReactTag: node) as? HMSHLSPlayer else {
+            NSLog("[HMSHLSPlayerManager] \(command): no HMSHLSPlayer found for reactTag=\(node)")
+            return
+        }
+        block(component)
+    }
+
+    @objc public func play(_ node: NSNumber, url: String? = nil) {
         DispatchQueue.main.async {
-            if let component = self.bridge.uiManager.view(forReactTag: node) as? HMSHLSPlayer {
-                component.play(url)
+            self.withComponent(for: node, command: "play") { $0.play(url) }
+        }
+    }
+
+    @objc public func stop(_ node: NSNumber) {
+        DispatchQueue.main.async {
+            self.withComponent(for: node, command: "stop") { $0.stop() }
+        }
+    }
+
+    @objc public func pause(_ node: NSNumber) {
+        DispatchQueue.main.async {
+            self.withComponent(for: node, command: "pause") { $0.pause() }
+        }
+    }
+
+    @objc public func resume(_ node: NSNumber) {
+        DispatchQueue.main.async {
+            self.withComponent(for: node, command: "resume") { $0.resume() }
+        }
+    }
+
+    @objc public func seekToLivePosition(_ node: NSNumber) {
+        DispatchQueue.main.async {
+            self.withComponent(for: node, command: "seekToLivePosition") { $0.seekToLivePosition() }
+        }
+    }
+
+    @objc public func seekForward(_ node: NSNumber, seconds: NSNumber) {
+        DispatchQueue.main.async {
+            self.withComponent(for: node, command: "seekForward") { $0.seekForward(Double(truncating: seconds)) }
+        }
+    }
+
+    @objc public func seekBackward(_ node: NSNumber, seconds: NSNumber) {
+        DispatchQueue.main.async {
+            self.withComponent(for: node, command: "seekBackward") { $0.seekBackward(Double(truncating: seconds)) }
+        }
+    }
+
+    @objc public func setVolume(_ node: NSNumber, level: NSNumber) {
+        DispatchQueue.main.async {
+            self.withComponent(for: node, command: "setVolume") { $0.setVolume(Int(truncating: level)) }
+        }
+    }
+
+    @objc public func areClosedCaptionSupported(_ node: NSNumber, requestId: NSNumber) {
+        DispatchQueue.main.async {
+            self.withComponent(for: node, command: "areClosedCaptionSupported") {
+                $0.areClosedCaptionSupported(requestId: UInt(truncating: requestId))
             }
         }
     }
 
-    @objc func stop(_ node: NSNumber) {
+    @objc public func isClosedCaptionEnabled(_ node: NSNumber, requestId: NSNumber) {
         DispatchQueue.main.async {
-            if let component = self.bridge.uiManager.view(forReactTag: node) as? HMSHLSPlayer {
-                component.stop()
+            self.withComponent(for: node, command: "isClosedCaptionEnabled") {
+                $0.isClosedCaptionEnabled(requestId: UInt(truncating: requestId))
             }
         }
     }
 
-    @objc func pause(_ node: NSNumber) {
+    @objc public func enableClosedCaption(_ node: NSNumber) {
         DispatchQueue.main.async {
-            if let component = self.bridge.uiManager.view(forReactTag: node) as? HMSHLSPlayer {
-                component.pause()
-            }
+            self.withComponent(for: node, command: "enableClosedCaption") { $0.enableClosedCaption() }
         }
     }
 
-    @objc func resume(_ node: NSNumber) {
+    @objc public func disableClosedCaption(_ node: NSNumber) {
         DispatchQueue.main.async {
-            if let component = self.bridge.uiManager.view(forReactTag: node) as? HMSHLSPlayer {
-                component.resume()
-            }
+            self.withComponent(for: node, command: "disableClosedCaption") { $0.disableClosedCaption() }
         }
     }
 
-    @objc func seekToLivePosition(_ node: NSNumber) {
+    @objc public func getPlayerDurationDetails(_ node: NSNumber, requestId: NSNumber) {
         DispatchQueue.main.async {
-            if let component = self.bridge.uiManager.view(forReactTag: node) as? HMSHLSPlayer {
-                component.seekToLivePosition()
-            }
-        }
-    }
-
-    @objc func seekForward(_ node: NSNumber, seconds: NSNumber) {
-        DispatchQueue.main.async {
-            if let component = self.bridge.uiManager.view(forReactTag: node) as? HMSHLSPlayer {
-                component.seekForward(Double(truncating: seconds))
-            }
-        }
-    }
-
-    @objc func seekBackward(_ node: NSNumber, seconds: NSNumber) {
-        DispatchQueue.main.async {
-            if let component = self.bridge.uiManager.view(forReactTag: node) as? HMSHLSPlayer {
-                component.seekBackward(Double(truncating: seconds))
-            }
-        }
-    }
-
-    @objc func setVolume(_ node: NSNumber, level: NSNumber) {
-        DispatchQueue.main.async {
-            if let component = self.bridge.uiManager.view(forReactTag: node) as? HMSHLSPlayer {
-                component.setVolume(Int(truncating: level))
-            }
-        }
-    }
-
-    @objc func areClosedCaptionSupported(_ node: NSNumber, requestId: NSNumber) {
-        DispatchQueue.main.async {
-            if let component = self.bridge.uiManager.view(forReactTag: node) as? HMSHLSPlayer {
-                component.areClosedCaptionSupported(requestId: UInt(truncating: requestId))
-            }
-        }
-    }
-
-    @objc func isClosedCaptionEnabled(_ node: NSNumber, requestId: NSNumber) {
-        DispatchQueue.main.async {
-            if let component = self.bridge.uiManager.view(forReactTag: node) as? HMSHLSPlayer {
-                component.isClosedCaptionEnabled(requestId: UInt(truncating: requestId))
-            }
-        }
-    }
-
-    @objc func enableClosedCaption(_ node: NSNumber) {
-        DispatchQueue.main.async {
-            if let component = self.bridge.uiManager.view(forReactTag: node) as? HMSHLSPlayer {
-                component.enableClosedCaption()
-            }
-        }
-    }
-
-    @objc func disableClosedCaption(_ node: NSNumber) {
-        DispatchQueue.main.async {
-            if let component = self.bridge.uiManager.view(forReactTag: node) as? HMSHLSPlayer {
-                component.disableClosedCaption()
-            }
-        }
-    }
-
-    @objc func getPlayerDurationDetails(_ node: NSNumber, requestId: NSNumber) {
-        DispatchQueue.main.async {
-            if let component = self.bridge.uiManager.view(forReactTag: node) as? HMSHLSPlayer {
-                component.getPlayerDurationDetails(requestId: UInt(truncating: requestId))
+            self.withComponent(for: node, command: "getPlayerDurationDetails") {
+                $0.getPlayerDurationDetails(requestId: UInt(truncating: requestId))
             }
         }
     }
 }
 
-class HMSHLSPlayer: UIView {
+public class HMSHLSPlayer: UIView {
     // MARK: class instance properties
     var hlsStatsTimerRef: Timer?
     var eventController: HLSPlaybackEventController?
@@ -136,27 +137,38 @@ class HMSHLSPlayer: UIView {
     lazy var hmsHLSPlayer = HmsHlsPlayer()
 
     // MARK: Handle HMSRNSDK Instance in HMSHLSPlayer instance
-    var hmsCollection = [String: HMSRNSDK]()
+    // Read live from HMSManager.shared on every access. Previously this was a
+    // stored snapshot taken at view creation time (via `setHms`), which left
+    // the view holding references to destroyed HMSRNSDK instances after a
+    // leave → rejoin cycle (the SDK destroys & recreates instances; the
+    // snapshot stayed stale → HLS streaming state lookup returned nil →
+    // playback broken on rejoin). Same fix as `HmssdkDisplayView`.
+    var hmsCollection: [String: HMSRNSDK] {
+        return HMSManager.shared?.hmsCollection ?? [String: HMSRNSDK]()
+    }
 
+    // Kept as a no-op for backward compatibility with the paper view
+    // manager's `view()` factory, which still calls this. The actual lookup
+    // is now live via the computed `hmsCollection` above.
     func setHms(_ hmsInstance: [String: HMSRNSDK]) {
-        hmsCollection = hmsInstance
+        // Intentionally empty — hmsCollection is now computed.
     }
 
     // MARK: Handle HMSHLSPlayer RN Component props
 
-    @objc var onDataReturned: RCTDirectEventBlock?
+    @objc public var onDataReturned: RCTDirectEventBlock?
 
-    @objc var onHmsHlsPlaybackEvent: RCTDirectEventBlock?
+    @objc public var onHmsHlsPlaybackEvent: RCTDirectEventBlock?
 
-    @objc var onHmsHlsStatsEvent: RCTDirectEventBlock?
+    @objc public var onHmsHlsStatsEvent: RCTDirectEventBlock?
 
-    @objc var url: String? {
+    @objc public var url: String? {
         didSet {
             play(url)
         }
     }
 
-    @objc var enableStats: Bool = false {
+    @objc public var enableStats: Bool = false {
         didSet {
             if enableStats == true {
                 attachHLSPlayerStatsListener()
@@ -170,7 +182,7 @@ class HMSHLSPlayer: UIView {
         }
     }
 
-    @objc var enableControls: Bool = true {
+    @objc public var enableControls: Bool = true {
         didSet {
             hmsHLSPlayerViewController?.showsPlaybackControls = enableControls
         }
@@ -178,7 +190,7 @@ class HMSHLSPlayer: UIView {
 
     // MARK: Handle HMSHLSPlayer RN Component methods
 
-    @objc func play(_ url: String?) {
+    @objc public func play(_ url: String?) {
         if let validURLString = url, !validURLString.isEmpty {
             if let urlInstance = URL(string: validURLString) {
                 hmsHLSPlayer.play(urlInstance)
@@ -195,7 +207,7 @@ class HMSHLSPlayer: UIView {
         }
     }
 
-    @objc func stop() {
+    @objc public func stop() {
         hmsHLSPlayer.stop()
     }
 
@@ -223,19 +235,19 @@ class HMSHLSPlayer: UIView {
         return selectedOption != nil
     }
 
-    @objc func areClosedCaptionSupported(requestId: UInt) {
+    @objc public func areClosedCaptionSupported(requestId: UInt) {
         let supported = isCCSupported()
 
         sendRequestedDataToJS(requestId, supported)
     }
 
-    @objc func isClosedCaptionEnabled(requestId: UInt) {
+    @objc public func isClosedCaptionEnabled(requestId: UInt) {
         let enabled = isCCEnabled()
 
         sendRequestedDataToJS(requestId, enabled)
     }
 
-    @objc func enableClosedCaption() {
+    @objc public func enableClosedCaption() {
         if !isCCSupported() {
             print("#func Closed Caption is not supported")
             return
@@ -256,7 +268,7 @@ class HMSHLSPlayer: UIView {
         playerItem.select(firstSubtitleTrack, in: subtitle)
     }
 
-    @objc func disableClosedCaption() {
+    @objc public func disableClosedCaption() {
         if !isCCSupported() {
             print("#func Closed Caption is not supported")
             return
@@ -274,7 +286,7 @@ class HMSHLSPlayer: UIView {
         playerItem.select(nil, in: subtitle)
     }
 
-    @objc func getPlayerDurationDetails(requestId: UInt) {
+    @objc public func getPlayerDurationDetails(requestId: UInt) {
         var map = [String: Any?]()
         guard let playerItem = hmsHLSPlayer._nativePlayer.currentItem else {
           sendRequestedDataToJS(requestId, map)
@@ -290,27 +302,27 @@ class HMSHLSPlayer: UIView {
         sendRequestedDataToJS(requestId, map)
     }
 
-    @objc func pause() {
+    @objc public func pause() {
         hmsHLSPlayer.pause()
     }
 
-    @objc func resume() {
+    @objc public func resume() {
         hmsHLSPlayer.resume()
     }
 
-    @objc func seekForward(_ seconds: Double) {
+    @objc public func seekForward(_ seconds: Double) {
         hmsHLSPlayer.seekForward(seconds: seconds)
     }
 
-    @objc func seekBackward(_ seconds: Double) {
+    @objc public func seekBackward(_ seconds: Double) {
         hmsHLSPlayer.seekBackward(seconds: seconds)
     }
 
-    @objc func seekToLivePosition() {
+    @objc public func seekToLivePosition() {
         hmsHLSPlayer.seekToLivePosition()
     }
 
-    @objc func setVolume(_ level: Int) {
+    @objc public func setVolume(_ level: Int) {
         hmsHLSPlayer.volume = level
     }
 
@@ -353,7 +365,7 @@ class HMSHLSPlayer: UIView {
     }
 
     // MARK: Utility functions
-    func cleanup() {
+    public func cleanup() {
         hmsHLSPlayer.stop()
 
         // Remove HLS player playback events
@@ -488,19 +500,19 @@ class HLSPlaybackEventController: HMSHLSPlayerDelegate {
         self.hmsHlsPlayerDelegate = hmsPlayerDelegate
     }
 
-    func onPlaybackStateChanged(state: HMSHLSPlaybackState) {
+    public func onPlaybackStateChanged(state: HMSHLSPlaybackState) {
         hmsHlsPlayerDelegate?.onPlaybackStateChanged(state: state)
     }
 
-    func onCue(cue: HMSHLSCue) {
+    public func onCue(cue: HMSHLSCue) {
         hmsHlsPlayerDelegate?.onCue(cue: cue)
     }
 
-    func onPlaybackFailure(error: Error) {
+    public func onPlaybackFailure(error: Error) {
         hmsHlsPlayerDelegate?.onPlaybackFailure(error: error)
     }
 
-    func onResolutionChanged(videoSize: CGSize) {
+    public func onResolutionChanged(videoSize: CGSize) {
         hmsHlsPlayerDelegate?.onResolutionChanged(videoSize: videoSize)
     }
 }

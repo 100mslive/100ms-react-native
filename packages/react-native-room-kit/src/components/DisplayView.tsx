@@ -135,7 +135,23 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
       />
 
       {isPipModeActive && Platform.OS === 'android' ? null : (
-        <>
+        // Wrap in an absolute-positioned overlay so react-native-modal's
+        // children get a parent with valid layout dimensions. Under Fabric,
+        // siblings-of-a-flex:1-view (here, WebrtcView consumes all flex space)
+        // resolve to a 0×0 layout box, which causes the modal's absolute-
+        // positioned wrapper to collapse and renders content at 0×0.
+        // `pointerEvents="box-none"` keeps this overlay transparent to touch
+        // so WebrtcView (sibling below) still receives gestures.
+        <View
+          style={{
+            position: 'absolute',
+            top: 0,
+            bottom: 0,
+            left: 0,
+            right: 0,
+          }}
+          pointerEvents="box-none"
+        >
           <LeaveRoomBottomSheet />
 
           <EndRoomModal />
@@ -217,7 +233,7 @@ export const DisplayView: React.FC<DisplayViewProps> = ({
               cancelModal={() => setModalVisible(ModalTypes.DEFAULT)}
             />
           </DefaultModal>
-        </>
+        </View>
       )}
     </View>
   );

@@ -1,8 +1,14 @@
 import HMSSDK
 import AVKit.AVRoutePickerView
 
+// `public` + `@objcMembers` so the auto-generated `react_native_hms-Swift.h`
+// public bridging header includes both the class declaration AND its @objc
+// methods. HMSManager.mm (TurboModule conformance) imports this header to
+// extend HMSManager with the generated spec protocol; without public exposure
+// the .mm fails with "cannot find interface declaration for HMSManager".
 @objc(HMSManager)
-class HMSManager: RCTEventEmitter {
+@objcMembers
+public class HMSManager: RCTEventEmitter {
 
     // Singleton holder used by HMSView / HMSHLSPlayerManager to access
     // hmsCollection without going through `bridge.module(for:)`, which is
@@ -38,23 +44,23 @@ class HMSManager: RCTEventEmitter {
         HMSManager.shared = self
     }
 
-    override class func requiresMainQueueSetup() -> Bool {
+    public override class func requiresMainQueueSetup() -> Bool {
         true
     }
 
-    override func supportedEvents() -> [String]! {
+    override public func supportedEvents() -> [String]! {
         return [ON_JOIN, ON_PREVIEW, ON_ROOM_UPDATE, ON_PEER_UPDATE, ON_TRACK_UPDATE, ON_ERROR, ON_MESSAGE, ON_SPEAKER, RECONNECTING, RECONNECTED, ON_ROLE_CHANGE_REQUEST, ON_CHANGE_TRACK_STATE_REQUEST, ON_REMOVED_FROM_ROOM, ON_RTC_STATS, ON_LOCAL_AUDIO_STATS, ON_LOCAL_VIDEO_STATS, ON_REMOTE_AUDIO_STATS, ON_REMOTE_VIDEO_STATS, ON_AUDIO_DEVICE_CHANGED, HMSConstants.ON_SESSION_STORE_AVAILABLE, HMSConstants.ON_SESSION_STORE_CHANGED, HMSConstants.ON_PEER_LIST_UPDATED, HMSConstants.ON_POLL_UPDATE, HMSConstants.ON_WHITEBOARD_UPDATE, HMSConstants.ON_TRANSCRIPTS, HMSConstants.ON_PIP_MODE_CHANGED]
     }
 
     // MARK: - HMS SDK Delegate Callbacks
-    func emitEvent(_ name: String, _ data: [String: Any]) {
+    public func emitEvent(_ name: String, _ data: [String: Any]) {
         self.sendEvent(withName: name, body: data)
     }
 
     // MARK: - Setup HMSSDK
 
     @objc
-    func build(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func build(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         DispatchQueue.main.async { [weak self] in
             let hasItem = self?.hmsCollection.index(forKey: "12345")
 
@@ -75,7 +81,7 @@ class HMSManager: RCTEventEmitter {
     }
 
     @objc
-    func destroy(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func destroy(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let id = data.value(forKey: "id") as? String ?? "12345"
         hmsCollection.removeValue(forKey: id)
         resolve?(["success": id + " removed"])
@@ -84,7 +90,7 @@ class HMSManager: RCTEventEmitter {
     // MARK: - Prebuilt
 
     @objc
-    func getRoomLayout(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func getRoomLayout(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
         hms?.getRoomLayout(data, resolve, reject)
     }
@@ -92,20 +98,20 @@ class HMSManager: RCTEventEmitter {
     // MARK: - Preview
 
     @objc
-    func preview(_ credentials: NSDictionary) {
+    public func preview(_ credentials: NSDictionary) {
         let hms = HMSHelper.getHms(credentials, hmsCollection)
         hms?.preview(credentials)
     }
 
     @objc
-    func previewForRole(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func previewForRole(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.previewForRole(data, resolve, reject)
     }
 
     @objc
-    func cancelPreview(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func cancelPreview(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.cancelPreview(resolve, reject)
@@ -114,7 +120,7 @@ class HMSManager: RCTEventEmitter {
     // MARK: - Join Room
 
     @objc
-    func join(_ credentials: NSDictionary) {
+    public func join(_ credentials: NSDictionary) {
         let hms = HMSHelper.getHms(credentials, hmsCollection)
         hms?.join(credentials)
     }
@@ -122,7 +128,7 @@ class HMSManager: RCTEventEmitter {
     // MARK: - Leave Room Actions
 
     @objc
-    func leave(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func leave(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.leave(resolve, reject)
@@ -131,28 +137,28 @@ class HMSManager: RCTEventEmitter {
     // MARK: - Audio & Video Actions
 
     @objc
-    func setLocalMute(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func setLocalMute(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.setLocalMute(data, resolve, reject)
     }
 
     @objc
-    func setLocalVideoMute(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func setLocalVideoMute(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.setLocalVideoMute(data, resolve, reject)
     }
 
     @objc
-    func switchCamera(_ data: NSDictionary) {
+    public func switchCamera(_ data: NSDictionary) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.switchCamera()
     }
 
     @objc
-    func isMute(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func isMute(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
         if let hmsInstance = hms {
             hmsInstance.isMute(data, resolve, reject)
@@ -163,49 +169,49 @@ class HMSManager: RCTEventEmitter {
     }
 
     @objc
-    func setPlaybackAllowed(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func setPlaybackAllowed(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.setPlaybackAllowed(data, resolve, reject)
     }
 
     @objc
-    func isPlaybackAllowed(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func isPlaybackAllowed(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.isPlaybackAllowed(data, resolve, reject)
     }
 
     @objc
-    func setPlaybackForAllAudio(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func setPlaybackForAllAudio(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.setPlaybackForAllAudio(data, resolve, reject)
     }
 
     @objc
-    func remoteMuteAllAudio(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func remoteMuteAllAudio(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.remoteMuteAllAudio(resolve, reject)
     }
 
     @objc
-    func setVolume(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func setVolume(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.setVolume(data, resolve, reject)
     }
 
     @objc
-    func switchAudioOutput(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func switchAudioOutput(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.switchAudioOutput(data, resolve, reject)
     }
 
     @objc
-    func switchAudioOutputUsingIOSUI(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func switchAudioOutputUsingIOSUI(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         DispatchQueue.main.async {
             // Creating RoutePickerView
             // Note:- We will trigger tap event on it without rendering this view in UI.
@@ -226,7 +232,7 @@ class HMSManager: RCTEventEmitter {
     }
 
     @objc
-    func setAlwaysScreenOn(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func setAlwaysScreenOn(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
 
         guard let enabled = data["enabled"] as? Bool else {
             let errorMessage = "\(#function)" + HMSHelper.getUnavailableRequiredKey(data, ["enabled"])
@@ -243,21 +249,21 @@ class HMSManager: RCTEventEmitter {
     // MARK: - Messaging
 
     @objc
-    func sendBroadcastMessage(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func sendBroadcastMessage(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.sendBroadcastMessage(data, resolve, reject)
     }
 
     @objc
-    func sendGroupMessage(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func sendGroupMessage(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.sendGroupMessage(data, resolve, reject)
     }
 
     @objc
-    func sendDirectMessage(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func sendDirectMessage(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.sendDirectMessage(data, resolve, reject)
@@ -267,28 +273,28 @@ class HMSManager: RCTEventEmitter {
 
     @available(*, deprecated, message: "Use changeRoleOfPeer function")
     @objc
-    func changeRole(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func changeRole(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.changeRole(data, resolve, reject)
     }
 
     @objc
-    func changeRoleOfPeer(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func changeRoleOfPeer(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.changeRole(data, resolve, reject)
     }
 
     @objc
-    func changeRoleOfPeersWithRoles(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func changeRoleOfPeersWithRoles(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.changeRolesOfAllPeers(data, resolve, reject)
     }
 
     @objc
-    func acceptRoleChange(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func acceptRoleChange(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.acceptRoleChange(resolve, reject)
@@ -297,28 +303,28 @@ class HMSManager: RCTEventEmitter {
     // MARK: - Role Based Actions
 
     @objc
-    func changeTrackState(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func changeTrackState(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.changeTrackState(data, resolve, reject)
     }
 
     @objc
-    func changeTrackStateForRoles(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func changeTrackStateForRoles(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.changeTrackStateForRoles(data, resolve, reject)
     }
 
     @objc
-    func removePeer(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func removePeer(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.removePeer(data, resolve, reject)
     }
 
     @objc
-    func endRoom(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func endRoom(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.endRoom(data, resolve, reject)
@@ -327,35 +333,35 @@ class HMSManager: RCTEventEmitter {
     // MARK: - Peer Actions
 
     @objc
-    func changeMetadata(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func changeMetadata(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.changeMetadata(data, resolve, reject)
     }
 
     @objc
-    func changeName(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func changeName(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.changeName(data, resolve, reject)
     }
 
     @objc
-    func raiseLocalPeerHand(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func raiseLocalPeerHand(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.raiseLocalPeerHand(resolve, reject)
     }
 
     @objc
-    func lowerLocalPeerHand(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func lowerLocalPeerHand(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.lowerLocalPeerHand(resolve, reject)
     }
 
     @objc
-    func lowerRemotePeerHand(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func lowerRemotePeerHand(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.lowerRemotePeerHand(data, resolve, reject)
@@ -364,14 +370,14 @@ class HMSManager: RCTEventEmitter {
     // MARK: - RTMP Streaming & Recording
 
     @objc
-    func startRTMPOrRecording(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func startRTMPOrRecording(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.startRTMPOrRecording(data, resolve, reject)
     }
 
     @objc
-    func stopRtmpAndRecording(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func stopRtmpAndRecording(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.stopRtmpAndRecording(resolve, reject)
@@ -380,21 +386,21 @@ class HMSManager: RCTEventEmitter {
     // MARK: - HLS Streaming
 
     @objc
-    func startHLSStreaming(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func startHLSStreaming(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.startHLSStreaming(data, resolve, reject)
     }
 
     @objc
-    func stopHLSStreaming(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func stopHLSStreaming(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.stopHLSStreaming(resolve, reject)
     }
 
     @objc
-    func sendHLSTimedMetadata(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func sendHLSTimedMetadata(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         guard let rnsdk = HMSHelper.getHms(data, hmsCollection) else {
             reject?("6004", "HMSRNSDK instance not found!", nil)
             return
@@ -405,21 +411,21 @@ class HMSManager: RCTEventEmitter {
     // MARK: - Screen Share
 
     @objc
-    func startScreenshare(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func startScreenshare(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.startScreenshare(resolve, reject)
     }
 
     @objc
-    func stopScreenshare(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func stopScreenshare(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.stopScreenshare(resolve, reject)
     }
 
     @objc
-    func isScreenShared(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func isScreenShared(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.isScreenShared(resolve, reject)
@@ -428,56 +434,56 @@ class HMSManager: RCTEventEmitter {
     // MARK: - Audio Playback
 
     @objc
-    func playAudioShare(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func playAudioShare(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.playAudioShare(data, resolve, reject)
     }
 
     @objc
-    func setAudioShareVolume(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func setAudioShareVolume(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.setAudioShareVolume(data, resolve, reject)
     }
 
     @objc
-    func stopAudioShare(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func stopAudioShare(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.stopAudioShare(data, resolve, reject)
     }
 
     @objc
-    func resumeAudioShare(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func resumeAudioShare(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.resumeAudioShare(data, resolve, reject)
     }
 
     @objc
-    func pauseAudioShare(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func pauseAudioShare(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.pauseAudioShare(data, resolve, reject)
     }
 
     @objc
-    func audioShareIsPlaying(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func audioShareIsPlaying(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.audioShareIsPlaying(data, resolve, reject)
     }
 
     @objc
-    func audioShareCurrentTime(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func audioShareCurrentTime(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.audioShareCurrentTime(data, resolve, reject)
     }
 
     @objc
-    func audioShareDuration(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func audioShareDuration(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.audioShareDuration(data, resolve, reject)
@@ -486,14 +492,14 @@ class HMSManager: RCTEventEmitter {
     // MARK: - Network Quality Updates
 
     @objc
-    func enableNetworkQualityUpdates(_ data: NSDictionary) {
+    public func enableNetworkQualityUpdates(_ data: NSDictionary) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.enableNetworkQualityUpdates()
     }
 
     @objc
-    func disableNetworkQualityUpdates(_ data: NSDictionary) {
+    public func disableNetworkQualityUpdates(_ data: NSDictionary) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.disableNetworkQualityUpdates()
@@ -502,14 +508,14 @@ class HMSManager: RCTEventEmitter {
     // MARK: - Peer & Room Property Getter Functions
 
     @objc
-    func getPeerProperty(_ data: NSDictionary) -> [AnyHashable: Any]? {
+    public func getPeerProperty(_ data: NSDictionary) -> [AnyHashable: Any]? {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         return hms?.getPeerProperty(data)
     }
 
     @objc
-    func getRoomProperty(_ data: NSDictionary) -> [AnyHashable: Any]? {
+    public func getRoomProperty(_ data: NSDictionary) -> [AnyHashable: Any]? {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         return hms?.getRoomProperty(data)
@@ -518,14 +524,14 @@ class HMSManager: RCTEventEmitter {
     // MARK: - Enable/Disable HMS Events Emitting to JS
 
     @objc
-    func enableEvent(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func enableEvent(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.enableEvent(data, resolve, reject)
     }
 
     @objc
-    func disableEvent(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func disableEvent(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.disableEvent(data, resolve, reject)
@@ -534,7 +540,7 @@ class HMSManager: RCTEventEmitter {
     // MARK: - Restrict sending whole HMSRole object
 
     @objc
-    func restrictData(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func restrictData(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.restrictData(data, resolve, reject)
@@ -543,7 +549,7 @@ class HMSManager: RCTEventEmitter {
     // MARK: - Room Code Auth Token API
 
     @objc
-    func getAuthTokenByRoomCode(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func getAuthTokenByRoomCode(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.getAuthTokenByRoomCode(data, resolve, reject)
@@ -551,42 +557,42 @@ class HMSManager: RCTEventEmitter {
 
     // MARK: - HMS SDK Get APIs
     @objc
-    func getRoom(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func getRoom(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.getRoom(resolve)
     }
 
     @objc
-    func getLocalPeer(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func getLocalPeer(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.getLocalPeer(resolve)
     }
 
     @objc
-    func getRemotePeers(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func getRemotePeers(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.getRemotePeers(resolve)
     }
 
     @objc
-    func getRoles(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func getRoles(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.getRoles(resolve)
     }
 
     @objc
-    func getRemoteVideoTrackFromTrackId(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func getRemoteVideoTrackFromTrackId(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.getRemoteVideoTrackFromTrackId(data, resolve, reject)
     }
 
     @objc
-    func getRemoteAudioTrackFromTrackId(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func getRemoteAudioTrackFromTrackId(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.getRemoteAudioTrackFromTrackId(data, resolve, reject)
@@ -595,21 +601,21 @@ class HMSManager: RCTEventEmitter {
     // MARK: - Simulcast
 
     @objc
-    func getVideoTrackLayerDefinition(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func getVideoTrackLayerDefinition(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.getVideoTrackLayerDefinition(data, resolve, reject)
     }
 
     @objc
-    func getVideoTrackLayer(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func getVideoTrackLayer(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.getVideoTrackLayer(data, resolve, reject)
     }
 
     @objc
-    func setVideoTrackLayer(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func setVideoTrackLayer(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.setVideoTrackLayer(data, resolve, reject)
@@ -618,7 +624,7 @@ class HMSManager: RCTEventEmitter {
     // MARK: - Advanced Camera Controls
 
     @objc
-    func captureImageAtMaxSupportedResolution(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func captureImageAtMaxSupportedResolution(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.captureImageAtMaxSupportedResolution(data, resolve, reject)
@@ -627,7 +633,7 @@ class HMSManager: RCTEventEmitter {
     // MARK: - Session Store
 
     @objc
-    func getSessionMetadataForKey(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func getSessionMetadataForKey(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
 
         let hms = HMSHelper.getHms(data, hmsCollection)
 
@@ -635,7 +641,7 @@ class HMSManager: RCTEventEmitter {
     }
 
     @objc
-    func setSessionMetadataForKey(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func setSessionMetadataForKey(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
 
         let hms = HMSHelper.getHms(data, hmsCollection)
 
@@ -643,7 +649,7 @@ class HMSManager: RCTEventEmitter {
     }
 
     @objc
-    func addKeyChangeListener(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func addKeyChangeListener(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
 
         let hms = HMSHelper.getHms(data, hmsCollection)
 
@@ -651,7 +657,7 @@ class HMSManager: RCTEventEmitter {
     }
 
     @objc
-    func removeKeyChangeListener(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func removeKeyChangeListener(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
 
         let hms = HMSHelper.getHms(data, hmsCollection)
 
@@ -661,21 +667,21 @@ class HMSManager: RCTEventEmitter {
     // MARK: - Peer List Iterator
 
     @objc
-    func getPeerListIterator(_ data: NSDictionary) -> [AnyHashable: Any]? {
+    public func getPeerListIterator(_ data: NSDictionary) -> [AnyHashable: Any]? {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         return hms?.getPeerListIterator(data)
     }
 
     @objc
-    func peerListIteratorHasNext(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func peerListIteratorHasNext(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.peerListIteratorHasNext(data, resolve, reject)
     }
 
     @objc
-    func peerListIteratorNext(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func peerListIteratorNext(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         let hms = HMSHelper.getHms(data, hmsCollection)
 
         hms?.peerListIteratorNext(data, resolve, reject)
@@ -684,7 +690,7 @@ class HMSManager: RCTEventEmitter {
     // MARK: - Interactivity Center - Polls/Quiz
 
     @objc
-    func quickStartPoll(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func quickStartPoll(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         guard let rnsdk = HMSHelper.getHms(data, hmsCollection), let interactivity = rnsdk.interactivity else {
             reject?("6004", "HMSRNSDK instance not found!", nil)
             return
@@ -693,7 +699,7 @@ class HMSManager: RCTEventEmitter {
     }
 
     @objc
-    func addResponseOnPollQuestion(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func addResponseOnPollQuestion(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         guard let rnsdk = HMSHelper.getHms(data, hmsCollection), let interactivity = rnsdk.interactivity else {
             reject?("6004", "HMSRNSDK instance not found!", nil)
             return
@@ -702,7 +708,7 @@ class HMSManager: RCTEventEmitter {
     }
 
     @objc
-    func stopPoll(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func stopPoll(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         guard let rnsdk = HMSHelper.getHms(data, hmsCollection), let interactivity = rnsdk.interactivity else {
             reject?("6004", "HMSRNSDK instance not found!", nil)
             return
@@ -711,7 +717,7 @@ class HMSManager: RCTEventEmitter {
     }
 
     @objc
-    func fetchLeaderboard(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func fetchLeaderboard(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         guard let rnsdk = HMSHelper.getHms(data, hmsCollection), let interactivity = rnsdk.interactivity else {
             reject?("6004", "HMSRNSDK instance not found!", nil)
             return
@@ -722,7 +728,7 @@ class HMSManager: RCTEventEmitter {
     // MARK: - Noise Cancellation Plugin Functions
 
     @objc
-    func enableNoiseCancellationPlugin( _ data: NSDictionary,
+    public func enableNoiseCancellationPlugin( _ data: NSDictionary,
                                         _ resolve: RCTPromiseResolveBlock?,
                                         _ reject: RCTPromiseRejectBlock?) {
 
@@ -734,7 +740,7 @@ class HMSManager: RCTEventEmitter {
     }
 
     @objc
-    func disableNoiseCancellationPlugin(_ data: NSDictionary,
+    public func disableNoiseCancellationPlugin(_ data: NSDictionary,
                                         _ resolve: RCTPromiseResolveBlock?,
                                         _ reject: RCTPromiseRejectBlock?) {
 
@@ -746,7 +752,7 @@ class HMSManager: RCTEventEmitter {
     }
 
     @objc
-    func isNoiseCancellationPluginEnabled(_ data: NSDictionary,
+    public func isNoiseCancellationPluginEnabled(_ data: NSDictionary,
                                           _ resolve: RCTPromiseResolveBlock?,
                                           _ reject: RCTPromiseRejectBlock?) {
 
@@ -758,7 +764,7 @@ class HMSManager: RCTEventEmitter {
     }
 
     @objc
-    func isNoiseCancellationPluginAvailable(_ data: NSDictionary,
+    public func isNoiseCancellationPluginAvailable(_ data: NSDictionary,
                                             _ resolve: RCTPromiseResolveBlock?,
                                             _ reject: RCTPromiseRejectBlock?) {
 
@@ -772,7 +778,7 @@ class HMSManager: RCTEventEmitter {
     // MARK: - Video Plugin Functions
 
     @objc
-    func enableVideoPlugin( _ data: NSDictionary,
+    public func enableVideoPlugin( _ data: NSDictionary,
                             _ resolve: RCTPromiseResolveBlock?,
                             _ reject: RCTPromiseRejectBlock?) {
         guard let rnsdk = HMSHelper.getHms(data, hmsCollection) else {
@@ -783,7 +789,7 @@ class HMSManager: RCTEventEmitter {
     }
 
     @objc
-    func disableVideoPlugin(_ data: NSDictionary,
+    public func disableVideoPlugin(_ data: NSDictionary,
                             _ resolve: RCTPromiseResolveBlock?,
                             _ reject: RCTPromiseRejectBlock?) {
         guard let rnsdk = HMSHelper.getHms(data, hmsCollection) else {
@@ -794,7 +800,7 @@ class HMSManager: RCTEventEmitter {
     }
 
     @objc
-    func changeVirtualBackground(_ data: NSDictionary,
+    public func changeVirtualBackground(_ data: NSDictionary,
                             _ resolve: RCTPromiseResolveBlock?,
                             _ reject: RCTPromiseRejectBlock?) {
         guard let rnsdk = HMSHelper.getHms(data, hmsCollection) else {
@@ -805,7 +811,7 @@ class HMSManager: RCTEventEmitter {
     }
 
     @objc
-    func setVideoFilterParameter(_ data: NSDictionary,
+    public func setVideoFilterParameter(_ data: NSDictionary,
                             _ resolve: RCTPromiseResolveBlock?,
                             _ reject: RCTPromiseRejectBlock?) {
         guard let rnsdk = HMSHelper.getHms(data, hmsCollection) else {
@@ -817,7 +823,7 @@ class HMSManager: RCTEventEmitter {
 
     // MARK: - Interactivity Center - Whiteboard
     @objc
-    func startWhiteboard(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func startWhiteboard(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         guard let rnsdk = HMSHelper.getHms(data, hmsCollection), let interactivity = rnsdk.interactivity else {
             reject?("6004", "HMSRNSDK instance not found!", nil)
             return
@@ -826,7 +832,7 @@ class HMSManager: RCTEventEmitter {
     }
 
     @objc
-    func stopWhiteboard(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func stopWhiteboard(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         guard let rnsdk = HMSHelper.getHms(data, hmsCollection), let interactivity = rnsdk.interactivity else {
             reject?("6004", "HMSRNSDK instance not found!", nil)
             return
@@ -836,7 +842,7 @@ class HMSManager: RCTEventEmitter {
 
     // MARK: - WebRTC Transcriptions
     @objc
-    func handleRealTimeTranscription(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
+    public func handleRealTimeTranscription(_ data: NSDictionary, _ resolve: RCTPromiseResolveBlock?, _ reject: RCTPromiseRejectBlock?) {
         guard let rnsdk = HMSHelper.getHms(data, hmsCollection) else {
             reject?("6004", "HMSRNSDK instance not found!", nil)
             return
@@ -847,7 +853,7 @@ class HMSManager: RCTEventEmitter {
     // MARK: - PIP Mode Support
 
     @objc
-    func handlePipActions(_ action: String,
+    public func handlePipActions(_ action: String,
                           _ data: NSDictionary,
                           _ resolve: RCTPromiseResolveBlock?,
                           _ reject: RCTPromiseRejectBlock?) {
@@ -876,7 +882,7 @@ class HMSManager: RCTEventEmitter {
     }
 
     @objc
-    func stopPIP(_ data: NSDictionary,
+    public func stopPIP(_ data: NSDictionary,
                  _ resolve: RCTPromiseResolveBlock?,
                  _ reject: RCTPromiseRejectBlock?) {
 
@@ -891,7 +897,7 @@ class HMSManager: RCTEventEmitter {
     }
 
     @objc
-    func disposePIP(_ data: NSDictionary,
+    public func disposePIP(_ data: NSDictionary,
                     _ resolve: RCTPromiseResolveBlock?,
                     _ reject: RCTPromiseRejectBlock?) {
 
@@ -906,14 +912,14 @@ class HMSManager: RCTEventEmitter {
     }
 
     @objc
-    func isPipModeSupported(_ resolve: RCTPromiseResolveBlock?,
+    public func isPipModeSupported(_ resolve: RCTPromiseResolveBlock?,
                         _ reject: RCTPromiseRejectBlock?) {
 
         resolve?(AVPictureInPictureController.isPictureInPictureSupported())
     }
 
     @objc
-    func isPIPActive(_ data: NSDictionary,
+    public func isPIPActive(_ data: NSDictionary,
                      _ resolve: RCTPromiseResolveBlock?,
                      _ reject: RCTPromiseRejectBlock?) {
 
@@ -928,7 +934,7 @@ class HMSManager: RCTEventEmitter {
     }
 
     @objc
-    func changeIOSPIPVideoTrack(_ data: NSDictionary,
+    public func changeIOSPIPVideoTrack(_ data: NSDictionary,
                                 _ resolve: RCTPromiseResolveBlock?,
                                 _ reject: RCTPromiseRejectBlock?) {
 
@@ -946,7 +952,7 @@ class HMSManager: RCTEventEmitter {
     }
 
     @objc
-    func setActiveSpeakerInIOSPIP(_ data: NSDictionary,
+    public func setActiveSpeakerInIOSPIP(_ data: NSDictionary,
                                   _ resolve: RCTPromiseResolveBlock?,
                                   _ reject: RCTPromiseRejectBlock?) {
 

@@ -21,11 +21,11 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>2.5.6</string>
+	<string>2.5.7</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>549</string>
+	<string>550</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSRequiresIPhoneOS</key>
@@ -43,6 +43,8 @@
 	<string>Example App wants to use your microphone</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Example app wants access to photo library to save screenshots from the Video call or picking images for virtual background</string>
+	<key>RCTNewArchEnabled</key>
+	<true/>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Inter-Bold.ttf</string>

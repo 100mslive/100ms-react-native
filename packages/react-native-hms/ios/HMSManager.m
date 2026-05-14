@@ -1,6 +1,17 @@
 #import <Foundation/Foundation.h>
 #import <React/RCTEventEmitter.h>
 
+// Under the New Architecture (RCT_NEW_ARCH_ENABLED), the TurboModule
+// registration happens in HMSManager.mm via the category-based
+// `getTurboModule:` factory. The legacy `RCT_EXTERN_MODULE` +
+// `RCT_EXTERN_METHOD` declarations below would conflict with that
+// registration, so we guard the entire block with #if !RCT_NEW_ARCH_ENABLED.
+//
+// The Swift HMSManager class itself is unchanged — only its
+// registration path differs between old arch (this file) and new arch
+// (HMSManager.mm).
+#if !RCT_NEW_ARCH_ENABLED
+
 @interface RCT_EXTERN_MODULE (HMSManager, RCTEventEmitter)
 
 RCT_EXTERN_METHOD(join : (NSDictionary)credentials)
@@ -433,3 +444,5 @@ RCT_EXTERN_METHOD(setActiveSpeakerInIOSPIP
                   : (RCTPromiseRejectBlock)reject)
 
 @end
+
+#endif  // !RCT_NEW_ARCH_ENABLED

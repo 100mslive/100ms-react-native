@@ -2,6 +2,7 @@ package com.reactnativehmssdk
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.FrameLayout
@@ -15,7 +16,7 @@ import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.WritableMap
 import com.facebook.react.uimanager.ThemedReactContext
-import com.facebook.react.uimanager.events.RCTEventEmitter
+import com.facebook.react.uimanager.UIManagerHelper
 import live.hms.hls_player.*
 import live.hms.stats.PlayerStatsListener
 import live.hms.stats.model.PlayerStatsModel
@@ -33,6 +34,11 @@ class HMSHLSPlayer(
   private var hmssdkInstance: HMSSDK? = null
   private var statsMonitorAttached = false
   private var shouldSendCaptionsToJS = false
+
+  // Held so `cleanup()` can remove the listener from ExoPlayer on unmount.
+  // The anonymous Player.Listener captures `this`, so leaking it across
+  // mount/unmount cycles prevents GC of HMSHLSPlayer view instances.
+  private var playerListener: Player.Listener? = null
   private val hmsHlsPlaybackEventsObject =
     object : HmsHlsPlaybackEvents {
       override fun onCue(cue: HmsHlsCue) {
@@ -139,7 +145,7 @@ class HMSHLSPlayer(
     // setting 100ms HLS Player on Exoplayer
     localPlayerView.player = localHmsHlsPlayer.getNativePlayer()
 
-    localPlayerView?.player?.addListener(
+    val listener =
       object : Player.Listener {
         override fun onVideoSizeChanged(videoSize: VideoSize) {
           super.onVideoSizeChanged(videoSize)
@@ -165,14 +171,21 @@ class HMSHLSPlayer(
               ?.toString()
           sendHLSPlayerCuesEventToJS(ccText)
         }
-      },
-    )
+      }
+    playerListener = listener
+    localPlayerView?.player?.addListener(listener)
   }
 
   fun cleanup() {
     hmsHlsPlayer?.stop()
     hmsHlsPlayer?.addPlayerEventListener(null)
     hmsHlsPlayer?.setStatsMonitor(null)
+    // Remove the ExoPlayer Player.Listener registered in init. Without
+    // this, the anonymous listener (which captures `this`) leaks across
+    // mount/unmount cycles — visible in long-running video conferencing
+    // sessions where users repeatedly join and leave rooms.
+    playerListener?.let { listener -> playerView?.player?.removeListener(listener) }
+    playerListener = null
   }
 
   fun play(url: String?) {
@@ -300,6 +313,23 @@ class HMSHLSPlayer(
     statsMonitorAttached = false
   }
 
+  private fun dispatchViewEvent(
+    eventName: String,
+    payload: WritableMap,
+  ) {
+    val reactContext = context as ReactContext
+    val surfaceId = UIManagerHelper.getSurfaceId(this)
+    val dispatcher = UIManagerHelper.getEventDispatcherForReactTag(reactContext, id)
+    if (dispatcher != null) {
+      dispatcher.dispatchEvent(HMSReactNativeEvent(surfaceId, id, eventName, payload))
+    } else {
+      // Bridgeless mode: dispatcher can be null if the view is detaching or
+      // the React tag is no longer valid. Log instead of silently dropping
+      // so the event loss is debuggable.
+      Log.w("HMSHLSPlayer", "Event '$eventName' dropped — dispatcher null for tag $id")
+    }
+  }
+
   private fun sendHLSPlaybackEventToJS(
     eventName: String,
     data: WritableMap,
@@ -308,8 +338,7 @@ class HMSHLSPlayer(
     event.putString("event", eventName)
     event.putMap("data", data)
 
-    val reactContext = context as ReactContext
-    reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, HMSHLSPlayerConstants.HMS_HLS_PLAYBACK_EVENT, event)
+    dispatchViewEvent(HMSHLSPlayerConstants.HMS_HLS_PLAYBACK_EVENT, event)
   }
 
   private fun sendHLSStatsEventToJS(
@@ -320,8 +349,7 @@ class HMSHLSPlayer(
     event.putString("event", eventName)
     event.putMap("data", data)
 
-    val reactContext = context as ReactContext
-    reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, HMSHLSPlayerConstants.HMS_HLS_STATS_EVENT, event)
+    dispatchViewEvent(HMSHLSPlayerConstants.HMS_HLS_STATS_EVENT, event)
   }
 
   private fun sendHLSDataRequestEventToJS(
@@ -347,8 +375,7 @@ class HMSHLSPlayer(
       event.putNull("data")
     }
 
-    val reactContext = context as ReactContext
-    reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, HMSHLSPlayerConstants.HLS_DATA_REQUEST_EVENT, event)
+    dispatchViewEvent(HMSHLSPlayerConstants.HLS_DATA_REQUEST_EVENT, event)
   }
 
   private fun sendHLSPlayerCuesEventToJS(ccText: String?) {
@@ -360,8 +387,7 @@ class HMSHLSPlayer(
     } else {
       event.putNull("data")
     }
-    val reactContext = context as ReactContext
-    reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, HMSHLSPlayerConstants.HLS_PLAYER_CUES_EVENT, event)
+    dispatchViewEvent(HMSHLSPlayerConstants.HLS_PLAYER_CUES_EVENT, event)
   }
 }
 

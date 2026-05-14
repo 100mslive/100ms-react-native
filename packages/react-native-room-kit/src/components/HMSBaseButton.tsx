@@ -57,7 +57,7 @@ export const HMSBaseButton: React.FC<HMSBaseButtonProps> = ({
       onPress={onPress}
       disabled={disabled}
     >
-      <>
+      <View>
         {loading ? (
           <ActivityIndicator
             size={'small'}
@@ -76,7 +76,7 @@ export const HMSBaseButton: React.FC<HMSBaseButtonProps> = ({
 
           <Text style={[styles.text, textStyle]}>{title}</Text>
         </View>
-      </>
+      </View>
     </Touchable>
   );
 

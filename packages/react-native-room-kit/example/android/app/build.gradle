@@ -50,6 +50,15 @@ react {
   //
   //   The list of flags to pass to the Hermes compiler. By default is "-O", "-output-source-map"
   // hermesFlags = ["-O", "-output-source-map"]
+
+  /* Autolinking */
+  //   `autolinkLibrariesWithApp()` is the half of autolinking that lives on the
+  //   :app side. settings.gradle's `autolinkLibrariesFromCommand()` registers
+  //   discovered modules as Gradle subprojects; THIS call generates the actual
+  //   `implementation project(...)` deps on :app + populates PackageList.java.
+  //   Both halves are required — one without the other gives you "package
+  //   com.X does not exist" errors at compile time.
+  autolinkLibrariesWithApp()
 }
 
 /**
@@ -200,34 +209,14 @@ dependencies {
         implementation jscFlavor
     }
 
-    // All native modules (manually added - RN 0.77.3 autolinking broken in monorepo)
-    implementation project(':_100mslive_react_native_video_plugin')
-    implementation project(':rnasyncstorage')
-    implementation project(':rnblurview')
-    implementation project(':_react_native_masked_view_masked_view')
-    implementation project(':rnflashlist')
-    implementation project(':lottiereactnative')
-    implementation project(':react_native_device_info')
-    implementation project(':rngesturehandler_codegen')
-    implementation project(':RNImagePickerSpec')
-    implementation project(':react_native_linear_gradient')
-    implementation project(':react_native_lottie_splash_screen')
-    implementation project(':RNPermissionsSpec')
-    implementation project(':react-native-reanimated')
-    implementation project(':safeareacontext')
-    implementation project(':rnscreens')
-    implementation project(':react_native_vision_camera')
-    implementation project(':RNCWebViewSpec')
-
-    // Local 100ms packages
+    // Local 100ms packages — file-linked, autolinking can't discover.
+    // Everything else is picked up by autolinking (see settings.gradle).
     implementation project(':100mslive_react-native-hms')
-}
 
-// Disable autolinking tasks since we're using manual linking (RN 0.77.3 monorepo fix)
-afterEvaluate {
-    tasks.configureEach { task ->
-        if (task.name.contains("Autolinking") || task.name.contains("autolinking")) {
-            task.enabled = false
-        }
-    }
+    // Direct Lottie dep so app/src/main/res/layout/launch_screen.xml can resolve
+    // `lottie_rawRes` / `lottie_autoPlay` / `lottie_loop` XML attrs. Both
+    // lottie-react-native and react-native-lottie-splash-screen declare lottie
+    // as `implementation` (not `api`), so under AGP 8 strict isolation those
+    // attrs don't propagate transitively to the consuming app.
+    implementation 'com.airbnb.android:lottie:6.5.2'
 }

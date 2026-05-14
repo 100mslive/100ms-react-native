@@ -4,9 +4,6 @@ require_relative '../node_modules/react-native-permissions/scripts/setup'
 platform :ios, '16.0'
 prepare_react_native_project!
 
-# Explicitly disable New Architecture (react-native-hms and react-native-room-kit do not support it)
-ENV['RCT_NEW_ARCH_ENABLED'] = '0'
-
 linkage = ENV['USE_FRAMEWORKS']
 if linkage != nil
   Pod::UI.puts "Configuring Pod with #{linkage}ally linked Frameworks".green
@@ -21,8 +18,11 @@ target 'RNExampleBroadcastUpload' do
 end
 
 target 'RNExample' do
-  # Flags change depending on the env values.
-  flags = get_default_flags()
+  # Autolinking for RN community libraries (lottie, gesture handler, screens,
+  # vision-camera, etc.). `use_react_native!` does NOT call this for you on
+  # RN 0.78 — without it, only React core + explicitly-listed pods install,
+  # and the example app fails to compile against Lottie / RNSplashScreen.
+  config = use_native_modules!
 
   setup_permissions([
     'Camera',
@@ -30,34 +30,19 @@ target 'RNExample' do
   ])
 
   use_react_native!(
-    :path => '../node_modules/react-native',
-    # Hermes is now enabled by default. Disable by setting this flag to false.
-    :hermes_enabled => flags[:hermes_enabled],
-    # New Architecture MUST be disabled (react-native-hms and react-native-room-kit do not support it)
-    :fabric_enabled => false,
-    # An absolute path to your application root.
+    :path => config[:reactNativePath],
+    :hermes_enabled => true,
+    # Default OFF. Toggle for a single build via:
+    #   RCT_NEW_ARCH_ENABLED=1 pod install
+    # Mirrors Android's `-PnewArchEnabled=true` command-line override.
+    :fabric_enabled => ENV['RCT_NEW_ARCH_ENABLED'] == '1',
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
-  # Manually added pods for monorepo autolinking
-  pod 'react-native-hms', :path => '../../../react-native-hms'
-  pod 'lottie-react-native', :path => '../node_modules/lottie-react-native'
-  pod 'react-native-lottie-splash-screen', :path => '../node_modules/react-native-lottie-splash-screen'
-  pod 'RNGestureHandler', :path => '../node_modules/react-native-gesture-handler'
-  pod 'RNCAsyncStorage', :path => '../node_modules/@react-native-async-storage/async-storage'
-  pod 'react-native-blur', :path => '../node_modules/@react-native-community/blur'
-  pod 'RNCMaskedView', :path => '../node_modules/@react-native-masked-view/masked-view'
-  pod 'RNFlashList', :path => '../node_modules/@shopify/flash-list'
-  pod 'BVLinearGradient', :path => '../node_modules/react-native-linear-gradient'
-  pod 'RNDeviceInfo', :path => '../node_modules/react-native-device-info'
-  pod 'react-native-image-picker', :path => '../node_modules/react-native-image-picker'
-  pod 'RNPermissions', :path => '../node_modules/react-native-permissions'
-  pod 'RNReanimated', :path => '../node_modules/react-native-reanimated'
-  pod 'react-native-safe-area-context', :path => '../node_modules/react-native-safe-area-context'
-  pod 'RNScreens', :path => '../node_modules/react-native-screens'
-  pod 'react-native-simple-toast', :path => '../node_modules/react-native-simple-toast'
-  pod 'VisionCamera', :path => '../node_modules/react-native-vision-camera'
-  pod 'react-native-webview', :path => '../node_modules/react-native-webview'
+  # react-native-hms is autolinked via `use_native_modules!` above — the
+  # `file:../../react-native-hms` dep in package.json symlinks it into
+  # node_modules, so autolinking discovers it the same way as any other
+  # community library.
 
   post_install do |installer|
     react_native_post_install(

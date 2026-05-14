@@ -1,10 +1,8 @@
-import { requireNativeComponent, UIManager } from 'react-native';
-import type {
-  StyleProp,
-  NativeSyntheticEvent,
-  ViewStyle,
-  NativeMethods,
-} from 'react-native';
+import type { ElementRef } from 'react';
+import type { StyleProp, NativeSyntheticEvent, ViewStyle } from 'react-native';
+import HMSHLSPlayerNativeComponent, {
+  Commands,
+} from '../../specs/HMSHLSPlayerNativeComponent';
 import type {
   HMSHLSPlayerCuesEvent,
   HMSHLSPlayerPlaybackEvent,
@@ -39,11 +37,8 @@ export type RCTHMSHLSPlayerProps = {
   onHlsPlayerCuesEvent?: HlsSPlayerCuesEventHandler;
 };
 
-export const RCTHMSHLSPlayer =
-  requireNativeComponent<RCTHMSHLSPlayerProps>('HMSHLSPlayer');
+export const RCTHMSHLSPlayer = HMSHLSPlayerNativeComponent;
 
-export type RCTHMSHLSPlayerRef = React.Component<RCTHMSHLSPlayerProps> &
-  Readonly<NativeMethods>;
+export const RCTHMSHLSPlayerCommands = Commands;
 
-export const RCTHMSHLSPlayerViewManagerConfig =
-  UIManager.getViewManagerConfig('HMSHLSPlayer');
+export type RCTHMSHLSPlayerRef = ElementRef<typeof RCTHMSHLSPlayer>;

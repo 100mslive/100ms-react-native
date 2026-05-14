@@ -2,6 +2,14 @@
 #import "React/RCTViewManager.h"
 #import <Foundation/Foundation.h>
 
+// Under the New Architecture, `<HMSHLSPlayer />` is rendered via the
+// Fabric component view in HMSHLSPlayerComponentView.mm. The legacy
+// paper RCT_EXTERN_MODULE + RCT_EXPORT_VIEW_PROPERTY + RCT_EXTERN_METHOD
+// declarations below are only used in old-arch / interop mode, so we
+// guard the whole block with #if !RCT_NEW_ARCH_ENABLED to prevent
+// double-registration.
+#if !RCT_NEW_ARCH_ENABLED
+
 @interface RCT_EXTERN_MODULE(HMSHLSPlayerManager, RCTViewManager)
 
 RCT_EXPORT_VIEW_PROPERTY(url, NSString);
@@ -26,3 +34,5 @@ RCT_EXTERN_METHOD(disableClosedCaption:(nonnull NSNumber *)node)
 RCT_EXTERN_METHOD(getPlayerDurationDetails:(nonnull NSNumber *)node requestId:(nonnull NSNumber *)requestId)
 
 @end
+
+#endif  // !RCT_NEW_ARCH_ENABLED

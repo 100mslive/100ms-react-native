@@ -11,7 +11,7 @@ import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReactContext
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.WritableMap
-import com.facebook.react.uimanager.events.RCTEventEmitter
+import com.facebook.react.uimanager.UIManagerHelper
 import hms.webrtc.RendererCommon
 import live.hms.video.media.tracks.HMSVideoTrack
 import live.hms.video.utils.HmsUtilities
@@ -28,6 +28,12 @@ class HMSView(
   private var disableAutoSimulcastLayerSelect = false
   private var jsCanApplyStyles = false
 
+  // Held so `cleanup()` can clear the listener from `HMSVideoView` on view
+  // drop. The anonymous VideoViewStateChangeListener captures `this`, so
+  // leaking it across mount/unmount cycles prevents GC of HMSView instances.
+  // Mirrors the same fix applied to HMSHLSPlayer's Player.Listener.
+  private var videoViewStateChangeListener: VideoViewStateChangeListener? = null
+
   init {
     val inflater = getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
     val view = inflater.inflate(R.layout.hms_view, this)
@@ -38,7 +44,7 @@ class HMSView(
     hmsVideoView?.setMirror(false)
     hmsVideoView?.disableAutoSimulcastLayerSelect(disableAutoSimulcastLayerSelect)
 
-    hmsVideoView?.addVideoViewStateChangeListener(
+    val listener =
       object : VideoViewStateChangeListener {
         override fun onResolutionChange(
           newWidth: Int,
@@ -59,8 +65,21 @@ class HMSView(
             }
           }
         }
-      },
-    )
+      }
+    videoViewStateChangeListener = listener
+    hmsVideoView?.addVideoViewStateChangeListener(listener)
+  }
+
+  /**
+   * Called from `HMSSDKViewManager.onDropViewInstance` when RN destroys the
+   * view. Clears the VideoViewStateChangeListener registered in `init` so
+   * the anonymous listener doesn't retain `this` across mount/unmount.
+   */
+  fun cleanup() {
+    if (videoViewStateChangeListener != null) {
+      hmsVideoView?.addVideoViewStateChangeListener(null)
+      videoViewStateChangeListener = null
+    }
   }
 
   private fun sendEventToJS(
@@ -72,7 +91,16 @@ class HMSView(
     event.putMap("data", data)
 
     val reactContext = context as ReactContext
-    reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "topChange", event)
+    val surfaceId = UIManagerHelper.getSurfaceId(this)
+    val dispatcher = UIManagerHelper.getEventDispatcherForReactTag(reactContext, id)
+    if (dispatcher != null) {
+      dispatcher.dispatchEvent(HMSReactNativeEvent(surfaceId, id, "topResolutionChange", event))
+    } else {
+      // Bridgeless mode: dispatcher can be null if the view is detaching or
+      // the React tag is no longer valid. Log instead of silently dropping
+      // so the event loss is debuggable. Same pattern as HMSHLSPlayer.kt.
+      Log.w("HMSView", "Event 'topResolutionChange' dropped — dispatcher null for tag $id")
+    }
   }
 
   @RequiresApi(Build.VERSION_CODES.N)

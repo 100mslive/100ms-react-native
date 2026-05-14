@@ -18,17 +18,17 @@ class HMSAudioshareActivity : ComponentActivity() {
         val mediaProjectionPermissionResultData: Intent? = result.data
         val id = intent.getStringExtra("id")
         val audioMixingMode = intent.getStringExtra("audioMixingMode")
-        HMSManager.hmsCollection[id]?.hmsSDK?.startAudioshare(
+        HMSManagerImpl.hmsCollection[id]?.hmsSDK?.startAudioshare(
           object : HMSActionResultListener {
             override fun onError(error: HMSException) {
               finish()
-              HMSManager.hmsCollection[id]?.audioshareCallback?.reject(error)
+              HMSManagerImpl.hmsCollection[id]?.audioshareCallback?.reject(error)
             }
 
             override fun onSuccess() {
-              HMSManager.hmsCollection[id]?.isAudioSharing = true
-              HMSManager.hmsCollection[id]?.audioshareCallback?.resolve(
-                HMSManager.hmsCollection[id]?.getPromiseResolveData(),
+              HMSManagerImpl.hmsCollection[id]?.isAudioSharing = true
+              HMSManagerImpl.hmsCollection[id]?.audioshareCallback?.resolve(
+                HMSManagerImpl.hmsCollection[id]?.getPromiseResolveData(),
               )
               finish()
             }
@@ -46,7 +46,7 @@ class HMSAudioshareActivity : ComponentActivity() {
             "RESULT_CANCELED",
             "RESULT_CANCELED",
           )
-        HMSManager.hmsCollection[id]?.audioshareCallback?.reject(error)
+        HMSManagerImpl.hmsCollection[id]?.audioshareCallback?.reject(error)
         finish()
       }
     }
@@ -58,7 +58,7 @@ class HMSAudioshareActivity : ComponentActivity() {
 
   private fun startAudioshare() {
     val id = intent.getStringExtra("id")
-    val isAudioShared = HMSManager.hmsCollection[id]?.isAudioSharing
+    val isAudioShared = HMSManagerImpl.hmsCollection[id]?.isAudioSharing
     if (isAudioShared !== null && !isAudioShared) {
       try {
         val mediaProjectionManager =
@@ -68,7 +68,7 @@ class HMSAudioshareActivity : ComponentActivity() {
         println(e)
       }
     } else {
-      HMSManager.hmsCollection[id]?.emitHMSError(
+      HMSManagerImpl.hmsCollection[id]?.emitHMSError(
         HMSException(
           103,
           "AUDIOSHARE_IS_ALREADY_RUNNING",

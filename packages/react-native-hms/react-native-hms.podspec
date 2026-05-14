@@ -19,6 +19,49 @@ Pod::Spec.new do |s|
   s.requires_arc = true
   s.swift_version = "5.0"
 
+  # ---------------------------------------------------------------------------
+  # Workaround for upstream CocoaPods bug (open since 2016):
+  #   https://github.com/CocoaPods/CocoaPods/issues/5351
+  #   https://github.com/CocoaPods/CocoaPods/issues/9432
+  #
+  # Because this pod has a Swift bridging header (`Hmssdk-Bridging-Header.h`),
+  # CocoaPods adds `-import-underlying-module` to the Swift compile flags. That
+  # flag makes `swiftc -emit-objc-header` inject this line near the top of the
+  # auto-generated `react_native_hms-Swift.h`:
+  #
+  #     #import <react_native_hms/react_native_hms.h>     ← Xcode expects this
+  #
+  # But CocoaPods names the actual umbrella header verbatim with the pod name:
+  #
+  #     react-native-hms-umbrella.h                       ← CocoaPods creates this
+  #
+  # Same content, different name — and our `.mm` files fail to compile because
+  # `react_native_hms.h` doesn't exist on disk.
+  #
+  # The script below runs before every compile and creates `react_native_hms.h`
+  # as a copy of the existing umbrella. Self-contained in this podspec — zero
+  # changes required on the consumer side.
+  #
+  # Long-term fix: drop `Hmssdk-Bridging-Header.h` and use `import React` in
+  # each Swift file. That removes `-import-underlying-module` from the Swift
+  # flags entirely and makes this workaround unnecessary. Tracked for Phase 2.
+  # ---------------------------------------------------------------------------
+  s.script_phases = [
+    {
+      :name => "[react-native-hms] Create Swift umbrella header alias",
+      :execution_position => :before_compile,
+      :script => <<~SCRIPT,
+        set -e
+        UMBRELLA_DIR="${PODS_ROOT:-${SRCROOT}/Pods}/Headers/Public/react_native_hms"
+        SRC="${UMBRELLA_DIR}/react-native-hms-umbrella.h"
+        DST="${UMBRELLA_DIR}/react_native_hms.h"
+        if [ -f "${SRC}" ] && [ ! -f "${DST}" ]; then
+          cp "${SRC}" "${DST}"
+        fi
+      SCRIPT
+    },
+  ]
+
   # Use modern dependency installation if available, otherwise fallback to React-Core
   if defined?(install_modules_dependencies()) != nil
     install_modules_dependencies(s)
