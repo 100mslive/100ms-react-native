@@ -130,7 +130,7 @@
     "@100mslive/types-prebuilt": "0.12.12"
   },
   "devDependencies": {
-    "@100mslive/react-native-video-plugin": "1.1.4",
+    "@100mslive/react-native-video-plugin": "^2.0.0-alpha.0",
     "@commitlint/config-conventional": "^17.0.2",
     "@evilmartians/lefthook": "^1.2.2",
     "@react-native-community/eslint-config": "^3.0.2",
@@ -172,7 +172,7 @@
     "redux": "^4.2.0"
   },
   "additionalDependencies": {
-    "@100mslive/react-native-video-plugin": "1.1.0",
+    "@100mslive/react-native-video-plugin": "^2.0.0-alpha.0",
     "react-native-image-picker": "^7.1.2"
   },
   "overrides": {
