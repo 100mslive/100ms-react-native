@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@100mslive/react-native-hms": "file:../../react-native-hms",
-    "@100mslive/react-native-video-plugin": "1.1.0",
+    "@100mslive/react-native-video-plugin": "^2.0.0-alpha.0",
     "@100mslive/types-prebuilt": "^0.12.12",
     "@react-native-async-storage/async-storage": "1.24.0",
     "@react-native-community/blur": "^4.4.1",
