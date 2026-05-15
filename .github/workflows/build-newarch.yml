@@ -146,7 +146,7 @@ jobs:
       - name: Link react-native-hms to room-kit
         working-directory: packages/react-native-room-kit
         run: |
-          npm install ../react-native-hms/${{ env.HMS_PACKAGE }} --force
+          npm install ../react-native-hms/${{ env.HMS_PACKAGE }}
           npm run prepack
 
       - name: Make Gradlew Executable
@@ -339,7 +339,7 @@ jobs:
       - name: Link react-native-hms to room-kit
         working-directory: packages/react-native-room-kit
         run: |
-          npm install ../react-native-hms/${{ env.HMS_PACKAGE }} --force
+          npm install ../react-native-hms/${{ env.HMS_PACKAGE }}
           npm run prepack
 
       - name: Install CocoaPods dependencies (new arch)

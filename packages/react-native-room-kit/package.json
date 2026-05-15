@@ -149,6 +149,7 @@
     "react-native": "0.77.3",
     "react-native-builder-bob": "^0.21.2",
     "react-native-image-picker": "^7.1.2",
+    "react-native-reanimated": "3.15.0",
     "release-it": "^15.0.0",
     "typescript": "^5.0.2"
   },
