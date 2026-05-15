@@ -144,7 +144,7 @@ jobs:
       - name: Link react-native-hms to room-kit
         working-directory: packages/react-native-room-kit
         run: |
-          npm install ../react-native-hms/${{ env.HMS_PACKAGE }} --legacy-peer-deps
+          npm install ../react-native-hms/${{ env.HMS_PACKAGE }} --force
           npm run prepack
 
       - name: Publish Dry Run (react-native-hms)
@@ -331,7 +331,7 @@ jobs:
       - name: Link react-native-hms to room-kit
         working-directory: packages/react-native-room-kit
         run: |
-          npm install ../react-native-hms/${{ env.HMS_PACKAGE }} --legacy-peer-deps
+          npm install ../react-native-hms/${{ env.HMS_PACKAGE }} --force
           npm run prepack
 
       - name: Install CocoaPods dependencies
