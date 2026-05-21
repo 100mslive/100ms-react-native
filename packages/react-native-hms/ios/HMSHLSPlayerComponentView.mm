@@ -50,8 +50,26 @@
 
 #import "RCTFabricComponentsPlugins.h"
 
-// Auto-generated Swift bridging header.
+// Pulled in before the Swift-generated header so every type the auto-generated
+// `-Swift.h` references is visible at parse time. The Swift header declares
+// every @objc-exposed class — including `HMSManager : RCTEventEmitter` and
+// `HMSHLSPlayerManager : RCTViewManager` — so this .mm must see those base
+// classes even though it doesn't use them directly. Under static-library mode
+// they're visible via shared header search paths; under
+// `use_frameworks! :linkage => :static` (Expo SDK 54+) we need explicit imports.
+// See HMSManager.mm for the full explanation.
+#import <React/RCTBridgeModule.h>
+#import <React/RCTEventEmitter.h>
+#import <React/RCTViewManager.h>
+#import <React/RCTUIManager.h>
+
+// Auto-generated Swift bridging header. Two import paths cover both pod
+// linkage modes — see HMSManager.mm for the full explanation.
+#if __has_include(<react_native_hms/react_native_hms-Swift.h>)
+#import <react_native_hms/react_native_hms-Swift.h>
+#else
 #import "react_native_hms-Swift.h"
+#endif
 
 using namespace facebook::react;
 
