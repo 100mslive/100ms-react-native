@@ -225,7 +225,7 @@
     ]
   },
   "overrides": {
-    "fast-xml-parser": "^5.3.4"
+    "fast-xml-parser": "^5.8.0"
   },
   "dependencies": {
     "zustand": "^4.3.8"
