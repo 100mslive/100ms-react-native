@@ -417,8 +417,8 @@ export const getTime = (millisecs: number): [number, number, number] => {
 export const getTimeStringin12HourFormat = (time: Date) => {
   let hours = time.getHours();
   const minutes = time.getMinutes();
-  const notation = hours / 12 > 1 ? ' PM' : ' AM';
-  hours = hours % 12;
+  const notation = hours >= 12 ? ' PM' : ' AM';
+  hours = hours % 12 || 12;
   return (
     (hours < 10 ? '0' + hours : hours) +
     ':' +
