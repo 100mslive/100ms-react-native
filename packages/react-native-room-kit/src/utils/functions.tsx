@@ -594,7 +594,7 @@ export function splitLinksAndContent(
     if (p !== '<link>') {
       return p;
     }
-    const link = links.pop();
+    const link = links.shift();
     return link ? (
       <Text key={link + i} onPress={() => pressHandler(link)} style={style}>
         {link}
