@@ -193,6 +193,17 @@
   "packageManager": "^yarn@1.22.15",
   "jest": {
     "preset": "react-native",
+    "transform": {
+      "^.+\\.(js|ts|tsx)$": [
+        "babel-jest",
+        {
+          "configFile": false,
+          "presets": [
+            "module:@react-native/babel-preset"
+          ]
+        }
+      ]
+    },
     "modulePathIgnorePatterns": [
       "<rootDir>/example/node_modules",
       "<rootDir>/lib/"
